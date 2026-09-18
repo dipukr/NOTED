@@ -55,13 +55,13 @@ Two threads try to increment a counter variable.</td></tr></tbody></table>
             <div class="code-wrapper">
 <pre><code><span class="code-keyword">import</span> java.util.concurrent.atomic.AtomicInteger;
 
-<span class="code-keyword">class</span> <span class="code-class">Counter</span> {
+<span class="code-keyword">public class</span> <span class="code-class">Counter</span> {
     <span class="code-comment"># RACE: count++ is not atomic</span>
     <span class="code-comment"># private int count = 0;</span>
-    <span class="code-comment"># void inc() { count++; }</span>
-
+    <span class="code-comment"># void inc() {count++;}</span>
+	
     <span class="code-comment"># FIX: atomic read-modify-write</span>
-    <span class="code-keyword">private final</span> AtomicInteger count = <span class="code-keyword">new</span> AtomicInteger();
+    <span class="code-keyword">private</span> AtomicInteger count = <span class="code-keyword">new</span> AtomicInteger();
 
     <span class="code-keyword">public void</span> inc() {
         count.incrementAndGet();   <span class="code-comment"># single atomic op</span>
