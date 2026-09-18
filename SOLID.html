@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Facade Pattern - Notes</title>
+<title>SOLID - Notes</title>
 <style>
     * { box-sizing: border-box; }
 
@@ -232,84 +232,44 @@
 </head>
 <body>
 <div class="note">
-    <div class="title">Facade Pattern</div>
+    <div class="title">SOLID Principles</div>
 
     <div class="intro">
-        <p>Facade pattern is a structural design pattern that provides a unified interface to a set of interfaces in a subsystem.</p>
-        <p>A complex interface to the client is considered as a fault in the design of a system.</p>
-        <p>Facade defines a higher-level interface that makes the subsystem easier to use.</p>
-        <p>Facade pattern makes a complex interface easier to use using a Facade class.</p>
-    </div>
-
-    <div class="section when-use">
-        <div class="section-title">When-to use</div>
-        <div class="section-content">
-            <ul>
-                <li>When you want to simplify the usage of a complex system.</li>
-                <li>When there are multiple subsystems that need to be integrated.</li>
-                <li>To decouple clients from the internal components of a system.</li>
-                <li>When you want to create a layered architecture.</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content">
-            <ul>
-                <li>Simplifies complex interfaces.</li>
-                <li>Makes the system easier to use.</li>
-                <li>Promotes loose coupling.</li>
-                <li>Improves code readability.</li>
-            </ul>
-        </div>
+        <p>Solid principle is a set of guidelines for writing code that makes it easier to manage, extend and debug.</p>
+        <p>Solid principle help us break big problem into smaller easier to handle parts.</p>
+        <p>Solid reduces dependencies on code so changes in one area won't break another.</p>
+        <p>Solid reduces tight coupling, making code more flexible and easier to maintain.</p>
     </div>
 
     <div class="section code-section">
         <div class="section-title">Code</div>
         <div class="code-layout">
             <div class="code-wrapper">
-<pre><code><span class="code-keyword">import</span> org.springframework.beans.factory.annotation.Autowired;
-<span class="code-keyword">import</span> org.springframework.stereotype.Service;
-
-<span class="code-keyword">class</span> <span class="code-class">PaymentService</span> {
-    <span class="code-keyword">public void</span> processPayment() {
-        System.out.println(<span class="code-string">"Payment processed"</span>);
-    }
+<pre><code><span class="code-comment">// D: depend on an abstraction</span>
+<span class="code-keyword">interface</span> <span class="code-class">Switchable</span> {
+    <span class="code-keyword">void</span> turnOn();
 }
 
-<span class="code-keyword">class</span> <span class="code-class">NotificationService</span> {
-    <span class="code-keyword">public void</span> sendNotification() {
-        System.out.println(<span class="code-string">"Notification sent"</span>);
-    }
+<span class="code-comment">// S: Fan has a single responsibility</span>
+<span class="code-keyword">class</span> <span class="code-class">Fan</span> <span class="code-keyword">implements</span> <span class="code-class">Switchable</span> {
+    <span class="code-keyword">public void</span> turnOn() { System.out.println(<span class="code-string">"Fan on"</span>); }
 }
 
-<span class="code-keyword">class</span> <span class="code-class">OrderFacade</span> {
-
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> PaymentService paymentService;
-
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> NotificationService notificationService;
-
-    <span class="code-keyword">public void</span> placeOrder() {
-        paymentService.processPayment();
-        notificationService.sendNotification();
-    }
-}
-
-<span class="code-keyword">void</span> main() {
-    System.out.println(<span class="code-string">"Client calls OrderFacade.placeOrder()"</span>);
+<span class="code-comment">// Switch depends on Switchable, not Fan</span>
+<span class="code-keyword">class</span> <span class="code-class">Switch</span> {
+    <span class="code-keyword">private final</span> <span class="code-class">Switchable</span> device;
+    <span class="code-class">Switch</span>(<span class="code-class">Switchable</span> device) { <span class="code-keyword">this</span>.device = device; }
+    <span class="code-keyword">public void</span> press() { device.turnOn(); }
 }</code></pre>
             </div>
 
             <div class="code-explanation">
-                <div class="code-explanation-title">How the Facade works</div>
+                <div class="code-explanation-title">How SOLID is applied here</div>
                 <ul>
-                    <li><code>PaymentService</code> and <code>NotificationService</code> <br> are subsystem classes.</li>
-                    <li><code>OrderFacade</code> provides one simple entry point for the client.</li>
-                    <li>The client does not need to call each subsystem directly.</li>
-                    <li><code>placeOrder()</code> coordinates the required subsystem operations.</li>
+                    <li><code>Switch</code> depends on the <code>Switchable</code> abstraction, not <code>Fan</code>.</li>
+                    <li>New devices implement <code>Switchable</code> without changing <code>Switch</code> (open/closed).</li>
+                    <li>Any <code>Switchable</code> can substitute another (Liskov).</li>
+                    <li>The small <code>Switchable</code> interface follows interface segregation.</li>
                 </ul>
             </div>
         </div>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notes - Index</title>
+<style>
+    * { box-sizing: border-box; }
+
+    body {
+        margin: 0;
+        padding: 35px 24px;
+        background: #f5f7fa;
+        color: #172033;
+        font-family: "CMU Serif", "Computer Modern", "Latin Modern Roman", serif;
+        font-size: 20px;
+        line-height: 1.55;
+        word-spacing: -2.0px;
+    }
+
+    .note {
+        max-width: 1000px;
+        margin: 0 auto;
+        background: #ffffff;
+        padding: 38px 44px;
+        border-radius: 12px;
+        box-shadow: 0 3px 14px rgba(0, 0, 0, 0.08);
+    }
+
+    .title {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 32px;
+        font-weight: 700;
+        color: #18212f;
+        margin: 0 0 8px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    .subtitle {
+        margin: 0 0 10px;
+        color: #4b5563;
+        font-size: 18px;
+    }
+
+    .section {
+        margin-top: 30px;
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid #dbe2ea;
+    }
+
+    .section-title {
+        padding: 10px 18px;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: 0.2px;
+    }
+
+    .section-content { padding: 18px 20px 20px; }
+
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 10px;
+    }
+
+    .grid a {
+        display: block;
+        padding: 10px 14px;
+        border-radius: 8px;
+        text-decoration: none;
+        color: #172033;
+        background: #ffffff;
+        border: 1px solid #dbe2ea;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 16px;
+        transition: background 0.15s, border-color 0.15s, transform 0.05s;
+    }
+
+    .grid a:hover {
+        background: #f0f6ff;
+        border-color: #2563eb;
+        transform: translateY(-1px);
+    }
+
+    .oop {
+        border-left: 5px solid #2563eb;
+        background: #eff6ff;
+    }
+    .oop .section-title { background: #dbeafe; color: #1e40af; }
+
+    .patterns {
+        border-left: 5px solid #16a34a;
+        background: #f0fdf4;
+    }
+    .patterns .section-title { background: #dcfce7; color: #166534; }
+
+    .threading {
+        border-left: 5px solid #d97706;
+        background: #fffbeb;
+    }
+    .threading .section-title { background: #fef3c7; color: #92400e; }
+
+    @media (max-width: 800px) {
+        body { padding: 15px; font-size: 17px; }
+        .note { padding: 25px 22px; }
+        .title { font-size: 27px; }
+        .section-title { font-size: 17px; }
+    }
+
+    @media print {
+        body { background: white; padding: 10px; }
+        .note { box-shadow: none; padding: 20px; }
+    }
+</style>
+</head>
+<body>
+<div class="note">
+    <div class="title">Notes</div>
+    <p class="subtitle">OOP &middot; Design Patterns &middot; Multithreading</p>
+
+    <div class="section oop">
+        <div class="section-title">Object-Oriented Programming</div>
+        <div class="section-content">
+            <div class="grid">
+                <a href="Class.html">Class</a>
+                <a href="Encapsulation.html">Encapsulation</a>
+                <a href="Inheritance.html">Inheritance</a>
+                <a href="Aggregation.html">Aggregation</a>
+                <a href="Association.html">Association</a>
+                <a href="Composition.html">Composition</a>
+                <a href="Abstraction.html">Abstraction</a>
+                <a href="Interface.html">Interface</a>
+                <a href="Binding.html">Binding</a>
+                <a href="Overloading.html">Overloading</a>
+                <a href="Overriding.html">Overriding</a>
+                <a href="Polymorphism.html">Polymorphism</a>
+                <a href="SOLID.html">SOLID</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="section patterns">
+        <div class="section-title">Design Patterns</div>
+        <div class="section-content">
+            <div class="grid">
+                <a href="Singleton.html">Singleton</a>
+                <a href="Builder.html">Builder</a>
+                <a href="FactoryMethod.html">Factory Method</a>
+                <a href="AbstractFactory.html">Abstract Factory</a>
+                <a href="Prototype.html">Prototype</a>
+                <a href="Adapter.html">Adapter</a>
+                <a href="Bridge.html">Bridge</a>
+                <a href="Composite.html">Composite</a>
+                <a href="Decorator.html">Decorator</a>
+                <a href="Facade.html">Facade</a>
+                <a href="Flyweight.html">Flyweight</a>
+                <a href="Proxy.html">Proxy</a>
+                <a href="CoR.html">Chain of Responsibility</a>
+                <a href="Command.html">Command</a>
+                <a href="Iterator.html">Iterator</a>
+                <a href="Mediator.html">Mediator</a>
+                <a href="Memento.html">Memento</a>
+                <a href="Observer.html">Observer</a>
+                <a href="State.html">State</a>
+                <a href="Strategy.html">Strategy</a>
+                <a href="Template.html">Template Method</a>
+                <a href="Visitor.html">Visitor</a>
+                <a href="DependencyInjection.html">Dependency Injection</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="section threading">
+        <div class="section-title">Multithreading</div>
+        <div class="section-content">
+            <div class="grid">
+                <a href="MutualExclusion.html">Mutual Exclusion</a>
+                <a href="Monitor.html">Monitor</a>
+                <a href="Deadlock.html">Deadlock</a>
+                <a href="RaceCondition.html">Race Condition</a>
+                <a href="Reactive.html">Reactive</a>
+                <a href="Synchronization.html">Synchronization</a>
+                <a href="Synchronized.html">Synchronized</a>
+                <a href="Thread.html">Thread</a>
+                <a href="ThreadPool.html">Thread Pool</a>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

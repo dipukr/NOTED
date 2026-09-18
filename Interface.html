@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Facade Pattern - Notes</title>
+<title>Interface - Notes</title>
 <style>
     * { box-sizing: border-box; }
 
@@ -232,23 +232,23 @@
 </head>
 <body>
 <div class="note">
-    <div class="title">Facade Pattern</div>
+    <div class="title">Interface</div>
 
     <div class="intro">
-        <p>Facade pattern is a structural design pattern that provides a unified interface to a set of interfaces in a subsystem.</p>
-        <p>A complex interface to the client is considered as a fault in the design of a system.</p>
-        <p>Facade defines a higher-level interface that makes the subsystem easier to use.</p>
-        <p>Facade pattern makes a complex interface easier to use using a Facade class.</p>
+        <p>An interface is a reference type in Java that defines a contract of abstract methods a class must implement, containing no instance state.</p>
+        <p>It specifies <em>what</em> a class can do without dictating <em>how</em>, enabling pure abstraction and multiple inheritance of type.</p>
+        <p>Since Java 8 an interface may also contain <code>default</code> and <code>static</code> methods with bodies, and constants that are implicitly public, static and final.</p>
     </div>
 
     <div class="section when-use">
-        <div class="section-title">When-to use</div>
+        <div class="section-title">Key points</div>
         <div class="section-content">
             <ul>
-                <li>When you want to simplify the usage of a complex system.</li>
-                <li>When there are multiple subsystems that need to be integrated.</li>
-                <li>To decouple clients from the internal components of a system.</li>
-                <li>When you want to create a layered architecture.</li>
+                <li>Declares a contract that implementing classes must fulfil.</li>
+                <li>A class implements an interface with the <code>implements</code> keyword.</li>
+                <li>A class can implement multiple interfaces.</li>
+                <li>Methods are implicitly public and abstract (unless default/static).</li>
+                <li>Use interfaces to program to an abstraction, not an implementation.</li>
             </ul>
         </div>
     </div>
@@ -257,10 +257,22 @@
         <div class="section-title">Advantages</div>
         <div class="section-content">
             <ul>
-                <li>Simplifies complex interfaces.</li>
-                <li>Makes the system easier to use.</li>
-                <li>Promotes loose coupling.</li>
-                <li>Improves code readability.</li>
+                <li>Supports multiple inheritance of type in Java.</li>
+                <li>Decouples callers from concrete implementations.</li>
+                <li>Enables polymorphism and easy substitution of implementations.</li>
+                <li>Makes code more testable through mocking.</li>
+                <li>Defines clear, stable contracts between components.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages</div>
+        <div class="section-content">
+            <ul>
+                <li>Cannot hold instance state or constructors.</li>
+                <li>Adding new abstract methods breaks existing implementers.</li>
+                <li>Too many small interfaces can fragment a design.</li>
             </ul>
         </div>
     </div>
@@ -269,47 +281,30 @@
         <div class="section-title">Code</div>
         <div class="code-layout">
             <div class="code-wrapper">
-<pre><code><span class="code-keyword">import</span> org.springframework.beans.factory.annotation.Autowired;
-<span class="code-keyword">import</span> org.springframework.stereotype.Service;
-
-<span class="code-keyword">class</span> <span class="code-class">PaymentService</span> {
-    <span class="code-keyword">public void</span> processPayment() {
-        System.out.println(<span class="code-string">"Payment processed"</span>);
-    }
+<pre><code><span class="code-keyword">interface</span> <span class="code-class">Payment</span> {
+    <span class="code-keyword">void</span> pay(<span class="code-keyword">double</span> amount);   <span class="code-comment">// abstract by default</span>
 }
 
-<span class="code-keyword">class</span> <span class="code-class">NotificationService</span> {
-    <span class="code-keyword">public void</span> sendNotification() {
-        System.out.println(<span class="code-string">"Notification sent"</span>);
-    }
-}
-
-<span class="code-keyword">class</span> <span class="code-class">OrderFacade</span> {
-
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> PaymentService paymentService;
-
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> NotificationService notificationService;
-
-    <span class="code-keyword">public void</span> placeOrder() {
-        paymentService.processPayment();
-        notificationService.sendNotification();
+<span class="code-keyword">class</span> <span class="code-class">CreditCardPayment</span> <span class="code-keyword">implements</span> <span class="code-class">Payment</span> {
+    <span class="code-class">@Override</span>
+    <span class="code-keyword">public void</span> pay(<span class="code-keyword">double</span> amount) {
+        System.out.println(<span class="code-string">"Paid by card: "</span> + amount);
     }
 }
 
 <span class="code-keyword">void</span> main() {
-    System.out.println(<span class="code-string">"Client calls OrderFacade.placeOrder()"</span>);
+    <span class="code-class">Payment</span> p = <span class="code-keyword">new</span> <span class="code-class">CreditCardPayment</span>();
+    p.pay(<span class="code-string">100</span>);
 }</code></pre>
             </div>
 
             <div class="code-explanation">
-                <div class="code-explanation-title">How the Facade works</div>
+                <div class="code-explanation-title">How the interface works</div>
                 <ul>
-                    <li><code>PaymentService</code> and <code>NotificationService</code> <br> are subsystem classes.</li>
-                    <li><code>OrderFacade</code> provides one simple entry point for the client.</li>
-                    <li>The client does not need to call each subsystem directly.</li>
-                    <li><code>placeOrder()</code> coordinates the required subsystem operations.</li>
+                    <li><code>Payment</code> defines the contract method <code>pay()</code>.</li>
+                    <li><code>CreditCardPayment</code> implements the contract with real logic.</li>
+                    <li>The variable's type is the interface, hiding the concrete class.</li>
+                    <li>Any implementation can be swapped in without changing callers.</li>
                 </ul>
             </div>
         </div>

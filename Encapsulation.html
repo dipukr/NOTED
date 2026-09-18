@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Facade Pattern - Notes</title>
+<title>Encapsulation - Notes</title>
 <style>
     * { box-sizing: border-box; }
 
@@ -232,35 +232,28 @@
 </head>
 <body>
 <div class="note">
-    <div class="title">Facade Pattern</div>
+    <div class="title">Encapsulation</div>
 
     <div class="intro">
-        <p>Facade pattern is a structural design pattern that provides a unified interface to a set of interfaces in a subsystem.</p>
-        <p>A complex interface to the client is considered as a fault in the design of a system.</p>
-        <p>Facade defines a higher-level interface that makes the subsystem easier to use.</p>
-        <p>Facade pattern makes a complex interface easier to use using a Facade class.</p>
-    </div>
-
-    <div class="section when-use">
-        <div class="section-title">When-to use</div>
-        <div class="section-content">
-            <ul>
-                <li>When you want to simplify the usage of a complex system.</li>
-                <li>When there are multiple subsystems that need to be integrated.</li>
-                <li>To decouple clients from the internal components of a system.</li>
-                <li>When you want to create a layered architecture.</li>
-            </ul>
-        </div>
+        <p>Encapsulation makes out software system modular ie. we can change one part of the code without affecting other parts of code.</p>
+        <p>Encapsulation is the process of wrapping of related data and code into a single unit which modularizes our software system.</p>
+        <p>Encapsulation also help us to achieve data hiding: the process of hiding sensitive data of the objects from the outside world.</p>
+        <p>Encapsulation refers to the bundling of data with the mechanisms or methods that operate on the data.</p>
+        <p>Encapsulation also refer to the limiting of direct access to some of that data, such as an object's components.</p>
+        <p>Essentially encapsulation prevents external code from being concerned with the internal workings of an object.</p>
+        <p>Encapsulation is java is achieved through class and access modifiers.</p>
+        <p>Data hiding is the process of hiding sensitive data of the object from the user of the object.</p>
+        <p>Data hiding is a programming concept which protects the data from direct modification by other parts of the program.</p>
+        <p>Data hiding is achieved by declaring fields as private and providing setter and getter methods for fields to access or update value. Data hiding is closely related to abstraction and encapsulation.</p>
     </div>
 
     <div class="section advantages">
-        <div class="section-title">Advantages</div>
+        <div class="section-title">Advantages of encapsulation</div>
         <div class="section-content">
             <ul>
-                <li>Simplifies complex interfaces.</li>
-                <li>Makes the system easier to use.</li>
-                <li>Promotes loose coupling.</li>
-                <li>Improves code readability.</li>
+                <li>Encapsulation gives a clear and modular structure to our software system.</li>
+                <li>Data security: help us to make fields of a class read-only or write-only.</li>
+                <li>Program is well organized so easy to maintain.</li>
             </ul>
         </div>
     </div>
@@ -269,47 +262,29 @@
         <div class="section-title">Code</div>
         <div class="code-layout">
             <div class="code-wrapper">
-<pre><code><span class="code-keyword">import</span> org.springframework.beans.factory.annotation.Autowired;
-<span class="code-keyword">import</span> org.springframework.stereotype.Service;
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">BankAccount</span> {
 
-<span class="code-keyword">class</span> <span class="code-class">PaymentService</span> {
-    <span class="code-keyword">public void</span> processPayment() {
-        System.out.println(<span class="code-string">"Payment processed"</span>);
+    <span class="code-comment">// hidden internal state</span> <span class="code-keyword">private double</span> balance;
+
+    <span class="code-comment">// controlled mutation</span> <span class="code-keyword">public void</span> deposit(<span class="code-keyword">double</span> amount) {
+        <span class="code-keyword">if</span> (amount &gt; <span class="code-string">0</span>) {
+            balance += amount;
+        }
     }
-}
 
-<span class="code-keyword">class</span> <span class="code-class">NotificationService</span> {
-    <span class="code-keyword">public void</span> sendNotification() {
-        System.out.println(<span class="code-string">"Notification sent"</span>);
+    <span class="code-comment">// controlled read</span> <span class="code-keyword">public double</span> getBalance() {
+        <span class="code-keyword">return</span> balance;
     }
-}
-
-<span class="code-keyword">class</span> <span class="code-class">OrderFacade</span> {
-
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> PaymentService paymentService;
-
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> NotificationService notificationService;
-
-    <span class="code-keyword">public void</span> placeOrder() {
-        paymentService.processPayment();
-        notificationService.sendNotification();
-    }
-}
-
-<span class="code-keyword">void</span> main() {
-    System.out.println(<span class="code-string">"Client calls OrderFacade.placeOrder()"</span>);
 }</code></pre>
             </div>
 
             <div class="code-explanation">
-                <div class="code-explanation-title">How the Facade works</div>
+                <div class="code-explanation-title">How encapsulation works</div>
                 <ul>
-                    <li><code>PaymentService</code> and <code>NotificationService</code> <br> are subsystem classes.</li>
-                    <li><code>OrderFacade</code> provides one simple entry point for the client.</li>
-                    <li>The client does not need to call each subsystem directly.</li>
-                    <li><code>placeOrder()</code> coordinates the required subsystem operations.</li>
+                    <li><code>balance</code> is <code>private</code>, so no outside code can change it directly.</li>
+                    <li><code>deposit()</code> validates the amount before updating state.</li>
+                    <li><code>getBalance()</code> gives read-only access to the value.</li>
+                    <li>The class fully controls how its data is accessed and modified.</li>
                 </ul>
             </div>
         </div>

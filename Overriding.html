@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Facade Pattern - Notes</title>
+<title>Overriding - Notes</title>
 <style>
     * { box-sizing: border-box; }
 
@@ -232,35 +232,31 @@
 </head>
 <body>
 <div class="note">
-    <div class="title">Facade Pattern</div>
+    <div class="title">Method Overriding</div>
 
     <div class="intro">
-        <p>Facade pattern is a structural design pattern that provides a unified interface to a set of interfaces in a subsystem.</p>
-        <p>A complex interface to the client is considered as a fault in the design of a system.</p>
-        <p>Facade defines a higher-level interface that makes the subsystem easier to use.</p>
-        <p>Facade pattern makes a complex interface easier to use using a Facade class.</p>
+        <p>Method-overriding is the process of redefining a parent class instance method into its child class is known as method overriding.</p>
+        <p>An instance method defined in the parent class is redefined into its child class to give specific implementation of the parent class method.</p>
+        <p>Referenced object type, not the reference variable type determines which method will be called.</p>
+        <p>When we create a parent class reference variable and assign a child class object then calling an overridden method on that variable will call the child class behaviour.</p>
     </div>
 
     <div class="section when-use">
-        <div class="section-title">When-to use</div>
+        <div class="section-title">Key points</div>
         <div class="section-content">
             <ul>
-                <li>When you want to simplify the usage of a complex system.</li>
-                <li>When there are multiple subsystems that need to be integrated.</li>
-                <li>To decouple clients from the internal components of a system.</li>
-                <li>When you want to create a layered architecture.</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content">
-            <ul>
-                <li>Simplifies complex interfaces.</li>
-                <li>Makes the system easier to use.</li>
-                <li>Promotes loose coupling.</li>
-                <li>Improves code readability.</li>
+                <li>Final methods can not be overridden.</li>
+                <li>Static methods can not be overridden.</li>
+                <li>Private methods can not be overridden.</li>
+                <li>Child class method is called overriding method.</li>
+                <li>Parent class method is called overridden method.</li>
+                <li>Overridden methods are dynamically dispatched.</li>
+                <li>Finalize method can be overridden to free system resources.</li>
+                <li>Overridden parent class method can be called using super keyword.</li>
+                <li>Runtime polymorphism can be achieved through method overriding.</li>
+                <li>Abstract methods can only be overridden by the first concrete class.</li>
+                <li>The access level cannot be more restrictive than the overridden method.</li>
+                <li>Override annotation denotes that the method overrides the base class method.</li>
             </ul>
         </div>
     </div>
@@ -269,47 +265,30 @@
         <div class="section-title">Code</div>
         <div class="code-layout">
             <div class="code-wrapper">
-<pre><code><span class="code-keyword">import</span> org.springframework.beans.factory.annotation.Autowired;
-<span class="code-keyword">import</span> org.springframework.stereotype.Service;
-
-<span class="code-keyword">class</span> <span class="code-class">PaymentService</span> {
-    <span class="code-keyword">public void</span> processPayment() {
-        System.out.println(<span class="code-string">"Payment processed"</span>);
-    }
+<pre><code><span class="code-keyword">class</span> <span class="code-class">Shape</span> {
+    <span class="code-keyword">public</span> String name() { <span class="code-keyword">return</span> <span class="code-string">"shape"</span>; }
 }
 
-<span class="code-keyword">class</span> <span class="code-class">NotificationService</span> {
-    <span class="code-keyword">public void</span> sendNotification() {
-        System.out.println(<span class="code-string">"Notification sent"</span>);
-    }
-}
-
-<span class="code-keyword">class</span> <span class="code-class">OrderFacade</span> {
-
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> PaymentService paymentService;
-
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> NotificationService notificationService;
-
-    <span class="code-keyword">public void</span> placeOrder() {
-        paymentService.processPayment();
-        notificationService.sendNotification();
+<span class="code-keyword">class</span> <span class="code-class">Circle</span> <span class="code-keyword">extends</span> <span class="code-class">Shape</span> {
+    <span class="code-class">@Override</span>
+    <span class="code-keyword">public</span> String name() {   <span class="code-comment">// same signature</span>
+        <span class="code-keyword">return</span> <span class="code-string">"circle"</span>;
     }
 }
 
 <span class="code-keyword">void</span> main() {
-    System.out.println(<span class="code-string">"Client calls OrderFacade.placeOrder()"</span>);
+    <span class="code-class">Shape</span> s = <span class="code-keyword">new</span> <span class="code-class">Circle</span>();
+    System.out.println(s.name());   <span class="code-comment">// prints circle</span>
 }</code></pre>
             </div>
 
             <div class="code-explanation">
-                <div class="code-explanation-title">How the Facade works</div>
+                <div class="code-explanation-title">How overriding works</div>
                 <ul>
-                    <li><code>PaymentService</code> and <code>NotificationService</code> <br> are subsystem classes.</li>
-                    <li><code>OrderFacade</code> provides one simple entry point for the client.</li>
-                    <li>The client does not need to call each subsystem directly.</li>
-                    <li><code>placeOrder()</code> coordinates the required subsystem operations.</li>
+                    <li><code>Circle</code> redefines <code>name()</code> with the same signature.</li>
+                    <li><code>@Override</code> tells the compiler to verify the match.</li>
+                    <li>The <code>Shape</code> reference points to a <code>Circle</code> object.</li>
+                    <li>Dynamic binding calls <code>Circle.name()</code> at runtime.</li>
                 </ul>
             </div>
         </div>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Facade Pattern - Notes</title>
+<title>Singleton Pattern - Notes</title>
 <style>
     * { box-sizing: border-box; }
 
@@ -232,23 +232,23 @@
 </head>
 <body>
 <div class="note">
-    <div class="title">Facade Pattern</div>
+    <div class="title">Singleton Pattern</div>
 
     <div class="intro">
-        <p>Facade pattern is a structural design pattern that provides a unified interface to a set of interfaces in a subsystem.</p>
-        <p>A complex interface to the client is considered as a fault in the design of a system.</p>
-        <p>Facade defines a higher-level interface that makes the subsystem easier to use.</p>
-        <p>Facade pattern makes a complex interface easier to use using a Facade class.</p>
+        <p>Singleton is a creational design pattern that ensures a class has only one instance and provides a global point of access to that instance.</p>
+        <p>The class itself is made responsible for controlling its instantiation, hiding the constructor and exposing a single accessor method.</p>
+        <p>It is commonly used for shared resources such as configuration holders, logging, caches, thread pools, and connection managers.</p>
     </div>
 
     <div class="section when-use">
-        <div class="section-title">When-to use</div>
+        <div class="section-title">When to use</div>
         <div class="section-content">
             <ul>
-                <li>When you want to simplify the usage of a complex system.</li>
-                <li>When there are multiple subsystems that need to be integrated.</li>
-                <li>To decouple clients from the internal components of a system.</li>
-                <li>When you want to create a layered architecture.</li>
+                <li>When exactly one instance of a class must exist across the application.</li>
+                <li>When you need a single, shared point of access to a resource.</li>
+                <li>For managing shared state such as configuration, caches, or logging.</li>
+                <li>When creating the object is expensive and it should be reused.</li>
+                <li>When stricter control over global variables is required.</li>
             </ul>
         </div>
     </div>
@@ -257,10 +257,23 @@
         <div class="section-title">Advantages</div>
         <div class="section-content">
             <ul>
-                <li>Simplifies complex interfaces.</li>
-                <li>Makes the system easier to use.</li>
-                <li>Promotes loose coupling.</li>
-                <li>Improves code readability.</li>
+                <li>Guarantees that a class has only a single instance.</li>
+                <li>Provides a global access point to that instance.</li>
+                <li>The instance is created only once (lazy or eager initialization).</li>
+                <li>Saves memory by avoiding repeated object creation.</li>
+                <li>Useful for coordinating actions across a system.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages</div>
+        <div class="section-content">
+            <ul>
+                <li>Introduces global state, which can make code harder to test and reason about.</li>
+                <li>Can hide dependencies instead of exposing them explicitly.</li>
+                <li>Requires careful handling to remain thread-safe.</li>
+                <li>Violates the single responsibility principle by controlling both logic and its own lifecycle.</li>
             </ul>
         </div>
     </div>
@@ -269,47 +282,41 @@
         <div class="section-title">Code</div>
         <div class="code-layout">
             <div class="code-wrapper">
-<pre><code><span class="code-keyword">import</span> org.springframework.beans.factory.annotation.Autowired;
-<span class="code-keyword">import</span> org.springframework.stereotype.Service;
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">ConfigManager</span> {
 
-<span class="code-keyword">class</span> <span class="code-class">PaymentService</span> {
-    <span class="code-keyword">public void</span> processPayment() {
-        System.out.println(<span class="code-string">"Payment processed"</span>);
+    <span class="code-comment">// Eager, thread-safe instance</span>
+    <span class="code-keyword">private static final</span> <span class="code-class">ConfigManager</span> INSTANCE
+            = <span class="code-keyword">new</span> <span class="code-class">ConfigManager</span>();
+
+    <span class="code-keyword">private</span> String environment;
+
+    <span class="code-comment">// Private constructor prevents external instantiation</span>
+    <span class="code-keyword">private</span> <span class="code-class">ConfigManager</span>() {
+        <span class="code-keyword">this</span>.environment = <span class="code-string">"production"</span>;
     }
-}
 
-<span class="code-keyword">class</span> <span class="code-class">NotificationService</span> {
-    <span class="code-keyword">public void</span> sendNotification() {
-        System.out.println(<span class="code-string">"Notification sent"</span>);
+    <span class="code-keyword">public static</span> <span class="code-class">ConfigManager</span> getInstance() {
+        <span class="code-keyword">return</span> INSTANCE;
     }
-}
 
-<span class="code-keyword">class</span> <span class="code-class">OrderFacade</span> {
-
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> PaymentService paymentService;
-
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> NotificationService notificationService;
-
-    <span class="code-keyword">public void</span> placeOrder() {
-        paymentService.processPayment();
-        notificationService.sendNotification();
+    <span class="code-keyword">public</span> String getEnvironment() {
+        <span class="code-keyword">return</span> environment;
     }
 }
 
 <span class="code-keyword">void</span> main() {
-    System.out.println(<span class="code-string">"Client calls OrderFacade.placeOrder()"</span>);
+    <span class="code-class">ConfigManager</span> cfg = <span class="code-class">ConfigManager</span>.getInstance();
+    System.out.println(cfg.getEnvironment());
 }</code></pre>
             </div>
 
             <div class="code-explanation">
-                <div class="code-explanation-title">How the Facade works</div>
+                <div class="code-explanation-title">How the Singleton works</div>
                 <ul>
-                    <li><code>PaymentService</code> and <code>NotificationService</code> <br> are subsystem classes.</li>
-                    <li><code>OrderFacade</code> provides one simple entry point for the client.</li>
-                    <li>The client does not need to call each subsystem directly.</li>
-                    <li><code>placeOrder()</code> coordinates the required subsystem operations.</li>
+                    <li>The constructor is <code>private</code>, so no other class can create an instance.</li>
+                    <li>A single <code>static final</code> instance is created when the class loads.</li>
+                    <li><code>getInstance()</code> returns that same shared instance every time.</li>
+                    <li>Using a <code>static final</code> field makes this eager version inherently thread-safe.</li>
                 </ul>
             </div>
         </div>

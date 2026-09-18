@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Facade Pattern - Notes</title>
+<title>Abstraction - Notes</title>
 <style>
     * { box-sizing: border-box; }
 
@@ -232,84 +232,52 @@
 </head>
 <body>
 <div class="note">
-    <div class="title">Facade Pattern</div>
+    <div class="title">Abstraction</div>
 
     <div class="intro">
-        <p>Facade pattern is a structural design pattern that provides a unified interface to a set of interfaces in a subsystem.</p>
-        <p>A complex interface to the client is considered as a fault in the design of a system.</p>
-        <p>Facade defines a higher-level interface that makes the subsystem easier to use.</p>
-        <p>Facade pattern makes a complex interface easier to use using a Facade class.</p>
-    </div>
-
-    <div class="section when-use">
-        <div class="section-title">When-to use</div>
-        <div class="section-content">
-            <ul>
-                <li>When you want to simplify the usage of a complex system.</li>
-                <li>When there are multiple subsystems that need to be integrated.</li>
-                <li>To decouple clients from the internal components of a system.</li>
-                <li>When you want to create a layered architecture.</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content">
-            <ul>
-                <li>Simplifies complex interfaces.</li>
-                <li>Makes the system easier to use.</li>
-                <li>Promotes loose coupling.</li>
-                <li>Improves code readability.</li>
-            </ul>
-        </div>
+        <p>Mechanism of hiding unnecessary details and showing only essential details to the user by separating interface from its impl.</p>
+        <p>Main goal of the abstraction it to reduce the complexity of the design and implementation process of software system.</p>
+        <p>Abstraction also generalises by capturing the common essense among unrelated classes.</p>
+        <p>Abstraction can be achieved through interface and abstract class.</p>
+        <p>Method = Method header + method body.</p>
+        <p>Method header is an abstraction of a block of code.</p>
+        <p>Abstract method is independent of implementation which can have many implementations.</p>
+        <p>Abstraction: Complete abstraction can be achieved through interface.</p>
+        <p>Security: Hides implementation details and only show the important details of an object.</p>
+        <p>Multiple inheritance: Can be achieved through interface because a class can implements multiple interfaces.</p>
     </div>
 
     <div class="section code-section">
         <div class="section-title">Code</div>
         <div class="code-layout">
             <div class="code-wrapper">
-<pre><code><span class="code-keyword">import</span> org.springframework.beans.factory.annotation.Autowired;
-<span class="code-keyword">import</span> org.springframework.stereotype.Service;
+<pre><code><span class="code-keyword">abstract class</span> <span class="code-class">Shape</span> {
+    <span class="code-comment">// no implementation here</span>
+    <span class="code-keyword">public abstract double</span> area();
 
-<span class="code-keyword">class</span> <span class="code-class">PaymentService</span> {
-    <span class="code-keyword">public void</span> processPayment() {
-        System.out.println(<span class="code-string">"Payment processed"</span>);
+    <span class="code-keyword">public void</span> describe() {
+        System.out.println(<span class="code-string">"Area = "</span> + area());
     }
 }
 
-<span class="code-keyword">class</span> <span class="code-class">NotificationService</span> {
-    <span class="code-keyword">public void</span> sendNotification() {
-        System.out.println(<span class="code-string">"Notification sent"</span>);
+<span class="code-keyword">class</span> <span class="code-class">Circle</span> <span class="code-keyword">extends</span> <span class="code-class">Shape</span> {
+    <span class="code-keyword">private double</span> r;
+    <span class="code-class">Circle</span>(<span class="code-keyword">double</span> r) { <span class="code-keyword">this</span>.r = r; }
+
+    <span class="code-class">@Override</span>
+    <span class="code-keyword">public double</span> area() {
+        <span class="code-keyword">return</span> Math.PI * r * r;
     }
-}
-
-<span class="code-keyword">class</span> <span class="code-class">OrderFacade</span> {
-
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> PaymentService paymentService;
-
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> NotificationService notificationService;
-
-    <span class="code-keyword">public void</span> placeOrder() {
-        paymentService.processPayment();
-        notificationService.sendNotification();
-    }
-}
-
-<span class="code-keyword">void</span> main() {
-    System.out.println(<span class="code-string">"Client calls OrderFacade.placeOrder()"</span>);
 }</code></pre>
             </div>
 
             <div class="code-explanation">
-                <div class="code-explanation-title">How the Facade works</div>
+                <div class="code-explanation-title">How abstraction works</div>
                 <ul>
-                    <li><code>PaymentService</code> and <code>NotificationService</code> <br> are subsystem classes.</li>
-                    <li><code>OrderFacade</code> provides one simple entry point for the client.</li>
-                    <li>The client does not need to call each subsystem directly.</li>
-                    <li><code>placeOrder()</code> coordinates the required subsystem operations.</li>
+                    <li><code>Shape</code> declares <code>area()</code> abstractly, hiding the maths.</li>
+                    <li>Each subclass such as <code>Circle</code> supplies the details.</li>
+                    <li>Callers use <code>area()</code> without knowing the implementation.</li>
+                    <li>The abstract class cannot be instantiated on its own.</li>
                 </ul>
             </div>
         </div>

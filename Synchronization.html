@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Facade Pattern - Notes</title>
+<title>Synchronization - Notes</title>
 <style>
     * { box-sizing: border-box; }
 
@@ -232,84 +232,63 @@
 </head>
 <body>
 <div class="note">
-    <div class="title">Facade Pattern</div>
+    <div class="title">Synchronization</div>
 
     <div class="intro">
-        <p>Facade pattern is a structural design pattern that provides a unified interface to a set of interfaces in a subsystem.</p>
-        <p>A complex interface to the client is considered as a fault in the design of a system.</p>
-        <p>Facade defines a higher-level interface that makes the subsystem easier to use.</p>
-        <p>Facade pattern makes a complex interface easier to use using a Facade class.</p>
+        <p>Synchronization is a mechanism which ensures that two or more concurrent processes or threads do not simultaneously execute some particular program segment known as critical section.Processes' access to critical section is controlled by using synchronization techniques. When one thread starts executing the critical section (serialized segment of the program) the other thread should wait until the first thread finishes. There is no any guarantee about exactly when a blocked thread is unblocked when the synchronized block is free again. This is typically up to the OS or execution platform to coordinate the unblocking of blocked threads. Thread synchronization is a mechanism which ensures that two or more concurrent threads do not execute some particular section of program especially critical section. There are two types of thread synchronization mutual exclusion and inter-thread communication.</p>
     </div>
 
     <div class="section when-use">
-        <div class="section-title">When-to use</div>
+        <div class="section-title">Following are some classic problems of synchronization:</div>
         <div class="section-content">
             <ul>
-                <li>When you want to simplify the usage of a complex system.</li>
-                <li>When there are multiple subsystems that need to be integrated.</li>
-                <li>To decouple clients from the internal components of a system.</li>
-                <li>When you want to create a layered architecture.</li>
+                <li>Producer-consumer problem</li>
+                <li>Readers-writers problem</li>
+                <li>Dining philosopher problem</li>
             </ul>
         </div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content">
-            <ul>
-                <li>Simplifies complex interfaces.</li>
-                <li>Makes the system easier to use.</li>
-                <li>Promotes loose coupling.</li>
-                <li>Improves code readability.</li>
-            </ul>
-        </div>
+    <div class="intro">
+        <p>Thread cooperation is achieved using the <span style="font-style: italic;">wait-set</span> which is associated with the monitor and <span style="font-style: italic;">wait-notify</span> mechanism.</p>
+        <p>Cooperation is important when one thread needs some data to be in a particular state and another thread is responsible for getting the data into that state.</p>
+        <p>When a thread invokes the <span style="font-style: italic;">wait</span> method respect to an object then the thread will be suspended and added to the <span style="font-style: italic;">wait-set</span> to wait until some other thread invokes <span style="font-style: italic;">notify</span> or <span style="font-style: italic;">notifyAll</span> on the same object. If a thread was put in the queue by a call to <span style="font-style: italic;">wait</span> then it must be unfrozen by a call to <span style="font-style: italic;">notify</span> before it can be scheduled for execution again.</p>
+        <p><span style="font-style: italic;">Notify</span> method is used for waking up threads that are in the <span style="font-style: italic;">wait-set</span> of the monitor of a particular object.</p>
+        <p>A thread may call <span style="font-style: italic;">wait</span>, <span style="font-style: italic;">notify</span> or <span style="font-style: italic;">notifyAll</span> on an object only if it owns the monitor lock of that object.</p>
     </div>
 
     <div class="section code-section">
         <div class="section-title">Code</div>
         <div class="code-layout">
             <div class="code-wrapper">
-<pre><code><span class="code-keyword">import</span> org.springframework.beans.factory.annotation.Autowired;
-<span class="code-keyword">import</span> org.springframework.stereotype.Service;
+<pre><code><span class="code-keyword">class</span> <span class="code-class">Account</span> {
+    <span class="code-keyword">private double</span> balance;
 
-<span class="code-keyword">class</span> <span class="code-class">PaymentService</span> {
-    <span class="code-keyword">public void</span> processPayment() {
-        System.out.println(<span class="code-string">"Payment processed"</span>);
+    <span class="code-comment">// synchronized method: one thread at a time</span>
+    <span class="code-keyword">public synchronized void</span> deposit(<span class="code-keyword">double</span> amt) {
+        balance += amt;
     }
-}
 
-<span class="code-keyword">class</span> <span class="code-class">NotificationService</span> {
-    <span class="code-keyword">public void</span> sendNotification() {
-        System.out.println(<span class="code-string">"Notification sent"</span>);
+    <span class="code-keyword">public void</span> withdraw(<span class="code-keyword">double</span> amt) {
+        <span class="code-comment">// synchronized block on the same monitor</span>
+        <span class="code-keyword">synchronized</span> (<span class="code-keyword">this</span>) {
+            <span class="code-keyword">if</span> (balance &gt;= amt) balance -= amt;
+        }
     }
-}
 
-<span class="code-keyword">class</span> <span class="code-class">OrderFacade</span> {
-
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> PaymentService paymentService;
-
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> NotificationService notificationService;
-
-    <span class="code-keyword">public void</span> placeOrder() {
-        paymentService.processPayment();
-        notificationService.sendNotification();
+    <span class="code-keyword">public synchronized double</span> getBalance() {
+        <span class="code-keyword">return</span> balance;
     }
-}
-
-<span class="code-keyword">void</span> main() {
-    System.out.println(<span class="code-string">"Client calls OrderFacade.placeOrder()"</span>);
 }</code></pre>
             </div>
 
             <div class="code-explanation">
-                <div class="code-explanation-title">How the Facade works</div>
+                <div class="code-explanation-title">How it works</div>
                 <ul>
-                    <li><code>PaymentService</code> and <code>NotificationService</code> <br> are subsystem classes.</li>
-                    <li><code>OrderFacade</code> provides one simple entry point for the client.</li>
-                    <li>The client does not need to call each subsystem directly.</li>
-                    <li><code>placeOrder()</code> coordinates the required subsystem operations.</li>
+                    <li>All methods lock the same monitor (<code>this</code>), so updates are serialized.</li>
+                    <li>A synchronized method is shorthand for <code>synchronized(this)</code>.</li>
+                    <li>The lock also flushes writes, so <code>getBalance()</code> sees fresh values.</li>
+                    <li>Only one thread can modify <code>balance</code> at any instant.</li>
                 </ul>
             </div>
         </div>

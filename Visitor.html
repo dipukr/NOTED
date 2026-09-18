@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Facade Pattern - Notes</title>
+<title>Visitor Pattern - Notes</title>
 <style>
     * { box-sizing: border-box; }
 
@@ -232,35 +232,49 @@
 </head>
 <body>
 <div class="note">
-    <div class="title">Facade Pattern</div>
+    <div class="title">Visitor Pattern</div>
 
     <div class="intro">
-        <p>Facade pattern is a structural design pattern that provides a unified interface to a set of interfaces in a subsystem.</p>
-        <p>A complex interface to the client is considered as a fault in the design of a system.</p>
-        <p>Facade defines a higher-level interface that makes the subsystem easier to use.</p>
-        <p>Facade pattern makes a complex interface easier to use using a Facade class.</p>
+        <p>Visitor is a behavioral design pattern that lets us add new operations to existing object structures without modifying their classes.</p>
+        <p>Useful in scenario when an object structure is stable but we frequently need to extend its behaviours with new operations.</p>
+        <p>Visitor pattern helps separate algorithms from the objects on which they operate.</p>
+        <p>Visitor pattern aligns with open-closed concepts.</p>
     </div>
 
     <div class="section when-use">
-        <div class="section-title">When-to use</div>
+        <div class="section-title">Components</div>
         <div class="section-content">
             <ul>
-                <li>When you want to simplify the usage of a complex system.</li>
-                <li>When there are multiple subsystems that need to be integrated.</li>
-                <li>To decouple clients from the internal components of a system.</li>
-                <li>When you want to create a layered architecture.</li>
+                <li>Visitor &ndash; Interface or abstract class for visiting elements.</li>
+                <li>ConcreteVisitor &ndash; Implements operations on concrete elements.</li>
+                <li>Element &ndash; Interface that defines accept(visitor)</li>
+                <li>ConcreteElement &ndash; Implements accept(visitor)</li>
+                <li>Client &ndash; Traverses object structure and applies visitor.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">Real-world examples</div>
+        <div class="section-content">
+            <ul>
+                <li>Filesystem utilities &ndash; Backup, search, indexing tools can visit folders and files.</li>
+                <li>Game engines &ndash; Collision detection or rendering can be implemented as visitors over game entities.</li>
+                <li>AST traversal&ndash; Different visitors (semantic analyzer, code generator) operate on the same tree nodes.</li>
+                <li>Document converters &ndash; HTML, PDF, MD converters can visit document elements (paragraphs, images, links).</li>
             </ul>
         </div>
     </div>
 
     <div class="section advantages">
-        <div class="section-title">Advantages</div>
+        <div class="section-title">Pros and cons</div>
         <div class="section-content">
             <ul>
-                <li>Simplifies complex interfaces.</li>
-                <li>Makes the system easier to use.</li>
-                <li>Promotes loose coupling.</li>
-                <li>Improves code readability.</li>
+                <li>Add new operations without changing existing object structures.</li>
+                <li>Encourages separation of concerns (data vs behavior).</li>
+                <li>Makes operations extensible and easy to manage.</li>
+                <li>Adding a new element (type) requires updating all visitors.</li>
+                <li>Involves double dispatch &ndash; one call from client to element, one from element to visitor.</li>
             </ul>
         </div>
     </div>
@@ -269,47 +283,48 @@
         <div class="section-title">Code</div>
         <div class="code-layout">
             <div class="code-wrapper">
-<pre><code><span class="code-keyword">import</span> org.springframework.beans.factory.annotation.Autowired;
-<span class="code-keyword">import</span> org.springframework.stereotype.Service;
-
-<span class="code-keyword">class</span> <span class="code-class">PaymentService</span> {
-    <span class="code-keyword">public void</span> processPayment() {
-        System.out.println(<span class="code-string">"Payment processed"</span>);
-    }
+<pre><code><span class="code-keyword">interface</span> <span class="code-class">Visitor</span> {
+    <span class="code-keyword">void</span> visit(Book b);
+    <span class="code-keyword">void</span> visit(Fruit f);
 }
 
-<span class="code-keyword">class</span> <span class="code-class">NotificationService</span> {
-    <span class="code-keyword">public void</span> sendNotification() {
-        System.out.println(<span class="code-string">"Notification sent"</span>);
-    }
+<span class="code-keyword">interface</span> <span class="code-class">Item</span> {
+    <span class="code-keyword">void</span> accept(Visitor v);
 }
 
-<span class="code-keyword">class</span> <span class="code-class">OrderFacade</span> {
+<span class="code-keyword">class</span> <span class="code-class">Book</span> <span class="code-keyword">implements</span> Item {
+    <span class="code-keyword">int</span> price = 200;
+    <span class="code-keyword">public void</span> accept(Visitor v) { v.visit(<span class="code-keyword">this</span>); }
+}
 
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> PaymentService paymentService;
+<span class="code-keyword">class</span> <span class="code-class">Fruit</span> <span class="code-keyword">implements</span> Item {
+    <span class="code-keyword">int</span> weight = 3;
+    <span class="code-keyword">public void</span> accept(Visitor v) { v.visit(<span class="code-keyword">this</span>); }
+}
 
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> NotificationService notificationService;
-
-    <span class="code-keyword">public void</span> placeOrder() {
-        paymentService.processPayment();
-        notificationService.sendNotification();
+<span class="code-keyword">class</span> <span class="code-class">PriceVisitor</span> <span class="code-keyword">implements</span> Visitor {
+    <span class="code-keyword">public void</span> visit(Book b) {
+        System.out.println(<span class="code-string">"Book: "</span> + b.price);
+    }
+    <span class="code-keyword">public void</span> visit(Fruit f) {
+        System.out.println(<span class="code-string">"Fruit: "</span> + f.weight * 50);
     }
 }
 
 <span class="code-keyword">void</span> main() {
-    System.out.println(<span class="code-string">"Client calls OrderFacade.placeOrder()"</span>);
+    Item[] cart = { <span class="code-keyword">new</span> Book(), <span class="code-keyword">new</span> Fruit() };
+    Visitor v = <span class="code-keyword">new</span> PriceVisitor();
+    <span class="code-keyword">for</span> (Item i : cart) i.accept(v);
 }</code></pre>
             </div>
 
             <div class="code-explanation">
-                <div class="code-explanation-title">How the Facade works</div>
+                <div class="code-explanation-title">How the Visitor works</div>
                 <ul>
-                    <li><code>PaymentService</code> and <code>NotificationService</code> <br> are subsystem classes.</li>
-                    <li><code>OrderFacade</code> provides one simple entry point for the client.</li>
-                    <li>The client does not need to call each subsystem directly.</li>
-                    <li><code>placeOrder()</code> coordinates the required subsystem operations.</li>
+                    <li><code>Item.accept()</code> passes the element to the visitor.</li>
+                    <li>Each element calls the <code>visit</code> overload for its own type (double dispatch).</li>
+                    <li><code>PriceVisitor</code> holds the operation, kept out of the element classes.</li>
+                    <li>A new operation is just a new visitor, no element changes.</li>
                 </ul>
             </div>
         </div>

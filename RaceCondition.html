@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Facade Pattern - Notes</title>
+<title>Race Condition - Notes</title>
 <style>
     * { box-sizing: border-box; }
 
@@ -232,84 +232,78 @@
 </head>
 <body>
 <div class="note">
-    <div class="title">Facade Pattern</div>
+    <div class="title">Race Condition</div>
 
     <div class="intro">
-        <p>Facade pattern is a structural design pattern that provides a unified interface to a set of interfaces in a subsystem.</p>
-        <p>A complex interface to the client is considered as a fault in the design of a system.</p>
-        <p>Facade defines a higher-level interface that makes the subsystem easier to use.</p>
-        <p>Facade pattern makes a complex interface easier to use using a Facade class.</p>
+        <p>Race condition occurs when multiple threads try to update mutable shared data at the same time.</p>
+        <p>Two or more threads simultaneously reading data from the same object is not a problem.</p>
+        <p>When many threads are simultaneously try to update the same object then memory inconsistencies may arise.</p>
+        <p>When one thread is updating the object while the other is reading it then memory inconsistencies may arise.</p>
+        <ul>
+            <li>Read-read sharing is safe.</li>
+            <li>Both read-write and write-write races are a problem.</li>
+        </ul>
+        <p>When multiple threads try to modify a shared resource at the same time then the final outcome is non deterministic.</p>
+        <p>We must explicitly synchronize concurrent access to a shared resource in a multi-threaded environment.</p>
+        <p>When a thread enters synchronized code (calling the synchronized method of that object) it takes the lock on that object.</p>
+        <p>Thus other threads cannot enters synchronized code because there is only one lock per object.</p>
+        <p>Cached shared data causes a thread not to notice that data has been changed by the another thread.</p>
+        <p>Resources: Memory, files, network connections.</p>
     </div>
 
     <div class="section when-use">
-        <div class="section-title">When-to use</div>
+        <div class="section-title"><span style="color: purple;">Solutions to race condition:</span></div>
         <div class="section-content">
             <ul>
-                <li>When you want to simplify the usage of a complex system.</li>
-                <li>When there are multiple subsystems that need to be integrated.</li>
-                <li>To decouple clients from the internal components of a system.</li>
-                <li>When you want to create a layered architecture.</li>
+                <li>Locks-Mutexes: Ensure only one thread can access the shared data at a time, like a key to a room.</li>
+                <li>Atomic Operations: Operations that complete indivisibly, preventing interruption.</li>
+                <li>Semaphores-Monitors: Other synchronization tools to control access to resources.</li>
             </ul>
         </div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content">
-            <ul>
-                <li>Simplifies complex interfaces.</li>
-                <li>Makes the system easier to use.</li>
-                <li>Promotes loose coupling.</li>
-                <li>Improves code readability.</li>
-            </ul>
-        </div>
-    </div>
+    <table style="width: 99%;border-collapse: collapse;border: 1px solid #ccc;margin-top: 10px;margin-bottom: 10px;margin-left: auto;margin-right: auto;"><tbody><tr><td style="border: 1px solid #ccc;padding-top: 8px;padding-bottom: 8px;padding-left: 17px;padding-right: 17px;text-align: center;background-color: #f0f0f0;font-weight: bold;">Examples</td></tr><tr><td style="border: 1px solid rgb(204, 204, 204); padding: 8px 17px 17px; text-align: center;"><b>Bank Account
+</b>Two people withdraw money from the same account at once.
+Without locks, both might read the balance, one withdraws, then the second withdraws, potentially leaving the account overdrawn or losing one withdrawal's record.
+<b>Movie Ticket</b>
+Suppose you are buying theatre tickets online and after you pick your seats and are entering your credit card information, someone else buys that seat and they are no longer available. Suppose multiple threads have access to a collection object and they are adding and removing at same time then there will be an error unless the collection is thread-safe.<b>
+Document Editing</b>
+Two users edit the same document.
+One saves changes, but before they're fully synced, the other saves, overwriting the first user's work.<b>
+Shared Counter</b>
+Two threads try to increment a counter variable.</td></tr></tbody></table>
 
     <div class="section code-section">
         <div class="section-title">Code</div>
         <div class="code-layout">
             <div class="code-wrapper">
-<pre><code><span class="code-keyword">import</span> org.springframework.beans.factory.annotation.Autowired;
-<span class="code-keyword">import</span> org.springframework.stereotype.Service;
+<pre><code><span class="code-keyword">import</span> java.util.concurrent.atomic.AtomicInteger;
 
-<span class="code-keyword">class</span> <span class="code-class">PaymentService</span> {
-    <span class="code-keyword">public void</span> processPayment() {
-        System.out.println(<span class="code-string">"Payment processed"</span>);
+<span class="code-keyword">class</span> <span class="code-class">Counter</span> {
+    <span class="code-comment">// RACE: count++ is not atomic</span>
+    <span class="code-comment">// private int count = 0;</span>
+    <span class="code-comment">// void inc() { count++; }</span>
+
+    <span class="code-comment">// FIX: atomic read-modify-write</span>
+    <span class="code-keyword">private final</span> AtomicInteger count = <span class="code-keyword">new</span> AtomicInteger();
+
+    <span class="code-keyword">public void</span> inc() {
+        count.incrementAndGet();   <span class="code-comment">// single atomic op</span>
     }
-}
 
-<span class="code-keyword">class</span> <span class="code-class">NotificationService</span> {
-    <span class="code-keyword">public void</span> sendNotification() {
-        System.out.println(<span class="code-string">"Notification sent"</span>);
+    <span class="code-keyword">public int</span> get() {
+        <span class="code-keyword">return</span> count.get();
     }
-}
-
-<span class="code-keyword">class</span> <span class="code-class">OrderFacade</span> {
-
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> PaymentService paymentService;
-
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> NotificationService notificationService;
-
-    <span class="code-keyword">public void</span> placeOrder() {
-        paymentService.processPayment();
-        notificationService.sendNotification();
-    }
-}
-
-<span class="code-keyword">void</span> main() {
-    System.out.println(<span class="code-string">"Client calls OrderFacade.placeOrder()"</span>);
 }</code></pre>
             </div>
 
             <div class="code-explanation">
-                <div class="code-explanation-title">How the Facade works</div>
+                <div class="code-explanation-title">How the fix works</div>
                 <ul>
-                    <li><code>PaymentService</code> and <code>NotificationService</code> <br> are subsystem classes.</li>
-                    <li><code>OrderFacade</code> provides one simple entry point for the client.</li>
-                    <li>The client does not need to call each subsystem directly.</li>
-                    <li><code>placeOrder()</code> coordinates the required subsystem operations.</li>
+                    <li>Plain <code>count++</code> lets two threads read the same value and overwrite each other.</li>
+                    <li><code>AtomicInteger</code> performs the update as one indivisible CAS operation.</li>
+                    <li>No lock is needed, so it scales well under contention.</li>
+                    <li>The final count is always correct regardless of interleaving.</li>
                 </ul>
             </div>
         </div>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Facade Pattern - Notes</title>
+<title>Decorator Pattern - Notes</title>
 <style>
     * { box-sizing: border-box; }
 
@@ -232,23 +232,30 @@
 </head>
 <body>
 <div class="note">
-    <div class="title">Facade Pattern</div>
+    <div class="title">Decorator Pattern</div>
 
     <div class="intro">
-        <p>Facade pattern is a structural design pattern that provides a unified interface to a set of interfaces in a subsystem.</p>
-        <p>A complex interface to the client is considered as a fault in the design of a system.</p>
-        <p>Facade defines a higher-level interface that makes the subsystem easier to use.</p>
-        <p>Facade pattern makes a complex interface easier to use using a Facade class.</p>
+        <p>Decorator is a structural design pattern that allows us to add new behavior or functionality to objects dynamically without altering their structure or modifying their source code. This is achieved by creating decorator classes that wrap the original object and add new behaviours or attributes. Decorators provide a flexible alternative to subclassing for extending functionality. Decorator design pattern allows behaviours to be added to individual objects, either statically or dynamically without affecting the behaviour of other objects from the same class.</p>
     </div>
 
     <div class="section when-use">
         <div class="section-title">When-to use</div>
         <div class="section-content">
             <ul>
-                <li>When you want to simplify the usage of a complex system.</li>
-                <li>When there are multiple subsystems that need to be integrated.</li>
-                <li>To decouple clients from the internal components of a system.</li>
-                <li>When you want to create a layered architecture.</li>
+                <li>When we want to add responsibilities to individual objects, not an entire class.</li>
+                <li>When we want to keep classes open for extension but closed for modification.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">Components</div>
+        <div class="section-content">
+            <ul>
+                <li>Component: The interface or abstract class defining the operations.</li>
+                <li>Concrete component: The original object that we want to extend.</li>
+                <li>Decorator: Implements the same interface and has a reference to a Component object.</li>
+                <li>Concrete Decorators: Add new behaviors before or after delegating the request to the wrapped component.</li>
             </ul>
         </div>
     </div>
@@ -257,10 +264,20 @@
         <div class="section-title">Advantages</div>
         <div class="section-content">
             <ul>
-                <li>Simplifies complex interfaces.</li>
-                <li>Makes the system easier to use.</li>
-                <li>Promotes loose coupling.</li>
-                <li>Improves code readability.</li>
+                <li>Adheres to SRP and OCP.</li>
+                <li>Greater flexibility than static inheritance.</li>
+                <li>Can add or remove responsibilities at runtime.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">Real-world examples</div>
+        <div class="section-content">
+            <ul>
+                <li>Java IO Streams.</li>
+                <li>Spring's Transactional, Cacheable can be seen as decorators.</li>
+                <li>Spring Framework - Middleware or Interceptors decorate request and response handling.</li>
             </ul>
         </div>
     </div>
@@ -269,47 +286,40 @@
         <div class="section-title">Code</div>
         <div class="code-layout">
             <div class="code-wrapper">
-<pre><code><span class="code-keyword">import</span> org.springframework.beans.factory.annotation.Autowired;
-<span class="code-keyword">import</span> org.springframework.stereotype.Service;
-
-<span class="code-keyword">class</span> <span class="code-class">PaymentService</span> {
-    <span class="code-keyword">public void</span> processPayment() {
-        System.out.println(<span class="code-string">"Payment processed"</span>);
-    }
+<pre><code><span class="code-keyword">interface</span> <span class="code-class">Coffee</span> {
+    <span class="code-keyword">double</span> cost();
 }
 
-<span class="code-keyword">class</span> <span class="code-class">NotificationService</span> {
-    <span class="code-keyword">public void</span> sendNotification() {
-        System.out.println(<span class="code-string">"Notification sent"</span>);
-    }
+<span class="code-keyword">class</span> <span class="code-class">SimpleCoffee</span> <span class="code-keyword">implements</span> <span class="code-class">Coffee</span> {
+    <span class="code-keyword">public double</span> cost() { <span class="code-keyword">return</span> 2.0; }
 }
 
-<span class="code-keyword">class</span> <span class="code-class">OrderFacade</span> {
+<span class="code-comment">// Base decorator wraps a Coffee</span>
+<span class="code-keyword">abstract class</span> <span class="code-class">CoffeeDecorator</span> <span class="code-keyword">implements</span> <span class="code-class">Coffee</span> {
+    <span class="code-keyword">protected final</span> <span class="code-class">Coffee</span> inner;
+    <span class="code-keyword">protected</span> <span class="code-class">CoffeeDecorator</span>(<span class="code-class">Coffee</span> c) { inner = c; }
+}
 
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> PaymentService paymentService;
-
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> NotificationService notificationService;
-
-    <span class="code-keyword">public void</span> placeOrder() {
-        paymentService.processPayment();
-        notificationService.sendNotification();
+<span class="code-keyword">class</span> <span class="code-class">MilkDecorator</span> <span class="code-keyword">extends</span> <span class="code-class">CoffeeDecorator</span> {
+    <span class="code-keyword">public</span> <span class="code-class">MilkDecorator</span>(<span class="code-class">Coffee</span> c) { <span class="code-keyword">super</span>(c); }
+    <span class="code-keyword">public double</span> cost() {
+        <span class="code-keyword">return</span> inner.cost() + 0.5;  <span class="code-comment">// add milk</span>
     }
 }
 
 <span class="code-keyword">void</span> main() {
-    System.out.println(<span class="code-string">"Client calls OrderFacade.placeOrder()"</span>);
+    <span class="code-class">Coffee</span> c = <span class="code-keyword">new</span> <span class="code-class">MilkDecorator</span>(<span class="code-keyword">new</span> <span class="code-class">SimpleCoffee</span>());
+    System.out.println(c.cost());  <span class="code-comment">// 2.5</span>
 }</code></pre>
             </div>
 
             <div class="code-explanation">
-                <div class="code-explanation-title">How the Facade works</div>
+                <div class="code-explanation-title">How the Decorator works</div>
                 <ul>
-                    <li><code>PaymentService</code> and <code>NotificationService</code> <br> are subsystem classes.</li>
-                    <li><code>OrderFacade</code> provides one simple entry point for the client.</li>
-                    <li>The client does not need to call each subsystem directly.</li>
-                    <li><code>placeOrder()</code> coordinates the required subsystem operations.</li>
+                    <li><code>Coffee</code> is the component interface shared by the object and its decorators.</li>
+                    <li><code>SimpleCoffee</code> is the concrete base object being decorated.</li>
+                    <li><code>MilkDecorator</code> wraps a <code>Coffee</code> and adds cost while delegating to <code>inner</code>.</li>
+                    <li>Decorators can be nested, so behaviors stack without modifying <code>SimpleCoffee</code>.</li>
                 </ul>
             </div>
         </div>

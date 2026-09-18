@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Facade Pattern - Notes</title>
+<title>Template Method Pattern - Notes</title>
 <style>
     * { box-sizing: border-box; }
 
@@ -232,23 +232,22 @@
 </head>
 <body>
 <div class="note">
-    <div class="title">Facade Pattern</div>
+    <div class="title">Template Method Pattern</div>
 
     <div class="intro">
-        <p>Facade pattern is a structural design pattern that provides a unified interface to a set of interfaces in a subsystem.</p>
-        <p>A complex interface to the client is considered as a fault in the design of a system.</p>
-        <p>Facade defines a higher-level interface that makes the subsystem easier to use.</p>
-        <p>Facade pattern makes a complex interface easier to use using a Facade class.</p>
+        <p>Template Method is a behavioral design pattern that defines the skeleton of an algorithm in a base class and lets subclasses override specific steps without changing the algorithm's overall structure.</p>
+        <p>The base class provides a "template method" that calls a sequence of steps, some of which are abstract and implemented by subclasses.</p>
+        <p>This lets subclasses redefine certain steps while the invariant parts of the algorithm stay fixed.</p>
     </div>
 
     <div class="section when-use">
-        <div class="section-title">When-to use</div>
+        <div class="section-title">When to use</div>
         <div class="section-content">
             <ul>
-                <li>When you want to simplify the usage of a complex system.</li>
-                <li>When there are multiple subsystems that need to be integrated.</li>
-                <li>To decouple clients from the internal components of a system.</li>
-                <li>When you want to create a layered architecture.</li>
+                <li>When several classes share the same algorithm structure but differ in some steps.</li>
+                <li>When you want to control which parts of an algorithm subclasses may change.</li>
+                <li>When you want to eliminate duplicated code across similar subclasses.</li>
+                <li>Typical uses: frameworks, build/parse pipelines, and data-processing workflows.</li>
             </ul>
         </div>
     </div>
@@ -257,10 +256,21 @@
         <div class="section-title">Advantages</div>
         <div class="section-content">
             <ul>
-                <li>Simplifies complex interfaces.</li>
-                <li>Makes the system easier to use.</li>
-                <li>Promotes loose coupling.</li>
-                <li>Improves code readability.</li>
+                <li>Removes code duplication by keeping the common algorithm in one place.</li>
+                <li>Lets subclasses customize only the parts that vary.</li>
+                <li>Enforces a fixed algorithm structure, reducing errors.</li>
+                <li>Follows the "Hollywood Principle": the base class calls the subclass steps.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages</div>
+        <div class="section-content">
+            <ul>
+                <li>Relies on inheritance, which is less flexible than composition.</li>
+                <li>The fixed skeleton can limit what subclasses are able to change.</li>
+                <li>Maintaining the base class becomes harder as the number of steps grows.</li>
             </ul>
         </div>
     </div>
@@ -269,47 +279,41 @@
         <div class="section-title">Code</div>
         <div class="code-layout">
             <div class="code-wrapper">
-<pre><code><span class="code-keyword">import</span> org.springframework.beans.factory.annotation.Autowired;
-<span class="code-keyword">import</span> org.springframework.stereotype.Service;
+<pre><code><span class="code-keyword">abstract class</span> <span class="code-class">DataProcessor</span> {
 
-<span class="code-keyword">class</span> <span class="code-class">PaymentService</span> {
-    <span class="code-keyword">public void</span> processPayment() {
-        System.out.println(<span class="code-string">"Payment processed"</span>);
+    <span class="code-comment">// Template method: fixed algorithm skeleton</span>
+    <span class="code-keyword">public final void</span> process() {
+        read();
+        transform();
+        save();
+    }
+
+    <span class="code-keyword">abstract void</span> read();
+    <span class="code-keyword">abstract void</span> transform();
+
+    <span class="code-keyword">void</span> save() {            <span class="code-comment">// common step</span>
+        System.out.println(<span class="code-string">"Saving result"</span>);
     }
 }
 
-<span class="code-keyword">class</span> <span class="code-class">NotificationService</span> {
-    <span class="code-keyword">public void</span> sendNotification() {
-        System.out.println(<span class="code-string">"Notification sent"</span>);
-    }
-}
-
-<span class="code-keyword">class</span> <span class="code-class">OrderFacade</span> {
-
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> PaymentService paymentService;
-
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> NotificationService notificationService;
-
-    <span class="code-keyword">public void</span> placeOrder() {
-        paymentService.processPayment();
-        notificationService.sendNotification();
-    }
+<span class="code-keyword">class</span> <span class="code-class">CsvProcessor</span> <span class="code-keyword">extends</span> DataProcessor {
+    <span class="code-keyword">void</span> read() { System.out.println(<span class="code-string">"Read CSV"</span>); }
+    <span class="code-keyword">void</span> transform() { System.out.println(<span class="code-string">"Transform CSV"</span>); }
 }
 
 <span class="code-keyword">void</span> main() {
-    System.out.println(<span class="code-string">"Client calls OrderFacade.placeOrder()"</span>);
+    DataProcessor p = <span class="code-keyword">new</span> CsvProcessor();
+    p.process();  <span class="code-comment">// Read CSV, Transform CSV, Saving result</span>
 }</code></pre>
             </div>
 
             <div class="code-explanation">
-                <div class="code-explanation-title">How the Facade works</div>
+                <div class="code-explanation-title">How the Template Method works</div>
                 <ul>
-                    <li><code>PaymentService</code> and <code>NotificationService</code> <br> are subsystem classes.</li>
-                    <li><code>OrderFacade</code> provides one simple entry point for the client.</li>
-                    <li>The client does not need to call each subsystem directly.</li>
-                    <li><code>placeOrder()</code> coordinates the required subsystem operations.</li>
+                    <li><code>process()</code> is the template method and is <code>final</code>.</li>
+                    <li>It fixes the order: <code>read</code>, <code>transform</code>, then <code>save</code>.</li>
+                    <li>Subclasses supply the varying steps like <code>read()</code>.</li>
+                    <li>Common steps such as <code>save()</code> stay in the base class.</li>
                 </ul>
             </div>
         </div>

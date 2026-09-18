@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Facade Pattern - Notes</title>
+<title>Mutual Exclusion - Notes</title>
 <style>
     * { box-sizing: border-box; }
 
@@ -232,35 +232,28 @@
 </head>
 <body>
 <div class="note">
-    <div class="title">Facade Pattern</div>
+    <div class="title">Mutual Exclusion</div>
 
     <div class="intro">
-        <p>Facade pattern is a structural design pattern that provides a unified interface to a set of interfaces in a subsystem.</p>
-        <p>A complex interface to the client is considered as a fault in the design of a system.</p>
-        <p>Facade defines a higher-level interface that makes the subsystem easier to use.</p>
-        <p>Facade pattern makes a complex interface easier to use using a Facade class.</p>
+        <p>Mutual exclusion is a property of concurrency control, which is instituted for the purpose of preventing race conditions.</p>
+        <p>Race condition occures when a shared resource is accessed by different actors at the same time.</p>
+        <p>Both mutex and semaphore helps managing access to shared resources but they do it in different ways.</p>
+        <p>Mutex is suited for exclusive access whereas semaphore is suited for limited concurrency.</p>
+        <p>Mutual exclusion helps keep threads from interfering with each other while sharing data.</p>
+        <p>Mutual exclusion ensures that only one thread can have access to shared data at a time.</p>
+        <p>Mutual exclusion or atomicity ensures that write functionality is thread-safe.</p>
+        <p>Mutex is a program object which prevents simultaneous access to a shared data by multiple threads.</p>
+        <p>Critical section is region of the code where shared data between multiple threads is accessed.</p>
+        <p>Shared data is considered as a critical area.</p>
     </div>
 
     <div class="section when-use">
-        <div class="section-title">When-to use</div>
+        <div class="section-title">Mutual exclusion can be achieved through:</div>
         <div class="section-content">
             <ul>
-                <li>When you want to simplify the usage of a complex system.</li>
-                <li>When there are multiple subsystems that need to be integrated.</li>
-                <li>To decouple clients from the internal components of a system.</li>
-                <li>When you want to create a layered architecture.</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content">
-            <ul>
-                <li>Simplifies complex interfaces.</li>
-                <li>Makes the system easier to use.</li>
-                <li>Promotes loose coupling.</li>
-                <li>Improves code readability.</li>
+                <li>Synchronized block</li>
+                <li>Synchronized method</li>
+                <li>Static synchronization</li>
             </ul>
         </div>
     </div>
@@ -269,47 +262,32 @@
         <div class="section-title">Code</div>
         <div class="code-layout">
             <div class="code-wrapper">
-<pre><code><span class="code-keyword">import</span> org.springframework.beans.factory.annotation.Autowired;
-<span class="code-keyword">import</span> org.springframework.stereotype.Service;
+<pre><code><span class="code-keyword">import</span> java.util.concurrent.locks.ReentrantLock;
 
-<span class="code-keyword">class</span> <span class="code-class">PaymentService</span> {
-    <span class="code-keyword">public void</span> processPayment() {
-        System.out.println(<span class="code-string">"Payment processed"</span>);
+<span class="code-keyword">class</span> <span class="code-class">Counter</span> {
+    <span class="code-keyword">private final</span> ReentrantLock lock = <span class="code-keyword">new</span> ReentrantLock();
+    <span class="code-keyword">private int</span> count = 0;
+
+    <span class="code-keyword">public void</span> increment() {
+        lock.lock();          <span class="code-comment">// acquire the mutex</span>
+        <span class="code-keyword">try</span> {
+            count++;          <span class="code-comment">// critical section</span>
+        } <span class="code-keyword">finally</span> {
+            lock.unlock();    <span class="code-comment">// always release</span>
+        }
     }
-}
 
-<span class="code-keyword">class</span> <span class="code-class">NotificationService</span> {
-    <span class="code-keyword">public void</span> sendNotification() {
-        System.out.println(<span class="code-string">"Notification sent"</span>);
-    }
-}
-
-<span class="code-keyword">class</span> <span class="code-class">OrderFacade</span> {
-
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> PaymentService paymentService;
-
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> NotificationService notificationService;
-
-    <span class="code-keyword">public void</span> placeOrder() {
-        paymentService.processPayment();
-        notificationService.sendNotification();
-    }
-}
-
-<span class="code-keyword">void</span> main() {
-    System.out.println(<span class="code-string">"Client calls OrderFacade.placeOrder()"</span>);
+    <span class="code-keyword">public int</span> get() { <span class="code-keyword">return</span> count; }
 }</code></pre>
             </div>
 
             <div class="code-explanation">
-                <div class="code-explanation-title">How the Facade works</div>
+                <div class="code-explanation-title">How it works</div>
                 <ul>
-                    <li><code>PaymentService</code> and <code>NotificationService</code> <br> are subsystem classes.</li>
-                    <li><code>OrderFacade</code> provides one simple entry point for the client.</li>
-                    <li>The client does not need to call each subsystem directly.</li>
-                    <li><code>placeOrder()</code> coordinates the required subsystem operations.</li>
+                    <li><code>lock.lock()</code> lets only one thread enter the block.</li>
+                    <li>Other threads calling <code>increment()</code> block until unlock.</li>
+                    <li><code>try/finally</code> guarantees the lock is released even on exception.</li>
+                    <li>The single shared <code>lock</code> serializes all updates to <code>count</code>.</li>
                 </ul>
             </div>
         </div>

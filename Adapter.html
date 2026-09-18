@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Facade Pattern - Notes</title>
+<title>Adapter Pattern - Notes</title>
 <style>
     * { box-sizing: border-box; }
 
@@ -232,35 +232,45 @@
 </head>
 <body>
 <div class="note">
-    <div class="title">Facade Pattern</div>
+    <div class="title">Adapter Pattern</div>
 
     <div class="intro">
-        <p>Facade pattern is a structural design pattern that provides a unified interface to a set of interfaces in a subsystem.</p>
-        <p>A complex interface to the client is considered as a fault in the design of a system.</p>
-        <p>Facade defines a higher-level interface that makes the subsystem easier to use.</p>
-        <p>Facade pattern makes a complex interface easier to use using a Facade class.</p>
+        <p>Adapter pattern is a structural design pattern that allows objects with incompatible interfaces to work together.</p>
+        <p>Adapter acts as a bridge between two incompatible interfaces.</p>
+        <p>Adapter pattern converts the interface of a class into another interface that the client expects.</p>
+        <p>Adapter lets classes work together that couldn't otherwise because of incompatible interfaces.</p>
+        <p>Adapter catches calls for one object and transforms them to format and interface recognizable by the second object.</p>
     </div>
 
     <div class="section when-use">
-        <div class="section-title">When-to use</div>
+        <div class="section-title">Adapter pattern should be used when</div>
         <div class="section-content">
             <ul>
-                <li>When you want to simplify the usage of a complex system.</li>
-                <li>When there are multiple subsystems that need to be integrated.</li>
-                <li>To decouple clients from the internal components of a system.</li>
-                <li>When you want to create a layered architecture.</li>
+                <li>There is an existing class and its interface does not match the one you need.</li>
+                <li>We need to connect systems or components that were not built to work together.</li>
             </ul>
         </div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
+    <div class="section when-use">
+        <div class="section-title">Components</div>
         <div class="section-content">
             <ul>
-                <li>Simplifies complex interfaces.</li>
-                <li>Makes the system easier to use.</li>
-                <li>Promotes loose coupling.</li>
-                <li>Improves code readability.</li>
+                <li>Target: The interface the client expects.</li>
+                <li>Adaptee: The existing class that needs adapting.</li>
+                <li>Adapter: The class that implements the target interface and internally uses or adapts the adaptee.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">Pros and Cons</div>
+        <div class="section-content">
+            <ul>
+                <li>Reusability of existing functionality.</li>
+                <li>Keeps existing code untouched.</li>
+                <li>Code can become complex if many adapters are introduced.</li>
+                <li>Sometimes it's better to refactor than use adapters excessively.</li>
             </ul>
         </div>
     </div>
@@ -269,47 +279,44 @@
         <div class="section-title">Code</div>
         <div class="code-layout">
             <div class="code-wrapper">
-<pre><code><span class="code-keyword">import</span> org.springframework.beans.factory.annotation.Autowired;
-<span class="code-keyword">import</span> org.springframework.stereotype.Service;
+<pre><code><span class="code-comment">// Target interface the client expects</span>
+<span class="code-keyword">interface</span> <span class="code-class">MediaPlayer</span> {
+    <span class="code-keyword">void</span> play(String file);
+}
 
-<span class="code-keyword">class</span> <span class="code-class">PaymentService</span> {
-    <span class="code-keyword">public void</span> processPayment() {
-        System.out.println(<span class="code-string">"Payment processed"</span>);
+<span class="code-comment">// Adaptee with an incompatible interface</span>
+<span class="code-keyword">class</span> <span class="code-class">LegacyMp3Player</span> {
+    <span class="code-keyword">public void</span> playMp3(String file) {
+        System.out.println(<span class="code-string">"Playing mp3: "</span> + file);
     }
 }
 
-<span class="code-keyword">class</span> <span class="code-class">NotificationService</span> {
-    <span class="code-keyword">public void</span> sendNotification() {
-        System.out.println(<span class="code-string">"Notification sent"</span>);
+<span class="code-comment">// Adapter converts play() into playMp3()</span>
+<span class="code-keyword">class</span> <span class="code-class">Mp3Adapter</span> <span class="code-keyword">implements</span> <span class="code-class">MediaPlayer</span> {
+    <span class="code-keyword">private final</span> <span class="code-class">LegacyMp3Player</span> player;
+
+    <span class="code-keyword">public</span> <span class="code-class">Mp3Adapter</span>(<span class="code-class">LegacyMp3Player</span> player) {
+        <span class="code-keyword">this</span>.player = player;
     }
-}
 
-<span class="code-keyword">class</span> <span class="code-class">OrderFacade</span> {
-
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> PaymentService paymentService;
-
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> NotificationService notificationService;
-
-    <span class="code-keyword">public void</span> placeOrder() {
-        paymentService.processPayment();
-        notificationService.sendNotification();
+    <span class="code-keyword">public void</span> play(String file) {
+        player.playMp3(file);
     }
 }
 
 <span class="code-keyword">void</span> main() {
-    System.out.println(<span class="code-string">"Client calls OrderFacade.placeOrder()"</span>);
+    <span class="code-class">MediaPlayer</span> p = <span class="code-keyword">new</span> <span class="code-class">Mp3Adapter</span>(<span class="code-keyword">new</span> <span class="code-class">LegacyMp3Player</span>());
+    p.play(<span class="code-string">"song.mp3"</span>);
 }</code></pre>
             </div>
 
             <div class="code-explanation">
-                <div class="code-explanation-title">How the Facade works</div>
+                <div class="code-explanation-title">How the Adapter works</div>
                 <ul>
-                    <li><code>PaymentService</code> and <code>NotificationService</code> <br> are subsystem classes.</li>
-                    <li><code>OrderFacade</code> provides one simple entry point for the client.</li>
-                    <li>The client does not need to call each subsystem directly.</li>
-                    <li><code>placeOrder()</code> coordinates the required subsystem operations.</li>
+                    <li><code>MediaPlayer</code> is the target interface the client codes against.</li>
+                    <li><code>LegacyMp3Player</code> is the adaptee with an incompatible <code>playMp3()</code> method.</li>
+                    <li><code>Mp3Adapter</code> implements the target and delegates to the wrapped adaptee.</li>
+                    <li>The client calls <code>play()</code> and stays unaware of the legacy method underneath.</li>
                 </ul>
             </div>
         </div>

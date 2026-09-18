@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Facade Pattern - Notes</title>
+<title>State Pattern - Notes</title>
 <style>
     * { box-sizing: border-box; }
 
@@ -232,23 +232,22 @@
 </head>
 <body>
 <div class="note">
-    <div class="title">Facade Pattern</div>
+    <div class="title">State Pattern</div>
 
     <div class="intro">
-        <p>Facade pattern is a structural design pattern that provides a unified interface to a set of interfaces in a subsystem.</p>
-        <p>A complex interface to the client is considered as a fault in the design of a system.</p>
-        <p>Facade defines a higher-level interface that makes the subsystem easier to use.</p>
-        <p>Facade pattern makes a complex interface easier to use using a Facade class.</p>
+        <p>State is a behavioral design pattern that lets an object alter its behavior when its internal state changes, so the object appears to change its class.</p>
+        <p>Each possible state is represented by a separate class, and the context delegates state-specific behavior to the current state object.</p>
+        <p>It is essentially an object-oriented way to implement a finite state machine, replacing large conditional statements with polymorphism.</p>
     </div>
 
     <div class="section when-use">
-        <div class="section-title">When-to use</div>
+        <div class="section-title">When to use</div>
         <div class="section-content">
             <ul>
-                <li>When you want to simplify the usage of a complex system.</li>
-                <li>When there are multiple subsystems that need to be integrated.</li>
-                <li>To decouple clients from the internal components of a system.</li>
-                <li>When you want to create a layered architecture.</li>
+                <li>When an object's behavior depends on its state and must change at runtime.</li>
+                <li>When you have large conditionals that branch on the object's state.</li>
+                <li>When state-specific code is duplicated across many methods.</li>
+                <li>Typical uses: workflow engines, TCP connections, vending machines, and media players.</li>
             </ul>
         </div>
     </div>
@@ -257,10 +256,21 @@
         <div class="section-title">Advantages</div>
         <div class="section-content">
             <ul>
-                <li>Simplifies complex interfaces.</li>
-                <li>Makes the system easier to use.</li>
-                <li>Promotes loose coupling.</li>
-                <li>Improves code readability.</li>
+                <li>Removes bulky conditional statements by using polymorphism.</li>
+                <li>Organizes state-specific behavior into separate, cohesive classes.</li>
+                <li>Follows the Single Responsibility and Open/Closed Principles.</li>
+                <li>Makes state transitions explicit and easier to reason about.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages</div>
+        <div class="section-content">
+            <ul>
+                <li>Increases the number of classes, one per state.</li>
+                <li>Can be overkill when there are only a few states with simple logic.</li>
+                <li>Transition logic may be scattered across the state classes.</li>
             </ul>
         </div>
     </div>
@@ -269,47 +279,43 @@
         <div class="section-title">Code</div>
         <div class="code-layout">
             <div class="code-wrapper">
-<pre><code><span class="code-keyword">import</span> org.springframework.beans.factory.annotation.Autowired;
-<span class="code-keyword">import</span> org.springframework.stereotype.Service;
-
-<span class="code-keyword">class</span> <span class="code-class">PaymentService</span> {
-    <span class="code-keyword">public void</span> processPayment() {
-        System.out.println(<span class="code-string">"Payment processed"</span>);
-    }
+<pre><code><span class="code-keyword">interface</span> <span class="code-class">State</span> {
+    <span class="code-keyword">void</span> next(TrafficLight light);
+    String color();
 }
 
-<span class="code-keyword">class</span> <span class="code-class">NotificationService</span> {
-    <span class="code-keyword">public void</span> sendNotification() {
-        System.out.println(<span class="code-string">"Notification sent"</span>);
-    }
+<span class="code-keyword">class</span> <span class="code-class">RedState</span> <span class="code-keyword">implements</span> State {
+    <span class="code-keyword">public void</span> next(TrafficLight l) { l.setState(<span class="code-keyword">new</span> GreenState()); }
+    <span class="code-keyword">public</span> String color() { <span class="code-keyword">return</span> <span class="code-string">"RED"</span>; }
 }
 
-<span class="code-keyword">class</span> <span class="code-class">OrderFacade</span> {
+<span class="code-keyword">class</span> <span class="code-class">GreenState</span> <span class="code-keyword">implements</span> State {
+    <span class="code-keyword">public void</span> next(TrafficLight l) { l.setState(<span class="code-keyword">new</span> RedState()); }
+    <span class="code-keyword">public</span> String color() { <span class="code-keyword">return</span> <span class="code-string">"GREEN"</span>; }
+}
 
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> PaymentService paymentService;
-
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> NotificationService notificationService;
-
-    <span class="code-keyword">public void</span> placeOrder() {
-        paymentService.processPayment();
-        notificationService.sendNotification();
-    }
+<span class="code-keyword">class</span> <span class="code-class">TrafficLight</span> {              <span class="code-comment">// Context</span>
+    <span class="code-keyword">private</span> State state = <span class="code-keyword">new</span> RedState();
+    <span class="code-keyword">void</span> setState(State s) { state = s; }
+    <span class="code-keyword">void</span> change() { state.next(<span class="code-keyword">this</span>); }
+    String show() { <span class="code-keyword">return</span> state.color(); }
 }
 
 <span class="code-keyword">void</span> main() {
-    System.out.println(<span class="code-string">"Client calls OrderFacade.placeOrder()"</span>);
+    TrafficLight light = <span class="code-keyword">new</span> TrafficLight();
+    System.out.println(light.show());  <span class="code-comment">// RED</span>
+    light.change();
+    System.out.println(light.show());  <span class="code-comment">// GREEN</span>
 }</code></pre>
             </div>
 
             <div class="code-explanation">
-                <div class="code-explanation-title">How the Facade works</div>
+                <div class="code-explanation-title">How the State works</div>
                 <ul>
-                    <li><code>PaymentService</code> and <code>NotificationService</code> <br> are subsystem classes.</li>
-                    <li><code>OrderFacade</code> provides one simple entry point for the client.</li>
-                    <li>The client does not need to call each subsystem directly.</li>
-                    <li><code>placeOrder()</code> coordinates the required subsystem operations.</li>
+                    <li><code>State</code> defines behavior common to all states.</li>
+                    <li><code>TrafficLight</code> is the context that delegates to its current state.</li>
+                    <li>Each state decides the next state in its <code>next()</code> method.</li>
+                    <li>Behavior changes without any <code>if/switch</code> in the context.</li>
                 </ul>
             </div>
         </div>

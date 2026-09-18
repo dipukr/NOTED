@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Facade Pattern - Notes</title>
+<title>Observer Pattern - Notes</title>
 <style>
     * { box-sizing: border-box; }
 
@@ -232,35 +232,33 @@
 </head>
 <body>
 <div class="note">
-    <div class="title">Facade Pattern</div>
+    <div class="title">Observer Pattern</div>
 
     <div class="intro">
-        <p>Facade pattern is a structural design pattern that provides a unified interface to a set of interfaces in a subsystem.</p>
-        <p>A complex interface to the client is considered as a fault in the design of a system.</p>
-        <p>Facade defines a higher-level interface that makes the subsystem easier to use.</p>
-        <p>Facade pattern makes a complex interface easier to use using a Facade class.</p>
+        <p>Observer pattern is a behavioral design pattern that defines a one-to-many dependency between objects.</p>
+        <p>In this pattern an object known as subject maintains a list of its dependent objects known as observers.</p>
+        <p>When the subject's state changes, all objects that depend on it are notified and updated automatically by subject.</p>
     </div>
 
     <div class="section when-use">
         <div class="section-title">When-to use</div>
         <div class="section-content">
             <ul>
-                <li>When you want to simplify the usage of a complex system.</li>
-                <li>When there are multiple subsystems that need to be integrated.</li>
-                <li>To decouple clients from the internal components of a system.</li>
-                <li>When you want to create a layered architecture.</li>
+                <li>Use Observer when you want to automatically notify multiple objects of state changes.</li>
+                <li>Great for event-driven systems, GUIs, distributed messaging, and real-time updates.</li>
+                <li>Think of it as a push-based notification system for objects.</li>
             </ul>
         </div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
+    <div class="section when-use">
+        <div class="section-title">Components</div>
         <div class="section-content">
             <ul>
-                <li>Simplifies complex interfaces.</li>
-                <li>Makes the system easier to use.</li>
-                <li>Promotes loose coupling.</li>
-                <li>Improves code readability.</li>
+                <li>Subject &ndash; The core object being observed. Maintains a list of observers.</li>
+                <li>Observer &ndash; Interface that defines the update method.</li>
+                <li>ConcreteSubject &ndash; Implements subject and notifies observers.</li>
+                <li>ConcreteObserver &ndash; Implements observer and responds to state changes.</li>
             </ul>
         </div>
     </div>
@@ -269,47 +267,43 @@
         <div class="section-title">Code</div>
         <div class="code-layout">
             <div class="code-wrapper">
-<pre><code><span class="code-keyword">import</span> org.springframework.beans.factory.annotation.Autowired;
-<span class="code-keyword">import</span> org.springframework.stereotype.Service;
+<pre><code><span class="code-keyword">interface</span> <span class="code-class">Observer</span> {
+    <span class="code-keyword">void</span> update(String news);
+}
 
-<span class="code-keyword">class</span> <span class="code-class">PaymentService</span> {
-    <span class="code-keyword">public void</span> processPayment() {
-        System.out.println(<span class="code-string">"Payment processed"</span>);
+<span class="code-keyword">class</span> <span class="code-class">NewsAgency</span> {                  <span class="code-comment">// Subject</span>
+    <span class="code-keyword">private</span> List&lt;Observer&gt; observers = <span class="code-keyword">new</span> ArrayList&lt;&gt;();
+
+    <span class="code-keyword">void</span> subscribe(Observer o) { observers.add(o); }
+    <span class="code-keyword">void</span> unsubscribe(Observer o) { observers.remove(o); }
+
+    <span class="code-keyword">void</span> publish(String news) {
+        <span class="code-keyword">for</span> (Observer o : observers) o.update(news);
     }
 }
 
-<span class="code-keyword">class</span> <span class="code-class">NotificationService</span> {
-    <span class="code-keyword">public void</span> sendNotification() {
-        System.out.println(<span class="code-string">"Notification sent"</span>);
-    }
-}
-
-<span class="code-keyword">class</span> <span class="code-class">OrderFacade</span> {
-
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> PaymentService paymentService;
-
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> NotificationService notificationService;
-
-    <span class="code-keyword">public void</span> placeOrder() {
-        paymentService.processPayment();
-        notificationService.sendNotification();
+<span class="code-keyword">class</span> <span class="code-class">Subscriber</span> <span class="code-keyword">implements</span> Observer {
+    <span class="code-keyword">private</span> String name;
+    Subscriber(String name) { <span class="code-keyword">this</span>.name = name; }
+    <span class="code-keyword">public void</span> update(String news) {
+        System.out.println(name + <span class="code-string">" received: "</span> + news);
     }
 }
 
 <span class="code-keyword">void</span> main() {
-    System.out.println(<span class="code-string">"Client calls OrderFacade.placeOrder()"</span>);
+    NewsAgency agency = <span class="code-keyword">new</span> NewsAgency();
+    agency.subscribe(<span class="code-keyword">new</span> Subscriber(<span class="code-string">"Amit"</span>));
+    agency.publish(<span class="code-string">"Breaking news!"</span>);
 }</code></pre>
             </div>
 
             <div class="code-explanation">
-                <div class="code-explanation-title">How the Facade works</div>
+                <div class="code-explanation-title">How the Observer works</div>
                 <ul>
-                    <li><code>PaymentService</code> and <code>NotificationService</code> <br> are subsystem classes.</li>
-                    <li><code>OrderFacade</code> provides one simple entry point for the client.</li>
-                    <li>The client does not need to call each subsystem directly.</li>
-                    <li><code>placeOrder()</code> coordinates the required subsystem operations.</li>
+                    <li><code>NewsAgency</code> is the subject holding a list of observers.</li>
+                    <li><code>Subscriber</code> implements <code>update()</code> to react to changes.</li>
+                    <li><code>publish()</code> notifies every registered observer.</li>
+                    <li>Observers can subscribe or unsubscribe without touching the subject's logic.</li>
                 </ul>
             </div>
         </div>

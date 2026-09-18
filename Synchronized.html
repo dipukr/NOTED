@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Facade Pattern - Notes</title>
+<title>Synchronized - Notes</title>
 <style>
     * { box-sizing: border-box; }
 
@@ -232,84 +232,60 @@
 </head>
 <body>
 <div class="note">
-    <div class="title">Facade Pattern</div>
+    <div class="title">synchronized Keyword</div>
 
     <div class="intro">
-        <p>Facade pattern is a structural design pattern that provides a unified interface to a set of interfaces in a subsystem.</p>
-        <p>A complex interface to the client is considered as a fault in the design of a system.</p>
-        <p>Facade defines a higher-level interface that makes the subsystem easier to use.</p>
-        <p>Facade pattern makes a complex interface easier to use using a Facade class.</p>
-    </div>
-
-    <div class="section when-use">
-        <div class="section-title">When-to use</div>
-        <div class="section-content">
-            <ul>
-                <li>When you want to simplify the usage of a complex system.</li>
-                <li>When there are multiple subsystems that need to be integrated.</li>
-                <li>To decouple clients from the internal components of a system.</li>
-                <li>When you want to create a layered architecture.</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content">
-            <ul>
-                <li>Simplifies complex interfaces.</li>
-                <li>Makes the system easier to use.</li>
-                <li>Promotes loose coupling.</li>
-                <li>Improves code readability.</li>
-            </ul>
-        </div>
+        <p>A block of code marked with synchronized becomes a synchronized block.</p>
+        <p>Keyword synchronized enforces exclusive access to the block of code.</p>
+        <p>Only one thread is allowed to enter this block of code at the same time.</p>
+        <p>Thread that first enters the synchronized block remains in runnable state.</p>
+        <p>Synchronized blocks and synchronized methods are mutually exclusive.</p>
+        <p>Synchronized method can be static method or instance method.</p>
+        <p>The synchronized keyword does not support fairness.</p>
+        <p>Fairness property provides a lock to the longest waiting thread (contention).</p>
+        <p>Any thread can acquire lock once released, no preference can be specified.</p>
+        <p>All other threads accessing the same block of code enters the blocked state.</p>
+        <p>When a runnable thread exits the synchronized block then lock is released.</p>
+        <p>Another thread is now allowed to enter the runnable state and place a new lock.</p>
+        <p>When two or more threads modify an object then declare the methods that carry out the modification as synchronized.</p>
+        <p>When a thread wants to execute a synchronized method on a given object, first it has to acquire the lock of that object.</p>
+        <p>Once thread acquired the lock then it is allowed to execute any synchronized method on that object.</p>
+        <p>When a thread calls a synchronized method on an object then the JVM ckecks the monitor lock for that object.</p>
+        <p>When the monitor lock is unowned then ownership is assigned to the calling thread which is then allowed to proceed with call.</p>
+        <p>When the monitor lock is owned by another thread then the calling thread will be put on hold until the lock becomes available.</p>
+        <p>When a thread exits a synchronized method it releases the monitor lock, allowing a waiting thread to proceed.</p>
+        <p>When a class has one or more synchronized methods, each object of the class gets a queue that holds all threads waiting to execute one of the synchronized methods.</p>
     </div>
 
     <div class="section code-section">
         <div class="section-title">Code</div>
         <div class="code-layout">
             <div class="code-wrapper">
-<pre><code><span class="code-keyword">import</span> org.springframework.beans.factory.annotation.Autowired;
-<span class="code-keyword">import</span> org.springframework.stereotype.Service;
+<pre><code><span class="code-keyword">class</span> <span class="code-class">Bank</span> {
+    <span class="code-keyword">private final</span> Object lock = <span class="code-keyword">new</span> Object();
+    <span class="code-keyword">private int</span> balance = 0;
 
-<span class="code-keyword">class</span> <span class="code-class">PaymentService</span> {
-    <span class="code-keyword">public void</span> processPayment() {
-        System.out.println(<span class="code-string">"Payment processed"</span>);
+    <span class="code-comment">// synchronized block on a private lock</span>
+    <span class="code-keyword">public void</span> deposit(<span class="code-keyword">int</span> amt) {
+        <span class="code-keyword">synchronized</span> (lock) {
+            balance += amt;
+        }
     }
-}
 
-<span class="code-keyword">class</span> <span class="code-class">NotificationService</span> {
-    <span class="code-keyword">public void</span> sendNotification() {
-        System.out.println(<span class="code-string">"Notification sent"</span>);
+    <span class="code-comment">// synchronized instance method locks 'this'</span>
+    <span class="code-keyword">public synchronized int</span> getBalance() {
+        <span class="code-keyword">return</span> balance;
     }
-}
-
-<span class="code-keyword">class</span> <span class="code-class">OrderFacade</span> {
-
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> PaymentService paymentService;
-
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> NotificationService notificationService;
-
-    <span class="code-keyword">public void</span> placeOrder() {
-        paymentService.processPayment();
-        notificationService.sendNotification();
-    }
-}
-
-<span class="code-keyword">void</span> main() {
-    System.out.println(<span class="code-string">"Client calls OrderFacade.placeOrder()"</span>);
 }</code></pre>
             </div>
 
             <div class="code-explanation">
-                <div class="code-explanation-title">How the Facade works</div>
+                <div class="code-explanation-title">How it works</div>
                 <ul>
-                    <li><code>PaymentService</code> and <code>NotificationService</code> <br> are subsystem classes.</li>
-                    <li><code>OrderFacade</code> provides one simple entry point for the client.</li>
-                    <li>The client does not need to call each subsystem directly.</li>
-                    <li><code>placeOrder()</code> coordinates the required subsystem operations.</li>
+                    <li><code>synchronized(lock)</code> lets only one thread hold that monitor.</li>
+                    <li>A private <code>lock</code> object stops outside code from locking on it.</li>
+                    <li>The synchronized method uses <code>this</code> as its monitor.</li>
+                    <li>Note the two methods use different monitors, so mix carefully.</li>
                 </ul>
             </div>
         </div>

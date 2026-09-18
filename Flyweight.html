@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Facade Pattern - Notes</title>
+<title>Flyweight Pattern - Notes</title>
 <style>
     * { box-sizing: border-box; }
 
@@ -232,35 +232,34 @@
 </head>
 <body>
 <div class="note">
-    <div class="title">Facade Pattern</div>
+    <div class="title">Flyweight Pattern</div>
 
     <div class="intro">
-        <p>Facade pattern is a structural design pattern that provides a unified interface to a set of interfaces in a subsystem.</p>
-        <p>A complex interface to the client is considered as a fault in the design of a system.</p>
-        <p>Facade defines a higher-level interface that makes the subsystem easier to use.</p>
-        <p>Facade pattern makes a complex interface easier to use using a Facade class.</p>
+        <p>Flyweight pattern is a structural design pattern that reduces memory uses by sharing similar objects.</p>
+        <p>Flyweight pattern uses a factory to manage these shared objects and ensures that each object is created only once.</p>
+        <p>When we need large number of similar objects then creating and storing each object separately can take too much memory.</p>
     </div>
 
     <div class="section when-use">
-        <div class="section-title">When-to use</div>
+        <div class="section-title">Components</div>
         <div class="section-content">
             <ul>
-                <li>When you want to simplify the usage of a complex system.</li>
-                <li>When there are multiple subsystems that need to be integrated.</li>
-                <li>To decouple clients from the internal components of a system.</li>
-                <li>When you want to create a layered architecture.</li>
+                <li>Flyweight interface – Declares methods that accept extrinsic state.</li>
+                <li>ConcreteFlyweight – Implements Flyweight and stores intrinsic state.</li>
+                <li>FlyweightFactory – Manages a pool of flyweight objects.</li>
+                <li>Client – Maintains or computes extrinsic state and passes it to the flyweight.</li>
             </ul>
         </div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
+    <div class="section when-use">
+        <div class="section-title">Pros and cons</div>
         <div class="section-content">
             <ul>
-                <li>Simplifies complex interfaces.</li>
-                <li>Makes the system easier to use.</li>
-                <li>Promotes loose coupling.</li>
-                <li>Improves code readability.</li>
+                <li>Reduces memory usage by sharing objects.</li>
+                <li>Increases performance when creating many similar objects.</li>
+                <li>Makes code more complex.</li>
+                <li>Requires careful separation of intrinsic and extrinsic state.</li>
             </ul>
         </div>
     </div>
@@ -269,47 +268,44 @@
         <div class="section-title">Code</div>
         <div class="code-layout">
             <div class="code-wrapper">
-<pre><code><span class="code-keyword">import</span> org.springframework.beans.factory.annotation.Autowired;
-<span class="code-keyword">import</span> org.springframework.stereotype.Service;
-
-<span class="code-keyword">class</span> <span class="code-class">PaymentService</span> {
-    <span class="code-keyword">public void</span> processPayment() {
-        System.out.println(<span class="code-string">"Payment processed"</span>);
+<pre><code><span class="code-comment">// Flyweight: intrinsic (shared) state only</span>
+<span class="code-keyword">class</span> <span class="code-class">TreeType</span> {
+    <span class="code-keyword">private final</span> String name;
+    <span class="code-keyword">private final</span> String color;
+    <span class="code-keyword">public</span> <span class="code-class">TreeType</span>(String name, String color) {
+        <span class="code-keyword">this</span>.name = name;
+        <span class="code-keyword">this</span>.color = color;
+    }
+    <span class="code-keyword">public void</span> draw(<span class="code-keyword">int</span> x, <span class="code-keyword">int</span> y) {  <span class="code-comment">// extrinsic state passed in</span>
+        System.out.println(name + <span class="code-string">" at "</span> + x + <span class="code-string">","</span> + y);
     }
 }
 
-<span class="code-keyword">class</span> <span class="code-class">NotificationService</span> {
-    <span class="code-keyword">public void</span> sendNotification() {
-        System.out.println(<span class="code-string">"Notification sent"</span>);
-    }
-}
+<span class="code-comment">// Factory shares flyweights via a pool</span>
+<span class="code-keyword">class</span> <span class="code-class">TreeFactory</span> {
+    <span class="code-keyword">private static final</span> Map&lt;String, <span class="code-class">TreeType</span>&gt; pool
+            = <span class="code-keyword">new</span> <span class="code-class">HashMap</span>&lt;&gt;();
 
-<span class="code-keyword">class</span> <span class="code-class">OrderFacade</span> {
-
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> PaymentService paymentService;
-
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> NotificationService notificationService;
-
-    <span class="code-keyword">public void</span> placeOrder() {
-        paymentService.processPayment();
-        notificationService.sendNotification();
+    <span class="code-keyword">public static</span> <span class="code-class">TreeType</span> get(String name, String color) {
+        <span class="code-keyword">return</span> pool.computeIfAbsent(name + color,
+                k -&gt; <span class="code-keyword">new</span> <span class="code-class">TreeType</span>(name, color));
     }
 }
 
 <span class="code-keyword">void</span> main() {
-    System.out.println(<span class="code-string">"Client calls OrderFacade.placeOrder()"</span>);
+    <span class="code-class">TreeType</span> oak = <span class="code-class">TreeFactory</span>.get(<span class="code-string">"Oak"</span>, <span class="code-string">"green"</span>);
+    oak.draw(10, 20);
+    oak.draw(30, 40);  <span class="code-comment">// same shared object</span>
 }</code></pre>
             </div>
 
             <div class="code-explanation">
-                <div class="code-explanation-title">How the Facade works</div>
+                <div class="code-explanation-title">How the Flyweight works</div>
                 <ul>
-                    <li><code>PaymentService</code> and <code>NotificationService</code> <br> are subsystem classes.</li>
-                    <li><code>OrderFacade</code> provides one simple entry point for the client.</li>
-                    <li>The client does not need to call each subsystem directly.</li>
-                    <li><code>placeOrder()</code> coordinates the required subsystem operations.</li>
+                    <li><code>TreeType</code> holds only intrinsic state (<code>name</code>, <code>color</code>) shared by many trees.</li>
+                    <li>Extrinsic state such as position is passed into <code>draw()</code> by the client.</li>
+                    <li><code>TreeFactory</code> caches flyweights and returns the same instance for equal keys.</li>
+                    <li>Thousands of trees can reuse a handful of <code>TreeType</code> objects, saving memory.</li>
                 </ul>
             </div>
         </div>

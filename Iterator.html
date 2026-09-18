@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Facade Pattern - Notes</title>
+<title>Iterator Pattern - Notes</title>
 <style>
     * { box-sizing: border-box; }
 
@@ -232,23 +232,23 @@
 </head>
 <body>
 <div class="note">
-    <div class="title">Facade Pattern</div>
+    <div class="title">Iterator Pattern</div>
 
     <div class="intro">
-        <p>Facade pattern is a structural design pattern that provides a unified interface to a set of interfaces in a subsystem.</p>
-        <p>A complex interface to the client is considered as a fault in the design of a system.</p>
-        <p>Facade defines a higher-level interface that makes the subsystem easier to use.</p>
-        <p>Facade pattern makes a complex interface easier to use using a Facade class.</p>
+        <p>Iterator pattern is a behavioral design pattern that provides a way to access the elements of a collection (like a list, tree or graph) sequentially without exposing its underlying representation.</p>
+        <p>Iterator pattern is used to traverse elements in a container.</p>
+        <p>Intent is to provide a standard way to traverse through a collection of objects without exposing its internal structure.</p>
+        <p>Iterator pattern decouples container traversal algorithms from containers.</p>
     </div>
 
     <div class="section when-use">
-        <div class="section-title">When-to use</div>
+        <div class="section-title">Components</div>
         <div class="section-content">
             <ul>
-                <li>When you want to simplify the usage of a complex system.</li>
-                <li>When there are multiple subsystems that need to be integrated.</li>
-                <li>To decouple clients from the internal components of a system.</li>
-                <li>When you want to create a layered architecture.</li>
+                <li>Iterator (Interface) &ndash; declares the interface for accessing elements.</li>
+                <li>ConcreteIterator &ndash; implements the Iterator interface and keeps track of the current position.</li>
+                <li>Aggregate (Interface) &ndash; declares a method to return an iterator.</li>
+                <li>ConcreteAggregate &ndash; implements the method to return an iterator instance.</li>
             </ul>
         </div>
     </div>
@@ -257,10 +257,9 @@
         <div class="section-title">Advantages</div>
         <div class="section-content">
             <ul>
-                <li>Simplifies complex interfaces.</li>
-                <li>Makes the system easier to use.</li>
-                <li>Promotes loose coupling.</li>
-                <li>Improves code readability.</li>
+                <li>Separates collection traversal logic from collection data structure.</li>
+                <li>Uniform traversal for various types of collections.</li>
+                <li>Supports multiple iterations simultaneously.</li>
             </ul>
         </div>
     </div>
@@ -269,47 +268,43 @@
         <div class="section-title">Code</div>
         <div class="code-layout">
             <div class="code-wrapper">
-<pre><code><span class="code-keyword">import</span> org.springframework.beans.factory.annotation.Autowired;
-<span class="code-keyword">import</span> org.springframework.stereotype.Service;
-
-<span class="code-keyword">class</span> <span class="code-class">PaymentService</span> {
-    <span class="code-keyword">public void</span> processPayment() {
-        System.out.println(<span class="code-string">"Payment processed"</span>);
-    }
+<pre><code><span class="code-keyword">interface</span> <span class="code-class">Iterator</span>&lt;T&gt; {
+    <span class="code-keyword">boolean</span> hasNext();
+    T next();
 }
 
-<span class="code-keyword">class</span> <span class="code-class">NotificationService</span> {
-    <span class="code-keyword">public void</span> sendNotification() {
-        System.out.println(<span class="code-string">"Notification sent"</span>);
-    }
-}
+<span class="code-keyword">class</span> <span class="code-class">NameRepository</span> {
+    <span class="code-keyword">private</span> String[] names = { <span class="code-string">"Amit"</span>, <span class="code-string">"Bina"</span>, <span class="code-string">"Chandan"</span> };
 
-<span class="code-keyword">class</span> <span class="code-class">OrderFacade</span> {
+    <span class="code-keyword">public</span> Iterator&lt;String&gt; iterator() {
+        <span class="code-keyword">return new</span> Iterator&lt;&gt;() {
+            <span class="code-keyword">private int</span> index = 0;
 
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> PaymentService paymentService;
+            <span class="code-keyword">public boolean</span> hasNext() {
+                <span class="code-keyword">return</span> index &lt; names.length;
+            }
 
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> NotificationService notificationService;
-
-    <span class="code-keyword">public void</span> placeOrder() {
-        paymentService.processPayment();
-        notificationService.sendNotification();
+            <span class="code-keyword">public</span> String next() {
+                <span class="code-keyword">return</span> names[index++];
+            }
+        };
     }
 }
 
 <span class="code-keyword">void</span> main() {
-    System.out.println(<span class="code-string">"Client calls OrderFacade.placeOrder()"</span>);
+    Iterator&lt;String&gt; it = <span class="code-keyword">new</span> NameRepository().iterator();
+    <span class="code-keyword">while</span> (it.hasNext())
+        System.out.println(it.next());
 }</code></pre>
             </div>
 
             <div class="code-explanation">
-                <div class="code-explanation-title">How the Facade works</div>
+                <div class="code-explanation-title">How the Iterator works</div>
                 <ul>
-                    <li><code>PaymentService</code> and <code>NotificationService</code> <br> are subsystem classes.</li>
-                    <li><code>OrderFacade</code> provides one simple entry point for the client.</li>
-                    <li>The client does not need to call each subsystem directly.</li>
-                    <li><code>placeOrder()</code> coordinates the required subsystem operations.</li>
+                    <li><code>Iterator</code> declares <code>hasNext()</code> and <code>next()</code>.</li>
+                    <li><code>NameRepository</code> is the collection holding the data.</li>
+                    <li>The inner iterator tracks its own <code>index</code> position.</li>
+                    <li>The client traverses without knowing the array behind it.</li>
                 </ul>
             </div>
         </div>

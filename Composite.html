@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Facade Pattern - Notes</title>
+<title>Composite Pattern - Notes</title>
 <style>
     * { box-sizing: border-box; }
 
@@ -232,35 +232,43 @@
 </head>
 <body>
 <div class="note">
-    <div class="title">Facade Pattern</div>
+    <div class="title">Composite Pattern</div>
 
     <div class="intro">
-        <p>Facade pattern is a structural design pattern that provides a unified interface to a set of interfaces in a subsystem.</p>
-        <p>A complex interface to the client is considered as a fault in the design of a system.</p>
-        <p>Facade defines a higher-level interface that makes the subsystem easier to use.</p>
-        <p>Facade pattern makes a complex interface easier to use using a Facade class.</p>
+        <p>Composite: kind of structural design pattern used when we want to treat individual objects and compositions of objects uniformly.</p>
+        <p>This is especially useful when you deal with hierarchical tree structures, such as file systems, DOM tree or UI components.</p>
+        <p>Composite lets clients treat individual objects and compositions of objects uniformly.</p>
     </div>
 
     <div class="section when-use">
         <div class="section-title">When-to use</div>
         <div class="section-content">
             <ul>
-                <li>When you want to simplify the usage of a complex system.</li>
-                <li>When there are multiple subsystems that need to be integrated.</li>
-                <li>To decouple clients from the internal components of a system.</li>
-                <li>When you want to create a layered architecture.</li>
+                <li>When we want to compose objects into tree structures to represent part-whole hierarchies.</li>
             </ul>
         </div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
+    <div class="section when-use">
+        <div class="section-title">Components</div>
         <div class="section-content">
             <ul>
-                <li>Simplifies complex interfaces.</li>
-                <li>Makes the system easier to use.</li>
-                <li>Promotes loose coupling.</li>
-                <li>Improves code readability.</li>
+                <li>Component: interface or abstract class for all objects in the hierarchy, both composite and leaf.</li>
+                <li>Leaf: represents individual objects (end nodes) which implements the base Component.</li>
+                <li>Composite: a container that holds child Components.</li>
+                <li>Client: uses the Component interface to interact with objects in the hierarchy uniformly.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">Use cases</div>
+        <div class="section-content">
+            <ul>
+                <li>GUI frameworks (Swing or HTML DOM trees)</li>
+                <li>Organization hierarchy (employees, managers)</li>
+                <li>File system (files and directories)</li>
+                <li>Document structures (paragraphs, sections, characters)</li>
             </ul>
         </div>
     </div>
@@ -269,47 +277,47 @@
         <div class="section-title">Code</div>
         <div class="code-layout">
             <div class="code-wrapper">
-<pre><code><span class="code-keyword">import</span> org.springframework.beans.factory.annotation.Autowired;
-<span class="code-keyword">import</span> org.springframework.stereotype.Service;
-
-<span class="code-keyword">class</span> <span class="code-class">PaymentService</span> {
-    <span class="code-keyword">public void</span> processPayment() {
-        System.out.println(<span class="code-string">"Payment processed"</span>);
-    }
+<pre><code><span class="code-keyword">interface</span> <span class="code-class">FileComponent</span> {
+    <span class="code-keyword">int</span> size();
 }
 
-<span class="code-keyword">class</span> <span class="code-class">NotificationService</span> {
-    <span class="code-keyword">public void</span> sendNotification() {
-        System.out.println(<span class="code-string">"Notification sent"</span>);
-    }
+<span class="code-comment">// Leaf</span>
+<span class="code-keyword">class</span> <span class="code-class">FileItem</span> <span class="code-keyword">implements</span> <span class="code-class">FileComponent</span> {
+    <span class="code-keyword">private final</span> <span class="code-keyword">int</span> size;
+    <span class="code-keyword">public</span> <span class="code-class">FileItem</span>(<span class="code-keyword">int</span> size) { <span class="code-keyword">this</span>.size = size; }
+    <span class="code-keyword">public int</span> size() { <span class="code-keyword">return</span> size; }
 }
 
-<span class="code-keyword">class</span> <span class="code-class">OrderFacade</span> {
+<span class="code-comment">// Composite</span>
+<span class="code-keyword">class</span> <span class="code-class">Folder</span> <span class="code-keyword">implements</span> <span class="code-class">FileComponent</span> {
+    <span class="code-keyword">private final</span> List&lt;<span class="code-class">FileComponent</span>&gt; children
+            = <span class="code-keyword">new</span> <span class="code-class">ArrayList</span>&lt;&gt;();
 
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> PaymentService paymentService;
+    <span class="code-keyword">public void</span> add(<span class="code-class">FileComponent</span> c) { children.add(c); }
 
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> NotificationService notificationService;
-
-    <span class="code-keyword">public void</span> placeOrder() {
-        paymentService.processPayment();
-        notificationService.sendNotification();
+    <span class="code-keyword">public int</span> size() {
+        <span class="code-keyword">int</span> total = 0;
+        <span class="code-keyword">for</span> (<span class="code-class">FileComponent</span> c : children)
+            total += c.size();   <span class="code-comment">// recursive</span>
+        <span class="code-keyword">return</span> total;
     }
 }
 
 <span class="code-keyword">void</span> main() {
-    System.out.println(<span class="code-string">"Client calls OrderFacade.placeOrder()"</span>);
+    <span class="code-class">Folder</span> root = <span class="code-keyword">new</span> <span class="code-class">Folder</span>();
+    root.add(<span class="code-keyword">new</span> <span class="code-class">FileItem</span>(10));
+    root.add(<span class="code-keyword">new</span> <span class="code-class">FileItem</span>(20));
+    System.out.println(root.size());  <span class="code-comment">// 30</span>
 }</code></pre>
             </div>
 
             <div class="code-explanation">
-                <div class="code-explanation-title">How the Facade works</div>
+                <div class="code-explanation-title">How the Composite works</div>
                 <ul>
-                    <li><code>PaymentService</code> and <code>NotificationService</code> <br> are subsystem classes.</li>
-                    <li><code>OrderFacade</code> provides one simple entry point for the client.</li>
-                    <li>The client does not need to call each subsystem directly.</li>
-                    <li><code>placeOrder()</code> coordinates the required subsystem operations.</li>
+                    <li><code>FileComponent</code> is the common interface for both leaves and composites.</li>
+                    <li><code>FileItem</code> is a leaf; <code>Folder</code> is a composite holding child components.</li>
+                    <li><code>Folder.size()</code> recurses over its children, so trees of any depth work uniformly.</li>
+                    <li>The client calls <code>size()</code> the same way on a single file or a whole folder tree.</li>
                 </ul>
             </div>
         </div>
