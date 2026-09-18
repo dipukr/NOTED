@@ -57,14 +57,14 @@
     <span class="code-keyword">int</span> size();
 }
 
-<span class="code-comment">// Leaf</span>
+<span class="code-comment"># Leaf</span>
 <span class="code-keyword">class</span> <span class="code-class">FileItem</span> <span class="code-keyword">implements</span> <span class="code-class">FileComponent</span> {
     <span class="code-keyword">private final</span> <span class="code-keyword">int</span> size;
     <span class="code-keyword">public</span> <span class="code-class">FileItem</span>(<span class="code-keyword">int</span> size) { <span class="code-keyword">this</span>.size = size; }
     <span class="code-keyword">public int</span> size() { <span class="code-keyword">return</span> size; }
 }
 
-<span class="code-comment">// Composite</span>
+<span class="code-comment"># Composite</span>
 <span class="code-keyword">class</span> <span class="code-class">Folder</span> <span class="code-keyword">implements</span> <span class="code-class">FileComponent</span> {
     <span class="code-keyword">private final</span> List&lt;<span class="code-class">FileComponent</span>&gt; children
             = <span class="code-keyword">new</span> <span class="code-class">ArrayList</span>&lt;&gt;();
@@ -74,7 +74,7 @@
     <span class="code-keyword">public int</span> size() {
         <span class="code-keyword">int</span> total = 0;
         <span class="code-keyword">for</span> (<span class="code-class">FileComponent</span> c : children)
-            total += c.size();   <span class="code-comment">// recursive</span>
+            total += c.size();   <span class="code-comment"># recursive</span>
         <span class="code-keyword">return</span> total;
     }
 }
@@ -83,7 +83,7 @@
     <span class="code-class">Folder</span> root = <span class="code-keyword">new</span> <span class="code-class">Folder</span>();
     root.add(<span class="code-keyword">new</span> <span class="code-class">FileItem</span>(10));
     root.add(<span class="code-keyword">new</span> <span class="code-class">FileItem</span>(20));
-    System.out.println(root.size());  <span class="code-comment">// 30</span>
+    System.out.println(root.size());  <span class="code-comment"># 30</span>
 }</code></pre>
             </div>
 

@@ -68,7 +68,7 @@
 
     <span class="code-class">@Override</span>
     <span class="code-keyword">public</span> <span class="code-class">Document</span> clone() {
-        <span class="code-comment">// Deep copy of the mutable list</span>
+        <span class="code-comment"># Deep copy of the mutable list</span>
         <span class="code-keyword">return new</span> <span class="code-class">Document</span>(title, <span class="code-keyword">new</span> <span class="code-class">ArrayList</span>&lt;&gt;(pages));
     }
 
@@ -79,7 +79,7 @@
     <span class="code-class">Document</span> original =
         <span class="code-keyword">new</span> <span class="code-class">Document</span>(<span class="code-string">"Draft"</span>, <span class="code-keyword">new</span> <span class="code-class">ArrayList</span>&lt;&gt;());
     <span class="code-class">Document</span> copy = original.clone();
-    copy.setTitle(<span class="code-string">"Final"</span>);  <span class="code-comment">// original unaffected</span>
+    copy.setTitle(<span class="code-string">"Final"</span>);  <span class="code-comment"># original unaffected</span>
 }</code></pre>
             </div>
 

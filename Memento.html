@@ -55,7 +55,7 @@
         <div class="section-title">Code</div>
         <div class="code-layout">
             <div class="code-wrapper">
-<pre><code><span class="code-keyword">class</span> <span class="code-class">Editor</span> {                       <span class="code-comment">// Originator</span>
+<pre><code><span class="code-keyword">class</span> <span class="code-class">Editor</span> {                       <span class="code-comment"># Originator</span>
     <span class="code-keyword">private</span> String text = <span class="code-string">""</span>;
 
     <span class="code-keyword">void</span> type(String words) { text += words; }
@@ -64,7 +64,7 @@
     Memento save() { <span class="code-keyword">return new</span> Memento(text); }
     <span class="code-keyword">void</span> restore(Memento m) { text = m.state; }
 
-    <span class="code-keyword">static class</span> <span class="code-class">Memento</span> {          <span class="code-comment">// Memento</span>
+    <span class="code-keyword">static class</span> <span class="code-class">Memento</span> {          <span class="code-comment"># Memento</span>
         <span class="code-keyword">private final</span> String state;
         Memento(String state) { <span class="code-keyword">this</span>.state = state; }
     }
@@ -73,10 +73,10 @@
 <span class="code-keyword">void</span> main() {
     Editor editor = <span class="code-keyword">new</span> Editor();
     editor.type(<span class="code-string">"Hello"</span>);
-    Editor.Memento saved = editor.save();  <span class="code-comment">// caretaker holds it</span>
+    Editor.Memento saved = editor.save();  <span class="code-comment"># caretaker holds it</span>
     editor.type(<span class="code-string">" World"</span>);
     editor.restore(saved);
-    System.out.println(editor.getText());  <span class="code-comment">// Hello</span>
+    System.out.println(editor.getText());  <span class="code-comment"># Hello</span>
 }</code></pre>
             </div>
 

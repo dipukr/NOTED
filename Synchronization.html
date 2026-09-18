@@ -40,13 +40,13 @@
 <pre><code><span class="code-keyword">class</span> <span class="code-class">Account</span> {
     <span class="code-keyword">private double</span> balance;
 
-    <span class="code-comment">// synchronized method: one thread at a time</span>
+    <span class="code-comment"># synchronized method: one thread at a time</span>
     <span class="code-keyword">public synchronized void</span> deposit(<span class="code-keyword">double</span> amt) {
         balance += amt;
     }
 
     <span class="code-keyword">public void</span> withdraw(<span class="code-keyword">double</span> amt) {
-        <span class="code-comment">// synchronized block on the same monitor</span>
+        <span class="code-comment"># synchronized block on the same monitor</span>
         <span class="code-keyword">synchronized</span> (<span class="code-keyword">this</span>) {
             <span class="code-keyword">if</span> (balance &gt;= amt) balance -= amt;
         }

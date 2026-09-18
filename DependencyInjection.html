@@ -38,7 +38,7 @@
 
     <span class="code-keyword">private final</span> MessageService service;
 
-    <span class="code-comment">// Constructor injection</span>
+    <span class="code-comment"># Constructor injection</span>
     <span class="code-class">@Autowired</span>
     Notifier(MessageService service) {
         <span class="code-keyword">this</span>.service = service;
@@ -49,8 +49,8 @@
     }
 }
 
-<span class="code-comment">// The Spring container injects EmailService into Notifier;</span>
-<span class="code-comment">// Notifier never calls new EmailService() itself.</span></code></pre>
+<span class="code-comment"># The Spring container injects EmailService into Notifier;</span>
+<span class="code-comment"># Notifier never calls new EmailService() itself.</span></code></pre>
             </div>
 
             <div class="code-explanation">

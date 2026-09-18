@@ -34,16 +34,16 @@
 
     <span class="code-keyword">public synchronized void</span> put(<span class="code-keyword">int</span> x) <span class="code-keyword">throws</span> InterruptedException {
         <span class="code-keyword">while</span> (q.size() == capacity)
-            wait();                 <span class="code-comment">// release lock, wait for space</span>
+            wait();                 <span class="code-comment"># release lock, wait for space</span>
         q.add(x);
-        notifyAll();                <span class="code-comment">// wake consumers</span>
+        notifyAll();                <span class="code-comment"># wake consumers</span>
     }
 
     <span class="code-keyword">public synchronized int</span> take() <span class="code-keyword">throws</span> InterruptedException {
         <span class="code-keyword">while</span> (q.isEmpty())
-            wait();                 <span class="code-comment">// wait for an item</span>
+            wait();                 <span class="code-comment"># wait for an item</span>
         <span class="code-keyword">int</span> x = q.remove();
-        notifyAll();                <span class="code-comment">// wake producers</span>
+        notifyAll();                <span class="code-comment"># wake producers</span>
         <span class="code-keyword">return</span> x;
     }
 }</code></pre>

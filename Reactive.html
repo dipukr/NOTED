@@ -34,8 +34,8 @@
 <span class="code-keyword">class</span> <span class="code-class">ReactiveDemo</span> {
     <span class="code-keyword">public static void</span> main(String[] args) {
         Flux&lt;Integer&gt; numbers = Flux.range(1, 5)
-            .map(n -&gt; n * n)                 <span class="code-comment">// transform each item</span>
-            .filter(n -&gt; n % 2 == 1)          <span class="code-comment">// keep odds</span>
+            .map(n -&gt; n * n)                 <span class="code-comment"># transform each item</span>
+            .filter(n -&gt; n % 2 == 1)          <span class="code-comment"># keep odds</span>
             .delayElements(Duration.ofMillis(100));
 
         numbers.subscribe(

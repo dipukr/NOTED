@@ -44,7 +44,7 @@
         <div class="section-title">Code</div>
         <div class="code-layout">
             <div class="code-wrapper">
-<pre><code><span class="code-comment">// Flyweight: intrinsic (shared) state only</span>
+<pre><code><span class="code-comment"># Flyweight: intrinsic (shared) state only</span>
 <span class="code-keyword">class</span> <span class="code-class">TreeType</span> {
     <span class="code-keyword">private final</span> String name;
     <span class="code-keyword">private final</span> String color;
@@ -52,12 +52,12 @@
         <span class="code-keyword">this</span>.name = name;
         <span class="code-keyword">this</span>.color = color;
     }
-    <span class="code-keyword">public void</span> draw(<span class="code-keyword">int</span> x, <span class="code-keyword">int</span> y) {  <span class="code-comment">// extrinsic state passed in</span>
+    <span class="code-keyword">public void</span> draw(<span class="code-keyword">int</span> x, <span class="code-keyword">int</span> y) {  <span class="code-comment"># extrinsic state passed in</span>
         System.out.println(name + <span class="code-string">" at "</span> + x + <span class="code-string">","</span> + y);
     }
 }
 
-<span class="code-comment">// Factory shares flyweights via a pool</span>
+<span class="code-comment"># Factory shares flyweights via a pool</span>
 <span class="code-keyword">class</span> <span class="code-class">TreeFactory</span> {
     <span class="code-keyword">private static final</span> Map&lt;String, <span class="code-class">TreeType</span>&gt; pool
             = <span class="code-keyword">new</span> <span class="code-class">HashMap</span>&lt;&gt;();
@@ -71,7 +71,7 @@
 <span class="code-keyword">void</span> main() {
     <span class="code-class">TreeType</span> oak = <span class="code-class">TreeFactory</span>.get(<span class="code-string">"Oak"</span>, <span class="code-string">"green"</span>);
     oak.draw(10, 20);
-    oak.draw(30, 40);  <span class="code-comment">// same shared object</span>
+    oak.draw(30, 40);  <span class="code-comment"># same shared object</span>
 }</code></pre>
             </div>
 

@@ -57,7 +57,7 @@
             <div class="code-wrapper">
 <pre><code><span class="code-keyword">abstract class</span> <span class="code-class">DataProcessor</span> {
 
-    <span class="code-comment">// Template method: fixed algorithm skeleton</span>
+    <span class="code-comment"># Template method: fixed algorithm skeleton</span>
     <span class="code-keyword">public final void</span> process() {
         read();
         transform();
@@ -67,7 +67,7 @@
     <span class="code-keyword">abstract void</span> read();
     <span class="code-keyword">abstract void</span> transform();
 
-    <span class="code-keyword">void</span> save() {            <span class="code-comment">// common step</span>
+    <span class="code-keyword">void</span> save() {            <span class="code-comment"># common step</span>
         System.out.println(<span class="code-string">"Saving result"</span>);
     }
 }
@@ -79,7 +79,7 @@
 
 <span class="code-keyword">void</span> main() {
     DataProcessor p = <span class="code-keyword">new</span> CsvProcessor();
-    p.process();  <span class="code-comment">// Read CSV, Transform CSV, Saving result</span>
+    p.process();  <span class="code-comment"># Read CSV, Transform CSV, Saving result</span>
 }</code></pre>
             </div>
 

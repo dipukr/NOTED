@@ -70,7 +70,7 @@
     <span class="code-keyword">public double</span> cost() { <span class="code-keyword">return</span> 2.0; }
 }
 
-<span class="code-comment">// Base decorator wraps a Coffee</span>
+<span class="code-comment"># Base decorator wraps a Coffee</span>
 <span class="code-keyword">abstract class</span> <span class="code-class">CoffeeDecorator</span> <span class="code-keyword">implements</span> <span class="code-class">Coffee</span> {
     <span class="code-keyword">protected final</span> <span class="code-class">Coffee</span> inner;
     <span class="code-keyword">protected</span> <span class="code-class">CoffeeDecorator</span>(<span class="code-class">Coffee</span> c) { inner = c; }
@@ -79,13 +79,13 @@
 <span class="code-keyword">class</span> <span class="code-class">MilkDecorator</span> <span class="code-keyword">extends</span> <span class="code-class">CoffeeDecorator</span> {
     <span class="code-keyword">public</span> <span class="code-class">MilkDecorator</span>(<span class="code-class">Coffee</span> c) { <span class="code-keyword">super</span>(c); }
     <span class="code-keyword">public double</span> cost() {
-        <span class="code-keyword">return</span> inner.cost() + 0.5;  <span class="code-comment">// add milk</span>
+        <span class="code-keyword">return</span> inner.cost() + 0.5;  <span class="code-comment"># add milk</span>
     }
 }
 
 <span class="code-keyword">void</span> main() {
     <span class="code-class">Coffee</span> c = <span class="code-keyword">new</span> <span class="code-class">MilkDecorator</span>(<span class="code-keyword">new</span> <span class="code-class">SimpleCoffee</span>());
-    System.out.println(c.cost());  <span class="code-comment">// 2.5</span>
+    System.out.println(c.cost());  <span class="code-comment"># 2.5</span>
 }</code></pre>
             </div>
 

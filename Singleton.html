@@ -60,13 +60,13 @@
             <div class="code-wrapper">
 <pre><code><span class="code-keyword">public class</span> <span class="code-class">ConfigManager</span> {
 
-    <span class="code-comment">// Eager, thread-safe instance</span>
+    <span class="code-comment"># Eager, thread-safe instance</span>
     <span class="code-keyword">private static final</span> <span class="code-class">ConfigManager</span> INSTANCE
             = <span class="code-keyword">new</span> <span class="code-class">ConfigManager</span>();
 
     <span class="code-keyword">private</span> String environment;
 
-    <span class="code-comment">// Private constructor prevents external instantiation</span>
+    <span class="code-comment"># Private constructor prevents external instantiation</span>
     <span class="code-keyword">private</span> <span class="code-class">ConfigManager</span>() {
         <span class="code-keyword">this</span>.environment = <span class="code-string">"production"</span>;
     }

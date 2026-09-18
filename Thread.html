@@ -30,8 +30,8 @@
         };
 
         Thread t = <span class="code-keyword">new</span> Thread(task, <span class="code-string">"worker"</span>);
-        t.start();                 <span class="code-comment">// runs task on a new thread</span>
-        t.join();                  <span class="code-comment">// wait for it to finish</span>
+        t.start();                 <span class="code-comment"># runs task on a new thread</span>
+        t.join();                  <span class="code-comment"># wait for it to finish</span>
         System.out.println(<span class="code-string">"main done"</span>);
     }
 }</code></pre>

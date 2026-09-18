@@ -71,7 +71,7 @@
     }
 }
 
-<span class="code-keyword">class</span> <span class="code-class">Checkout</span> {                   <span class="code-comment">// Context</span>
+<span class="code-keyword">class</span> <span class="code-class">Checkout</span> {                   <span class="code-comment"># Context</span>
     <span class="code-keyword">private</span> PaymentStrategy strategy;
     <span class="code-keyword">void</span> setStrategy(PaymentStrategy s) { strategy = s; }
     <span class="code-keyword">void</span> checkout(<span class="code-keyword">int</span> amount) { strategy.pay(amount); }
@@ -80,7 +80,7 @@
 <span class="code-keyword">void</span> main() {
     Checkout checkout = <span class="code-keyword">new</span> Checkout();
     checkout.setStrategy(<span class="code-keyword">new</span> UpiPayment());
-    checkout.checkout(500);  <span class="code-comment">// Paid 500 by UPI</span>
+    checkout.checkout(500);  <span class="code-comment"># Paid 500 by UPI</span>
 }</code></pre>
             </div>
 

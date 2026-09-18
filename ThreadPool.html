@@ -68,9 +68,9 @@
         }
 
         Future&lt;Integer&gt; f = pool.submit(() -&gt; 40 + 2);
-        System.out.println(<span class="code-string">"result: "</span> + f.get());  <span class="code-comment">// 42</span>
+        System.out.println(<span class="code-string">"result: "</span> + f.get());  <span class="code-comment"># 42</span>
 
-        pool.shutdown();          <span class="code-comment">// stop accepting new tasks</span>
+        pool.shutdown();          <span class="code-comment"># stop accepting new tasks</span>
     }
 }</code></pre>
             </div>

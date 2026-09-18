@@ -70,7 +70,7 @@
     <span class="code-keyword">public</span> String color() { <span class="code-keyword">return</span> <span class="code-string">"GREEN"</span>; }
 }
 
-<span class="code-keyword">class</span> <span class="code-class">TrafficLight</span> {              <span class="code-comment">// Context</span>
+<span class="code-keyword">class</span> <span class="code-class">TrafficLight</span> {              <span class="code-comment"># Context</span>
     <span class="code-keyword">private</span> State state = <span class="code-keyword">new</span> RedState();
     <span class="code-keyword">void</span> setState(State s) { state = s; }
     <span class="code-keyword">void</span> change() { state.next(<span class="code-keyword">this</span>); }
@@ -79,9 +79,9 @@
 
 <span class="code-keyword">void</span> main() {
     TrafficLight light = <span class="code-keyword">new</span> TrafficLight();
-    System.out.println(light.show());  <span class="code-comment">// RED</span>
+    System.out.println(light.show());  <span class="code-comment"># RED</span>
     light.change();
-    System.out.println(light.show());  <span class="code-comment">// GREEN</span>
+    System.out.println(light.show());  <span class="code-comment"># GREEN</span>
 }</code></pre>
             </div>
 

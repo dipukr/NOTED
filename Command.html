@@ -59,7 +59,7 @@
     <span class="code-keyword">void</span> execute();
 }
 
-<span class="code-keyword">class</span> <span class="code-class">Light</span> {                       <span class="code-comment">// Receiver</span>
+<span class="code-keyword">class</span> <span class="code-class">Light</span> {                       <span class="code-comment"># Receiver</span>
     <span class="code-keyword">void</span> on()  { System.out.println(<span class="code-string">"Light ON"</span>); }
     <span class="code-keyword">void</span> off() { System.out.println(<span class="code-string">"Light OFF"</span>); }
 }
@@ -70,7 +70,7 @@
     <span class="code-keyword">public void</span> execute() { light.on(); }
 }
 
-<span class="code-keyword">class</span> <span class="code-class">Remote</span> {                      <span class="code-comment">// Invoker</span>
+<span class="code-keyword">class</span> <span class="code-class">Remote</span> {                      <span class="code-comment"># Invoker</span>
     <span class="code-keyword">private</span> Command command;
     <span class="code-keyword">void</span> setCommand(Command c) { command = c; }
     <span class="code-keyword">void</span> press() { command.execute(); }
@@ -79,7 +79,7 @@
 <span class="code-keyword">void</span> main() {
     Remote remote = <span class="code-keyword">new</span> Remote();
     remote.setCommand(<span class="code-keyword">new</span> LightOnCommand(<span class="code-keyword">new</span> Light()));
-    remote.press();  <span class="code-comment">// Light ON</span>
+    remote.press();  <span class="code-comment"># Light ON</span>
 }</code></pre>
             </div>
 

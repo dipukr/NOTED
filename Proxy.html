@@ -61,14 +61,14 @@
     <span class="code-keyword">private final</span> String file;
     <span class="code-keyword">public</span> <span class="code-class">RealImage</span>(String file) {
         <span class="code-keyword">this</span>.file = file;
-        System.out.println(<span class="code-string">"Loading "</span> + file);  <span class="code-comment">// expensive</span>
+        System.out.println(<span class="code-string">"Loading "</span> + file);  <span class="code-comment"># expensive</span>
     }
     <span class="code-keyword">public void</span> display() {
         System.out.println(<span class="code-string">"Displaying "</span> + file);
     }
 }
 
-<span class="code-comment">// Virtual proxy: loads on first use only</span>
+<span class="code-comment"># Virtual proxy: loads on first use only</span>
 <span class="code-keyword">class</span> <span class="code-class">ImageProxy</span> <span class="code-keyword">implements</span> <span class="code-class">Image</span> {
     <span class="code-keyword">private final</span> String file;
     <span class="code-keyword">private</span> <span class="code-class">RealImage</span> real;
@@ -84,8 +84,8 @@
 
 <span class="code-keyword">void</span> main() {
     <span class="code-class">Image</span> img = <span class="code-keyword">new</span> <span class="code-class">ImageProxy</span>(<span class="code-string">"photo.png"</span>);
-    img.display();  <span class="code-comment">// loads now</span>
-    img.display();  <span class="code-comment">// reuses loaded image</span>
+    img.display();  <span class="code-comment"># loads now</span>
+    img.display();  <span class="code-comment"># reuses loaded image</span>
 }</code></pre>
             </div>
 
