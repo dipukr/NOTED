@@ -55,7 +55,7 @@
         <div class="section-title">Code</div>
         <div class="code-layout">
             <div class="code-wrapper">
-<pre><code><span class="code-keyword">abstract class</span> <span class="code-class">DataProcessor</span> {
+<pre><code><span class="code-keyword">public abstract class</span> <span class="code-class">DataProcessor</span> {
 
     <span class="code-comment"># Template method: fixed algorithm skeleton</span>
     <span class="code-keyword">public final void</span> process() {
@@ -72,7 +72,7 @@
     }
 }
 
-<span class="code-keyword">class</span> <span class="code-class">CsvProcessor</span> <span class="code-keyword">extends</span> DataProcessor {
+<span class="code-keyword">public class</span> <span class="code-class">CsvProcessor</span> <span class="code-keyword">extends</span> DataProcessor {
     <span class="code-keyword">void</span> read() { System.out.println(<span class="code-string">"Read CSV"</span>); }
     <span class="code-keyword">void</span> transform() { System.out.println(<span class="code-string">"Transform CSV"</span>); }
 }

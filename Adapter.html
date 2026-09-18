@@ -56,19 +56,19 @@
         <div class="code-layout">
             <div class="code-wrapper">
 <pre><code><span class="code-comment"># Target interface the client expects</span>
-<span class="code-keyword">interface</span> <span class="code-class">MediaPlayer</span> {
+<span class="code-keyword">public interface</span> <span class="code-class">MediaPlayer</span> {
     <span class="code-keyword">void</span> play(String file);
 }
 
 <span class="code-comment"># Adaptee with an incompatible interface</span>
-<span class="code-keyword">class</span> <span class="code-class">LegacyMp3Player</span> {
+<span class="code-keyword">public class</span> <span class="code-class">LegacyMp3Player</span> {
     <span class="code-keyword">public void</span> playMp3(String file) {
         System.out.println(<span class="code-string">"Playing mp3: "</span> + file);
     }
 }
 
 <span class="code-comment"># Adapter converts play() into playMp3()</span>
-<span class="code-keyword">class</span> <span class="code-class">Mp3Adapter</span> <span class="code-keyword">implements</span> <span class="code-class">MediaPlayer</span> {
+<span class="code-keyword">public class</span> <span class="code-class">Mp3Adapter</span> <span class="code-keyword">implements</span> <span class="code-class">MediaPlayer</span> {
     <span class="code-keyword">private final</span> <span class="code-class">LegacyMp3Player</span> player;
 
     <span class="code-keyword">public</span> <span class="code-class">Mp3Adapter</span>(<span class="code-class">LegacyMp3Player</span> player) {

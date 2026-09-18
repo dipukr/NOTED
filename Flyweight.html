@@ -45,7 +45,7 @@
         <div class="code-layout">
             <div class="code-wrapper">
 <pre><code><span class="code-comment"># Flyweight: intrinsic (shared) state only</span>
-<span class="code-keyword">class</span> <span class="code-class">TreeType</span> {
+<span class="code-keyword">public class</span> <span class="code-class">TreeType</span> {
     <span class="code-keyword">private final</span> String name;
     <span class="code-keyword">private final</span> String color;
     <span class="code-keyword">public</span> <span class="code-class">TreeType</span>(String name, String color) {
@@ -58,7 +58,7 @@
 }
 
 <span class="code-comment"># Factory shares flyweights via a pool</span>
-<span class="code-keyword">class</span> <span class="code-class">TreeFactory</span> {
+<span class="code-keyword">public class</span> <span class="code-class">TreeFactory</span> {
     <span class="code-keyword">private static final</span> Map&lt;String, <span class="code-class">TreeType</span>&gt; pool
             = <span class="code-keyword">new</span> <span class="code-class">HashMap</span>&lt;&gt;();
 

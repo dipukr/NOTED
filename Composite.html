@@ -53,19 +53,19 @@
         <div class="section-title">Code</div>
         <div class="code-layout">
             <div class="code-wrapper">
-<pre><code><span class="code-keyword">interface</span> <span class="code-class">FileComponent</span> {
+<pre><code><span class="code-keyword">public interface</span> <span class="code-class">FileComponent</span> {
     <span class="code-keyword">int</span> size();
 }
 
 <span class="code-comment"># Leaf</span>
-<span class="code-keyword">class</span> <span class="code-class">FileItem</span> <span class="code-keyword">implements</span> <span class="code-class">FileComponent</span> {
+<span class="code-keyword">public class</span> <span class="code-class">FileItem</span> <span class="code-keyword">implements</span> <span class="code-class">FileComponent</span> {
     <span class="code-keyword">private final</span> <span class="code-keyword">int</span> size;
     <span class="code-keyword">public</span> <span class="code-class">FileItem</span>(<span class="code-keyword">int</span> size) { <span class="code-keyword">this</span>.size = size; }
     <span class="code-keyword">public int</span> size() { <span class="code-keyword">return</span> size; }
 }
 
 <span class="code-comment"># Composite</span>
-<span class="code-keyword">class</span> <span class="code-class">Folder</span> <span class="code-keyword">implements</span> <span class="code-class">FileComponent</span> {
+<span class="code-keyword">public class</span> <span class="code-class">Folder</span> <span class="code-keyword">implements</span> <span class="code-class">FileComponent</span> {
     <span class="code-keyword">private final</span> List&lt;<span class="code-class">FileComponent</span>&gt; children
             = <span class="code-keyword">new</span> <span class="code-class">ArrayList</span>&lt;&gt;();
 

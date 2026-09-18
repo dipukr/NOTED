@@ -55,22 +55,22 @@
         <div class="section-title">Code</div>
         <div class="code-layout">
             <div class="code-wrapper">
-<pre><code><span class="code-keyword">interface</span> <span class="code-class">State</span> {
+<pre><code><span class="code-keyword">public interface</span> <span class="code-class">State</span> {
     <span class="code-keyword">void</span> next(TrafficLight light);
     String color();
 }
 
-<span class="code-keyword">class</span> <span class="code-class">RedState</span> <span class="code-keyword">implements</span> State {
+<span class="code-keyword">public class</span> <span class="code-class">RedState</span> <span class="code-keyword">implements</span> State {
     <span class="code-keyword">public void</span> next(TrafficLight l) { l.setState(<span class="code-keyword">new</span> GreenState()); }
     <span class="code-keyword">public</span> String color() { <span class="code-keyword">return</span> <span class="code-string">"RED"</span>; }
 }
 
-<span class="code-keyword">class</span> <span class="code-class">GreenState</span> <span class="code-keyword">implements</span> State {
+<span class="code-keyword">public class</span> <span class="code-class">GreenState</span> <span class="code-keyword">implements</span> State {
     <span class="code-keyword">public void</span> next(TrafficLight l) { l.setState(<span class="code-keyword">new</span> RedState()); }
     <span class="code-keyword">public</span> String color() { <span class="code-keyword">return</span> <span class="code-string">"GREEN"</span>; }
 }
 
-<span class="code-keyword">class</span> <span class="code-class">TrafficLight</span> {              <span class="code-comment"># Context</span>
+<span class="code-keyword">public class</span> <span class="code-class">TrafficLight</span> {              <span class="code-comment"># Context</span>
     <span class="code-keyword">private</span> State state = <span class="code-keyword">new</span> RedState();
     <span class="code-keyword">void</span> setState(State s) { state = s; }
     <span class="code-keyword">void</span> change() { state.next(<span class="code-keyword">this</span>); }

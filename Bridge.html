@@ -58,18 +58,18 @@
         <div class="code-layout">
             <div class="code-wrapper">
 <pre><code><span class="code-comment"># Implementation side</span>
-<span class="code-keyword">interface</span> <span class="code-class">Device</span> {
+<span class="code-keyword">public interface</span> <span class="code-class">Device</span> {
     <span class="code-keyword">void</span> setVolume(<span class="code-keyword">int</span> percent);
 }
 
-<span class="code-keyword">class</span> <span class="code-class">TV</span> <span class="code-keyword">implements</span> <span class="code-class">Device</span> {
+<span class="code-keyword">public class</span> <span class="code-class">TV</span> <span class="code-keyword">implements</span> <span class="code-class">Device</span> {
     <span class="code-keyword">public void</span> setVolume(<span class="code-keyword">int</span> p) {
         System.out.println(<span class="code-string">"TV volume = "</span> + p);
     }
 }
 
 <span class="code-comment"># Abstraction side holds a Device (the bridge)</span>
-<span class="code-keyword">abstract class</span> <span class="code-class">Remote</span> {
+<span class="code-keyword">public abstract class</span> <span class="code-class">Remote</span> {
     <span class="code-keyword">protected final</span> <span class="code-class">Device</span> device;
     <span class="code-keyword">protected</span> <span class="code-class">Remote</span>(<span class="code-class">Device</span> device) {
         <span class="code-keyword">this</span>.device = device;
@@ -77,7 +77,7 @@
     <span class="code-keyword">abstract void</span> volumeUp();
 }
 
-<span class="code-keyword">class</span> <span class="code-class">BasicRemote</span> <span class="code-keyword">extends</span> <span class="code-class">Remote</span> {
+<span class="code-keyword">public class</span> <span class="code-class">BasicRemote</span> <span class="code-keyword">extends</span> <span class="code-class">Remote</span> {
     <span class="code-keyword">public</span> <span class="code-class">BasicRemote</span>(<span class="code-class">Device</span> d) { <span class="code-keyword">super</span>(d); }
     <span class="code-keyword">public void</span> volumeUp() { device.setVolume(30); }
 }

@@ -59,26 +59,26 @@
         <div class="section-title">Code</div>
         <div class="code-layout">
             <div class="code-wrapper">
-<pre><code><span class="code-keyword">interface</span> <span class="code-class">Visitor</span> {
+<pre><code><span class="code-keyword">public interface</span> <span class="code-class">Visitor</span> {
     <span class="code-keyword">void</span> visit(Book b);
     <span class="code-keyword">void</span> visit(Fruit f);
 }
 
-<span class="code-keyword">interface</span> <span class="code-class">Item</span> {
+<span class="code-keyword">public interface</span> <span class="code-class">Item</span> {
     <span class="code-keyword">void</span> accept(Visitor v);
 }
 
-<span class="code-keyword">class</span> <span class="code-class">Book</span> <span class="code-keyword">implements</span> Item {
+<span class="code-keyword">public class</span> <span class="code-class">Book</span> <span class="code-keyword">implements</span> Item {
     <span class="code-keyword">int</span> price = 200;
     <span class="code-keyword">public void</span> accept(Visitor v) { v.visit(<span class="code-keyword">this</span>); }
 }
 
-<span class="code-keyword">class</span> <span class="code-class">Fruit</span> <span class="code-keyword">implements</span> Item {
+<span class="code-keyword">public class</span> <span class="code-class">Fruit</span> <span class="code-keyword">implements</span> Item {
     <span class="code-keyword">int</span> weight = 3;
     <span class="code-keyword">public void</span> accept(Visitor v) { v.visit(<span class="code-keyword">this</span>); }
 }
 
-<span class="code-keyword">class</span> <span class="code-class">PriceVisitor</span> <span class="code-keyword">implements</span> Visitor {
+<span class="code-keyword">public class</span> <span class="code-class">PriceVisitor</span> <span class="code-keyword">implements</span> Visitor {
     <span class="code-keyword">public void</span> visit(Book b) {
         System.out.println(<span class="code-string">"Book: "</span> + b.price);
     }

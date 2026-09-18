@@ -55,22 +55,22 @@
         <div class="section-title">Code</div>
         <div class="code-layout">
             <div class="code-wrapper">
-<pre><code><span class="code-keyword">interface</span> <span class="code-class">Command</span> {
+<pre><code><span class="code-keyword">public interface</span> <span class="code-class">Command</span> {
     <span class="code-keyword">void</span> execute();
 }
 
-<span class="code-keyword">class</span> <span class="code-class">Light</span> {                       <span class="code-comment"># Receiver</span>
+<span class="code-keyword">public class</span> <span class="code-class">Light</span> {                       <span class="code-comment"># Receiver</span>
     <span class="code-keyword">void</span> on()  { System.out.println(<span class="code-string">"Light ON"</span>); }
     <span class="code-keyword">void</span> off() { System.out.println(<span class="code-string">"Light OFF"</span>); }
 }
 
-<span class="code-keyword">class</span> <span class="code-class">LightOnCommand</span> <span class="code-keyword">implements</span> Command {
+<span class="code-keyword">public class</span> <span class="code-class">LightOnCommand</span> <span class="code-keyword">implements</span> Command {
     <span class="code-keyword">private final</span> Light light;
     LightOnCommand(Light light) { <span class="code-keyword">this</span>.light = light; }
     <span class="code-keyword">public void</span> execute() { light.on(); }
 }
 
-<span class="code-keyword">class</span> <span class="code-class">Remote</span> {                      <span class="code-comment"># Invoker</span>
+<span class="code-keyword">public class</span> <span class="code-class">Remote</span> {                      <span class="code-comment"># Invoker</span>
     <span class="code-keyword">private</span> Command command;
     <span class="code-keyword">void</span> setCommand(Command c) { command = c; }
     <span class="code-keyword">void</span> press() { command.execute(); }
