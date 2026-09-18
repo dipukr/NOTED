@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Facade Pattern - Notes</title>
+<style>
+    * { box-sizing: border-box; }
+
+    body {
+        margin: 0;
+        padding: 35px 24px;
+        background: #f5f7fa;
+        color: #172033;
+        font-family: "CMU Serif", "Computer Modern", "Latin Modern Roman", serif;
+        font-size: 20px;
+        line-height: 1.55;
+        word-spacing: -2.0px;
+    }
+
+    .note {
+        max-width: 1000px;
+        margin: 0 auto;
+        background: #ffffff;
+        padding: 38px 44px;
+        border-radius: 12px;
+        box-shadow: 0 3px 14px rgba(0, 0, 0, 0.08);
+    }
+
+    .title {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 32px;
+        font-weight: 700;
+        color: #18212f;
+        margin: 0 0 25px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    .intro p { margin: 0 0 5px; }
+
+    .section {
+        margin-top: 30px;
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid #dbe2ea;
+    }
+
+    .section-title {
+        padding: 10px 18px;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: 0.2px;
+    }
+
+    .section-content { padding: 14px 20px 16px; }
+
+    .section-content ul {
+        margin: 0;
+        padding-left: 30px;
+        list-style-type: square;
+    }
+
+    .section-content li {
+        margin: 4px 0;
+        padding-left: 3px;
+    }
+
+    .when-use {
+        border-left: 5px solid #2563eb;
+        background: #eff6ff;
+    }
+
+    .when-use .section-title {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .advantages {
+        border-left: 5px solid #16a34a;
+        background: #f0fdf4;
+    }
+
+    .advantages .section-title {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .disadvantages {
+        border-left: 5px solid #dc2626;
+        background: #fef2f2;
+    }
+
+    .disadvantages .section-title {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .code-section {
+        margin-top: 30px;
+        border: 1px solid #d1d5db;
+        border-radius: 10px;
+        overflow: hidden;
+        background: #f8fafc;
+    }
+
+    .code-section .section-title {
+        background: #e5e7eb;
+        color: #1f2937;
+    }
+
+    .code-wrapper {
+        margin: 0;
+        padding: 16px 20px;
+        overflow-x: auto;
+        background: #f3f6f9;
+        border-top: 1px solid #dbe2ea;
+    }
+
+    .code-wrapper pre {
+        margin: 0;
+        color: #263238;
+        font-family: "Source Code Pro", Consolas, "Courier New", monospace;
+        font-size: 12px;
+        line-height: 1.45;
+        word-spacing: normal;
+        white-space: pre;
+    }
+
+    .code-wrapper code {
+        font-family: "Source Code Pro", Consolas, "Courier New", monospace;
+    }
+
+    .code-comment { color: #58734f; }
+    .code-keyword { color: #315f9b; }
+    .code-class { color: #236b63; }
+    .code-string { color: #8a5a32; }
+
+    .code-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 12fr) minmax(300px, 8fr);
+        background: #f3f6f9;
+        border-top: 1px solid #dbe2ea;
+    }
+
+    .code-wrapper {
+        margin: 0;
+        padding: 16px 20px;
+        overflow-x: auto;
+        background: #f3f6f9;
+        border-right: 1px solid #dbe2ea;
+    }
+
+    .code-explanation {
+        padding: 18px 20px;
+        background: #eef2f6;
+        color: #374151;
+        font-family: "CMU Serif", "Computer Modern", "Latin Modern Roman", serif;
+        font-size: 16px;
+        line-height: 1.45;
+        word-spacing: normal;
+    }
+
+    .code-explanation-title {
+        margin-bottom: 10px;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 16px;
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    .code-explanation ul {
+        margin: 0;
+        padding-left: 20px;
+        list-style-type: square;
+    }
+
+    .code-explanation li {
+        margin: 6px 0;
+        padding-left: 2px;
+    }
+
+    .code-explanation code {
+        font-family: "Source Code Pro", Consolas, "Courier New", monospace;
+        font-size: 13px;
+    }
+
+    @media (max-width: 800px) {
+        .code-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .code-wrapper {
+            border-right: 0;
+            border-bottom: 1px solid #dbe2ea;
+        }
+
+        .code-explanation {
+            font-size: 15px;
+        }
+
+        .comparison-row {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+
+        body {
+            padding: 15px;
+            font-size: 17px;
+        }
+
+        .note { padding: 25px 22px; }
+        .title { font-size: 27px; }
+        .section-title { font-size: 17px; }
+        .code-wrapper pre { font-size: 12px; }
+    }
+
+    @media print {
+        body {
+            background: white;
+            padding: 10px;
+        }
+
+        .note {
+            box-shadow: none;
+            padding: 20px;
+        }
+    }
+</style>
+</head>
+<body>
+<div class="note">
+    <div class="title">Facade Pattern</div>
+
+    <div class="intro">
+        <p>Facade pattern is a structural design pattern that provides a unified interface to a set of interfaces in a subsystem. A complex interface to the client is considered as a fault in the design of a system.</p>
+        <p>Facade defines a higher-level interface that makes the subsystem easier to use.</p>
+        <p>Facade pattern makes a complex interface easier to use using a Facade class.</p>
+    </div>
+
+
+
+
+    <div class="section when-use">
+        <div class="section-title">When-to use</div>
+        <div class="section-content">
+            <ul>
+                <li>When you want to simplify the usage of a complex system.</li>
+                <li>When there are multiple subsystems that need to be integrated.</li>
+                <li>To decouple clients from the internal components of a system.</li>
+                <li>When you want to create a layered architecture.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content">
+            <ul>
+                <li>Provides a simple and unified interface to a complex subsystem.</li>
+                <li>Reduces the coupling between the client and subsystem components.</li>
+                <li>Hides unnecessary implementation details from the client.</li>
+                <li>Makes client code cleaner, easier to understand, and easier to maintain.</li>
+                <li>Can make a complex subsystem easier to integrate and use.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages</div>
+        <div class="section-content">
+            <ul>
+                <li>The Facade can become a large class if too much functionality is placed in it.</li>
+                <li>It may hide useful functionality of the underlying subsystem.</li>
+                <li>Changes in the subsystem may require corresponding changes in the Facade.</li>
+                <li>Adds an additional abstraction layer to the application.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">import</span> org.springframework.beans.factory.annotation.Autowired;
+<span class="code-keyword">import</span> org.springframework.stereotype.Service;
+
+<span class="code-keyword">class</span> <span class="code-class">PaymentService</span> {
+    <span class="code-keyword">public void</span> processPayment() {
+        System.out.println(<span class="code-string">"Payment processed"</span>);
+    }
+}
+
+<span class="code-keyword">class</span> <span class="code-class">NotificationService</span> {
+    <span class="code-keyword">public void</span> sendNotification() {
+        System.out.println(<span class="code-string">"Notification sent"</span>);
+    }
+}
+
+<span class="code-keyword">class</span> <span class="code-class">OrderFacade</span> {
+
+    <span class="code-class">@Autowired</span>
+    <span class="code-keyword">private</span> PaymentService paymentService;
+
+    <span class="code-class">@Autowired</span>
+    <span class="code-keyword">private</span> NotificationService notificationService;
+
+    <span class="code-keyword">public void</span> placeOrder() {
+        paymentService.processPayment();
+        notificationService.sendNotification();
+    }
+}
+
+<span class="code-keyword">void</span> main() {
+    System.out.println(<span class="code-string">"Client calls OrderFacade.placeOrder()"</span>);
+}</code></pre>
+            </div>
+
+            <div class="code-explanation">
+                <div class="code-explanation-title">How the Facade works</div>
+                <ul>
+                    <li><code>PaymentService</code> and <code>NotificationService</code> <br> are subsystem classes.</li>
+                    <li><code>OrderFacade</code> provides one simple entry point for the client.</li>
+                    <li>The client does not need to call each subsystem directly.</li>
+                    <li><code>placeOrder()</code> coordinates the required subsystem operations.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
