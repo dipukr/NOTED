@@ -49,21 +49,19 @@
         <div class="section-title">Code</div>
         <div class="code-layout">
             <div class="code-wrapper">
-<pre><code><span class="code-keyword">public class</span> <span class="code-class">WorkStealingDemo</span> {
-    <span class="code-keyword">public static void</span> <span class="code-class">main</span>(<span class="code-class">String</span>[] args) <span class="code-keyword">throws</span> <span class="code-class">Exception</span> {
-        <span class="code-comment">// Pool sized to available cores, using work-stealing</span>
-        <span class="code-class">ExecutorService</span> pool = <span class="code-class">Executors</span>.newWorkStealingPool();
+<pre><code><span class="code-keyword">void</span> <span class="code-class">main</span>(<span class="code-class">String</span>[] args) <span class="code-keyword">throws</span> <span class="code-class">Exception</span> {
+    <span class="code-comment">// Pool sized to available cores, using work-stealing</span>
+    <span class="code-class">ExecutorService</span> pool = <span class="code-class">Executors</span>.newWorkStealingPool();
 
-        <span class="code-keyword">for</span> (<span class="code-keyword">int</span> i = <span class="code-string">0</span>; i &lt; <span class="code-string">8</span>; i++) {
-            <span class="code-keyword">final int</span> id = i;
-            pool.submit(() -&gt; {
-                <span class="code-class">System</span>.out.println(<span class="code-string">"Task "</span> + id +
-                    <span class="code-string">" on "</span> + <span class="code-class">Thread</span>.currentThread().getName());
-            });
-        }
-        pool.shutdown();
-        pool.awaitTermination(<span class="code-string">1</span>, <span class="code-class">TimeUnit</span>.SECONDS);
+    <span class="code-keyword">for</span> (<span class="code-keyword">int</span> i = <span class="code-number">0</span>; i &lt; <span class="code-number">8</span>; i++) {
+        <span class="code-keyword">final int</span> id = i;
+        pool.submit(() -&gt; {
+            <span class="code-class">System</span>.out.println(<span class="code-string">"Task "</span> + id +
+                <span class="code-string">" on "</span> + <span class="code-class">Thread</span>.currentThread().getName());
+        });
     }
+    pool.shutdown();
+    pool.awaitTermination(<span class="code-number">1</span>, <span class="code-class">TimeUnit</span>.SECONDS);
 }</code></pre>
             </div>
             <div class="code-explanation">

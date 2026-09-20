@@ -18,7 +18,7 @@
     </div>
 
     <div class="section when-use">
-        <div class="section-title">When to use / Key points</div>
+        <div class="section-title">Key points</div>
         <div class="section-content"><ul>
             <li>Study scenario for deadlock, livelock and starvation in resource allocation.</li>
             <li>Deadlock needs mutual exclusion, hold-and-wait, no preemption and circular wait to all hold.</li>
@@ -37,7 +37,7 @@
     </div>
 
     <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-title">Disadvantages</div>
         <div class="section-content"><ul>
             <li>Strict lock ordering can reduce parallelism.</li>
             <li>Naive solutions can trade deadlock for starvation of some philosophers.</li>
@@ -49,17 +49,21 @@
         <div class="section-title">Code</div>
         <div class="code-layout">
             <div class="code-wrapper">
-<pre><code><span class="code-comment">// Break circular wait by always locking the lower-id fork first</span>
-<span class="code-keyword">class</span> <span class="code-class">Philosopher</span> <span class="code-keyword">implements</span> <span class="code-class">Runnable</span> {
-    <span class="code-keyword">private final</span> <span class="code-class">Object</span> left, right;
+<pre><code><span class="code-comment"># Break circular wait by always locking the lower-id fork first</span>
+<span class="code-keyword">public class</span> <span class="code-class">Philosopher</span> <span class="code-keyword">implements</span> <span class="code-class">Runnable</span> {
+    <span class="code-keyword">private final</span> <span class="code-class">Object</span> left;
+    <span class="code-keyword">private final</span> <span class="code-class">Object</span> right;
     <span class="code-keyword">private final int</span> id;
 
-    <span class="code-class">Philosopher</span>(<span class="code-keyword">int</span> id, <span class="code-class">Object</span> left, <span class="code-class">Object</span> right) {
-        <span class="code-keyword">this</span>.id = id; <span class="code-keyword">this</span>.left = left; <span class="code-keyword">this</span>.right = right;
+    <span class="code-class">public Philosopher</span>(<span class="code-keyword">int</span> id, <span class="code-class">Object</span> left, <span class="code-class">Object</span> right) {
+        <span class="code-keyword">this</span>.id = id;
+        <span class="code-keyword">this</span>.left = left;
+        <span class="code-keyword">this</span>.right = right;
     }
 
     <span class="code-keyword">public void</span> <span class="code-class">run</span>() {
-        <span class="code-class">Object</span> first = <span class="code-class">System</span>.identityHashCode(left) &lt; <span class="code-class">System</span>.identityHashCode(right) ? left : right;
+        <span class="code-class">Object</span> first = <span class="code-class">System</span>.identityHashCode(left) &lt;
+                   <span class="code-class">System</span>.identityHashCode(right) ? left : right;
         <span class="code-class">Object</span> second = (first == left) ? right : left;
         <span class="code-keyword">synchronized</span> (first) {
             <span class="code-keyword">synchronized</span> (second) {

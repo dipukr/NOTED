@@ -1,0 +1,172 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1536 1024" width="1536" height="1024" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1e3352"/>
+    </marker>
+    <style>
+      .box   { stroke-width: 2; }
+      .h     { font-size: 25px; font-weight: 700; text-anchor: middle; }
+      .t     { font-size: 16.5px; fill: #1f2933; text-anchor: middle; }
+      .lbl   { font-size: 16px; fill: #1f2933; text-anchor: middle; }
+      .code  { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 15px; fill: #2c3a47; }
+      .codec { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 15px; fill: #2c3a47; text-anchor: middle; }
+      .ph    { font-size: 19px; font-weight: 700; }
+      .li    { font-size: 15.5px; fill: #1f2933; }
+      .b     { font-weight: 700; }
+      .edge  { fill: none; stroke: #1e3352; stroke-width: 2.2; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect width="1536" height="1024" fill="#ffffff"/>
+
+  <!-- ===== Title ===== -->
+  <rect x="328" y="8" width="880" height="98" rx="10" fill="#1e3352"/>
+  <text x="768" y="52" class="h" font-size="34" fill="#ffffff">Java Thread Life Cycle</text>
+  <text x="768" y="90" font-size="21" fill="#e8eef6" text-anchor="middle">A thread in Java goes through different states during its lifetime.</text>
+
+  <!-- ===== State boxes ===== -->
+
+  <!-- NEW -->
+  <rect class="box" x="16" y="315" width="274" height="203" rx="12" fill="#dde2e8" stroke="#9aa5b1"/>
+  <text x="153" y="370" class="h" fill="#1f2933">NEW</text>
+  <text x="153" y="410" class="t">Thread object is created</text>
+  <text x="153" y="432" class="t">but not yet started.</text>
+  <rect x="36" y="458" width="234" height="38" rx="6" fill="#eef1f4" stroke="#c3cbd4"/>
+  <text x="50" y="483" class="code">Thread t = new Thread();</text>
+
+  <!-- RUNNABLE -->
+  <rect class="box" x="428" y="313" width="269" height="205" rx="12" fill="#d7f4e0" stroke="#37a05c"/>
+  <text x="562" y="362" class="h" fill="#176b36">RUNNABLE</text>
+  <text x="562" y="396" class="t">Thread is ready to run</text>
+  <text x="562" y="418" class="t">and waiting for CPU</text>
+  <text x="562" y="440" class="t">(or currently running).</text>
+  <rect x="452" y="462" width="221" height="38" rx="6" fill="#eafaf0" stroke="#a9ddbd"/>
+  <text x="562" y="487" class="codec">t.start();</text>
+
+  <!-- BLOCKED -->
+  <rect class="box" x="770" y="126" width="282" height="142" rx="12" fill="#fdeccb" stroke="#d1941f"/>
+  <text x="911" y="172" class="h" fill="#8a5a06">BLOCKED</text>
+  <text x="911" y="206" class="t">Thread is waiting to acquire</text>
+  <text x="911" y="228" class="t">a monitor lock (synchronized</text>
+  <text x="911" y="250" class="t">block/method).</text>
+
+  <!-- WAITING -->
+  <rect class="box" x="855" y="313" width="261" height="205" rx="12" fill="#ece0fb" stroke="#8b5cf6"/>
+  <text x="985" y="360" class="h" fill="#5b21b6">WAITING</text>
+  <text x="985" y="393" class="t">Thread is waiting</text>
+  <text x="985" y="415" class="t">indefinitely for another</text>
+  <text x="985" y="437" class="t">thread to perform an action.</text>
+  <rect x="877" y="452" width="217" height="58" rx="6" fill="#f6f1fd" stroke="#cbb6f2"/>
+  <text x="891" y="474" class="code">t.wait();</text>
+  <text x="891" y="493" class="code">t.join();</text>
+
+  <!-- TERMINATED -->
+  <rect class="box" x="1250" y="313" width="270" height="205" rx="12" fill="#cfe7fa" stroke="#3b9ede"/>
+  <text x="1385" y="366" class="h" fill="#0f4c75">TERMINATED</text>
+  <text x="1385" y="405" class="t">Thread has completed</text>
+  <text x="1385" y="427" class="t">execution or has been</text>
+  <text x="1385" y="449" class="t">stopped due to an exception.</text>
+
+  <!-- TIMED_WAITING -->
+  <rect class="box" x="850" y="545" width="276" height="210" rx="12" fill="#fcdfe2" stroke="#df5561"/>
+  <text x="988" y="585" class="h" fill="#9b1c28">TIMED_WAITING</text>
+  <text x="988" y="617" class="t">Thread is waiting for a</text>
+  <text x="988" y="639" class="t">specified time for another</text>
+  <text x="988" y="661" class="t">thread to perform an action.</text>
+  <rect x="870" y="672" width="238" height="76" rx="6" fill="#fdeef0" stroke="#f3b3ba"/>
+  <text x="882" y="693" class="code">t.sleep(millis);</text>
+  <text x="882" y="712" class="code">t.wait(millis);</text>
+  <text x="882" y="731" class="code">t.join(millis);</text>
+
+  <!-- ===== Edges ===== -->
+
+  <!-- NEW -> RUNNABLE -->
+  <path class="edge" d="M292 380 L420 380"/>
+  <text x="354" y="371" class="lbl b">start()</text>
+
+  <!-- RUNNABLE -> BLOCKED -->
+  <path class="edge" d="M560 311 C 560 190, 660 160, 762 160"/>
+  <text x="556" y="172" class="lbl">tries to enter</text>
+  <text x="556" y="193" class="lbl">synchronized block</text>
+  <text x="556" y="214" class="lbl">(lock not available)</text>
+
+  <!-- BLOCKED -> RUNNABLE -->
+  <path class="edge" d="M780 262 C 720 300, 680 260, 622 305"/>
+  <text x="710" y="265" class="lbl">lock acquired</text>
+
+  <!-- RUNNABLE -> WAITING -->
+  <path class="edge" d="M699 372 L847 372"/>
+  <text x="768" y="318" class="lbl">wait()</text>
+  <text x="768" y="340" class="lbl">join()</text>
+  <text x="768" y="362" class="lbl">park()</text>
+
+  <!-- WAITING -> RUNNABLE -->
+  <path class="edge" d="M853 417 L707 417"/>
+  <text x="781" y="443" class="lbl">notify()</text>
+  <text x="781" y="465" class="lbl">notifyAll()</text>
+  <text x="781" y="487" class="lbl">unpark()</text>
+
+  <!-- WAITING -> TERMINATED -->
+  <path class="edge" d="M1118 437 L1242 437"/>
+  <text x="1183" y="345" class="lbl">run() method</text>
+  <text x="1183" y="366" class="lbl">completes</text>
+  <text x="1183" y="387" class="lbl">or</text>
+  <text x="1183" y="408" class="lbl">uncaught except</text>
+
+  <!-- RUNNABLE -> TIMED_WAITING -->
+  <path class="edge" d="M588 520 C 588 640, 700 668, 842 668"/>
+  <text x="540" y="581" class="lbl">sleep(millis)</text>
+  <text x="540" y="603" class="lbl">wait(millis)</text>
+  <text x="540" y="625" class="lbl">join(millis)</text>
+  <text x="540" y="647" class="lbl">parkNanos()</text>
+
+  <!-- TIMED_WAITING -> RUNNABLE -->
+  <path class="edge" d="M842 692 C 700 692, 614 660, 612 522"/>
+  <text x="737" y="564" class="lbl">timeout</text>
+  <text x="737" y="586" class="lbl">or</text>
+  <text x="737" y="608" class="lbl">notify()/unpark()</text>
+
+  <!-- ===== Bottom panels ===== -->
+
+  <!-- State Summary -->
+  <rect x="16" y="770" width="489" height="190" rx="10" fill="#e4f5ea" stroke="#b6ddc6"/>
+  <text x="42" y="800" class="ph" fill="#176b36">State Summary</text>
+  <g class="li">
+    <text x="42" y="828">•  <tspan class="b">NEW</tspan> – Thread object created, not started.</text>
+    <text x="42" y="851">•  <tspan class="b">RUNNABLE</tspan> – Ready to run or currently running.</text>
+    <text x="42" y="874">•  <tspan class="b">BLOCKED</tspan> – Waiting to acquire a monitor lock.</text>
+    <text x="42" y="897">•  <tspan class="b">WAITING</tspan> – Waiting indefinitely for another thread.</text>
+    <text x="42" y="920">•  <tspan class="b">TIMED_WAITING</tspan> – Waiting for a specified time.</text>
+    <text x="42" y="943">•  <tspan class="b">TERMINATED</tspan> – Execution completed.</text>
+  </g>
+
+  <!-- Common Methods -->
+  <rect x="525" y="770" width="570" height="190" rx="10" fill="#dcebfc" stroke="#aacbf0"/>
+  <text x="551" y="800" class="ph" fill="#0f4c75">Common Methods</text>
+  <g class="li">
+    <text x="551" y="828">•  <tspan class="b">start()</tspan> – Moves thread from NEW to RUNNABLE.</text>
+    <text x="551" y="851">•  <tspan class="b">sleep(millis)</tspan> – Puts thread in TIMED_WAITING.</text>
+    <text x="551" y="874">•  <tspan class="b">wait() / wait(millis)</tspan> – Puts thread in WAITING or TIMED_WAITING.</text>
+    <text x="551" y="897">•  <tspan class="b">notify() / notifyAll()</tspan> – Wakes up waiting threads.</text>
+    <text x="551" y="920">•  <tspan class="b">join() / join(millis)</tspan> – Waits for another thread to complete.</text>
+    <text x="551" y="943">•  <tspan class="b">park() / parkNanos()</tspan> – Puts thread in WAITING or TIMED_WAITING.</text>
+  </g>
+
+  <!-- Notes -->
+  <rect x="1115" y="770" width="405" height="190" rx="10" fill="#fdf3d2" stroke="#ecd48f"/>
+  <text x="1139" y="800" class="ph" fill="#8a5a06">Notes</text>
+  <g class="li" font-size="14.5">
+    <text x="1139" y="822">•  A thread can be in only one state at a time.</text>
+    <text x="1139" y="842">•  <tspan class="b">RUNNABLE</tspan> includes both ready and running</text>
+    <text x="1157" y="859">states (JVM/OS decides which thread runs).</text>
+    <text x="1139" y="879">•  <tspan class="b">BLOCKED</tspan> occurs when trying to enter a</text>
+    <text x="1157" y="896">synchronized block/method and the lock is</text>
+    <text x="1157" y="913">held by another thread.</text>
+    <text x="1139" y="933">•  <tspan class="b">WAITING</tspan> and <tspan class="b">TIMED_WAITING</tspan> are entered</text>
+    <text x="1157" y="950">using Object, Thread, or LockSupport methods.</text>
+  </g>
+
+  <!-- Quote bar -->
+  <rect x="16" y="978" width="1504" height="38" rx="8" fill="#e8e4fb" stroke="#c9c1f2"/>
+  <text x="768" y="1003" font-size="16.5" fill="#1f2933" text-anchor="middle">Thread life cycle helps in understanding thread behavior and is essential for writing correct and efficient concurrent programs in Java.</text>
+</svg>

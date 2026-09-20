@@ -28,19 +28,17 @@
         <div class="section-title">Code</div>
         <div class="code-layout">
             <div class="code-wrapper">
-<pre><code><span class="code-keyword">public class</span> <span class="code-class">ReactiveDemo</span> {
-    <span class="code-keyword">public static void</span> main(String[] args) {
-        Flux&lt;Integer&gt; numbers = Flux.range(1, 5)
-            .map(n -&gt; n * n)                 <span class="code-comment"># transform each item</span>
-            .filter(n -&gt; n % 2 == 1)          <span class="code-comment"># keep odds</span>
-            .delayElements(Duration.ofMillis(100));
+<pre><code><span class="code-keyword">void</span> <span class="code-class">main</span>(<span class="code-class">String</span>[] args) {
+    <span class="code-class">Flux</span>&lt;<span class="code-class">Integer</span>&gt; numbers = <span class="code-class">Flux</span>.range(<span class="code-number">1</span>, <span class="code-number">5</span>)
+        .map(n -&gt; n * n)                  <span class="code-comment">// transform each item</span>
+        .filter(n -&gt; n % <span class="code-number">2</span> == <span class="code-number">1</span>)         <span class="code-comment">// keep odds</span>
+        .delayElements(<span class="code-class">Duration</span>.ofMillis(<span class="code-number">100</span>));
 
-        numbers.subscribe(
-            n -&gt; System.out.println(<span class="code-string">"got: "</span> + n),
-            err -&gt; System.err.println(err),
-            () -&gt; System.out.println(<span class="code-string">"done"</span>)
-        );
-    }
+    numbers.subscribe(
+        n -&gt; <span class="code-class">System</span>.out.println(<span class="code-string">"got: "</span> + n),
+        err -&gt; <span class="code-class">System</span>.err.println(err),
+        () -&gt; <span class="code-class">System</span>.out.println(<span class="code-string">"done"</span>)
+    );
 }</code></pre>
             </div>
 

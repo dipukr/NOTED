@@ -49,21 +49,19 @@
         <div class="section-title">Code</div>
         <div class="code-layout">
             <div class="code-wrapper">
-<pre><code><span class="code-keyword">public class</span> <span class="code-class">RunnableDemo</span> {
-    <span class="code-keyword">public static void</span> <span class="code-class">main</span>(<span class="code-class">String</span>[] args) {
-        <span class="code-comment">// Runnable as a lambda: no result, no checked exception</span>
-        <span class="code-class">Runnable</span> job = () -&gt; {
-            <span class="code-class">System</span>.out.println(<span class="code-string">"running on "</span> + <span class="code-class">Thread</span>.currentThread().getName());
-        };
+<pre><code><span class="code-keyword">void</span> <span class="code-class">main</span>(<span class="code-class">String</span>[] args) {
+    <span class="code-comment">// Runnable as a lambda: no result, no checked exception</span>
+    <span class="code-class">Runnable</span> job = () -&gt; {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"running on "</span> + <span class="code-class">Thread</span>.currentThread().getName());
+    };
 
-        <span class="code-comment">// Run on a dedicated thread</span>
-        <span class="code-keyword">new</span> <span class="code-class">Thread</span>(job).start();
+    <span class="code-comment">// Run on a dedicated thread</span>
+    <span class="code-keyword">new</span> <span class="code-class">Thread</span>(job).start();
 
-        <span class="code-comment">// Or submit to an executor</span>
-        <span class="code-class">ExecutorService</span> pool = <span class="code-class">Executors</span>.newSingleThreadExecutor();
-        pool.execute(job);
-        pool.shutdown();
-    }
+    <span class="code-comment">// Or submit to an executor</span>
+    <span class="code-class">ExecutorService</span> pool = <span class="code-class">Executors</span>.newSingleThreadExecutor();
+    pool.execute(job);
+    pool.shutdown();
 }</code></pre>
             </div>
             <div class="code-explanation">

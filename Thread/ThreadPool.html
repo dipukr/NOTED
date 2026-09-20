@@ -56,20 +56,18 @@
         <div class="section-title">Code</div>
         <div class="code-layout">
             <div class="code-wrapper">
-<pre><code><span class="code-keyword">public class</span> <span class="code-class">PoolDemo</span> {
-    <span class="code-keyword">public void</span> main(String[] args) <span class="code-keyword">throws</span> Exception {
-        var pool = Executors.newFixedThreadPool(3);
+<pre><code><span class="code-keyword">void</span> <span class="code-class">main</span>(<span class="code-class">String</span>[] args) <span class="code-keyword">throws</span> <span class="code-class">Exception</span> {
+    <span class="code-class">var</span> pool = <span class="code-class">Executors</span>.newFixedThreadPool(<span class="code-number">3</span>);
 
-        <span class="code-keyword">for</span> (<span class="code-keyword">int</span> i = 0; i &lt; 5; i++) {
-            <span class="code-keyword">final int</span> id = i;
-            pool.submit(() -&gt; System.out.println(<span class="code-string">"task "</span> + id));
-        }
-
-        Future&lt;Integer&gt; f = pool.submit(() -&gt; 40 + 2);
-        System.out.println(<span class="code-string">"result: "</span> + f.get());  <span class="code-comment"># 42</span>
-
-        pool.shutdown();          <span class="code-comment"># stop accepting new tasks</span>
+    <span class="code-keyword">for</span> (<span class="code-keyword">int</span> i = <span class="code-number">0</span>; i &lt; <span class="code-number">5</span>; i++) {
+        <span class="code-keyword">final int</span> id = i;
+        pool.submit(() -&gt; <span class="code-class">System</span>.out.println(<span class="code-string">"task "</span> + id));
     }
+
+    <span class="code-class">Future</span>&lt;<span class="code-class">Integer</span>&gt; f = pool.submit(() -&gt; <span class="code-number">40</span> + <span class="code-number">2</span>);
+    <span class="code-class">System</span>.out.println(<span class="code-string">"result: "</span> + f.get());  <span class="code-comment">// 42</span>
+
+    pool.shutdown();          <span class="code-comment">// stop accepting new tasks</span>
 }</code></pre>
             </div>
 

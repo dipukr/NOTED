@@ -11,32 +11,26 @@
     <div class="title">Thread</div>
 
     <div class="intro">
-        <p>A thread of execution is the smallest sequence of programmed instructions that can be managed independently by a OS scheduler. Threads of a process share its executable code and the values of its dynamically allocated variables and non-thread-local global variables at any given time. Local primitive variables are thread-safe because each thread has separate stack memory. Local reference variables are not thread-safe because each thread share heap memory. A thread is a sequence of instructions within a program that can be executed independently of other code. Thread is a dispatchable unit of work, includes a processor context (program counter and stack pointer) and its own data area for a stack. Each thread is executing the same program code and shares the same data area and heap however each thread has it own stack containing local variables.</p>
-        <p>Eahc thread has a priority, thread scheduler uses priority to determine which thread should be allowed to execute.</p>
-        <p>Threads with higher priority are executed in preference to threads with lower priority.</p>
-        <p>When two threads have the same priority then JVM will execute them in FIFO order.</p>
-        <p>When multiple threads are ready to execute then JVM will selects and executes the Runnable thread which has the highest priority.</p>
+        <p>A thread of execution is the smallest sequence of programmed instructions that can be managed independently by an OS scheduler. Threads of a process share its executable code and the values of its dynamically allocated variables and non-thread-local global variables at any given time.</p>
+        <p>Local primitive variables are thread-safe because each thread has separate stack memory; local reference variables are not, because each thread shares heap memory. Each thread has its own stack (program counter and local variables) but shares the same code and heap with the rest of the process.</p>
     </div>
 
     <div class="section code-section">
         <div class="section-title">Code</div>
         <div class="code-layout">
             <div class="code-wrapper">
-<pre><code><span class="code-keyword">public class</span> <span class="code-class">ThreadDemo</span> {
-    <span class="code-keyword">public static void</span> main(String[] args) <span class="code-keyword">throws</span> InterruptedException {
-        Runnable task = () -&gt; {
-            <span class="code-keyword">for</span> (<span class="code-keyword">int</span> i = 0; i &lt; 3; i++)
-                System.out.println(Thread.currentThread().getName() + <span class="code-string">" "</span> + i);
-        };
+<pre><code><span class="code-keyword">void</span> <span class="code-class">main</span>(<span class="code-class">String</span>[] args) <span class="code-keyword">throws</span> <span class="code-class">InterruptedException</span> {
+    <span class="code-class">Runnable</span> task = () -&gt; {
+        <span class="code-keyword">for</span> (<span class="code-keyword">int</span> i = <span class="code-number">0</span>; i &lt; <span class="code-number">3</span>; i++)
+            <span class="code-class">System</span>.out.println(<span class="code-class">Thread</span>.currentThread().getName() + <span class="code-string">" "</span> + i);
+    };
 
-        Thread t = <span class="code-keyword">new</span> Thread(task, <span class="code-string">"worker"</span>);
-        t.start();                 <span class="code-comment"># runs task on a new thread</span>
-        t.join();                  <span class="code-comment"># wait for it to finish</span>
-        System.out.println(<span class="code-string">"main done"</span>);
-    }
+    <span class="code-class">Thread</span> t = <span class="code-keyword">new</span> <span class="code-class">Thread</span>(task, <span class="code-string">"worker"</span>);
+    t.start();                 <span class="code-comment">// runs task on a new thread</span>
+    t.join();                  <span class="code-comment">// wait for it to finish</span>
+    <span class="code-class">System</span>.out.println(<span class="code-string">"main done"</span>);
 }</code></pre>
             </div>
-
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
                 <ul>
@@ -47,6 +41,180 @@
                 </ul>
             </div>
         </div>
+    </div>
+
+    <div class="title">Thread Creation</div>
+
+    <div class="intro">
+        <p>In Java a thread can be created by extending <code>Thread</code> or by implementing <code>Runnable</code>. The <code>Runnable</code> approach is preferred because it keeps the task separate from the thread and leaves the class free to extend something else.</p>
+        <p>Calling <code>start()</code> allocates a new OS thread and invokes <code>run()</code> on it; calling <code>run()</code> directly just executes on the current thread, with no new thread involved.</p>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">void</span> <span class="code-class">main</span>(<span class="code-class">String</span>[] args) {
+    <span class="code-comment">// 1) Implement Runnable (preferred)</span>
+    <span class="code-class">Runnable</span> task = () -&gt; <span class="code-class">System</span>.out.println(<span class="code-string">"from runnable"</span>);
+    <span class="code-class">Thread</span> t1 = <span class="code-keyword">new</span> <span class="code-class">Thread</span>(task);
+    t1.start();      <span class="code-comment">// launches a new thread</span>
+
+    <span class="code-comment">// 2) Extend Thread</span>
+    <span class="code-class">Thread</span> t2 = <span class="code-keyword">new</span> <span class="code-class">Thread</span>() {
+        <span class="code-keyword">public void</span> <span class="code-class">run</span>() { <span class="code-class">System</span>.out.println(<span class="code-string">"from subclass"</span>); }
+    };
+    t2.start();
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>A <code>Runnable</code> holds the task; <code>new Thread(task)</code> wraps it.</li>
+                    <li><code>start()</code> allocates a stack and runs <code>run()</code> on the new thread.</li>
+                    <li>Extending <code>Thread</code> overrides <code>run()</code> directly.</li>
+                    <li>Never call <code>run()</code> yourself; it executes on the current thread.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="title">Thread Priority</div>
+
+    <div class="intro">
+        <p>Each thread has a priority, and the thread scheduler uses priority to decide which Runnable thread should be allowed to execute next.</p>
+        <p>Threads with higher priority are executed in preference to threads with lower priority; when two threads share the same priority, the JVM runs them in FIFO order. Priorities range from <code>Thread.MIN_PRIORITY</code> (1) to <code>Thread.MAX_PRIORITY</code> (10), with <code>Thread.NORM_PRIORITY</code> (5) as the default.</p>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">PriorityDemo</span> {
+    <span class="code-keyword">public static void</span> <span class="code-class">main</span>(<span class="code-class">String</span>[] args) {
+        <span class="code-class">Thread</span> high = <span class="code-keyword">new</span> <span class="code-class">Thread</span>(<span class="code-keyword">new</span> <span class="code-class">Counter</span>(<span class="code-string">"high"</span>));
+        <span class="code-class">Thread</span> low = <span class="code-keyword">new</span> <span class="code-class">Thread</span>(<span class="code-keyword">new</span> <span class="code-class">Counter</span>(<span class="code-string">"low"</span>));
+
+        high.setPriority(<span class="code-class">Thread</span>.MAX_PRIORITY);   <span class="code-comment">// 10</span>
+        low.setPriority(<span class="code-class">Thread</span>.MIN_PRIORITY);     <span class="code-comment">// 1</span>
+
+        <span class="code-class">System</span>.out.println(<span class="code-string">"high priority: "</span> + high.getPriority());
+        <span class="code-class">System</span>.out.println(<span class="code-string">"low priority: "</span> + low.getPriority());
+
+        high.start();
+        low.start();
+    }
+
+    <span class="code-keyword">static class</span> <span class="code-class">Counter</span> <span class="code-keyword">implements</span> <span class="code-class">Runnable</span> {
+        <span class="code-keyword">private final</span> <span class="code-class">String</span> name;
+        <span class="code-class">Counter</span>(<span class="code-class">String</span> name) { <span class="code-keyword">this</span>.name = name; }
+        <span class="code-keyword">public void</span> <span class="code-class">run</span>() {
+            <span class="code-keyword">for</span> (<span class="code-keyword">int</span> i = <span class="code-number">0</span>; i &lt; <span class="code-number">3</span>; i++)
+                <span class="code-class">System</span>.out.println(name + <span class="code-string">" "</span> + i);
+        }
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>setPriority()</code> hints to the scheduler how urgently a thread should run.</li>
+                    <li><code>Thread.MAX_PRIORITY</code>/<code>MIN_PRIORITY</code> bound the valid range (10 to 1).</li>
+                    <li>Priority is only a scheduling hint &mdash; the OS and JVM are free to interpret it differently across platforms.</li>
+                    <li>It does not guarantee execution order, only a statistical preference for higher-priority threads.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="title">Thread Lifecycle</div>
+
+    <div class="intro">
+        <p>A thread moves through a defined set of states during its life: New, Runnable, Blocked, Waiting, Timed-Waiting and Terminated.</p>
+        <p>A thread enters Waiting via <code>wait()</code> or <code>join()</code>, and Blocked when contending for a monitor lock. Once <code>run()</code> completes, the thread reaches Terminated and cannot be restarted.</p>
+    </div>
+
+    <div class="section-diagram">
+        <img src="../static/thread-lifecycle.svg" alt="Java thread lifecycle state diagram showing transitions between NEW, RUNNABLE, BLOCKED, WAITING, TIMED_WAITING and TERMINATED">
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">void</span> <span class="code-class">main</span>(<span class="code-class">String</span>[] args) <span class="code-keyword">throws</span> <span class="code-class">InterruptedException</span> {
+    <span class="code-class">Thread</span> t = <span class="code-keyword">new</span> <span class="code-class">Thread</span>(() -&gt; {
+        <span class="code-keyword">try</span> { <span class="code-class">Thread</span>.sleep(<span class="code-number">100</span>); } <span class="code-keyword">catch</span> (<span class="code-class">InterruptedException</span> e) {}
+    });
+
+    <span class="code-class">System</span>.out.println(t.getState());   <span class="code-comment">// NEW</span>
+    t.start();
+    <span class="code-class">System</span>.out.println(t.getState());   <span class="code-comment">// RUNNABLE</span>
+    <span class="code-class">Thread</span>.sleep(<span class="code-number">10</span>);
+    <span class="code-class">System</span>.out.println(t.getState());   <span class="code-comment">// TIMED_WAITING</span>
+    t.join();                            <span class="code-comment">// wait for completion</span>
+    <span class="code-class">System</span>.out.println(t.getState());   <span class="code-comment">// TERMINATED</span>
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>getState()</code> reports the current <code>Thread.State</code>.</li>
+                    <li>Before <code>start()</code> the thread is NEW.</li>
+                    <li><code>sleep</code> puts it in TIMED_WAITING.</li>
+                    <li>After <code>run()</code> finishes and <code>join()</code> returns, it is TERMINATED.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="title">Daemon Threads</div>
+
+    <div class="intro">
+        <p>A daemon thread is a background thread that does not prevent the JVM from exiting. The JVM shuts down once only daemon threads remain running; user (non-daemon) threads keep the JVM alive until they finish.</p>
+        <p>Daemons suit background chores like housekeeping, monitoring or garbage collection &mdash; never work that must complete or persist data, since they are abruptly stopped at JVM exit.</p>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">void</span> <span class="code-class">main</span>(<span class="code-class">String</span>[] args) <span class="code-keyword">throws</span> <span class="code-class">InterruptedException</span> {
+    <span class="code-class">Thread</span> monitor = <span class="code-keyword">new</span> <span class="code-class">Thread</span>(() -&gt; {
+        <span class="code-keyword">while</span> (<span class="code-keyword">true</span>) {                   <span class="code-comment"># Endless background loop</span>
+            <span class="code-class">System</span>.out.println(<span class="code-string">"monitoring..."</span>);
+            <span class="code-keyword">try</span> {<span class="code-class">Thread</span>.sleep(<span class="code-number">200</span>);}
+            <span class="code-keyword">catch</span> (<span class="code-class">InterruptedException</span> e) {<span class="code-keyword">return</span>;}
+        }
+    });
+
+    monitor.setDaemon(<span class="code-keyword">true</span>);          <span class="code-comment"># must be set before start()</span>
+    monitor.start();
+
+    <span class="code-class">Thread</span>.sleep(<span class="code-number">500</span>);                 <span class="code-comment"># Main is the only user thread</span>
+    <span class="code-class">System</span>.out.println(<span class="code-string">"main done, JVM exits and kills daemon"</span>);
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>setDaemon(true)</code> marks the thread as background before start.</li>
+                    <li>The daemon loops forever but does not block shutdown.</li>
+                    <li>When <code>main</code> ends, no user thread remains.</li>
+                    <li>The JVM exits and the daemon is terminated immediately.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">Key points</div>
+        <div class="section-content"><ul>
+            <li>Prefer implementing <code>Runnable</code> over extending <code>Thread</code> so the class can still extend something else.</li>
+            <li>Use <code>setPriority()</code> only as a scheduling hint, never to guarantee ordering.</li>
+            <li>Use <code>setDaemon(true)</code> before <code>start()</code> for BG work that should die automatically when the JVM exits.</li>
+            <li>For many short-lived tasks, prefer a thread pool / <code>ExecutorService</code> over raw threads.</li>
+        </ul></div>
     </div>
 </div>
 </body>

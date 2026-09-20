@@ -18,7 +18,7 @@
     </div>
 
     <div class="section when-use">
-        <div class="section-title">When to use / Key points</div>
+        <div class="section-title">Key points</div>
         <div class="section-content"><ul>
             <li>Every domain-based network call starts with a DNS lookup.</li>
             <li>Record types include A, AAAA, CNAME, MX, and TXT.</li>
@@ -37,7 +37,7 @@
     </div>
 
     <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-title">Disadvantages</div>
         <div class="section-content"><ul>
             <li>Caching means changes propagate slowly (TTL delay).</li>
             <li>Vulnerable to spoofing and cache poisoning without DNSSEC.</li>
@@ -49,19 +49,16 @@
         <div class="section-title">Code</div>
         <div class="code-layout">
             <div class="code-wrapper">
-<pre><code><span class="code-comment"># Resolving a hostname to IP addresses in Java</span>
+<pre><code><span class="code-comment">// Resolving a hostname to IP addresses in Java</span>
 
-<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">DnsLookup</span> {
+<span class="code-keyword">void</span> <span class="code-class">main</span>(<span class="code-class">String</span>[] args) <span class="code-keyword">throws</span> <span class="code-class">Exception</span> {
+    <span class="code-comment">// triggers a DNS query (may hit a cache)</span>
+    <span class="code-class">InetAddress</span>[] addresses =
+        <span class="code-class">InetAddress</span>.getAllByName(<span class="code-string">"example.com"</span>);
 
-    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) <span class="code-keyword">throws</span> <span class="code-class">Exception</span> {
-        <span class="code-comment"># triggers a DNS query (may hit a cache)</span>
-        <span class="code-class">InetAddress</span>[] addresses =
-            <span class="code-class">InetAddress</span>.getAllByName(<span class="code-string">"example.com"</span>);
-
-        <span class="code-keyword">for</span> (<span class="code-class">InetAddress</span> addr : addresses) {
-            <span class="code-class">System</span>.out.println(
-                addr.getHostName() + <span class="code-string">" -&gt; "</span> + addr.getHostAddress());
-        }
+    <span class="code-keyword">for</span> (<span class="code-class">InetAddress</span> addr : addresses) {
+        <span class="code-class">System</span>.out.println(
+            addr.getHostName() + <span class="code-string">" -&gt; "</span> + addr.getHostAddress());
     }
 }</code></pre>
             </div>

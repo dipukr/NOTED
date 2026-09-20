@@ -49,22 +49,19 @@
         <div class="section-title">Code</div>
         <div class="code-layout">
             <div class="code-wrapper">
-<pre><code><span class="code-comment"># A minimal TCP client using Java sockets</span>
+<pre><code><span class="code-comment">// A minimal TCP client using Java sockets</span>
 
-<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">TcpClient</span> {
+<span class="code-keyword">void</span> <span class="code-class">main</span>(<span class="code-class">String</span>[] args) <span class="code-keyword">throws</span> <span class="code-class">IOException</span> {
+    <span class="code-comment">// opening the socket performs the 3-way handshake</span>
+    <span class="code-keyword">try</span> (<span class="code-class">Socket</span> socket = <span class="code-keyword">new</span> <span class="code-class">Socket</span>(<span class="code-string">"localhost"</span>, <span class="code-number">9090</span>)) {
 
-    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) <span class="code-keyword">throws</span> <span class="code-class">IOException</span> {
-        <span class="code-comment"># opening the socket performs the 3-way handshake</span>
-        <span class="code-keyword">try</span> (<span class="code-class">Socket</span> socket = <span class="code-keyword">new</span> <span class="code-class">Socket</span>(<span class="code-string">"localhost"</span>, <span class="code-string">9090</span>)) {
+        <span class="code-class">PrintWriter</span> out =
+            <span class="code-keyword">new</span> <span class="code-class">PrintWriter</span>(socket.getOutputStream(), <span class="code-keyword">true</span>);
+        <span class="code-class">BufferedReader</span> in = <span class="code-keyword">new</span> <span class="code-class">BufferedReader</span>(
+            <span class="code-keyword">new</span> <span class="code-class">InputStreamReader</span>(socket.getInputStream()));
 
-            <span class="code-class">PrintWriter</span> out =
-                <span class="code-keyword">new</span> <span class="code-class">PrintWriter</span>(socket.getOutputStream(), <span class="code-keyword">true</span>);
-            <span class="code-class">BufferedReader</span> in = <span class="code-keyword">new</span> <span class="code-class">BufferedReader</span>(
-                <span class="code-keyword">new</span> <span class="code-class">InputStreamReader</span>(socket.getInputStream()));
-
-            out.println(<span class="code-string">"PING"</span>);       <span class="code-comment"># reliable, ordered send</span>
-            <span class="code-class">System</span>.out.println(in.readLine());
-        }
+        out.println(<span class="code-string">"PING"</span>);       <span class="code-comment">// reliable, ordered send</span>
+        <span class="code-class">System</span>.out.println(in.readLine());
     }
 }</code></pre>
             </div>

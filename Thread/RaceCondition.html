@@ -21,14 +21,19 @@
         </ul>
         <p>When multiple threads try to modify a shared resource at the same time then the final outcome is non deterministic.</p>
         <p>We must explicitly synchronize concurrent access to a shared resource in a multi-threaded environment.</p>
-        <p>When a thread enters synchronized code (calling the synchronized method of that object) it takes the lock on that object.</p>
-        <p>Thus other threads cannot enters synchronized code because there is only one lock per object.</p>
+        <p>When a thread enters synchronized code (calling the synchronized method of that object) it takes the lock on that object.
+           Thus other threads cannot enters synchronized code because there is only one lock per object.</p>
         <p>Cached shared data causes a thread not to notice that data has been changed by the another thread.</p>
-        <p>Resources: Memory, files, network connections.</p>
+        <p class="resources">
+            <span class="resources-label">Resources</span>
+            <span class="resource-tag">Memory</span>
+            <span class="resource-tag">Files</span>
+            <span class="resource-tag">Network connections</span>
+        </p>
     </div>
 
     <div class="section when-use">
-        <div class="section-title"><span style="color: purple;">Solutions to race condition:</span></div>
+        <div class="section-title">Solutions to race condition</div>
         <div class="section-content">
             <ul>
                 <li>Locks-Mutexes: Ensure only one thread can access the shared data at a time, like a key to a room.</li>
@@ -38,34 +43,40 @@
         </div>
     </div>
 
-    <table style="width: 99%;border-collapse: collapse;border: 1px solid #ccc;margin-top: 10px;margin-bottom: 10px;margin-left: auto;margin-right: auto;"><tbody><tr><td style="border: 1px solid #ccc;padding-top: 8px;padding-bottom: 8px;padding-left: 17px;padding-right: 17px;text-align: center;background-color: #f0f0f0;font-weight: bold;">Examples</td></tr><tr><td style="border: 1px solid rgb(204, 204, 204); padding: 8px 17px 17px; text-align: center;"><b>Bank Account
-</b>Two people withdraw money from the same account at once.
-Without locks, both might read the balance, one withdraws, then the second withdraws, potentially leaving the account overdrawn or losing one withdrawal's record.
-<b>Movie Ticket</b>
-Suppose you are buying theatre tickets online and after you pick your seats and are entering your credit card information, someone else buys that seat and they are no longer available. Suppose multiple threads have access to a collection object and they are adding and removing at same time then there will be an error unless the collection is thread-safe.<b>
-Document Editing</b>
-Two users edit the same document.
-One saves changes, but before they're fully synced, the other saves, overwriting the first user's work.<b>
-Shared Counter</b>
-Two threads try to increment a counter variable.</td></tr></tbody></table>
+    <div class="section examples">
+        <div class="section-title">Examples</div>
+        <div class="section-content">
+            <div class="example-item">
+                <div class="example-title">Movie Ticket</div>
+                <p>Suppose you are buying theatre tickets online and after you pick your seats and are entering your credit card information, someone else buys that seat and they are no longer available. If multiple threads have access to a collection object and they are adding and removing at the same time, there will be an error unless the collection is thread-safe.</p>
+            </div>
+			<div class="example-item">
+                <div class="example-title">Bank Account</div>
+                <p>Two people withdraw money from the same account at once. Without locks, both might read the balance, one withdraws, then the second withdraws, potentially leaving the account overdrawn or losing one withdrawal's record.</p>
+            </div>
+            <div class="example-item">
+                <div class="example-title">Document Editing</div>
+                <p>Two users edit the same document. One saves changes, but before they're fully synced, the other saves, overwriting the first user's work.</p>
+            </div>
+            <div class="example-item">
+                <div class="example-title">Shared Counter</div>
+                <p>Two threads try to increment a counter variable at the same time, and one increment can be silently lost.</p>
+            </div>
+        </div>
+    </div>
 
     <div class="section code-section">
         <div class="section-title">Code</div>
         <div class="code-layout">
             <div class="code-wrapper">
 <pre><code><span class="code-keyword">public class</span> <span class="code-class">Counter</span> {
-    <span class="code-comment"># RACE: count++ is not atomic</span>
-    <span class="code-comment"># private int count = 0;</span>
-    <span class="code-comment"># void inc() {count++;}</span>
-	
-    <span class="code-comment"># FIX: atomic read-modify-write</span>
-    <span class="code-keyword">private</span> AtomicInteger count = <span class="code-keyword">new</span> AtomicInteger();
+    <span class="code-keyword">private</span> <span class="code-class">AtomicInteger</span> count = <span class="code-keyword">new</span> <span class="code-class">AtomicInteger</span>();
 
-    <span class="code-keyword">public void</span> inc() {
+    <span class="code-keyword">public void</span> <span class="code-class">inc</span>() {
         count.incrementAndGet();   <span class="code-comment"># single atomic op</span>
     }
 
-    <span class="code-keyword">public int</span> get() {
+    <span class="code-keyword">public int</span> <span class="code-class">get</span>() {
         <span class="code-keyword">return</span> count.get();
     }
 }</code></pre>

@@ -49,23 +49,20 @@
         <div class="section-title">Code</div>
         <div class="code-layout">
             <div class="code-wrapper">
-<pre><code><span class="code-comment"># Sending a UDP datagram in Java</span>
+<pre><code><span class="code-comment">// Sending a UDP datagram in Java</span>
 
-<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">UdpClient</span> {
+<span class="code-keyword">void</span> <span class="code-class">main</span>(<span class="code-class">String</span>[] args) <span class="code-keyword">throws</span> <span class="code-class">Exception</span> {
+    <span class="code-keyword">try</span> (<span class="code-class">DatagramSocket</span> socket = <span class="code-keyword">new</span> <span class="code-class">DatagramSocket</span>()) {
 
-    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) <span class="code-keyword">throws</span> <span class="code-class">Exception</span> {
-        <span class="code-keyword">try</span> (<span class="code-class">DatagramSocket</span> socket = <span class="code-keyword">new</span> <span class="code-class">DatagramSocket</span>()) {
+        <span class="code-keyword">byte</span>[] data = <span class="code-string">"PING"</span>.getBytes();
+        <span class="code-class">InetAddress</span> host = <span class="code-class">InetAddress</span>.getByName(<span class="code-string">"localhost"</span>);
 
-            <span class="code-keyword">byte</span>[] data = <span class="code-string">"PING"</span>.getBytes();
-            <span class="code-class">InetAddress</span> host = <span class="code-class">InetAddress</span>.getByName(<span class="code-string">"localhost"</span>);
+        <span class="code-comment">// no connection: just fire the datagram</span>
+        <span class="code-class">DatagramPacket</span> packet =
+            <span class="code-keyword">new</span> <span class="code-class">DatagramPacket</span>(data, data.length, host, <span class="code-number">9090</span>);
 
-            <span class="code-comment"># no connection: just fire the datagram</span>
-            <span class="code-class">DatagramPacket</span> packet =
-                <span class="code-keyword">new</span> <span class="code-class">DatagramPacket</span>(data, data.length, host, <span class="code-string">9090</span>);
-
-            socket.send(packet); <span class="code-comment"># fire and forget, no ack</span>
-            <span class="code-class">System</span>.out.println(<span class="code-string">"Datagram sent"</span>);
-        }
+        socket.send(packet); <span class="code-comment">// fire and forget, no ack</span>
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Datagram sent"</span>);
     }
 }</code></pre>
             </div>

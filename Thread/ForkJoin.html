@@ -11,38 +11,8 @@
     <div class="title">Fork-Join Framework</div>
 
     <div class="intro">
-        <p>The Fork-Join framework parallelises divide-and-conquer algorithms.</p>
-        <p>A task forks into subtasks, which run in parallel and then join their results.</p>
-        <p>It is backed by a work-stealing <code>ForkJoinPool</code> for load balancing.</p>
-        <p>Tasks extend <code>RecursiveTask</code> (returns a value) or <code>RecursiveAction</code> (no value).</p>
-    </div>
-
-    <div class="section when-use">
-        <div class="section-title">When to use / Key points</div>
-        <div class="section-content"><ul>
-            <li>Recursively splittable problems like sums, sorts and searches.</li>
-            <li>Split until a threshold, then compute sequentially.</li>
-            <li><code>fork()</code> schedules a subtask; <code>join()</code> waits for its result.</li>
-            <li>Avoid blocking I/O inside fork-join tasks.</li>
-        </ul></div>
-    </div>
-
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Automatic load balancing via work-stealing.</li>
-            <li>Scales divide-and-conquer work across cores.</li>
-            <li>Powers parallel streams under the hood.</li>
-        </ul></div>
-    </div>
-
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Wrong split threshold hurts performance.</li>
-            <li>Not suited to blocking or I/O-bound tasks.</li>
-            <li>Recursion overhead for small inputs.</li>
-        </ul></div>
+        <p>The Fork-Join framework parallelises divide-and-conquer algorithms. A task forks into subtasks, which run in parallel and then join their results.</p>
+        <p>Tasks extend <code>RecursiveTask</code> (returns a value) or <code>RecursiveAction</code> (no value). It backs parallel streams and the JVM's common pool used across the JDK.</p>
     </div>
 
     <div class="section code-section">
@@ -50,31 +20,101 @@
         <div class="code-layout">
             <div class="code-wrapper">
 <pre><code><span class="code-keyword">public class</span> <span class="code-class">SumTask</span> <span class="code-keyword">extends</span> <span class="code-class">RecursiveTask</span>&lt;<span class="code-class">Long</span>&gt; {
-    <span class="code-keyword">private final</span> <span class="code-keyword">int</span>[] arr; <span class="code-keyword">private final</span> <span class="code-keyword">int</span> lo, hi;
-    <span class="code-class">SumTask</span>(<span class="code-keyword">int</span>[] arr, <span class="code-keyword">int</span> lo, <span class="code-keyword">int</span> hi) { <span class="code-keyword">this</span>.arr = arr; <span class="code-keyword">this</span>.lo = lo; <span class="code-keyword">this</span>.hi = hi; }
 
-    <span class="code-keyword">protected</span> <span class="code-class">Long</span> <span class="code-class">compute</span>() {
-        <span class="code-keyword">if</span> (hi - lo &lt;= <span class="code-string">1000</span>) {                 <span class="code-comment">// small enough: do it directly</span>
-            <span class="code-keyword">long</span> s = <span class="code-string">0</span>; <span class="code-keyword">for</span> (<span class="code-keyword">int</span> i = lo; i &lt; hi; i++) s += arr[i]; <span class="code-keyword">return</span> s;
+    <span class="code-keyword">private static final int</span> THRESHOLD = <span class="code-number">1000</span>;
+    <span class="code-keyword">private final int</span>[] data;
+    <span class="code-keyword">private final int</span> lo, hi;
+
+    <span class="code-keyword">public</span> <span class="code-class">SumTask</span>(<span class="code-keyword">int</span>[] data, <span class="code-keyword">int</span> lo, <span class="code-keyword">int</span> hi) {
+        <span class="code-keyword">this</span>.data = data; <span class="code-keyword">this</span>.lo = lo; <span class="code-keyword">this</span>.hi = hi;
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">protected</span> <span class="code-class">Long</span> compute() {
+        <span class="code-keyword">if</span> (hi - lo &lt;= THRESHOLD) {
+            <span class="code-keyword">long</span> sum = <span class="code-number">0</span>;
+            <span class="code-keyword">for</span> (<span class="code-keyword">int</span> i = lo; i &lt; hi; i++) sum += data[i];
+            <span class="code-keyword">return</span> sum;
         }
-        <span class="code-keyword">int</span> mid = (lo + hi) &gt;&gt;&gt; <span class="code-string">1</span>;
-        <span class="code-class">SumTask</span> left = <span class="code-keyword">new</span> <span class="code-class">SumTask</span>(arr, lo, mid);
-        <span class="code-class">SumTask</span> right = <span class="code-keyword">new</span> <span class="code-class">SumTask</span>(arr, mid, hi);
-        left.fork();                             <span class="code-comment">// async subtask</span>
-        <span class="code-keyword">return</span> right.compute() + left.join();       <span class="code-comment">// join result</span>
+        <span class="code-keyword">int</span> mid = (lo + hi) &gt;&gt;&gt; <span class="code-number">1</span>;
+        <span class="code-class">SumTask</span> left = <span class="code-keyword">new</span> <span class="code-class">SumTask</span>(data, lo, mid);
+        left.fork(); <span class="code-comment">// run left asynchronously</span>
+        <span class="code-class">SumTask</span> right = <span class="code-keyword">new</span> <span class="code-class">SumTask</span>(data, mid, hi);
+        <span class="code-keyword">return</span> right.compute() + left.join();
     }
 }</code></pre>
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
                 <ul>
-                    <li><code>compute</code> solves small ranges directly and splits larger ones.</li>
-                    <li><code>fork()</code> queues the left half for another worker to steal.</li>
-                    <li><code>join()</code> waits for and returns the forked subtask's result.</li>
-                    <li>The pool balances work so all cores stay busy.</li>
+                    <li><code>compute()</code> solves small ranges directly and splits large ones.</li>
+                    <li><code>fork()</code> queues the left half so another worker can steal it.</li>
+                    <li><code>join()</code> collects the forked result and combines it with the right half.</li>
                 </ul>
             </div>
         </div>
+    </div>
+
+    <div class="title">ForkJoinPool</div>
+
+    <div class="intro">
+        <p><code>ForkJoinPool</code> is the executor that runs Fork-Join tasks. It uses a work-stealing algorithm where idle worker threads steal tasks from busy threads' queues to keep all cores busy.</p>
+        <p>The JVM's shared common pool (used by parallel streams too) is available via <code>ForkJoinPool.commonPool()</code>, or you can create a dedicated pool with <code>new ForkJoinPool(n)</code>.</p>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">void</span> <span class="code-class">main</span>() {
+    <span class="code-keyword">int</span>[] data = <span class="code-keyword">new</span> <span class="code-keyword">int</span>[<span class="code-number">10_000</span>];
+    <span class="code-class">Arrays</span>.fill(data, <span class="code-number">1</span>);
+
+    <span class="code-class">ForkJoinPool</span> pool = <span class="code-class">ForkJoinPool</span>.commonPool();  <span class="code-comment">// or new ForkJoinPool(n)</span>
+    <span class="code-keyword">long</span> total = pool.invoke(<span class="code-keyword">new</span> <span class="code-class">SumTask</span>(data, <span class="code-number">0</span>, data.length));
+
+    <span class="code-class">System</span>.out.println(<span class="code-string">"sum = "</span> + total);
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>ForkJoinPool.commonPool()</code> reuses the JVM-wide shared pool (also used by parallel streams).</li>
+                    <li><code>pool.invoke(task)</code> submits the root task and blocks until the whole computation completes.</li>
+                    <li>Internally the pool's worker threads run <code>compute()</code>, forking and stealing subtasks as needed.</li>
+                    <li>Prefer a dedicated <code>new ForkJoinPool(n)</code> instead of the common pool when isolating from other code that also uses it.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Recursively splittable, CPU-bound problems: sums, sorts, searches, aggregation.</li>
+            <li>Split until subtasks are small (below a threshold), then compute directly.</li>
+            <li><code>fork()</code> schedules a subtask asynchronously; <code>join()</code> waits for and returns its result.</li>
+            <li>Avoid blocking I/O inside fork-join tasks &mdash; it stalls a worker and starves the pool.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Automatic load balancing via work-stealing, with minimal idle time.</li>
+            <li>Excellent throughput for recursive, divide-and-conquer CPU-bound work.</li>
+            <li>Powers parallel streams and the common pool for free.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Wrong split threshold hurts performance either way.</li>
+            <li>Not suited to blocking or I/O-bound tasks; a blocked worker hurts the whole pool.</li>
+            <li>Recursion/splitting overhead can outweigh gains for small inputs.</li>
+            <li>Sharing the common pool across unrelated code can cause cross-task interference.</li>
+        </ul></div>
     </div>
 </div>
 </body>

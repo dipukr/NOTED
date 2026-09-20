@@ -75,6 +75,76 @@
             </div>
         </div>
     </div>
+	<div class="title">Semaphore Control</div>
+
+    <div class="intro">
+        <p>A <code>Semaphore</code> maintains a set of permits controlling how many threads may access a resource at once.</p>
+        <p><code>acquire()</code> takes a permit (blocking if none are free) and <code>release()</code> returns one.</p>
+        <p>A binary semaphore (one permit) acts like a mutex; a counting semaphore limits concurrency to N.</p>
+        <p>It is the standard tool for rate limiting and bounded resource pools.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Limit concurrent access to a pool of connections or files.</li>
+            <li>Throttle the number of in-flight requests.</li>
+            <li>Use <code>tryAcquire(timeout)</code> to avoid indefinite blocking.</li>
+            <li>Always <code>release()</code> in a <code>finally</code> block.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Simple way to cap concurrency to a fixed number.</li>
+            <li>Permits can be released by a different thread than acquired them.</li>
+            <li>Supports fairness and timed acquisition.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>No ownership tracking; a forgotten <code>release()</code> leaks permits.</li>
+            <li>Not reentrant; re-acquiring can deadlock.</li>
+            <li>Misconfigured permit counts silently under- or over-throttle.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">ConnectionPool</span> {
+
+    <span class="code-comment">// allow at most 3 concurrent users</span>
+    <span class="code-keyword">private final</span> <span class="code-class">Semaphore</span> permits = <span class="code-keyword">new</span> <span class="code-class">Semaphore</span>(<span class="code-number">3</span>, <span class="code-keyword">true</span>);
+
+    <span class="code-keyword">public</span> <span class="code-class">String</span> query(<span class="code-class">String</span> sql) <span class="code-keyword">throws</span> <span class="code-class">InterruptedException</span> {
+        permits.acquire(); <span class="code-comment">// blocks if all 3 in use</span>
+        <span class="code-keyword">try</span> {
+            <span class="code-keyword">return</span> execute(sql);
+        } <span class="code-keyword">finally</span> {
+            permits.release(); <span class="code-comment">// hand permit back</span>
+        }
+    }
+
+    <span class="code-keyword">private</span> <span class="code-class">String</span> execute(<span class="code-class">String</span> sql) {
+        <span class="code-keyword">return</span> <span class="code-string">"result"</span>;
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>The semaphore starts with 3 permits, capping concurrency at three threads.</li>
+                    <li><code>acquire()</code> blocks a fourth thread until a permit is released.</li>
+                    <li><code>release()</code> in <code>finally</code> guarantees the permit returns even on error.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
 </div>
 </body>
 </html>
