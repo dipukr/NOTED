@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Service Mesh - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Service Mesh</div>
+
+    <div class="intro">
+        <p>A service mesh is a dedicated infrastructure layer that manages service-to-service communication in a microservices system.</p>
+        <p>It handles routing, load balancing, retries, security, and observability without changing application code.</p>
+        <p>Logic runs in sidecar proxies deployed alongside each service, forming the data plane.</p>
+        <p>A control plane configures those proxies centrally.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use at scale, when many services need consistent networking policies.</li>
+            <li>Data plane: sidecar proxies (e.g. Envoy) intercept all traffic.</li>
+            <li>Control plane: manages config, certificates, and policy.</li>
+            <li>Provides mTLS, traffic shifting, and telemetry out of the box.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Moves cross-cutting networking out of application code.</li>
+            <li>Uniform security (mTLS), retries, and observability.</li>
+            <li>Enables canary and blue-green traffic control.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Significant operational complexity to run and upgrade.</li>
+            <li>Sidecars add latency and resource overhead.</li>
+            <li>Steep learning curve for teams.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># With a mesh, app code stays plain: no retry/TLS logic here</span>
+<span class="code-class">@Service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CatalogService</span> {
+
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">RestTemplate</span> rest;
+
+    <span class="code-keyword">public</span> <span class="code-class">CatalogService</span>(<span class="code-class">RestTemplate</span> rest) {
+        <span class="code-keyword">this</span>.rest = rest;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">Item</span> getItem(<span class="code-class">String</span> id) {
+        <span class="code-comment"># calls the local sidecar, which handles mTLS + retries</span>
+        <span class="code-keyword">return</span> rest.getForObject(
+            <span class="code-string">"http://pricing-service/items/"</span> + id, <span class="code-class">Item</span>.<span class="code-keyword">class</span>);
+    }
+}
+<span class="code-comment"># Retries, timeouts and TLS are declared in mesh config (YAML),</span>
+<span class="code-comment"># not in Java. The sidecar enforces them transparently.</span></code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>The service makes a plain HTTP call to the target name.</li>
+                    <li>Its sidecar proxy intercepts and applies mTLS, retries, and routing.</li>
+                    <li>Policies change via the control plane, not code redeploys.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

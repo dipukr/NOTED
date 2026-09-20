@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Software Design - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Software Design</div>
+
+    <div class="intro">
+        <p>Software design is the tactical, low-level process of detailing how individual components will be built and work together.</p>
+        <p>Where architecture answers the what and why, design answers the how of a specific implementation.</p>
+        <p>It translates high-level requirements into concrete classes, interfaces, methods, and their collaborations.</p>
+        <p>It relies on design patterns and principles such as SOLID to keep code modular, reusable, and maintainable.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Applies within a single component or service, after the architecture is set.</li>
+            <li>Chooses concrete patterns (Strategy, Factory, Observer) to solve local problems.</li>
+            <li>Defines class responsibilities, boundaries, and interactions.</li>
+            <li>Guided by SOLID, DRY, KISS, and separation of concerns.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Produces modular, testable, and readable code.</li>
+            <li>Localizes change so edits do not ripple across the system.</li>
+            <li>Encourages reuse through well-defined abstractions.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Over-engineering with too many abstractions adds needless complexity.</li>
+            <li>Good design takes time and experience to get right.</li>
+            <li>Premature patterns can lock in the wrong structure.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># Strategy pattern: swap payment behaviour without touching callers</span>
+<span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">PaymentStrategy</span> {
+    <span class="code-keyword">void</span> pay(<span class="code-keyword">int</span> amount);
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">UpiPayment</span> <span class="code-keyword">implements</span> <span class="code-class">PaymentStrategy</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> pay(<span class="code-keyword">int</span> amount) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Paid via UPI: "</span> + amount);
+    }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Checkout</span> {
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">PaymentStrategy</span> strategy;
+
+    <span class="code-keyword">public</span> <span class="code-class">Checkout</span>(<span class="code-class">PaymentStrategy</span> strategy) {
+        <span class="code-keyword">this</span>.strategy = strategy; <span class="code-comment"># injected dependency</span>
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> complete(<span class="code-keyword">int</span> amount) {
+        strategy.pay(amount);
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>PaymentStrategy</code> abstracts the varying behaviour behind one interface.</li>
+                    <li><code>Checkout</code> depends on the abstraction, not a concrete class (Dependency Inversion).</li>
+                    <li>New payment types are added without editing <code>Checkout</code> (Open/Closed).</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

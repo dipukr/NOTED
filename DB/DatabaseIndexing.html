@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Database Indexing - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Database Indexing</div>
+
+    <div class="intro">
+        <p>Database indexing is a technique that improves the speed of data retrieval by creating a data structure, like a lookup table, that points to the data's location.</p>
+        <p>When you create an index on a column, a separate data structure is built with the values from that column and pointers to the corresponding rows in the main table.</p>
+        <p>Indexing helps us avoid a full table scan.</p>
+        <p>Indexes are not free: just as an index in a book requires paper, an index in a database requires storage, and every write must update the relevant indexes.</p>
+        <p>The name comes from a book index: instead of flipping page by page, you look up the topic and jump straight to it.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Create indexes on highly selective columns used in WHERE, JOIN and ORDER BY.</li>
+            <li>A clustered index physically sorts and stores the table's data by its key; a table can have only one.</li>
+            <li>A non-clustered index is a separate structure of keys plus pointers; a table can have many.</li>
+            <li>Composite indexes help queries that filter on multiple columns in order.</li>
+            <li>Avoid indexing columns that change constantly or have very low cardinality.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Dramatically speeds up reads by avoiding full table scans.</li>
+            <li>Speeds up sorting and grouping on indexed columns.</li>
+            <li>Enforces uniqueness when created as a unique index.</li>
+            <li>Clustered indexes keep related rows physically close.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Consume extra storage.</li>
+            <li>Slow down INSERT, UPDATE and DELETE because indexes must be maintained.</li>
+            <li>Too many indexes waste space and confuse the optimizer.</li>
+            <li>Non-clustered indexes are slower to query than clustered ones.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">CREATE TABLE</span> <span class="code-class">Employee</span> (
+    <span class="code-class">EmployeeId</span>    <span class="code-keyword">INT</span> <span class="code-keyword">IDENTITY</span> <span class="code-keyword">PRIMARY KEY</span>,   <span class="code-comment">-- clustered index by default</span>
+    <span class="code-class">Email</span>         <span class="code-keyword">NVARCHAR</span>(255) <span class="code-keyword">NOT NULL</span>,
+    <span class="code-class">DepartmentId</span>  <span class="code-keyword">INT</span> <span class="code-keyword">NOT NULL</span>,
+    <span class="code-class">LastName</span>      <span class="code-keyword">NVARCHAR</span>(100) <span class="code-keyword">NOT NULL</span>,
+    <span class="code-class">HireDate</span>      <span class="code-keyword">DATE</span> <span class="code-keyword">NOT NULL</span>
+);
+
+<span class="code-comment">-- Unique non-clustered index: speeds lookups and enforces uniqueness</span>
+<span class="code-keyword">CREATE UNIQUE</span> <span class="code-keyword">NONCLUSTERED</span> <span class="code-keyword">INDEX</span> <span class="code-class">IX_Employee_Email</span>
+    <span class="code-keyword">ON</span> <span class="code-class">Employee</span>(<span class="code-class">Email</span>);
+
+<span class="code-comment">-- Covering index: includes LastName/HireDate so the query never touches the base table</span>
+<span class="code-keyword">CREATE</span> <span class="code-keyword">NONCLUSTERED</span> <span class="code-keyword">INDEX</span> <span class="code-class">IX_Employee_Dept_Covering</span>
+    <span class="code-keyword">ON</span> <span class="code-class">Employee</span>(<span class="code-class">DepartmentId</span>)
+    <span class="code-keyword">INCLUDE</span> (<span class="code-class">LastName</span>, <span class="code-class">HireDate</span>);
+
+<span class="code-comment">-- This query is fully satisfied by IX_Employee_Dept_Covering (an index-only seek)</span>
+<span class="code-keyword">SELECT</span> <span class="code-class">LastName</span>, <span class="code-class">HireDate</span>
+<span class="code-keyword">FROM</span> <span class="code-class">Employee</span>
+<span class="code-keyword">WHERE</span> <span class="code-class">DepartmentId</span> = <span class="code-number">7</span>;
+
+<span class="code-comment">-- Inspect the execution plan to confirm a seek, not a scan, is used</span>
+<span class="code-keyword">SET</span> <span class="code-class">SHOWPLAN_XML</span> <span class="code-keyword">ON</span>;
+<span class="code-keyword">GO</span>
+<span class="code-keyword">SELECT</span> <span class="code-class">LastName</span>, <span class="code-class">HireDate</span> <span class="code-keyword">FROM</span> <span class="code-class">Employee</span> <span class="code-keyword">WHERE</span> <span class="code-class">DepartmentId</span> = <span class="code-number">7</span>;
+<span class="code-keyword">GO</span>
+<span class="code-keyword">SET</span> <span class="code-class">SHOWPLAN_XML</span> <span class="code-keyword">OFF</span>;</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>The <code>PRIMARY KEY</code> creates a clustered index, so <code>Employee</code> rows are physically stored in <code>EmployeeId</code> order.</li>
+                    <li><code>IX_Employee_Email</code> is a unique non-clustered index: a separate structure of keys and pointers that also enforces uniqueness.</li>
+                    <li><code>IX_Employee_Dept_Covering</code> uses <code>INCLUDE</code> to add non-key columns, making it a covering index for the department lookup query.</li>
+                    <li>Because every column the query needs is in the index, the engine never has to visit the base table (a "key lookup" is avoided).</li>
+                    <li><code>SET SHOWPLAN_XML ON</code> reveals the execution plan so you can confirm an index seek is chosen instead of a full scan.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

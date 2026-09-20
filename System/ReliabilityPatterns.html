@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reliability Patterns (Retries, Idempotency, Backpressure, Circuit-Breakers) - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Reliability Patterns (Retries, Idempotency, Backpressure, Circuit-Breakers)</div>
+
+    <div class="intro">
+        <p>Reliability patterns keep distributed systems working despite partial failures.</p>
+        <p>Retries recover from transient errors; idempotency makes them safe to repeat.</p>
+        <p>Circuit breakers stop hammering a failing dependency to allow recovery.</p>
+        <p>Backpressure signals upstream to slow down when a consumer is overloaded.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Retry only idempotent operations, with exponential backoff and jitter.</li>
+            <li>Make writes idempotent using unique request keys to avoid duplicates.</li>
+            <li>Use a circuit breaker around remote calls that can fail or hang.</li>
+            <li>Apply backpressure (bounded queues, rate limits) to prevent overload.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Automatic recovery from transient faults improves availability.</li>
+            <li>Circuit breakers prevent cascading failures and give systems time to heal.</li>
+            <li>Backpressure keeps systems stable under sustained load.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Naive retries amplify load and can cause retry storms.</li>
+            <li>Idempotency keys add storage and lookup overhead.</li>
+            <li>Tuning breaker thresholds and timeouts is tricky and workload-specific.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">// Circuit breaker + retry with Resilience4j</span>
+<span class="code-class">@Service</span>
+<span class="code-keyword">public class</span> <span class="code-class">PricingClient</span> {
+
+    <span class="code-class">@CircuitBreaker</span>(name = <span class="code-string">"pricing"</span>, fallbackMethod = <span class="code-string">"cachedPrice"</span>)
+    <span class="code-class">@Retry</span>(name = <span class="code-string">"pricing"</span>)
+    <span class="code-keyword">public</span> <span class="code-class">BigDecimal</span> getPrice(<span class="code-class">String</span> sku) {
+        <span class="code-keyword">return</span> restClient.get()
+                .uri(<span class="code-string">"/prices/{sku}"</span>, sku)
+                .retrieve()
+                .body(<span class="code-class">BigDecimal</span>.<span class="code-keyword">class</span>);
+    }
+
+    <span class="code-comment">// invoked when the breaker is open or retries exhausted</span>
+    <span class="code-keyword">private</span> <span class="code-class">BigDecimal</span> cachedPrice(<span class="code-class">String</span> sku, <span class="code-class">Throwable</span> t) {
+        <span class="code-keyword">return</span> priceCache.getOrDefault(sku, <span class="code-class">BigDecimal</span>.ZERO);
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>@Retry</code> re-invokes the call on transient failures with configured backoff.</li>
+                    <li><code>@CircuitBreaker</code> trips open after too many failures, short-circuiting calls.</li>
+                    <li><code>fallbackMethod</code> supplies a degraded response instead of failing hard.</li>
+                    <li>The cached fallback keeps the feature usable while the dependency recovers.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

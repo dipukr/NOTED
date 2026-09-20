@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inheritance - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Inheritance</div>
+
+    <div class="intro">
+        <p>Inheritance let us create modules that doesnt need to be changed when new attributes or functionalities is added to the class.</p>
+        <p>Inheritance is a mechanism by which one class acquires the attributes (fields) and functionalities (methods) of another class.</p>
+        <p>This mechanism promotes code reusability and establishes a hierarchical is-a relationship between classes.</p>
+        <p>Reusability helps us to avoid duplicate code and data.</p>
+        <p>Inheritance helps us to define relationship among classes.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">Kind of inheritance</div>
+        <div class="section-content">
+            <ul>
+                <li>Single inheritance - when a class inherits another class.</li>
+                <li>Multi-level inheritance - when a class inherits derived class.</li>
+                <li>Hierarchical inheritance - when a class is inherited by many classes.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">Animal</span> {
+     <span class="code-keyword">public void</span> eat() {
+        System.out.println(<span class="code-string">"Eating"</span>);
+    }
+}
+
+<span class="code-keyword">public class</span> <span class="code-class">Dog</span> <span class="code-keyword">extends</span> <span class="code-class">Animal</span> {
+     <span class="code-keyword">public void</span> bark() {
+        System.out.println(<span class="code-string">"Woof"</span>);
+    }
+}
+
+<span class="code-keyword">void</span> main() {
+    <span class="code-class">Dog</span> d = <span class="code-keyword">new</span> <span class="code-class">Dog</span>();
+    d.eat();   <span class="code-comment"># inherited</span>
+    d.bark();  <span class="code-comment"># own method</span>
+}</code></pre>
+            </div>
+
+            <div class="code-explanation">
+                <div class="code-explanation-title">How inheritance works</div>
+                <ul>
+                    <li><code>Dog</code> <code>extends</code> <code>Animal</code>, inheriting <code>eat()</code>.</li>
+                    <li>The subclass adds its own <code>bark()</code> method.</li>
+                    <li>A <code>Dog</code> object can use both inherited and new behaviour.</li>
+                    <li>This models the <em>is-a</em> relationship: a Dog is an Animal.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monolith - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Monolith</div>
+
+    <div class="intro">
+        <p>Monolithic architecture is a software design pattern where all components of an application, like the user interface, business logic, and data access layer, are built and deployed as a single, unified unit.</p>
+        <p>Everything runs in one process and is released together.</p>
+        <p>It is the simplest way to start building and shipping an application.</p>
+        <p>All modules typically share one codebase and one database.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Best for small teams, early-stage products, and simple domains.</li>
+            <li>When operational simplicity matters more than independent scaling.</li>
+            <li>One build, one deploy, one runtime to manage.</li>
+            <li>In-process calls make transactions and debugging straightforward.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Simple to develop, test, and deploy.</li>
+            <li>Easy end-to-end debugging and local transactions.</li>
+            <li>Low operational overhead, no network between modules.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Tight coupling: changes in one module can break another.</li>
+            <li>Failure in one module can bring down the entire application.</li>
+            <li>Any change requires re-deploying the whole system, even for small updates.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># All layers live in one deployable; calls are in-process</span>
+<span class="code-class">@RestController</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CheckoutController</span> {
+
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">OrderService</span> orders;
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">PaymentService</span> payments;
+
+    <span class="code-keyword">public</span> <span class="code-class">CheckoutController</span>(<span class="code-class">OrderService</span> orders, <span class="code-class">PaymentService</span> payments) {
+        <span class="code-keyword">this</span>.orders = orders;
+        <span class="code-keyword">this</span>.payments = payments;
+    }
+
+    <span class="code-class">@PostMapping</span>(<span class="code-string">"/checkout"</span>)
+    <span class="code-class">@Transactional</span>                       <span class="code-comment"># one local ACID transaction</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> checkout(<span class="code-class">@RequestBody</span> <span class="code-class">Cart</span> cart) {
+        <span class="code-class">Order</span> order = orders.create(cart);
+        payments.charge(order);        <span class="code-comment"># direct method call, no network</span>
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>Services call each other directly as Java methods.</li>
+                    <li><code>@Transactional</code> spans them in one database transaction.</li>
+                    <li>The whole unit is built and deployed together.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

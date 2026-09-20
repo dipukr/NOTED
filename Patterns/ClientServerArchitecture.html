@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Client-server Architecture - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Client-server Architecture</div>
+
+    <div class="intro">
+        <p>The client-server model is a computing model where client devices request resources or services from a centralized server, which processes the request and provides a response.</p>
+        <p>It is also called the request-response model: the client sends a request and waits for the server's response before sending another.</p>
+        <p>It does not support continuous flow of data such as live streaming on its own.</p>
+        <p>For updates the client must ask the server; the server does not push real-time updates by itself.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>The default model for web and REST APIs.</li>
+            <li>Good when interactions are naturally request-then-response.</li>
+            <li>Centralizes data and business logic on the server.</li>
+            <li>Use WebSockets or SSE when real-time push is required instead.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Centralized control over data, security, and updates.</li>
+            <li>Clients stay thin and simple.</li>
+            <li>Well understood, with mature tooling and protocols.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>The server can become a bottleneck or single point of failure.</li>
+            <li>No native real-time push; clients must poll for updates.</li>
+            <li>Every interaction pays a network round-trip cost.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># Server exposes a resource; the client requests it</span>
+<span class="code-class">@RestController</span>
+<span class="code-class">@RequestMapping</span>(<span class="code-string">"/api/users"</span>)
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">UserController</span> {
+
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">UserService</span> service;
+
+    <span class="code-keyword">public</span> <span class="code-class">UserController</span>(<span class="code-class">UserService</span> service) {
+        <span class="code-keyword">this</span>.service = service;
+    }
+
+    <span class="code-class">@GetMapping</span>(<span class="code-string">"/{id}"</span>)
+    <span class="code-keyword">public</span> <span class="code-class">ResponseEntity</span>&lt;<span class="code-class">UserDto</span>&gt; getUser(<span class="code-class">@PathVariable</span> <span class="code-class">Long</span> id) {
+        <span class="code-comment"># client sends request, server responds once</span>
+        <span class="code-keyword">return</span> <span class="code-class">ResponseEntity</span>.ok(service.findById(id));
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>The client issues a request to a known server endpoint.</li>
+                    <li>The server processes it and returns exactly one response.</li>
+                    <li>No further data arrives until the client asks again.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

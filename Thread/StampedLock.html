@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StampedLock - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">StampedLock</div>
+
+    <div class="intro">
+        <p><code>StampedLock</code> (Java 8+) is a capability-based lock returning a stamp used to release or validate the lock.</p>
+        <p>It offers three modes: writing, reading, and an optimistic read that takes no lock at all.</p>
+        <p>Optimistic reads are extremely cheap and validated afterward, retrying if a write intervened.</p>
+        <p>Unlike <code>ReentrantReadWriteLock</code>, it is not reentrant and not tied to conditions.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Read-mostly data where optimistic reads can avoid locking entirely.</li>
+            <li><code>tryOptimisticRead()</code> plus <code>validate(stamp)</code> for lock-free fast paths.</li>
+            <li>Supports lock conversion via <code>tryConvertToWriteLock()</code>.</li>
+            <li>Not reentrant, do not re-acquire on the same thread.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Optimistic reads give near lock-free performance under low write contention.</li>
+            <li>Often outperforms <code>ReentrantReadWriteLock</code>.</li>
+            <li>Supports upgrading via conversion methods.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Not reentrant; re-locking on the same thread deadlocks.</li>
+            <li>API is easy to misuse; stamps must be handled carefully.</li>
+            <li>No <code>Condition</code> support.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">Point</span> {
+
+    <span class="code-keyword">private double</span> x, y;
+    <span class="code-keyword">private final</span> <span class="code-class">StampedLock</span> sl = <span class="code-keyword">new</span> <span class="code-class">StampedLock</span>();
+
+    <span class="code-keyword">public void</span> move(<span class="code-keyword">double</span> dx, <span class="code-keyword">double</span> dy) {
+        <span class="code-keyword">long</span> stamp = sl.writeLock();
+        <span class="code-keyword">try</span> {
+            x += dx; y += dy;
+        } <span class="code-keyword">finally</span> {
+            sl.unlockWrite(stamp);
+        }
+    }
+
+    <span class="code-keyword">public double</span> distanceFromOrigin() {
+        <span class="code-keyword">long</span> stamp = sl.tryOptimisticRead(); <span class="code-comment">// no lock</span>
+        <span class="code-keyword">double</span> cx = x, cy = y;
+        <span class="code-keyword">if</span> (!sl.validate(stamp)) { <span class="code-comment">// a write happened</span>
+            stamp = sl.readLock();
+            <span class="code-keyword">try</span> {
+                cx = x; cy = y;
+            } <span class="code-keyword">finally</span> {
+                sl.unlockRead(stamp);
+            }
+        }
+        <span class="code-keyword">return</span> <span class="code-class">Math</span>.sqrt(cx * cx + cy * cy);
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>tryOptimisticRead()</code> returns a stamp without acquiring a lock.</li>
+                    <li><code>validate(stamp)</code> confirms no write occurred; otherwise fall back to a real read lock.</li>
+                    <li>Each acquired lock is released with the matching <code>unlock*</code> and its stamp.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

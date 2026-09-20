@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Message Queues - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Message Queues</div>
+
+    <div class="intro">
+        <p>A message queue is a buffer that lets producers and consumers communicate asynchronously.</p>
+        <p>Producers enqueue messages and consumers process them at their own pace, decoupling the two.</p>
+        <p>Queues smooth traffic spikes, improve resilience, and enable background processing.</p>
+        <p>Delivery semantics range from at-most-once to at-least-once and exactly-once.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Offload slow work (emails, reports, image processing) from the request path.</li>
+            <li>Decouple services so a slow consumer never blocks a producer.</li>
+            <li>Buffer bursts so downstream systems drain at a sustainable rate.</li>
+            <li>Design consumers to be idempotent because most queues redeliver on failure.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Loose coupling and independent scaling of producers and consumers.</li>
+            <li>Resilience: messages persist until acknowledged, surviving consumer crashes.</li>
+            <li>Load leveling absorbs spikes without overwhelming downstream services.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Adds operational complexity and another component to monitor.</li>
+            <li>Eventual, asynchronous processing complicates end-to-end tracing.</li>
+            <li>Redelivery and ordering guarantees force careful consumer design.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">// Producing and consuming with Spring AMQP (RabbitMQ)</span>
+<span class="code-class">@Service</span>
+<span class="code-keyword">public class</span> <span class="code-class">OrderQueueService</span> {
+
+    <span class="code-keyword">private final</span> <span class="code-class">RabbitTemplate</span> rabbitTemplate;
+
+    <span class="code-keyword">public</span> <span class="code-class">OrderQueueService</span>(<span class="code-class">RabbitTemplate</span> rabbitTemplate) {
+        <span class="code-keyword">this</span>.rabbitTemplate = rabbitTemplate;
+    }
+
+    <span class="code-keyword">public void</span> enqueue(<span class="code-class">OrderEvent</span> event) {
+        rabbitTemplate.convertAndSend(<span class="code-string">"orders.exchange"</span>, <span class="code-string">"orders.created"</span>, event);
+    }
+
+    <span class="code-comment">// Consumer acknowledges automatically on normal return</span>
+    <span class="code-class">@RabbitListener</span>(queues = <span class="code-string">"orders.queue"</span>)
+    <span class="code-keyword">public void</span> onOrder(<span class="code-class">OrderEvent</span> event) {
+        orderProcessor.process(event);
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>convertAndSend</code> serializes the event and routes it via an exchange and routing key.</li>
+                    <li><code>@RabbitListener</code> binds a method to a queue and delivers messages to it.</li>
+                    <li>Returning normally acks the message; throwing triggers redelivery or dead-lettering.</li>
+                    <li>Producer and consumer share only the queue contract, never direct calls.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

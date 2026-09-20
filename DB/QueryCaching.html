@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Query Caching - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Query Caching</div>
+
+    <div class="intro">
+        <p>Query caching stores the results of queries so subsequent identical requests are served from memory instead of hitting the database.</p>
+        <p>Caching results of queries gives fast read operations and reduces load on the database.</p>
+        <p>It is most effective for expensive, frequently run, read-mostly queries.</p>
+        <p>Caches can live in the database, the ORM (second-level cache) or a dedicated store like Redis.</p>
+        <p>The main challenge is invalidating the cache when the underlying data changes.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Cache read-heavy queries whose results rarely change.</li>
+            <li>Set a suitable time-to-live (TTL) or evict on write.</li>
+            <li>Use a cache key that captures all query parameters.</li>
+            <li>Prefer an external cache (Redis) for shared, multi-instance caching.</li>
+            <li>Avoid caching highly volatile or per-user unique data.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Dramatically faster reads for repeated queries.</li>
+            <li>Reduces database load and cost.</li>
+            <li>Improves overall application response times.</li>
+            <li>Smooths traffic spikes.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Risk of serving stale data if invalidation is wrong.</li>
+            <li>Cache invalidation is notoriously hard.</li>
+            <li>Extra infrastructure and memory cost.</li>
+            <li>Low hit rates provide little benefit.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">CREATE TABLE</span> <span class="code-class">Product</span> (
+    <span class="code-class">ProductId</span>   <span class="code-keyword">INT PRIMARY KEY</span>,
+    <span class="code-class">Sku</span>         <span class="code-keyword">VARCHAR</span>(<span class="code-number">50</span>) <span class="code-keyword">NOT NULL</span>,
+    <span class="code-class">Price</span>       <span class="code-keyword">DECIMAL</span>(<span class="code-number">10</span>,<span class="code-number">2</span>) <span class="code-keyword">NOT NULL</span>
+);
+
+<span class="code-comment">-- Parameterized procedure: the engine caches ONE compiled plan for all ids</span>
+<span class="code-keyword">CREATE PROCEDURE</span> <span class="code-class">GetProductById</span>
+    @ProductId <span class="code-keyword">INT</span>
+<span class="code-keyword">AS</span>
+<span class="code-keyword">BEGIN</span>
+    <span class="code-keyword">SELECT</span> <span class="code-class">ProductId</span>, <span class="code-class">Sku</span>, <span class="code-class">Price</span>
+    <span class="code-keyword">FROM</span> <span class="code-class">Product</span>
+    <span class="code-keyword">WHERE</span> <span class="code-class">ProductId</span> = @ProductId;
+<span class="code-keyword">END</span>;
+
+<span class="code-comment">-- First call compiles and caches the plan; later calls reuse it</span>
+<span class="code-keyword">EXEC</span> <span class="code-class">GetProductById</span> @ProductId = <span class="code-number">101</span>;
+<span class="code-keyword">EXEC</span> <span class="code-class">GetProductById</span> @ProductId = <span class="code-number">202</span>;
+
+<span class="code-comment">-- Inspect what's currently sitting in the plan cache</span>
+<span class="code-keyword">SELECT</span> cp.objtype, cp.usecounts, st.text
+<span class="code-keyword">FROM</span> sys.dm_exec_cached_plans <span class="code-keyword">AS</span> cp
+<span class="code-keyword">CROSS APPLY</span> sys.dm_exec_sql_text(cp.plan_handle) <span class="code-keyword">AS</span> st
+<span class="code-keyword">WHERE</span> st.text <span class="code-keyword">LIKE</span> <span class="code-string">'%GetProductById%'</span>;
+
+<span class="code-comment">-- Force recompilation after a schema/statistics change invalidates the cache</span>
+<span class="code-keyword">EXEC</span> sp_recompile <span class="code-string">'GetProductById'</span>;</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>The stored procedure is compiled once; the resulting execution plan is stored in the plan cache keyed by its signature.</li>
+                    <li>Subsequent <span class="code-keyword">EXEC</span> calls with different parameter values reuse the same cached plan instead of recompiling.</li>
+                    <li><span class="code-class">sys.dm_exec_cached_plans</span> joined to <span class="code-class">sys.dm_exec_sql_text</span> shows what plans are cached and how many times each was used (<span class="code-class">usecounts</span>).</li>
+                    <li>A high <span class="code-class">usecounts</span> value confirms the plan is being reused rather than recompiled per call.</li>
+                    <li><span class="code-keyword">sp_recompile</span> evicts the cached plan, forcing a fresh compile on the next execution &mdash; the SQL analogue of a cache eviction.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CQRS Pattern - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">CQRS Pattern</div>
+
+    <div class="intro">
+        <p>CQRS (Command Query Responsibility Segregation) separates data modification (commands) from data retrieval (queries) into distinct models.</p>
+        <p>This allows independent scaling and optimization for read-heavy or write-heavy needs.</p>
+        <p>Commands change state and may carry rich business logic; queries only read and return results.</p>
+        <p>The write and read sides can use different models and even separate data stores.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Commands: operations that change state (create, update, delete).</li>
+            <li>Queries: operations that read data without changing state.</li>
+            <li>Models: rich command DTOs vs. lean, view-tailored query DTOs.</li>
+            <li>Use when read and write workloads differ sharply in scale or shape.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Performance and scalability: scale read and write sides independently.</li>
+            <li>Simpler models: no single model handling all CRUD.</li>
+            <li>Security: granular access control for reads vs. writes.</li>
+            <li>Clearer boundaries closer to business logic.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Added complexity from maintaining two models.</li>
+            <li>Read side is often eventually consistent with the write side.</li>
+            <li>Overkill for simple CRUD applications.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># Write side: a command handler</span>
+<span class="code-class">@Service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderCommandService</span> {
+
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">OrderRepository</span> repo;
+
+    <span class="code-keyword">public</span> <span class="code-class">OrderCommandService</span>(<span class="code-class">OrderRepository</span> repo) {
+        <span class="code-keyword">this</span>.repo = repo;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> handle(<span class="code-class">PlaceOrderCommand</span> cmd) {
+        <span class="code-class">Order</span> order = <span class="code-class">Order</span>.from(cmd); <span class="code-comment"># validation + business rules</span>
+        repo.save(order);
+    }
+}
+
+<span class="code-comment"># Read side: a lean query returning a view model</span>
+<span class="code-class">@Service</span>
+<span class="code-keyword">class</span> <span class="code-class">OrderQueryService</span> {
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">OrderViewRepository</span> views;
+    <span class="code-class">OrderQueryService</span>(<span class="code-class">OrderViewRepository</span> views) { <span class="code-keyword">this</span>.views = views; }
+    <span class="code-class">OrderSummary</span> summary(<span class="code-class">Long</span> id) { <span class="code-keyword">return</span> views.findSummary(id); }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>OrderCommandService</code> owns writes and business rules.</li>
+                    <li><code>OrderQueryService</code> returns a denormalized <code>OrderSummary</code> for reads.</li>
+                    <li>Each side can use its own store, tuned for its workload.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

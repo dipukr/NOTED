@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CAP Theorem - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">CAP Theorem</div>
+
+    <div class="intro">
+        <p>The CAP theorem states a distributed data store can provide at most two of Consistency, Availability, and Partition tolerance at once.</p>
+        <p>Consistency means every read sees the most recent write; Availability means every request gets a response; Partition tolerance means the system keeps working despite dropped network messages.</p>
+        <p>Because network partitions are unavoidable, real systems must tolerate them and then choose between consistency and availability during a partition.</p>
+        <p>This gives two practical categories: CP systems and AP systems.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Partition tolerance is mandatory in distributed systems, so the real choice is C vs A during a partition.</li>
+            <li><strong>CP</strong> (e.g. many RDBMS clusters, ZooKeeper): reject or block requests to stay consistent.</li>
+            <li><strong>AP</strong> (e.g. Cassandra, DynamoDB): keep serving, accepting temporarily stale data.</li>
+            <li>Choose CP for money/inventory correctness; choose AP for feeds/carts where uptime matters more.</li>
+            <li>When no partition exists, systems can offer both C and A - the trade-off only bites during faults.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Gives a clear framework for reasoning about distributed trade-offs.</li>
+            <li>Guides datastore selection based on business needs.</li>
+            <li>Makes the consequences of network faults explicit up front.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>It is a simplification; real systems offer tunable consistency levels.</li>
+            <li>Ignores latency, which PACELC extends to address.</li>
+            <li>"Two of three" is often misread - partition tolerance is not really optional.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># Tunable consistency: pick CP-ish or AP-ish per query (Cassandra-style)</span>
+<span class="code-keyword">public</span> <span class="code-class">Row</span> read(<span class="code-class">String</span> key, <span class="code-keyword">boolean</span> strong) {
+    <span class="code-class">ConsistencyLevel</span> level = strong
+        ? <span class="code-class">ConsistencyLevel</span>.QUORUM   <span class="code-comment"># favours consistency (CP)</span>
+        : <span class="code-class">ConsistencyLevel</span>.ONE;     <span class="code-comment"># favours availability (AP)</span>
+
+    <span class="code-class">Statement</span> stmt = <span class="code-class">SimpleStatement</span>.newInstance(
+            <span class="code-string">"SELECT * FROM data WHERE k = ?"</span>, key)
+        .setConsistencyLevel(level);
+    <span class="code-keyword">return</span> session.execute(stmt).one();
+}
+</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>QUORUM</code> requires a majority of replicas to agree, leaning consistent (CP).</li>
+                    <li><code>ONE</code> answers from a single replica, leaning available (AP) but possibly stale.</li>
+                    <li>The choice is per-request, showing CAP as a spectrum, not a binary.</li>
+                    <li>During a partition, <code>QUORUM</code> may fail while <code>ONE</code> still responds.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

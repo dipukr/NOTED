@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chain of Responsibility Pattern - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Chain of Responsibility Pattern</div>
+
+    <div class="intro">
+        <p>CoR design pattern is a behavioral design pattern that decouples sender and receiver of a request by connecting multiple handlers in a chain.</p>
+        <p>The request is then passed along the chain until it is processed by one of the handlers.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When-to use</div>
+        <div class="section-content">
+            <ul>
+                <li>When we have multiple objects that can handle a request but the specific object that handles it is determined at runtime.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">Components</div>
+        <div class="section-content">
+            <ul>
+                <li>Handler interface: Declares a method for handling requests and a reference to the next handler.</li>
+                <li>ConcreteHandler: Handles requests it is responsible for or forwards them to the next handler.</li>
+                <li>Client: Sends the request to the first handler in the chain.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">Workflow</div>
+        <div class="section-content">
+            <ul>
+                <li>A client sends a request to the first handler in the chain, if the handler can handle it, it does.</li>
+                <li>Otherwise, it forwards the request to the next handler in the chain.</li>
+                <li>This continues until the request is handled or the end of the chain is reached.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public abstract class</span> <span class="code-class">Handler</span> {
+    <span class="code-keyword">protected</span> Handler next;
+
+    <span class="code-keyword">public</span> Handler setNext(Handler next) {
+        <span class="code-keyword">this</span>.next = next;
+        <span class="code-keyword">return</span> next;
+    }
+
+    <span class="code-keyword">public abstract void</span> handle(<span class="code-keyword">int</span> amount);
+}
+
+<span class="code-keyword">public class</span> <span class="code-class">Manager</span> <span class="code-keyword">extends</span> Handler {
+    <span class="code-keyword">public void</span> handle(<span class="code-keyword">int</span> amount) {
+        <span class="code-keyword">if</span> (amount &lt;= 1000)
+            System.out.println(<span class="code-string">"Manager approved "</span> + amount);
+        <span class="code-keyword">else if</span> (next != <span class="code-keyword">null</span>)
+            next.handle(amount);
+    }
+}
+
+<span class="code-keyword">public class</span> <span class="code-class">Director</span> <span class="code-keyword">extends</span> Handler {
+    <span class="code-keyword">public void</span> handle(<span class="code-keyword">int</span> amount) {
+        <span class="code-keyword">if</span> (amount &lt;= 10000)
+            System.out.println(<span class="code-string">"Director approved "</span> + amount);
+        <span class="code-keyword">else if</span> (next != <span class="code-keyword">null</span>)
+            next.handle(amount);
+    }
+}
+
+<span class="code-keyword">void</span> main() {
+    Handler chain = <span class="code-keyword">new</span> Manager();
+    chain.setNext(<span class="code-keyword">new</span> Director());
+    chain.handle(5000);  <span class="code-comment"># Director approved 5000</span>
+}</code></pre>
+            </div>
+
+            <div class="code-explanation">
+                <div class="code-explanation-title">How the chain works</div>
+                <ul>
+                    <li><code>Handler</code> holds a reference to the <code>next</code> handler.</li>
+                    <li>Each concrete handler either processes the request or forwards it.</li>
+                    <li><code>Manager</code> handles small amounts; larger ones flow to <code>Director</code>.</li>
+                    <li>The client calls only the first handler and stays unaware of who handles it.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Strangler Pattern - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Strangler Pattern</div>
+
+    <div class="intro">
+        <p>The Strangler pattern incrementally replaces a legacy system by building new functionality around it.</p>
+        <p>It is named after strangler vines that grow around a tree and gradually take over.</p>
+        <p>A facade routes each request to either the old system or the new replacement.</p>
+        <p>Over time, more features move to the new system until the old one can be retired.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use to migrate a monolith to microservices without a big-bang rewrite.</li>
+            <li>A routing facade sits in front of old and new systems.</li>
+            <li>Migrate one capability at a time, verifying as you go.</li>
+            <li>Decommission the legacy system only when fully replaced.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Low-risk, incremental migration with frequent releases.</li>
+            <li>Old and new run side by side, enabling easy rollback.</li>
+            <li>Delivers value throughout the migration.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Both systems must be maintained during the transition.</li>
+            <li>The routing facade adds complexity and a potential bottleneck.</li>
+            <li>Migrations can drag on if not driven to completion.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># Facade routes traffic to new service or legacy system</span>
+<span class="code-class">@RestController</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrdersFacade</span> {
+
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">NewOrderService</span> modern;
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">LegacyClient</span> legacy;
+
+    <span class="code-keyword">public</span> <span class="code-class">OrdersFacade</span>(<span class="code-class">NewOrderService</span> modern, <span class="code-class">LegacyClient</span> legacy) {
+        <span class="code-keyword">this</span>.modern = modern;
+        <span class="code-keyword">this</span>.legacy = legacy;
+    }
+
+    <span class="code-class">@GetMapping</span>(<span class="code-string">"/orders/{id}"</span>)
+    <span class="code-keyword">public</span> <span class="code-class">OrderDto</span> get(<span class="code-class">@PathVariable</span> <span class="code-class">Long</span> id) {
+        <span class="code-keyword">if</span> (modern.handles(id)) {
+            <span class="code-keyword">return</span> modern.find(id);   <span class="code-comment"># migrated path</span>
+        }
+        <span class="code-keyword">return</span> legacy.find(id);       <span class="code-comment"># still on old system</span>
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>The facade decides, per request, which backend serves it.</li>
+                    <li>As features migrate, more calls route to <code>modern</code>.</li>
+                    <li>Once nothing hits <code>legacy</code>, the old system is removed.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

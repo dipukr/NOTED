@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebFlux Reactive - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">WebFlux Reactive</div>
+
+    <div class="intro">
+        <p>Spring WebFlux is a non-blocking, reactive web framework built on Project Reactor.</p>
+        <p>It uses <code>Mono</code> (0-1 items) and <code>Flux</code> (0-N items) as its core publisher types.</p>
+        <p>A small event-loop thread pool serves many concurrent requests without one-thread-per-request.</p>
+        <p>It shines under high concurrency and I/O-bound workloads.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>High-concurrency, I/O-bound services and streaming responses.</li>
+            <li>Never block an event-loop thread; keep the chain reactive end to end.</li>
+            <li>Use <code>WebClient</code> instead of blocking <code>RestTemplate</code>.</li>
+            <li>Offload unavoidable blocking calls to a bounded scheduler.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Handles many concurrent connections with few threads.</li>
+            <li>Backpressure prevents fast producers from overwhelming consumers.</li>
+            <li>Natural fit for streaming and server-sent events.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Steeper learning curve than blocking MVC.</li>
+            <li>Debugging reactive stack traces is harder.</li>
+            <li>A single blocking call can cripple the event loop.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-annotation">@RestController</span>
+<span class="code-annotation">@RequestMapping</span>(<span class="code-string">"/api/users"</span>)
+<span class="code-keyword">public class</span> <span class="code-class">UserController</span> {
+
+    <span class="code-keyword">private final</span> <span class="code-class">UserRepository</span> repo;
+
+    <span class="code-keyword">public</span> <span class="code-class">UserController</span>(<span class="code-class">UserRepository</span> repo) {
+        <span class="code-keyword">this</span>.repo = repo;
+    }
+
+    <span class="code-annotation">@GetMapping</span>(<span class="code-string">"/{id}"</span>)
+    <span class="code-keyword">public</span> <span class="code-class">Mono</span>&lt;<span class="code-class">User</span>&gt; byId(<span class="code-annotation">@PathVariable</span> <span class="code-class">String</span> id) {
+        <span class="code-comment">// non-blocking single result</span>
+        <span class="code-keyword">return</span> repo.findById(id)
+                   .switchIfEmpty(<span class="code-class">Mono</span>.error(<span class="code-keyword">new</span> <span class="code-class">RuntimeException</span>(<span class="code-string">"not found"</span>)));
+    }
+
+    <span class="code-annotation">@GetMapping</span>
+    <span class="code-keyword">public</span> <span class="code-class">Flux</span>&lt;<span class="code-class">User</span>&gt; all() {
+        <span class="code-comment">// streams users as they arrive</span>
+        <span class="code-keyword">return</span> repo.findAll();
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>Mono&lt;User&gt;</code> represents an async single value resolved without blocking.</li>
+                    <li><code>Flux&lt;User&gt;</code> streams many items with backpressure support.</li>
+                    <li>The event loop subscribes and pushes data as it becomes available.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

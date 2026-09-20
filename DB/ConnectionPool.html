@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Connection Pool - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Connection Pool</div>
+
+    <div class="intro">
+        <p>Database connection pooling reduces the cost of opening and closing connections by maintaining a pool of open connections that can be passed from one database operation to another as needed.</p>
+        <p>This spares the expense of opening and closing a brand new connection for every operation.</p>
+        <p>Pooling improves performance by reducing the latency of establishing new connections, leading to faster query execution and response times.</p>
+        <p>A connection pooler is responsible for opening, closing and maintaining connections on behalf of clients.</p>
+        <p>Opening a connection involves DNS lookup, TCP handshake, TLS handshake, authentication and authorization, all of which pooling avoids repeating.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use a pool in any server application that issues many short database operations.</li>
+            <li>Reuse idle connections instead of creating new ones per request.</li>
+            <li>Tune pool size to match database capacity and expected concurrency.</li>
+            <li>Set connection and idle timeouts to reclaim stale connections.</li>
+            <li>HikariCP is the default pool in Spring Boot.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Avoids repeated connection setup cost (DNS, TCP, TLS, auth).</li>
+            <li>Lowers latency and raises throughput.</li>
+            <li>Caps the number of connections to protect the database.</li>
+            <li>Reuses validated, ready-to-use connections.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>A pool that is too small starves requests; too large overloads the database.</li>
+            <li>Leaked connections (not returned) exhaust the pool.</li>
+            <li>Adds a tuning and monitoring burden.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">-- Inspect current sessions/connections held against the server</span>
+<span class="code-keyword">SELECT</span> <span class="code-class">s.session_id</span>, <span class="code-class">s.login_name</span>, <span class="code-class">s.host_name</span>, <span class="code-class">s.program_name</span>,
+       <span class="code-class">s.status</span>, <span class="code-class">c.connect_time</span>, <span class="code-class">c.num_reads</span>, <span class="code-class">c.num_writes</span>
+<span class="code-keyword">FROM</span> <span class="code-class">sys.dm_exec_sessions</span> <span class="code-keyword">AS</span> <span class="code-class">s</span>
+<span class="code-keyword">JOIN</span> <span class="code-class">sys.dm_exec_connections</span> <span class="code-class">AS</span> <span class="code-class">c</span>
+    <span class="code-keyword">ON</span> <span class="code-class">s.session_id</span> = <span class="code-class">c.session_id</span>
+<span class="code-keyword">WHERE</span> <span class="code-class">s.program_name</span> = <span class="code-string">'AppPool'</span>;
+
+<span class="code-comment">-- A short, pool-friendly stored procedure: open, do minimal work, close</span>
+<span class="code-keyword">CREATE PROCEDURE</span> <span class="code-class">usp_GetCustomerBalance</span>
+    <span class="code-class">@CustomerId</span> <span class="code-keyword">INT</span>
+<span class="code-keyword">AS</span>
+<span class="code-keyword">BEGIN</span>
+    <span class="code-keyword">SET</span> <span class="code-class">NOCOUNT</span> <span class="code-keyword">ON</span>;
+
+    <span class="code-comment">-- keep the transaction/connection hold time as short as possible</span>
+    <span class="code-keyword">SELECT</span> <span class="code-class">Balance</span>
+    <span class="code-keyword">FROM</span> <span class="code-class">Accounts</span>
+    <span class="code-keyword">WHERE</span> <span class="code-class">CustomerId</span> = <span class="code-class">@CustomerId</span>;
+<span class="code-keyword">END</span>;
+
+<span class="code-comment">-- Application borrows a pooled connection, runs the proc, releases it fast</span>
+<span class="code-keyword">EXEC</span> <span class="code-class">usp_GetCustomerBalance</span> <span class="code-class">@CustomerId</span> = <span class="code-number">42</span>;</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>sys.dm_exec_sessions</code> joined with <code>sys.dm_exec_connections</code> shows every live connection a pool is holding open, useful for sizing and diagnosing leaks (the classic <code>sp_who2</code> use case).</li>
+                    <li>The stored procedure does one small unit of work and returns immediately, so a pooled connection is held only briefly per call.</li>
+                    <li>Short, single-purpose procedures like this let a fixed-size pool serve many more logical requests per second.</li>
+                    <li>Filtering by <code>program_name</code> lets an operator see exactly how many connections the application's pool currently has open.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

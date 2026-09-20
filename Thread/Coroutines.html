@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coroutines Support - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Coroutines Support</div>
+
+    <div class="intro">
+        <p>Kotlin coroutines provide lightweight, suspendable computations for asynchronous, non-blocking code.</p>
+        <p>A <code>suspend</code> function can pause without blocking its underlying thread, resuming later.</p>
+        <p>Spring integrates coroutines so controllers can use <code>suspend</code> and return <code>Flow</code>.</p>
+        <p>They read like sequential code while running asynchronously under the hood.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Kotlin services doing concurrent I/O that should stay non-blocking.</li>
+            <li><code>suspend</code> functions bridge to Reactor's <code>Mono</code>/<code>Flux</code>.</li>
+            <li><code>Flow</code> is the coroutine analog of <code>Flux</code>.</li>
+            <li>Use structured concurrency with <code>coroutineScope</code> to bound lifetimes.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Sequential-looking code without callback nesting.</li>
+            <li>Extremely cheap compared to OS threads.</li>
+            <li>Structured concurrency simplifies cancellation and error handling.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Kotlin-only; not available to plain Java code.</li>
+            <li>Mixing blocking calls inside coroutines defeats the purpose.</li>
+            <li>Dispatcher misuse can still block threads.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">// Kotlin with Spring WebFlux coroutine support</span>
+<span class="code-annotation">@RestController</span>
+<span class="code-keyword">class</span> <span class="code-class">OrderController</span>(<span class="code-keyword">val</span> service: <span class="code-class">OrderService</span>) {
+
+    <span class="code-annotation">@GetMapping</span>(<span class="code-string">"/orders/{id}"</span>)
+    <span class="code-keyword">suspend fun</span> get(<span class="code-annotation">@PathVariable</span> id: <span class="code-class">Long</span>): <span class="code-class">Order</span> {
+        <span class="code-comment">// suspends without blocking the thread</span>
+        <span class="code-keyword">return</span> service.load(id)
+    }
+
+    <span class="code-annotation">@GetMapping</span>(<span class="code-string">"/orders"</span>)
+    <span class="code-keyword">fun</span> all(): <span class="code-class">Flow</span>&lt;<span class="code-class">Order</span>&gt; = service.stream()
+}
+
+<span class="code-annotation">@Service</span>
+<span class="code-keyword">class</span> <span class="code-class">OrderService</span> {
+    <span class="code-keyword">suspend fun</span> load(id: <span class="code-class">Long</span>): <span class="code-class">Order</span> = coroutineScope {
+        <span class="code-keyword">val</span> user = async { loadUser(id) }
+        <span class="code-keyword">val</span> items = async { loadItems(id) }
+        <span class="code-class">Order</span>(user.await(), items.await())
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>suspend</code> marks functions that can pause and resume without blocking.</li>
+                    <li><code>coroutineScope</code> with <code>async</code> runs the two loads concurrently.</li>
+                    <li><code>await()</code> suspends until each async result is ready, then combines them.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

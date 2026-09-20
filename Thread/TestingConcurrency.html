@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Testing Concurrency - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Testing Concurrency</div>
+
+    <div class="intro">
+        <p>Concurrency bugs are non-deterministic, so ordinary unit tests rarely surface them.</p>
+        <p>Effective tests run many threads simultaneously and stress shared state repeatedly.</p>
+        <p>Tools like <code>CountDownLatch</code>, <code>CyclicBarrier</code>, and high iteration counts increase the chance of exposing races.</p>
+        <p>Static analyzers and stress harnesses complement runtime tests.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use a barrier to release all threads at the same instant.</li>
+            <li>Run high iteration counts to widen the timing window.</li>
+            <li>Assert final invariants after all threads join.</li>
+            <li>Consider jcstress for rigorous memory-model testing.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Catches races that single-threaded tests miss.</li>
+            <li>Builds confidence before production deployment.</li>
+            <li>Reproduces contention scenarios deliberately.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Passing tests do not prove absence of races.</li>
+            <li>Flaky failures are hard to reproduce and diagnose.</li>
+            <li>Timing-dependent tests can be slow and machine-specific.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">CounterTest</span> {
+
+    <span class="code-annotation">@org.junit.jupiter.api.Test</span>
+    <span class="code-keyword">void</span> concurrentIncrements() <span class="code-keyword">throws</span> <span class="code-class">InterruptedException</span> {
+        <span class="code-keyword">int</span> threads = <span class="code-number">50</span>, perThread = <span class="code-number">1000</span>;
+        <span class="code-class">AtomicInteger</span> counter = <span class="code-keyword">new</span> <span class="code-class">AtomicInteger</span>();
+        <span class="code-class">CyclicBarrier</span> start = <span class="code-keyword">new</span> <span class="code-class">CyclicBarrier</span>(threads);
+        <span class="code-class">ExecutorService</span> pool = <span class="code-class">Executors</span>.newFixedThreadPool(threads);
+        <span class="code-class">CountDownLatch</span> done = <span class="code-keyword">new</span> <span class="code-class">CountDownLatch</span>(threads);
+
+        <span class="code-keyword">for</span> (<span class="code-keyword">int</span> i = <span class="code-number">0</span>; i &lt; threads; i++) {
+            pool.submit(() -> {
+                <span class="code-keyword">try</span> {
+                    start.await(); <span class="code-comment">// fire all at once</span>
+                    <span class="code-keyword">for</span> (<span class="code-keyword">int</span> j = <span class="code-number">0</span>; j &lt; perThread; j++) counter.incrementAndGet();
+                } <span class="code-keyword">catch</span> (<span class="code-class">Exception</span> e) { <span class="code-comment">/* ignore */</span> }
+                <span class="code-keyword">finally</span> { done.countDown(); }
+            });
+        }
+        done.await();
+        pool.shutdown();
+        assertEquals(threads * perThread, counter.get());
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>CyclicBarrier</code> releases all threads simultaneously to maximize contention.</li>
+                    <li><code>CountDownLatch</code> lets the test wait for every worker to finish.</li>
+                    <li>The final <code>assertEquals</code> verifies no increments were lost.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

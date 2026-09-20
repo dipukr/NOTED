@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Three-Phase Commit (3PC) - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Three-Phase Commit (3PC)</div>
+
+    <div class="intro">
+        <p>Three-phase commit (3PC) is a distributed commit protocol that extends 2PC to avoid its blocking problem.</p>
+        <p>It inserts an extra pre-commit phase between prepare and commit.</p>
+        <p>The added phase and timeouts let participants make progress even if the coordinator fails.</p>
+        <p>It is non-blocking under the assumption of a synchronous network with bounded delays.</p>
+        <p>In practice it is rarely used because that assumption often does not hold.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Phase 1 (canCommit): participants vote as in 2PC.</li>
+            <li>Phase 2 (preCommit): coordinator tells participants to prepare to commit.</li>
+            <li>Phase 3 (doCommit): coordinator issues the final commit.</li>
+            <li>Timeouts allow participants to decide autonomously if the coordinator vanishes.</li>
+            <li>Mostly of theoretical interest; real systems favour consensus (Paxos/Raft) or sagas.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Non-blocking under synchronous network assumptions.</li>
+            <li>Participants can reach a decision after coordinator failure.</li>
+            <li>Reduces the in-doubt window compared to 2PC.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Extra phase adds latency and message overhead.</li>
+            <li>Correctness relies on bounded network delays, which real networks violate.</li>
+            <li>Network partitions can still cause inconsistency.</li>
+            <li>Rarely implemented in practice.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">-- Coordinator database enlists a remote resource via MS DTC</span>
+<span class="code-keyword">BEGIN DISTRIBUTED TRANSACTION</span>;
+
+<span class="code-keyword">BEGIN TRY</span>
+
+    <span class="code-comment">-- Phase 1 (canCommit): each participant votes without committing</span>
+    <span class="code-comment">-- local participant</span>
+    <span class="code-keyword">UPDATE</span> <span class="code-class">Ledger</span> <span class="code-keyword">SET</span> balance = balance - <span class="code-number">100</span> <span class="code-keyword">WHERE</span> account_id = <span class="code-number">1</span>;
+    <span class="code-comment">-- remote participant, reached through a linked server</span>
+    <span class="code-keyword">UPDATE</span> [RemoteServer].[Bank].dbo.<span class="code-class">Ledger</span>
+        <span class="code-keyword">SET</span> balance = balance + <span class="code-number">100</span> <span class="code-keyword">WHERE</span> account_id = <span class="code-number">2</span>;
+    <span class="code-comment">-- if either UPDATE fails/times out here, all participants can still abort</span>
+
+    <span class="code-comment">-- Phase 2 (preCommit): coordinator tells every participant to get ready</span>
+    <span class="code-comment">-- (MS DTC issues PREPARE to each resource manager internally)</span>
+    <span class="code-keyword">IF</span> <span class="code-keyword">XACT_STATE</span>() = <span class="code-number">1</span>
+    <span class="code-keyword">BEGIN</span>
+        <span class="code-comment">-- all participants acknowledged prepare/ready; safe to proceed even</span>
+        <span class="code-comment">-- if the coordinator now crashes, participants can resolve via timeout</span>
+
+        <span class="code-comment">-- Phase 3 (doCommit): coordinator issues the final, irreversible commit</span>
+        <span class="code-keyword">COMMIT TRANSACTION</span>;
+    <span class="code-keyword">END</span>
+
+<span class="code-keyword">END TRY</span>
+<span class="code-keyword">BEGIN CATCH</span>
+    <span class="code-keyword">IF</span> <span class="code-keyword">XACT_STATE</span>() &lt;&gt; <span class="code-number">0</span>
+        <span class="code-keyword">ROLLBACK TRANSACTION</span>;   <span class="code-comment">-- abort: every participant undoes its local change</span>
+    <span class="code-keyword">THROW</span>;
+<span class="code-keyword">END CATCH</span>;</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>BEGIN DISTRIBUTED TRANSACTION</code> enlists MS DTC, which coordinates the local and linked-server (remote) resource managers as participants.</li>
+                    <li>Phase 1 corresponds to each participant executing its statement and being ready to vote; a failure here lets everyone abort cleanly, unlike in 2PC where this window can block.</li>
+                    <li>Phase 2 (preCommit) is where DTC asks every resource manager to prepare; <code>XACT_STATE() = 1</code> confirms the transaction is still committable before moving on.</li>
+                    <li>Phase 3 (doCommit) is the final <code>COMMIT TRANSACTION</code>, applied to all participants; <code>TRY/CATCH</code> with <code>ROLLBACK</code> handles the abort path if any phase fails.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

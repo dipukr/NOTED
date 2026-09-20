@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scalability (QPS, Throughput, Latency, Storage) - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Scalability (QPS, Throughput, Latency, Storage)</div>
+
+    <div class="intro">
+        <p>Scalability is the ability of a system to handle an increased workload without losing performance.</p>
+        <p>It means handling growing traffic, data, or users by adding resources rather than breaking or slowing down.</p>
+        <p>QPS (queries per second) and throughput measure how much work the system completes per unit of time.</p>
+        <p>Latency measures how long a single request takes, while storage capacity bounds how much data can be retained.</p>
+        <p>A truly scalable system keeps latency stable and throughput growing as resources are added.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li><strong>QPS / Throughput</strong> - requests served per second; the capacity dimension of the system.</li>
+            <li><strong>Latency</strong> - time to serve one request; track p50, p95 and p99, not just the average.</li>
+            <li><strong>Storage</strong> - total data the system must persist and index over time.</li>
+            <li>Measure before scaling - find the actual bottleneck (CPU, memory, IO, network, DB) first.</li>
+            <li>Prefer stateless services so replicas can be added freely behind a load balancer.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Absorbs traffic spikes and steady growth without a rewrite.</li>
+            <li>Keeps latency predictable under increasing load.</li>
+            <li>Lets capacity track demand, controlling cost.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Distributed scaling adds operational and consistency complexity.</li>
+            <li>Throughput gains often trade against per-request latency (batching, queuing).</li>
+            <li>Over-provisioning wastes money; under-provisioning causes outages.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># Simple latency + throughput meter around a service call</span>
+<span class="code-keyword">public</span> <span class="code-class">String</span> handle(<span class="code-class">Request</span> req) {
+    <span class="code-keyword">long</span> start = <span class="code-class">System</span>.nanoTime();
+    <span class="code-keyword">try</span> {
+        <span class="code-keyword">return</span> service.process(req);
+    } <span class="code-keyword">finally</span> {
+        <span class="code-keyword">long</span> micros = (<span class="code-class">System</span>.nanoTime() - start) / <span class="code-string">1_000</span>;
+        metrics.timer(<span class="code-string">"request.latency"</span>).record(micros);
+        metrics.counter(<span class="code-string">"request.count"</span>).increment(); <span class="code-comment"># feeds QPS</span>
+    }
+}
+</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>System.nanoTime()</code> brackets the call to measure per-request latency.</li>
+                    <li><code>timer.record()</code> lets the backend compute p95/p99, not just the mean.</li>
+                    <li><code>counter.increment()</code> divided by time gives QPS / throughput.</li>
+                    <li>The <code>finally</code> block guarantees metrics are recorded even on failure.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

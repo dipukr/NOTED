@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Denormalization - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Denormalization</div>
+
+    <div class="intro">
+        <p>Denormalization is the deliberate introduction of redundancy into a normalized schema to improve read performance.</p>
+        <p>It duplicates or pre-joins data so queries need fewer joins.</p>
+        <p>It is a trade-off: faster reads in exchange for more storage and harder writes.</p>
+        <p>It is common in read-heavy systems, reporting tables and caches.</p>
+        <p>Redundant copies must be kept in sync when the source data changes.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use when read performance matters more than write simplicity.</li>
+            <li>Good for reporting, dashboards and analytical (OLAP) workloads.</li>
+            <li>Store precomputed aggregates or duplicated columns to avoid joins.</li>
+            <li>Keep redundant data consistent via triggers, events or batch jobs.</li>
+            <li>Apply after profiling shows joins are the bottleneck.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Faster reads by avoiding expensive joins.</li>
+            <li>Simpler and quicker queries for reporting.</li>
+            <li>Can reduce load on the primary tables.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Redundant data risks inconsistency.</li>
+            <li>Writes become more complex and must update multiple copies.</li>
+            <li>Uses more storage.</li>
+            <li>Harder to maintain as the schema evolves.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">-- Orders table gets a redundant, precomputed OrderTotal column</span>
+<span class="code-keyword">ALTER TABLE</span> <span class="code-class">Orders</span> <span class="code-keyword">ADD</span> <span class="code-class">OrderTotal</span> <span class="code-keyword">DECIMAL</span>(18,2) <span class="code-keyword">NOT NULL</span> <span class="code-keyword">DEFAULT</span> <span class="code-number">0</span>;
+
+<span class="code-comment">-- Keep OrderTotal in sync whenever OrderItems changes (denormalization write cost)</span>
+<span class="code-keyword">CREATE TRIGGER</span> <span class="code-class">TRG_OrderItems_SyncTotal</span>
+<span class="code-keyword">ON</span> <span class="code-class">OrderItems</span>
+<span class="code-keyword">AFTER INSERT</span>, <span class="code-keyword">UPDATE</span>, <span class="code-keyword">DELETE</span>
+<span class="code-keyword">AS</span>
+<span class="code-keyword">BEGIN</span>
+    <span class="code-keyword">SET NOCOUNT ON</span>;
+
+    <span class="code-keyword">UPDATE</span> <span class="code-class">o</span>
+    <span class="code-keyword">SET</span> <span class="code-class">o</span>.<span class="code-class">OrderTotal</span> = <span class="code-class">agg</span>.<span class="code-class">Total</span>
+    <span class="code-keyword">FROM</span> <span class="code-class">Orders</span> <span class="code-class">o</span>
+    <span class="code-keyword">JOIN</span> (
+        <span class="code-keyword">SELECT</span> <span class="code-class">OrderId</span>, <span class="code-keyword">SUM</span>(<span class="code-class">Quantity</span> * <span class="code-class">UnitPrice</span>) <span class="code-keyword">AS</span> <span class="code-class">Total</span>
+        <span class="code-keyword">FROM</span> <span class="code-class">OrderItems</span>
+        <span class="code-keyword">WHERE</span> <span class="code-class">OrderId</span> <span class="code-keyword">IN</span> (<span class="code-keyword">SELECT</span> <span class="code-class">OrderId</span> <span class="code-keyword">FROM</span> <span class="code-keyword">inserted</span>
+                          <span class="code-keyword">UNION</span> <span class="code-keyword">SELECT</span> <span class="code-class">OrderId</span> <span class="code-keyword">FROM</span> <span class="code-keyword">deleted</span>)
+        <span class="code-keyword">GROUP BY</span> <span class="code-class">OrderId</span>
+    ) <span class="code-class">agg</span> <span class="code-keyword">ON</span> <span class="code-class">agg</span>.<span class="code-class">OrderId</span> = <span class="code-class">o</span>.<span class="code-class">OrderId</span>;
+<span class="code-keyword">END</span>;
+
+<span class="code-comment">-- Reporting no longer needs to join and sum OrderItems every time</span>
+<span class="code-keyword">SELECT</span> <span class="code-class">OrderId</span>, <span class="code-class">OrderTotal</span> <span class="code-keyword">FROM</span> <span class="code-class">Orders</span> <span class="code-keyword">WHERE</span> <span class="code-class">CustomerId</span> = <span class="code-number">12</span>;</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>OrderTotal</code> is redundant data: it can always be recomputed from <code>OrderItems</code>, but storing it avoids that join on every read.</li>
+                    <li>The <code>TRG_OrderItems_SyncTotal</code> trigger fires after any insert, update or delete on <code>OrderItems</code> and recalculates the affected orders' totals.</li>
+                    <li>The <code>inserted</code> and <code>deleted</code> pseudo-tables let the trigger only re-aggregate the orders that actually changed, not the whole table.</li>
+                    <li>Reporting queries now read <code>OrderTotal</code> directly instead of joining and summing <code>OrderItems</code> every time.</li>
+                    <li>The cost of this speed-up is that every write to <code>OrderItems</code> now also pays for the trigger's aggregation.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

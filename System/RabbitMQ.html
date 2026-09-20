@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RabbitMQ - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">RabbitMQ</div>
+
+    <div class="intro">
+        <p>RabbitMQ is a mature open-source message broker built on the AMQP protocol.</p>
+        <p>Producers publish to exchanges, which route messages to queues via bindings and routing keys.</p>
+        <p>Consumers subscribe to queues and acknowledge messages once processed.</p>
+        <p>It excels at flexible routing, per-message reliability, and traditional task queues.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use for task/work queues, RPC, and complex routing between services.</li>
+            <li>Choose an exchange type: direct, topic, fanout, or headers, per routing need.</li>
+            <li>Use manual acks and dead-letter queues for reliable failure handling.</li>
+            <li>Prefer Kafka instead when you need high-throughput event replay and log retention.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Rich, flexible routing through multiple exchange types.</li>
+            <li>Strong per-message delivery guarantees with acks and persistence.</li>
+            <li>Mature tooling, management UI, and broad client support.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Lower throughput than log-based brokers like Kafka for huge streams.</li>
+            <li>Messages are removed after consumption, so no long-term replay by default.</li>
+            <li>Deep queues under load can strain broker memory and performance.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">// Declaring a topic exchange, queue, and binding in Spring AMQP</span>
+<span class="code-class">@Configuration</span>
+<span class="code-keyword">public class</span> <span class="code-class">RabbitConfig</span> {
+
+    <span class="code-class">@Bean</span>
+    <span class="code-keyword">public</span> <span class="code-class">TopicExchange</span> ordersExchange() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">TopicExchange</span>(<span class="code-string">"orders.exchange"</span>);
+    }
+
+    <span class="code-class">@Bean</span>
+    <span class="code-keyword">public</span> <span class="code-class">Queue</span> ordersQueue() {
+        <span class="code-comment">// durable queue survives broker restarts</span>
+        <span class="code-keyword">return</span> <span class="code-class">QueueBuilder</span>.durable(<span class="code-string">"orders.queue"</span>).build();
+    }
+
+    <span class="code-class">@Bean</span>
+    <span class="code-keyword">public</span> <span class="code-class">Binding</span> ordersBinding(<span class="code-class">Queue</span> q, <span class="code-class">TopicExchange</span> ex) {
+        <span class="code-keyword">return</span> <span class="code-class">BindingBuilder</span>.bind(q).to(ex).with(<span class="code-string">"orders.*"</span>);
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>TopicExchange</code> routes by pattern-matching routing keys against bindings.</li>
+                    <li><code>QueueBuilder.durable(...)</code> persists the queue so it survives restarts.</li>
+                    <li><code>BindingBuilder...with("orders.*")</code> binds keys like <code>orders.created</code> to the queue.</li>
+                    <li>The exchange decouples publishers from the concrete queues receiving messages.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

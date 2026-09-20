@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sudden Spikes - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Sudden Spikes</div>
+
+    <div class="intro">
+        <p>A sudden spike is a sharp, often unpredictable surge in traffic or load.</p>
+        <p>Causes include flash sales, viral content, marketing events, or bot attacks.</p>
+        <p>Without protection, spikes exhaust resources and cascade into outages.</p>
+        <p>Handling them combines scaling, buffering, shedding, and caching.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Autoscale horizontally, but pre-warm capacity since scaling is not instant.</li>
+            <li>Buffer bursts with a queue so backends drain at a safe rate.</li>
+            <li>Apply rate limiting and load shedding to protect core functionality.</li>
+            <li>Cache and use a CDN to absorb read-heavy spikes at the edge.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Proper handling preserves availability during peak demand.</li>
+            <li>Graceful degradation keeps critical paths working when overloaded.</li>
+            <li>Queues and caches smooth load and protect databases.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Over-provisioning for rare spikes wastes cost.</li>
+            <li>Autoscaling lag can still drop requests during the initial surge.</li>
+            <li>Rate limiting and shedding reject some legitimate users.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">// Token-bucket rate limiter to cap load during a spike</span>
+<span class="code-class">@Component</span>
+<span class="code-keyword">public class</span> <span class="code-class">RateLimiter</span> {
+
+    <span class="code-keyword">private final</span> <span class="code-class">Semaphore</span> permits = <span class="code-keyword">new</span> <span class="code-class">Semaphore</span>(100); <span class="code-comment">// max concurrent</span>
+
+    <span class="code-keyword">public boolean</span> tryHandle(<span class="code-class">Runnable</span> work) {
+        <span class="code-keyword">if</span> (!permits.tryAcquire()) {
+            <span class="code-keyword">return</span> <span class="code-keyword">false</span>; <span class="code-comment">// shed load instead of collapsing</span>
+        }
+        <span class="code-keyword">try</span> {
+            work.run();
+            <span class="code-keyword">return</span> <span class="code-keyword">true</span>;
+        } <span class="code-keyword">finally</span> {
+            permits.release();
+        }
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>Semaphore</code> caps concurrent work so a spike cannot exhaust threads.</li>
+                    <li><code>tryAcquire()</code> returns immediately, enabling fast load shedding.</li>
+                    <li>Rejected requests get a 429 instead of dragging down the whole service.</li>
+                    <li><code>finally</code> release guarantees permits return even when work throws.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

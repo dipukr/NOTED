@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deadlock - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Deadlock</div>
+
+    <div class="intro">
+        <p>A deadlock occurs when there is more than one thread, each waiting for a resource held by another.</p>
+        <p>Which occurs when multiple threads acquires the same set of lock in different order.</p>
+        <p>The most obvious kind of resource is an object monitor but any resource that causes blocking such as wait-notify can qualify.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">Deadlock happens when two or more threads become interlocked:</div>
+        <div class="section-content">
+            <ul>
+                <li>Thread A holds the lock in object1 but is waiting on object2</li>
+                <li>Thread B holds the lock in object2 but is waiting on object1</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># DEADLOCK: threads lock A and B in opposite orders</span>
+<span class="code-class">Object</span> a = <span class="code-keyword">new</span> Object(), b = <span class="code-keyword">new</span> Object();
+
+Thread t1 = <span class="code-keyword">new</span> Thread(() -&gt; {
+    <span class="code-keyword">synchronized</span> (a) {
+        <span class="code-keyword">synchronized</span> (b) { <span class="code-comment">/* work */</span> }
+    }
+});
+Thread t2 = <span class="code-keyword">new</span> Thread(() -&gt; {
+    <span class="code-keyword">synchronized</span> (b) {          <span class="code-comment"># reversed order!</span>
+        <span class="code-keyword">synchronized</span> (a) { <span class="code-comment">/* work */</span> }
+    }
+});
+
+<span class="code-comment"># FIX: both threads lock a THEN b (consistent order)</span></code></pre>
+            </div>
+
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it deadlocks</div>
+                <ul>
+                    <li><code>t1</code> holds <code>a</code> and waits for <code>b</code>.</li>
+                    <li><code>t2</code> holds <code>b</code> and waits for <code>a</code>: circular wait.</li>
+                    <li>Neither can proceed, so both block permanently.</li>
+                    <li>Enforcing one global lock order (a then b) removes the cycle.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

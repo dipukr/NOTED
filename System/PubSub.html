@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pub/Sub System - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Pub/Sub System</div>
+
+    <div class="intro">
+        <p>Publish-subscribe is a messaging pattern where senders broadcast to topics, not to specific receivers.</p>
+        <p>Subscribers register interest in a topic and receive every message published to it.</p>
+        <p>Publishers and subscribers are fully decoupled and unaware of each other.</p>
+        <p>It underpins event-driven systems, fan-out notifications, and real-time updates.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use when one event must reach many independent consumers (fan-out).</li>
+            <li>Good for notifications, cache invalidation, and event sourcing.</li>
+            <li>Contrast with point-to-point queues where each message goes to one consumer.</li>
+            <li>Implementations include Kafka, Google Pub/Sub, Redis, and JMS topics.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Strong decoupling; add or remove subscribers without touching publishers.</li>
+            <li>Efficient one-to-many broadcast of events.</li>
+            <li>Scales naturally as new consumers subscribe independently.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>No direct feedback that a specific subscriber processed a message.</li>
+            <li>Delivery guarantees and ordering vary by implementation.</li>
+            <li>Hard to trace and debug across many loosely coupled subscribers.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">// In-app pub/sub with Spring's ApplicationEventPublisher</span>
+<span class="code-class">@Service</span>
+<span class="code-keyword">public class</span> <span class="code-class">OrderService</span> {
+
+    <span class="code-keyword">private final</span> <span class="code-class">ApplicationEventPublisher</span> publisher;
+
+    <span class="code-keyword">public</span> <span class="code-class">OrderService</span>(<span class="code-class">ApplicationEventPublisher</span> publisher) {
+        <span class="code-keyword">this</span>.publisher = publisher;
+    }
+
+    <span class="code-keyword">public void</span> placeOrder(<span class="code-class">Order</span> order) {
+        repository.save(order);
+        <span class="code-comment">// one publish, many independent listeners react</span>
+        publisher.publishEvent(<span class="code-keyword">new</span> <span class="code-class">OrderPlacedEvent</span>(order.getId()));
+    }
+}
+
+<span class="code-class">@Component</span>
+<span class="code-keyword">class</span> <span class="code-class">EmailSubscriber</span> {
+    <span class="code-class">@EventListener</span>
+    <span class="code-keyword">public void</span> on(<span class="code-class">OrderPlacedEvent</span> e) {
+        emailService.sendConfirmation(e.getOrderId());
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>publishEvent</code> broadcasts to every listener of that event type.</li>
+                    <li><code>@EventListener</code> subscribes a method without the publisher knowing it exists.</li>
+                    <li>Adding a new subscriber requires no change to <code>OrderService</code>.</li>
+                    <li>For cross-service pub/sub, swap this for Kafka or a cloud pub/sub broker.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

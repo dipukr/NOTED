@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Outbox Pattern - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Outbox Pattern</div>
+
+    <div class="intro">
+        <p>The Outbox pattern reliably publishes events by writing them to a database table in the same transaction as the business data.</p>
+        <p>It solves the dual-write problem: updating a database and a message broker cannot be atomic on their own.</p>
+        <p>A separate relay process reads the outbox table and publishes the events to the broker.</p>
+        <p>This guarantees an event is published if and only if the business change was committed.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use whenever a state change must reliably produce an event.</li>
+            <li>Business row and outbox row are saved in one local transaction.</li>
+            <li>A poller or CDC tool ships outbox rows to the broker.</li>
+            <li>Consumers must be idempotent since delivery is at-least-once.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>No lost events: publishing is atomic with the data change.</li>
+            <li>Works with any broker, no distributed transaction needed.</li>
+            <li>Survives crashes; unsent rows are retried later.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Adds an outbox table and a relay process to operate.</li>
+            <li>At-least-once delivery requires idempotent consumers.</li>
+            <li>Slight publishing latency from the polling interval.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># Business change and event saved in ONE transaction</span>
+<span class="code-class">@Service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderService</span> {
+
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">OrderRepository</span> orders;
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">OutboxRepository</span> outbox;
+
+    <span class="code-keyword">public</span> <span class="code-class">OrderService</span>(<span class="code-class">OrderRepository</span> orders, <span class="code-class">OutboxRepository</span> outbox) {
+        <span class="code-keyword">this</span>.orders = orders;
+        <span class="code-keyword">this</span>.outbox = outbox;
+    }
+
+    <span class="code-class">@Transactional</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> placeOrder(<span class="code-class">Order</span> order) {
+        orders.save(order);            <span class="code-comment"># business row</span>
+        outbox.save(<span class="code-keyword">new</span> <span class="code-class">OutboxEvent</span>(   <span class="code-comment"># event row, same txn</span>
+            <span class="code-string">"OrderPlaced"</span>, order.getId()));
+    }
+}
+<span class="code-comment"># A scheduled relay later reads OutboxEvent rows and publishes them.</span></code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>Both saves commit or roll back together under <code>@Transactional</code>.</li>
+                    <li>A relay polls <code>OutboxEvent</code> rows and sends them to the broker.</li>
+                    <li>If the transaction fails, no event is ever emitted.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

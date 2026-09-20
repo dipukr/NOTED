@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>API Gateway - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">API Gateway</div>
+
+    <div class="intro">
+        <p>An API gateway acts as a single entry point for handling client requests to various backend services.</p>
+        <p>It acts as a reverse proxy, routing requests to the appropriate services.</p>
+        <p>It can also handle cross-cutting concerns like authentication, authorization, rate limiting, caching, logging, monitoring, protocol translation, and load balancing.</p>
+        <p>It accepts API requests, processes them based on defined policies, directs them to the right services, and combines responses for a simplified client experience.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use in microservices to give clients one stable endpoint instead of many service URLs.</li>
+            <li>Centralizes auth, rate limiting, TLS termination, and logging out of each service.</li>
+            <li>Can aggregate/compose responses from several services into one payload.</li>
+            <li>Supports protocol translation (e.g. external REST to internal gRPC).</li>
+            <li>Distinct from a plain reverse proxy by adding API-aware policy and composition.</li>
+        </ul></div>
+    </div>
+
+    <div class="section-diagram">
+        <img src="../static/api-gateway.svg" alt="API Gateway architecture diagram">
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Single entry point simplifies clients and hides internal topology.</li>
+            <li>Removes duplicated cross-cutting logic from every service.</li>
+            <li>Central place for security, throttling, and observability.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Can become a single point of failure and a performance bottleneck.</li>
+            <li>Adds an extra network hop and latency.</li>
+            <li>Risks becoming a bloated component if too much logic accumulates in it.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># Spring Cloud Gateway: route + auth filter + rate limiting</span>
+<span class="code-class">@Bean</span>
+<span class="code-keyword">public</span> <span class="code-class">RouteLocator</span> routes(<span class="code-class">RouteLocatorBuilder</span> b) {
+    <span class="code-keyword">return</span> b.routes()
+        .route(<span class="code-string">"orders"</span>, r -&gt; r.path(<span class="code-string">"/api/orders/**"</span>)
+            .filters(f -&gt; f
+                .addRequestHeader(<span class="code-string">"X-Gateway"</span>, <span class="code-string">"true"</span>)
+                .requestRateLimiter(c -&gt; c.setRateLimiter(redisRateLimiter())))
+            .uri(<span class="code-string">"lb://order-service"</span>)) <span class="code-comment"># load-balanced backend</span>
+        .build();
+}
+</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>path("/api/orders/**")</code> matches inbound requests to a route.</li>
+                    <li>Filters apply cross-cutting policy (headers, rate limiting) before forwarding.</li>
+                    <li><code>lb://order-service</code> resolves via service discovery and load balances.</li>
+                    <li>Clients call one gateway URL; routing to services stays internal.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

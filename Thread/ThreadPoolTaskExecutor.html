@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ThreadPoolTaskExecutor - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">ThreadPoolTaskExecutor</div>
+
+    <div class="intro">
+        <p><code>ThreadPoolTaskExecutor</code> is Spring's wrapper around a Java <code>ThreadPoolExecutor</code>.</p>
+        <p>It exposes core pool size, max pool size, queue capacity, and keep-alive as simple properties.</p>
+        <p>It is the recommended executor bean backing <code>@Async</code> and other Spring async work.</p>
+        <p>Correct sizing is critical to avoid resource exhaustion or task rejection.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Back <code>@Async</code> methods with a bounded, tuned pool.</li>
+            <li>Threads grow to core size, then queue, then up to max.</li>
+            <li>Set a rejection policy for when the queue and pool are full.</li>
+            <li>Give threads a name prefix for easier debugging.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Simple, property-driven configuration.</li>
+            <li>Graceful shutdown support integrated with Spring lifecycle.</li>
+            <li>Bounded queue and pool prevent runaway thread creation.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Misunderstood core/max/queue interplay leads to surprises.</li>
+            <li>Large queue plus small pool hides latency until it overflows.</li>
+            <li>Wrong rejection policy can silently drop work.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-annotation">@Configuration</span>
+<span class="code-keyword">public class</span> <span class="code-class">ExecutorConfig</span> {
+
+    <span class="code-annotation">@Bean</span>(<span class="code-string">"taskExecutor"</span>)
+    <span class="code-keyword">public</span> <span class="code-class">ThreadPoolTaskExecutor</span> taskExecutor() {
+        <span class="code-class">ThreadPoolTaskExecutor</span> ex = <span class="code-keyword">new</span> <span class="code-class">ThreadPoolTaskExecutor</span>();
+        ex.setCorePoolSize(<span class="code-number">8</span>);
+        ex.setMaxPoolSize(<span class="code-number">16</span>);
+        ex.setQueueCapacity(<span class="code-number">100</span>);
+        ex.setKeepAliveSeconds(<span class="code-number">60</span>);
+        ex.setThreadNamePrefix(<span class="code-string">"async-"</span>);
+        <span class="code-comment">// run rejected tasks on the caller thread</span>
+        ex.setRejectedExecutionHandler(
+            <span class="code-keyword">new</span> <span class="code-class">ThreadPoolExecutor</span>.<span class="code-class">CallerRunsPolicy</span>());
+        ex.initialize();
+        <span class="code-keyword">return</span> ex;
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>Tasks run on core threads first, then queue, then expand toward max.</li>
+                    <li><code>CallerRunsPolicy</code> applies backpressure by running overflow on the caller.</li>
+                    <li><code>initialize()</code> builds the underlying <code>ThreadPoolExecutor</code>.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

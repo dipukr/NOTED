@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAGA Pattern - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">SAGA Pattern</div>
+
+    <div class="intro">
+        <p>The Saga pattern is a design pattern used in microservices architecture to manage distributed transactions.</p>
+        <p>It allows a sequence of local transactions across multiple services, ensuring data consistency even when individual services fail.</p>
+        <p>For each local transaction a corresponding compensating transaction is defined to undo it.</p>
+        <p>It relies on asynchronous communication to trigger subsequent transactions and compensating actions.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use when a business operation spans several services and databases.</li>
+            <li>Orchestration: a central coordinator instructs each service when to act.</li>
+            <li>Choreography: services react to events published by other services.</li>
+            <li>On failure, compensating transactions run in reverse to undo prior steps.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Maintains data consistency without distributed ACID transactions.</li>
+            <li>Keeps services loosely coupled via asynchronous messaging.</li>
+            <li>Each service manages only its own local transaction.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Compensating logic adds significant complexity.</li>
+            <li>Only eventual consistency, not immediate isolation.</li>
+            <li>Debugging long, multi-step sagas is difficult.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># Orchestration-style saga coordinator</span>
+<span class="code-class">@Service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderSaga</span> {
+
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">PaymentClient</span> payment;
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">InventoryClient</span> inventory;
+
+    <span class="code-keyword">public</span> <span class="code-class">OrderSaga</span>(<span class="code-class">PaymentClient</span> payment, <span class="code-class">InventoryClient</span> inventory) {
+        <span class="code-keyword">this</span>.payment = payment;
+        <span class="code-keyword">this</span>.inventory = inventory;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> execute(<span class="code-class">Order</span> order) {
+        payment.charge(order);          <span class="code-comment"># step 1 local txn</span>
+        <span class="code-keyword">try</span> {
+            inventory.reserve(order);   <span class="code-comment"># step 2 local txn</span>
+        } <span class="code-keyword">catch</span> (<span class="code-class">Exception</span> e) {
+            payment.refund(order);      <span class="code-comment"># compensating txn undoes step 1</span>
+            <span class="code-keyword">throw</span> e;
+        }
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>Each step is a local transaction in its own service.</li>
+                    <li>If a later step fails, <code>refund</code> compensates the earlier one.</li>
+                    <li>Consistency is achieved without a global distributed transaction.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adapter Pattern - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Adapter Pattern</div>
+
+    <div class="intro">
+        <p>Adapter pattern is a structural design pattern that allows objects with incompatible interfaces to work together.</p>
+        <p>Adapter acts as a bridge between two incompatible interfaces.</p>
+        <p>Adapter pattern converts the interface of a class into another interface that the client expects.</p>
+        <p>Adapter lets classes work together that couldn't otherwise because of incompatible interfaces.</p>
+        <p>Adapter catches calls for one object and transforms them to format and interface recognizable by the second object.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">Adapter pattern should be used when</div>
+        <div class="section-content">
+            <ul>
+                <li>There is an existing class and its interface does not match the one you need.</li>
+                <li>We need to connect systems or components that were not built to work together.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">Components</div>
+        <div class="section-content">
+            <ul>
+                <li>Target: The interface the client expects.</li>
+                <li>Adaptee: The existing class that needs adapting.</li>
+                <li>Adapter: The class that implements the target interface and internally uses or adapts the adaptee.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">Pros and Cons</div>
+        <div class="section-content">
+            <ul>
+                <li>Reusability of existing functionality.</li>
+                <li>Keeps existing code untouched.</li>
+                <li>Code can become complex if many adapters are introduced.</li>
+                <li>Sometimes it's better to refactor than use adapters excessively.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># Target interface the client expects</span>
+<span class="code-keyword">public interface</span> <span class="code-class">MediaPlayer</span> {
+    <span class="code-keyword">void</span> play(String file);
+}
+
+<span class="code-comment"># Adaptee with an incompatible interface</span>
+<span class="code-keyword">public class</span> <span class="code-class">LegacyMp3Player</span> {
+    <span class="code-keyword">public void</span> playMp3(String file) {
+        System.out.println(<span class="code-string">"Playing mp3: "</span> + file);
+    }
+}
+
+<span class="code-comment"># Adapter converts play() into playMp3()</span>
+<span class="code-keyword">public class</span> <span class="code-class">Mp3Adapter</span> <span class="code-keyword">implements</span> <span class="code-class">MediaPlayer</span> {
+    <span class="code-keyword">private final</span> <span class="code-class">LegacyMp3Player</span> player;
+
+    <span class="code-keyword">public</span> <span class="code-class">Mp3Adapter</span>(<span class="code-class">LegacyMp3Player</span> player) {
+        <span class="code-keyword">this</span>.player = player;
+    }
+
+    <span class="code-keyword">public void</span> play(String file) {
+        player.playMp3(file);
+    }
+}
+
+<span class="code-keyword">void</span> main() {
+    <span class="code-class">MediaPlayer</span> p = <span class="code-keyword">new</span> <span class="code-class">Mp3Adapter</span>(<span class="code-keyword">new</span> <span class="code-class">LegacyMp3Player</span>());
+    p.play(<span class="code-string">"song.mp3"</span>);
+}</code></pre>
+            </div>
+
+            <div class="code-explanation">
+                <div class="code-explanation-title">How the Adapter works</div>
+                <ul>
+                    <li><code>MediaPlayer</code> is the target interface the client codes against.</li>
+                    <li><code>LegacyMp3Player</code> is the adaptee with an incompatible <code>playMp3()</code> method.</li>
+                    <li><code>Mp3Adapter</code> implements the target and delegates to the wrapped adaptee.</li>
+                    <li>The client calls <code>play()</code> and stays unaware of the legacy method underneath.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

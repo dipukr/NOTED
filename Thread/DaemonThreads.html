@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daemon Threads - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Daemon Threads</div>
+
+    <div class="intro">
+        <p>A daemon thread is a background thread that does not prevent the JVM from exiting.</p>
+        <p>The JVM shuts down once only daemon threads remain running.</p>
+        <p>User (non-daemon) threads keep the JVM alive until they finish.</p>
+        <p>Daemons suit background chores like housekeeping, monitoring or garbage collection.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Background services that should die with the application.</li>
+            <li>Call <code>setDaemon(true)</code> before <code>start()</code>.</li>
+            <li>Daemons are abruptly stopped at JVM exit, running no further code.</li>
+            <li>Never use daemons for work that must complete or persist data.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Do not block JVM shutdown.</li>
+            <li>Ideal for supporting/background tasks.</li>
+            <li>No need to track and join them at exit.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Killed mid-work without cleanup at shutdown.</li>
+            <li><code>finally</code> blocks may not run on exit.</li>
+            <li>Unsafe for writing files or releasing external resources.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">DaemonDemo</span> {
+    <span class="code-keyword">public static void</span> <span class="code-class">main</span>(<span class="code-class">String</span>[] args) <span class="code-keyword">throws</span> <span class="code-class">InterruptedException</span> {
+        <span class="code-class">Thread</span> monitor = <span class="code-keyword">new</span> <span class="code-class">Thread</span>(() -&gt; {
+            <span class="code-keyword">while</span> (<span class="code-keyword">true</span>) {                   <span class="code-comment">// endless background loop</span>
+                <span class="code-class">System</span>.out.println(<span class="code-string">"monitoring..."</span>);
+                <span class="code-keyword">try</span> { <span class="code-class">Thread</span>.sleep(<span class="code-string">200</span>); } <span class="code-keyword">catch</span> (<span class="code-class">InterruptedException</span> e) { <span class="code-keyword">return</span>; }
+            }
+        });
+
+        monitor.setDaemon(<span class="code-keyword">true</span>);          <span class="code-comment">// must be set before start()</span>
+        monitor.start();
+
+        <span class="code-class">Thread</span>.sleep(<span class="code-string">500</span>);                 <span class="code-comment">// main is the only user thread</span>
+        <span class="code-class">System</span>.out.println(<span class="code-string">"main done, JVM exits and kills daemon"</span>);
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>setDaemon(true)</code> marks the thread as background before start.</li>
+                    <li>The daemon loops forever but does not block shutdown.</li>
+                    <li>When <code>main</code> ends, no user thread remains.</li>
+                    <li>The JVM exits and the daemon is terminated immediately.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deadlock (Database) - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Deadlock (Database)</div>
+
+    <div class="intro">
+        <p>A database deadlock occurs when two or more transactions each hold a lock the other needs, so none can proceed.</p>
+        <p>Each transaction waits forever for a resource the other will not release.</p>
+        <p>The database detects the cycle and aborts one transaction (the victim) to break it.</p>
+        <p>The aborted transaction receives an error and must be retried.</p>
+        <p>Deadlocks are usually caused by transactions acquiring locks in different orders.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Prevent deadlocks by always acquiring locks in a consistent order.</li>
+            <li>Keep transactions short to shrink the window for contention.</li>
+            <li>Use lower isolation levels when strict consistency is not required.</li>
+            <li>Handle deadlock errors by catching and retrying the transaction.</li>
+            <li>Index columns used in updates to reduce the range of rows locked.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Automatic detection prevents transactions from hanging forever.</li>
+            <li>Aborting a victim preserves overall system liveness.</li>
+            <li>Understanding them leads to safer locking patterns.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>The victim transaction's work is lost and must be retried.</li>
+            <li>Frequent deadlocks hurt throughput.</li>
+            <li>Hard to reproduce and diagnose intermittently.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">-- Session 1: locks AccountId 1 first, then tries AccountId 2</span>
+<span class="code-keyword">BEGIN TRANSACTION</span>;
+<span class="code-keyword">UPDATE</span> <span class="code-class">Accounts</span> <span class="code-keyword">SET</span> <span class="code-class">Balance</span> = <span class="code-class">Balance</span> - <span class="code-number">100</span> <span class="code-keyword">WHERE</span> <span class="code-class">AccountId</span> = <span class="code-number">1</span>;
+<span class="code-comment">-- ... pauses here, holding an exclusive lock on AccountId 1 ...</span>
+<span class="code-keyword">UPDATE</span> <span class="code-class">Accounts</span> <span class="code-keyword">SET</span> <span class="code-class">Balance</span> = <span class="code-class">Balance</span> + <span class="code-number">100</span> <span class="code-keyword">WHERE</span> <span class="code-class">AccountId</span> = <span class="code-number">2</span>; <span class="code-comment">-- blocks</span>
+<span class="code-keyword">COMMIT</span>;
+
+<span class="code-comment">-- Session 2 (running concurrently): opposite lock order -&gt; deadlock cycle</span>
+<span class="code-keyword">BEGIN TRANSACTION</span>;
+<span class="code-keyword">UPDATE</span> <span class="code-class">Accounts</span> <span class="code-keyword">SET</span> <span class="code-class">Balance</span> = <span class="code-class">Balance</span> - <span class="code-number">50</span> <span class="code-keyword">WHERE</span> <span class="code-class">AccountId</span> = <span class="code-number">2</span>;
+<span class="code-comment">-- ... pauses here, holding an exclusive lock on AccountId 2 ...</span>
+<span class="code-keyword">UPDATE</span> <span class="code-class">Accounts</span> <span class="code-keyword">SET</span> <span class="code-class">Balance</span> = <span class="code-class">Balance</span> + <span class="code-number">50</span> <span class="code-keyword">WHERE</span> <span class="code-class">AccountId</span> = <span class="code-number">1</span>;  <span class="code-comment">-- blocks -&gt; deadlock</span>
+<span class="code-keyword">COMMIT</span>;
+
+<span class="code-comment">-- Make Session 2 the preferred victim if a deadlock is detected</span>
+<span class="code-keyword">SET DEADLOCK_PRIORITY LOW</span>;</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>Session 1 locks <code>AccountId</code> 1 then waits for 2; Session 2 locks 2 then waits for 1, forming a circular wait.</li>
+                    <li>SQL Server's lock monitor detects the cycle and kills one session with error 1205 to break the deadlock.</li>
+                    <li><code>SET DEADLOCK_PRIORITY LOW</code> tells the engine to prefer aborting this session over the other one when a deadlock is found.</li>
+                    <li>The fix is to always acquire locks on <code>AccountId</code> in the same order (e.g. lowest id first) in both sessions.</li>
+                    <li>The aborted transaction must catch the deadlock error and retry the whole unit of work.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

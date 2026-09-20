@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>State Pattern - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">State Pattern</div>
+
+    <div class="intro">
+        <p>State is a behavioral design pattern that lets an object alter its behavior when its internal state changes, so the object appears to change its class.</p>
+        <p>Each possible state is represented by a separate class, and the context delegates state-specific behavior to the current state object.</p>
+        <p>It is essentially an object-oriented way to implement a finite state machine, replacing large conditional statements with polymorphism.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use</div>
+        <div class="section-content">
+            <ul>
+                <li>When an object's behavior depends on its state and must change at runtime.</li>
+                <li>When you have large conditionals that branch on the object's state.</li>
+                <li>When state-specific code is duplicated across many methods.</li>
+                <li>Typical uses: workflow engines, TCP connections, vending machines, and media players.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content">
+            <ul>
+                <li>Removes bulky conditional statements by using polymorphism.</li>
+                <li>Organizes state-specific behavior into separate, cohesive classes.</li>
+                <li>Follows the Single Responsibility and Open/Closed Principles.</li>
+                <li>Makes state transitions explicit and easier to reason about.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages</div>
+        <div class="section-content">
+            <ul>
+                <li>Increases the number of classes, one per state.</li>
+                <li>Can be overkill when there are only a few states with simple logic.</li>
+                <li>Transition logic may be scattered across the state classes.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public interface</span> <span class="code-class">State</span> {
+    <span class="code-keyword">void</span> next(TrafficLight light);
+    String color();
+}
+
+<span class="code-keyword">public class</span> <span class="code-class">RedState</span> <span class="code-keyword">implements</span> State {
+    <span class="code-keyword">public void</span> next(TrafficLight l) { l.setState(<span class="code-keyword">new</span> GreenState()); }
+    <span class="code-keyword">public</span> String color() { <span class="code-keyword">return</span> <span class="code-string">"RED"</span>; }
+}
+
+<span class="code-keyword">public class</span> <span class="code-class">GreenState</span> <span class="code-keyword">implements</span> State {
+    <span class="code-keyword">public void</span> next(TrafficLight l) { l.setState(<span class="code-keyword">new</span> RedState()); }
+    <span class="code-keyword">public</span> String color() { <span class="code-keyword">return</span> <span class="code-string">"GREEN"</span>; }
+}
+
+<span class="code-keyword">public class</span> <span class="code-class">TrafficLight</span> {              <span class="code-comment"># Context</span>
+    <span class="code-keyword">private</span> State state = <span class="code-keyword">new</span> RedState();
+    <span class="code-keyword">void</span> setState(State s) { state = s; }
+    <span class="code-keyword">void</span> change() { state.next(<span class="code-keyword">this</span>); }
+    String show() { <span class="code-keyword">return</span> state.color(); }
+}
+
+<span class="code-keyword">void</span> main() {
+    TrafficLight light = <span class="code-keyword">new</span> TrafficLight();
+    System.out.println(light.show());  <span class="code-comment"># RED</span>
+    light.change();
+    System.out.println(light.show());  <span class="code-comment"># GREEN</span>
+}</code></pre>
+            </div>
+
+            <div class="code-explanation">
+                <div class="code-explanation-title">How the State works</div>
+                <ul>
+                    <li><code>State</code> defines behavior common to all states.</li>
+                    <li><code>TrafficLight</code> is the context that delegates to its current state.</li>
+                    <li>Each state decides the next state in its <code>next()</code> method.</li>
+                    <li>Behavior changes without any <code>if/switch</code> in the context.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

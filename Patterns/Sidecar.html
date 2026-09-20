@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sidecar - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Sidecar</div>
+
+    <div class="intro">
+        <p>The Sidecar pattern deploys a helper component alongside a main service in the same host or pod.</p>
+        <p>The sidecar handles supporting concerns like logging, configuration, proxying, or security.</p>
+        <p>It shares the lifecycle and network of the main container but stays a separate process.</p>
+        <p>It keeps cross-cutting features out of the application code and language-agnostic.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use to add capabilities without modifying the main service.</li>
+            <li>Common for proxies, log shippers, and config or secret agents.</li>
+            <li>It is the building block of a service mesh data plane.</li>
+            <li>Main and sidecar communicate over localhost.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Reuses one sidecar across services in any language.</li>
+            <li>Isolates concerns from the main application code.</li>
+            <li>Independently upgradable from the service.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Extra process per instance increases resource use.</li>
+            <li>Adds a localhost network hop and some latency.</li>
+            <li>More moving parts to deploy and monitor.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># The app talks to its sidecar over localhost</span>
+<span class="code-class">@Service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ConfigReader</span> {
+
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">RestTemplate</span> rest;
+
+    <span class="code-keyword">public</span> <span class="code-class">ConfigReader</span>(<span class="code-class">RestTemplate</span> rest) {
+        <span class="code-keyword">this</span>.rest = rest;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">String</span> getSecret(<span class="code-class">String</span> key) {
+        <span class="code-comment"># sidecar agent runs on 127.0.0.1 in the same pod</span>
+        <span class="code-keyword">return</span> rest.getForObject(
+            <span class="code-string">"http://127.0.0.1:8200/secret/"</span> + key, <span class="code-class">String</span>.<span class="code-keyword">class</span>);
+    }
+}
+<span class="code-comment"># The sidecar handles auth to the real secret store,</span>
+<span class="code-comment"># so the app never holds those credentials itself.</span></code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>The main app calls <code>127.0.0.1</code>, its co-located sidecar.</li>
+                    <li>The sidecar does the heavy lifting (auth, caching, TLS).</li>
+                    <li>Swapping the sidecar needs no change to the app code.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

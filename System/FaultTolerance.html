@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fault Tolerance - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Fault Tolerance</div>
+
+    <div class="intro">
+        <p>Fault tolerance is a system's ability to keep operating correctly even when some components fail.</p>
+        <p>When a component of one system fails, the entire system does not fail.</p>
+        <p>It is achieved through redundancy, isolation, and graceful degradation rather than by preventing all faults.</p>
+        <p>Patterns like circuit breakers, bulkheads, and failover contain faults so they do not cascade.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use redundancy so a backup can take over when a primary fails.</li>
+            <li>Isolate failures with bulkheads so one overloaded dependency cannot exhaust all threads.</li>
+            <li>Use a circuit breaker to stop calling a failing dependency and fail fast.</li>
+            <li>Provide graceful degradation - serve cached or partial results instead of erroring.</li>
+            <li>Test with chaos engineering to verify tolerance before real incidents.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Prevents localized failures from cascading into full outages.</li>
+            <li>Keeps core features working during partial degradation.</li>
+            <li>Improves overall availability and reliability.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Redundant components increase cost and operational overhead.</li>
+            <li>Fallback logic adds code paths that must themselves be tested.</li>
+            <li>Poorly tuned circuit breakers can trip too early or too late.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># Circuit breaker with a fallback (Resilience4j style)</span>
+<span class="code-class">@Service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">PricingService</span> {
+
+    <span class="code-class">@CircuitBreaker</span>(name = <span class="code-string">"pricing"</span>, fallbackMethod = <span class="code-string">"cachedPrice"</span>)
+    <span class="code-keyword">public</span> <span class="code-class">BigDecimal</span> getPrice(<span class="code-class">String</span> sku) {
+        <span class="code-keyword">return</span> remoteClient.fetchPrice(sku); <span class="code-comment"># may fail or time out</span>
+    }
+
+    <span class="code-comment"># invoked when the breaker is open or the call fails</span>
+    <span class="code-keyword">public</span> <span class="code-class">BigDecimal</span> cachedPrice(<span class="code-class">String</span> sku, <span class="code-class">Throwable</span> t) {
+        <span class="code-keyword">return</span> priceCache.getOrDefault(sku, <span class="code-class">BigDecimal</span>.ZERO);
+    }
+}
+</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>@CircuitBreaker</code> tracks failures and opens the circuit when they exceed a threshold.</li>
+                    <li>While open, calls skip the failing dependency and go straight to the fallback.</li>
+                    <li><code>cachedPrice</code> degrades gracefully instead of propagating the error.</li>
+                    <li>The breaker periodically half-opens to test if the dependency recovered.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

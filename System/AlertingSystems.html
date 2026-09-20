@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alerting Systems - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Alerting Systems</div>
+
+    <div class="intro">
+        <p>An alerting system watches metrics and logs and notifies humans when something needs attention.</p>
+        <p>Rules define thresholds or conditions that, when breached, fire an alert.</p>
+        <p>Alerts route to channels like email, Slack, or PagerDuty with severity and context.</p>
+        <p>Good alerting is actionable, low-noise, and tied to user-facing symptoms.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Alert on symptoms (error rate, latency, saturation), not every internal cause.</li>
+            <li>Use severity levels so pages fire only for urgent, actionable issues.</li>
+            <li>Apply for-durations and grouping to avoid flapping and alert storms.</li>
+            <li>Every alert should link to a runbook describing what to do.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Detects incidents early, reducing mean time to detection.</li>
+            <li>Frees engineers from constantly staring at dashboards.</li>
+            <li>Routes the right issue to the right on-call responder.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Noisy or flapping alerts cause fatigue and ignored pages.</li>
+            <li>Poor thresholds miss real issues or fire on non-issues.</li>
+            <li>Requires ongoing tuning as the system and traffic evolve.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">// Expose a metric that an alerting rule can watch (Micrometer)</span>
+<span class="code-class">@Service</span>
+<span class="code-keyword">public class</span> <span class="code-class">PaymentService</span> {
+
+    <span class="code-keyword">private final</span> <span class="code-class">Counter</span> failures;
+
+    <span class="code-keyword">public</span> <span class="code-class">PaymentService</span>(<span class="code-class">MeterRegistry</span> registry) {
+        <span class="code-keyword">this</span>.failures = <span class="code-class">Counter</span>.builder(<span class="code-string">"payment.failures"</span>)
+                .description(<span class="code-string">"Failed payment attempts"</span>)
+                .register(registry);
+    }
+
+    <span class="code-keyword">public void</span> charge(<span class="code-class">Payment</span> p) {
+        <span class="code-keyword">try</span> {
+            gateway.charge(p);
+        } <span class="code-keyword">catch</span> (<span class="code-class">GatewayException</span> ex) {
+            failures.increment(); <span class="code-comment">// alert fires when rate crosses threshold</span>
+            <span class="code-keyword">throw</span> ex;
+        }
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>Counter</code> records a monotonically increasing count of payment failures.</li>
+                    <li>Prometheus scrapes the metric; an alert rule watches its rate over time.</li>
+                    <li><code>failures.increment()</code> feeds real-time data the alerting engine evaluates.</li>
+                    <li>Alertmanager then groups, deduplicates, and routes the notification.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

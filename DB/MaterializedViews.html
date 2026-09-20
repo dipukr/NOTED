@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Materialized Views - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Materialized Views</div>
+
+    <div class="intro">
+        <p>A materialized view is a database object that stores the physical result of a query, unlike a regular view which is computed on every access.</p>
+        <p>It precomputes and persists expensive joins and aggregations so reads are fast.</p>
+        <p>The stored result must be refreshed to reflect changes in the underlying tables.</p>
+        <p>Refresh can be full, incremental or on a schedule.</p>
+        <p>Materialized views are a form of controlled denormalization managed by the database.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use for expensive aggregations or joins queried far more often than the data changes.</li>
+            <li>Ideal for dashboards, reports and summary tables.</li>
+            <li>Choose a refresh strategy that matches acceptable staleness.</li>
+            <li>Incremental refresh updates only changed rows for efficiency.</li>
+            <li>Index the materialized view like a normal table.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Very fast reads because results are precomputed.</li>
+            <li>Offloads heavy computation from query time.</li>
+            <li>Managed and refreshed by the database engine.</li>
+            <li>Can be indexed for further speedups.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Data is stale between refreshes.</li>
+            <li>Refreshing consumes CPU, I/O and storage.</li>
+            <li>Not all databases support incremental refresh.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">-- Base tables</span>
+<span class="code-keyword">CREATE TABLE</span> <span class="code-class">Sales</span> (
+    <span class="code-class">SaleId</span> <span class="code-keyword">INT</span> <span class="code-keyword">IDENTITY PRIMARY KEY</span>,
+    <span class="code-class">SaleDate</span> <span class="code-keyword">DATE NOT NULL</span>,
+    <span class="code-class">Amount</span> <span class="code-keyword">DECIMAL</span>(<span class="code-number">10</span>,<span class="code-number">2</span>) <span class="code-keyword">NOT NULL</span>
+);
+
+<span class="code-comment">-- Postgres: true materialized view, stored physically until refreshed</span>
+<span class="code-keyword">CREATE MATERIALIZED VIEW</span> <span class="code-class">SalesByDay</span> <span class="code-keyword">AS</span>
+<span class="code-keyword">SELECT</span> <span class="code-class">SaleDate</span>, <span class="code-keyword">SUM</span>(<span class="code-class">Amount</span>) <span class="code-keyword">AS</span> <span class="code-class">TotalAmount</span>
+<span class="code-keyword">FROM</span> <span class="code-class">Sales</span>
+<span class="code-keyword">GROUP BY</span> <span class="code-class">SaleDate</span>;
+
+<span class="code-comment">-- refresh recomputes and repersists the result (blocks reads unless CONCURRENTLY)</span>
+<span class="code-keyword">REFRESH MATERIALIZED VIEW CONCURRENTLY</span> <span class="code-class">SalesByDay</span>;
+
+<span class="code-comment">-- T-SQL equivalent: a schema-bound view backed by a unique clustered index</span>
+<span class="code-keyword">CREATE VIEW</span> <span class="code-class">dbo</span>.<span class="code-class">SalesByDay_V</span> <span class="code-keyword">WITH SCHEMABINDING AS</span>
+<span class="code-keyword">SELECT</span> <span class="code-class">SaleDate</span>, <span class="code-keyword">SUM</span>(<span class="code-class">Amount</span>) <span class="code-keyword">AS</span> <span class="code-class">TotalAmount</span>, <span class="code-keyword">COUNT_BIG</span>(*) <span class="code-keyword">AS</span> <span class="code-class">RowCnt</span>
+<span class="code-keyword">FROM</span> <span class="code-class">dbo</span>.<span class="code-class">Sales</span>
+<span class="code-keyword">GROUP BY</span> <span class="code-class">SaleDate</span>;
+
+<span class="code-comment">-- the unique clustered index materializes the view's rows on disk</span>
+<span class="code-keyword">CREATE UNIQUE CLUSTERED INDEX</span> <span class="code-class">IX_SalesByDay_V</span>
+    <span class="code-keyword">ON</span> <span class="code-class">dbo</span>.<span class="code-class">SalesByDay_V</span> (<span class="code-class">SaleDate</span>);</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>CREATE MATERIALIZED VIEW</code> stores the aggregated <code>SUM</code> per day physically instead of recomputing it on every read.</li>
+                    <li><code>REFRESH MATERIALIZED VIEW CONCURRENTLY</code> recomputes and repersists the result without locking out readers.</li>
+                    <li>In SQL Server, <code>WITH SCHEMABINDING</code> plus a unique clustered index turns a normal view into an indexed (materialized) view.</li>
+                    <li>Reads against the materialized/indexed view skip the join and aggregation entirely, trading staleness for speed.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>System Design - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">System Design</div>
+
+    <div class="intro">
+        <p>System design is the process of defining the architecture, components, interfaces, and data of a software system to meet specific requirements.</p>
+        <p>It ensures a system is well-structured, efficient, and able to meet the evolving needs of its users.</p>
+        <p>It balances functional needs against quality attributes like scalability, availability, and consistency.</p>
+        <p>It spans everything from load balancers and caches to data stores and communication protocols.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Scalability: handle increasing load by adding more nodes.</li>
+            <li>Availability: stay operational even if some nodes fail.</li>
+            <li>Consistency: keep data correct across components.</li>
+            <li>Fault tolerance and security are designed in, not bolted on.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Reveals bottlenecks and single points of failure before coding.</li>
+            <li>Gives a blueprint the whole team can build against.</li>
+            <li>Makes trade-offs (cost vs. performance) explicit.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Designing for scale you do not yet need wastes effort and money.</li>
+            <li>Estimates are uncertain, so designs must stay adaptable.</li>
+            <li>No single design satisfies every quality attribute at once.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># A cache-aside read path, a common system-design building block</span>
+<span class="code-class">@Service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductService</span> {
+
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">Cache</span> cache;
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">ProductRepository</span> repo;
+
+    <span class="code-keyword">public</span> <span class="code-class">ProductService</span>(<span class="code-class">Cache</span> cache, <span class="code-class">ProductRepository</span> repo) {
+        <span class="code-keyword">this</span>.cache = cache;
+        <span class="code-keyword">this</span>.repo = repo;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">Product</span> getProduct(<span class="code-class">Long</span> id) {
+        <span class="code-class">Product</span> cached = cache.get(id);
+        <span class="code-keyword">if</span> (cached != <span class="code-keyword">null</span>) <span class="code-keyword">return</span> cached; <span class="code-comment"># cache hit</span>
+
+        <span class="code-class">Product</span> fromDb = repo.findById(id)
+            .orElseThrow(() -&gt; <span class="code-keyword">new</span> <span class="code-class">NotFoundException</span>(id));
+        cache.put(id, fromDb);           <span class="code-comment"># populate for next time</span>
+        <span class="code-keyword">return</span> fromDb;
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>The cache is checked first to cut latency and database load.</li>
+                    <li>On a miss the DB is queried once, then the result is cached.</li>
+                    <li><code>orElseThrow</code> handles the missing-record case safely.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

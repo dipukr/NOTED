@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Database Partitioning - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Database Partitioning</div>
+
+    <div class="intro">
+        <p>Partitioning splits a single large table into smaller physical pieces called partitions, while it still appears as one logical table.</p>
+        <p>Unlike sharding, partitioning usually happens within a single database instance.</p>
+        <p>Horizontal partitioning divides rows (for example by date range); vertical partitioning divides columns.</p>
+        <p>The database engine routes queries only to the partitions that can hold the matching rows (partition pruning).</p>
+        <p>It is a common way to keep very large tables manageable and fast.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use range partitioning for time-series data (partition per month or year).</li>
+            <li>Use list partitioning to group rows by discrete values such as region.</li>
+            <li>Use hash partitioning to spread rows evenly when there is no natural range.</li>
+            <li>Dropping an old partition is far cheaper than deleting millions of rows.</li>
+            <li>Ensure queries filter on the partition key so the engine can prune partitions.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Queries scan only relevant partitions, improving performance.</li>
+            <li>Maintenance (archiving, purging) is faster per partition.</li>
+            <li>Indexes stay smaller per partition.</li>
+            <li>Transparent to the application, which still sees one table.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Queries that ignore the partition key must scan every partition.</li>
+            <li>Choosing the wrong partition key causes uneven partitions.</li>
+            <li>Adds schema complexity and maintenance of the partition scheme.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">-- Define range boundaries: one partition per year</span>
+<span class="code-keyword">CREATE PARTITION FUNCTION</span> <span class="code-class">PF_OrderYear</span> (<span class="code-keyword">DATE</span>)
+    <span class="code-keyword">AS RANGE RIGHT FOR VALUES</span> (<span class="code-string">'2024-01-01'</span>, <span class="code-string">'2025-01-01'</span>, <span class="code-string">'2026-01-01'</span>);
+
+<span class="code-comment">-- Map each partition to a filegroup</span>
+<span class="code-keyword">CREATE PARTITION SCHEME</span> <span class="code-class">PS_OrderYear</span>
+    <span class="code-keyword">AS PARTITION</span> <span class="code-class">PF_OrderYear</span>
+    <span class="code-keyword">ALL TO</span> ([<span class="code-keyword">PRIMARY</span>]);
+
+<span class="code-comment">-- The table is physically split by CreatedAt, but looks like one table</span>
+<span class="code-keyword">CREATE TABLE</span> <span class="code-class">Orders</span> (
+    <span class="code-class">OrderId</span>    <span class="code-keyword">INT</span> <span class="code-keyword">NOT NULL</span>,
+    <span class="code-class">CustomerId</span> <span class="code-keyword">INT</span> <span class="code-keyword">NOT NULL</span>,
+    <span class="code-class">CreatedAt</span>  <span class="code-keyword">DATE</span> <span class="code-keyword">NOT NULL</span>,
+    <span class="code-class">Total</span>      <span class="code-keyword">DECIMAL</span>(18,2) <span class="code-keyword">NOT NULL</span>,
+    <span class="code-keyword">CONSTRAINT</span> <span class="code-class">PK_Orders</span> <span class="code-keyword">PRIMARY KEY</span> (<span class="code-class">OrderId</span>, <span class="code-class">CreatedAt</span>)
+) <span class="code-keyword">ON</span> <span class="code-class">PS_OrderYear</span>(<span class="code-class">CreatedAt</span>);
+
+<span class="code-comment">-- Filtering on the partition key lets the engine prune to one partition</span>
+<span class="code-keyword">SELECT</span> <span class="code-keyword">COUNT</span>(*)
+<span class="code-keyword">FROM</span> <span class="code-class">Orders</span>
+<span class="code-keyword">WHERE</span> <span class="code-class">CreatedAt</span> &gt;= <span class="code-string">'2025-01-01'</span> <span class="code-keyword">AND</span> <span class="code-class">CreatedAt</span> &lt; <span class="code-string">'2026-01-01'</span>;
+
+<span class="code-comment">-- Archiving an old year is a metadata switch, not a row-by-row delete</span>
+<span class="code-keyword">SELECT</span> <span class="code-class">$PARTITION</span>.<span class="code-class">PF_OrderYear</span>(<span class="code-class">CreatedAt</span>) <span class="code-keyword">AS</span> <span class="code-class">PartitionNumber</span>, <span class="code-keyword">COUNT</span>(*)
+<span class="code-keyword">FROM</span> <span class="code-class">Orders</span>
+<span class="code-keyword">GROUP BY</span> <span class="code-class">$PARTITION</span>.<span class="code-class">PF_OrderYear</span>(<span class="code-class">CreatedAt</span>);</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>CREATE PARTITION FUNCTION</code> defines the range boundaries that split rows by year.</li>
+                    <li><code>CREATE PARTITION SCHEME</code> maps each range to physical storage (here, all to the primary filegroup).</li>
+                    <li>The table's <code>ON PS_OrderYear(CreatedAt)</code> clause makes it a partitioned table while the application still sees one logical <code>Orders</code> table.</li>
+                    <li>A <code>WHERE</code> filter on <code>CreatedAt</code> lets the engine perform partition pruning, scanning only the matching year.</li>
+                    <li><code>$PARTITION.PF_OrderYear(...)</code> reports which partition each row lives in, useful for verifying pruning and planning archive/purge of old partitions.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

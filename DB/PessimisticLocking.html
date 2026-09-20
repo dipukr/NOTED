@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pessimistic Locking - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Pessimistic Locking</div>
+
+    <div class="intro">
+        <p>Pessimistic locking assumes conflicts are likely and locks a row as soon as it is read.</p>
+        <p>Other transactions that want the same row must wait until the lock is released.</p>
+        <p>It guarantees exclusive access for the duration of the transaction.</p>
+        <p>It is implemented with statements like SELECT ... FOR UPDATE.</p>
+        <p>It favours correctness over concurrency for highly contended data.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use when conflicts are frequent or the cost of a retry is high.</li>
+            <li>Good for hot rows like inventory counts or account balances.</li>
+            <li>Acquire the lock with SELECT ... FOR UPDATE inside a transaction.</li>
+            <li>Keep the transaction short to reduce blocking.</li>
+            <li>In JPA, use <code>LockModeType.PESSIMISTIC_WRITE</code>.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Guarantees exclusive access, avoiding lost updates.</li>
+            <li>No wasted retries on conflict.</li>
+            <li>Simple mental model for contended data.</li>
+            <li>Predictable behaviour under heavy contention.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Reduces concurrency because readers block.</li>
+            <li>Can cause deadlocks if locks are taken in different orders.</li>
+            <li>Long-held locks hurt throughput.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">-- Hot row: stock table backing an inventory reservation</span>
+<span class="code-keyword">CREATE TABLE</span> <span class="code-class">Stock</span> (
+    <span class="code-class">StockId</span>      <span class="code-keyword">INT</span> <span class="code-keyword">PRIMARY KEY</span>,
+    <span class="code-class">Sku</span>          <span class="code-keyword">VARCHAR</span>(<span class="code-number">50</span>) <span class="code-keyword">NOT NULL</span>,
+    <span class="code-class">QtyOnHand</span>    <span class="code-keyword">INT</span> <span class="code-keyword">NOT NULL</span>
+);
+
+<span class="code-comment">-- Session A: lock the row so no one else can read/write it until commit</span>
+<span class="code-keyword">BEGIN TRANSACTION</span>;
+
+<span class="code-keyword">SELECT</span> <span class="code-class">StockId</span>, <span class="code-class">QtyOnHand</span>
+<span class="code-keyword">FROM</span> <span class="code-class">Stock</span> <span class="code-keyword">WITH</span> (<span class="code-keyword">UPDLOCK</span>, <span class="code-keyword">ROWLOCK</span>)
+<span class="code-keyword">WHERE</span> <span class="code-class">StockId</span> = <span class="code-number">1001</span>;
+
+<span class="code-comment">-- Session B running concurrently blocks here until Session A commits:</span>
+<span class="code-comment">-- SELECT * FROM Stock WITH (UPDLOCK, ROWLOCK) WHERE StockId = 1001;</span>
+
+<span class="code-keyword">UPDATE</span> <span class="code-class">Stock</span>
+<span class="code-keyword">SET</span> <span class="code-class">QtyOnHand</span> = <span class="code-class">QtyOnHand</span> - <span class="code-number">5</span>
+<span class="code-keyword">WHERE</span> <span class="code-class">StockId</span> = <span class="code-number">1001</span>;
+
+<span class="code-keyword">COMMIT</span>;
+<span class="code-comment">-- lock releases here; Session B's SELECT can now proceed</span>
+
+<span class="code-comment">-- ANSI/PostgreSQL equivalent: SELECT ... FOR UPDATE</span>
+<span class="code-comment">-- SELECT stock_id, qty_on_hand FROM stock WHERE stock_id = 1001 FOR UPDATE;</span></code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><span class="code-keyword">WITH (UPDLOCK, ROWLOCK)</span> takes an update lock on just that row as soon as it is read.</li>
+                    <li>Any other transaction trying to read or write the same row with a compatible lock hint must wait.</li>
+                    <li>The lock is held for the whole transaction and released only on <span class="code-keyword">COMMIT</span> or <span class="code-keyword">ROLLBACK</span>.</li>
+                    <li>This prevents two concurrent reservations from both reading the same quantity and overselling stock.</li>
+                    <li><span class="code-keyword">SELECT ... FOR UPDATE</span> is the portable ANSI form of the same pattern on PostgreSQL/Oracle/MySQL.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

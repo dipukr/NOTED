@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dirty Read - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Dirty Read</div>
+
+    <div class="intro">
+        <p>A dirty read happens when one transaction reads data that another transaction has written but not yet committed.</p>
+        <p>If the other transaction rolls back, the first transaction has read a value that never officially existed.</p>
+        <p>It is the weakest consistency anomaly and can lead to decisions based on invalid data.</p>
+        <p>Dirty reads are only possible at the Read Uncommitted isolation level.</p>
+        <p>Read Committed and higher levels prevent them.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Occurs only under Read Uncommitted isolation.</li>
+            <li>Prevent it by using Read Committed or higher.</li>
+            <li>Reading uncommitted data risks acting on values that get rolled back.</li>
+            <li>Almost never acceptable for correctness-sensitive logic.</li>
+            <li>May be tolerated only for rough, approximate reporting.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Allowing dirty reads gives maximum concurrency and no read locks.</li>
+            <li>Can be acceptable for approximate, non-critical metrics.</li>
+            <li>Understanding it clarifies why Read Committed is the sane default.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Can read values that are later rolled back.</li>
+            <li>Leads to incorrect business decisions.</li>
+            <li>Hard to reason about and debug.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">-- Session A: modifies a balance but has not committed yet</span>
+<span class="code-keyword">BEGIN TRANSACTION</span>;
+    <span class="code-keyword">UPDATE</span> <span class="code-class">Accounts</span> <span class="code-keyword">SET</span> <span class="code-class">Balance</span> = <span class="code-class">Balance</span> - <span class="code-number">1000</span> <span class="code-keyword">WHERE</span> <span class="code-class">AccountId</span> = <span class="code-number">1</span>;
+    <span class="code-comment">-- ... no COMMIT or ROLLBACK yet, transaction is still open ...</span>
+
+<span class="code-comment">-- Session B: READ UNCOMMITTED lets it see Session A's unfinished change</span>
+<span class="code-keyword">SET TRANSACTION ISOLATION LEVEL</span> <span class="code-keyword">READ UNCOMMITTED</span>;
+<span class="code-keyword">SELECT</span> <span class="code-class">Balance</span> <span class="code-keyword">FROM</span> <span class="code-class">Accounts</span> <span class="code-keyword">WHERE</span> <span class="code-class">AccountId</span> = <span class="code-number">1</span>;
+<span class="code-comment">-- returns the reduced balance, even though Session A may still roll back -- a dirty read</span>
+
+<span class="code-comment">-- Back in Session A: the change is undone</span>
+<span class="code-keyword">ROLLBACK</span>;
+<span class="code-comment">-- Session B's earlier read is now proven wrong: it saw a value that never existed</span>
+
+<span class="code-comment">-- Fix: READ COMMITTED never exposes another transaction's uncommitted rows</span>
+<span class="code-keyword">SET TRANSACTION ISOLATION LEVEL</span> <span class="code-keyword">READ COMMITTED</span>;
+<span class="code-keyword">SELECT</span> <span class="code-class">Balance</span> <span class="code-keyword">FROM</span> <span class="code-class">Accounts</span> <span class="code-keyword">WHERE</span> <span class="code-class">AccountId</span> = <span class="code-number">1</span>;   <span class="code-comment">-- blocks until Session A commits/rolls back, then reads the final value</span></code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED</code> tells the engine to skip shared locks and read whatever is currently in the buffer, including uncommitted changes.</li>
+                    <li>Session B's <code>SELECT</code> sees Session A's debit before it commits, a dirty read.</li>
+                    <li>When Session A later rolls back, Session B has already acted on a value that never officially existed in the database.</li>
+                    <li><code>READ COMMITTED</code> (the SQL Server default) prevents this by only ever returning committed row versions, blocking or reading the pre-change value instead.</li>
+                    <li>Dirty reads are only possible at the lowest isolation level; every higher level rules them out.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

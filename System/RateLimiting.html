@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rate Limiting - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Rate Limiting</div>
+
+    <div class="intro">
+        <p>Rate limiting is the technique for limiting the number of requests that can be made to a web service in a given period of time.</p>
+        <p>It protects services from overload, abuse, and runaway clients.</p>
+        <p>For monetising an API, rate limits are very important when you want to charge clients based on the number of requests made.</p>
+        <p>Common algorithms include token bucket, leaky bucket, fixed window, and sliding window.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Protect backends from spikes, scraping, brute-force, and denial-of-service.</li>
+            <li>Enforce fair usage and API tiers/quotas per client or API key.</li>
+            <li>Token bucket allows bursts up to a capacity; leaky bucket smooths output.</li>
+            <li>Return HTTP 429 with a Retry-After header when the limit is exceeded.</li>
+            <li>Use a shared store (e.g. Redis) so limits hold across multiple instances.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Shields services from overload and abusive traffic.</li>
+            <li>Enables usage-based billing and fair sharing.</li>
+            <li>Improves stability and predictable capacity planning.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Legitimate bursts may be rejected if limits are too tight.</li>
+            <li>Distributed limiting needs a shared, low-latency counter store.</li>
+            <li>Fixed windows suffer boundary bursts; sliding windows cost more to compute.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># Token-bucket rate limiter: allows bursts, refills over time</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">TokenBucket</span> {
+
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-keyword">long</span> capacity, refillPerSec;
+    <span class="code-keyword">private</span> <span class="code-keyword">double</span> tokens;
+    <span class="code-keyword">private</span> <span class="code-keyword">long</span> last = <span class="code-class">System</span>.nanoTime();
+
+    <span class="code-keyword">public</span> <span class="code-class">TokenBucket</span>(<span class="code-keyword">long</span> capacity, <span class="code-keyword">long</span> refillPerSec) {
+        <span class="code-keyword">this</span>.capacity = capacity; <span class="code-keyword">this</span>.refillPerSec = refillPerSec;
+        <span class="code-keyword">this</span>.tokens = capacity;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">synchronized</span> <span class="code-keyword">boolean</span> tryAcquire() {
+        <span class="code-keyword">long</span> now = <span class="code-class">System</span>.nanoTime();
+        tokens = <span class="code-class">Math</span>.min(capacity,
+            tokens + (now - last) / <span class="code-string">1e9</span> * refillPerSec); <span class="code-comment"># refill</span>
+        last = now;
+        <span class="code-keyword">if</span> (tokens &gt;= <span class="code-string">1</span>) { tokens -= <span class="code-string">1</span>; <span class="code-keyword">return</span> <span class="code-keyword">true</span>; }
+        <span class="code-keyword">return</span> <span class="code-keyword">false</span>; <span class="code-comment"># caller returns HTTP 429</span>
+    }
+}
+</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>Tokens refill continuously at <code>refillPerSec</code> up to <code>capacity</code>.</li>
+                    <li>Each request consumes one token; bursts are allowed until the bucket empties.</li>
+                    <li><code>tryAcquire()</code> returning false signals the caller to respond with 429.</li>
+                    <li><code>synchronized</code> keeps the counter correct under concurrency (per instance).</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

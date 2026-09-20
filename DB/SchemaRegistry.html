@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Schema Registry - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Schema Registry</div>
+
+    <div class="intro">
+        <p>A schema registry is a central service that stores and versions the schemas of messages exchanged between producers and consumers.</p>
+        <p>It is commonly used with Kafka to manage Avro, Protobuf or JSON schemas.</p>
+        <p>Producers register a schema and send a small schema ID with each message instead of the full schema.</p>
+        <p>Consumers fetch the schema by ID to deserialize the message correctly.</p>
+        <p>The registry enforces compatibility rules so schema changes do not break consumers.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use with event streaming to decouple producers and consumers safely.</li>
+            <li>It enforces backward, forward or full compatibility on new schema versions.</li>
+            <li>Messages carry a compact schema ID, reducing payload size.</li>
+            <li>Consumers can evolve independently as long as compatibility holds.</li>
+            <li>Confluent Schema Registry is a common implementation for Kafka.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Prevents incompatible schema changes from breaking pipelines.</li>
+            <li>Smaller messages since the schema is referenced by ID.</li>
+            <li>Central, versioned source of truth for message contracts.</li>
+            <li>Lets producers and consumers evolve independently.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Adds an external dependency to the pipeline.</li>
+            <li>If unavailable, serialization/deserialization can fail.</li>
+            <li>Requires discipline around compatibility settings.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">-- Table modelling a schema registry: one row per registered schema version</span>
+<span class="code-keyword">CREATE TABLE</span> <span class="code-class">SchemaSubject</span> (
+    subject_name   <span class="code-keyword">VARCHAR</span>(<span class="code-number">100</span>) <span class="code-keyword">NOT NULL</span>,
+    version        <span class="code-keyword">INT</span> <span class="code-keyword">NOT NULL</span>,
+    schema_id      <span class="code-keyword">INT</span> <span class="code-keyword">IDENTITY</span>(<span class="code-number">1</span>,<span class="code-number">1</span>),
+    schema_text    <span class="code-keyword">NVARCHAR</span>(<span class="code-keyword">MAX</span>) <span class="code-keyword">NOT NULL</span>,
+    compatibility  <span class="code-keyword">VARCHAR</span>(<span class="code-number">20</span>) <span class="code-keyword">NOT NULL</span> <span class="code-keyword">DEFAULT</span> <span class="code-string">'BACKWARD'</span>,
+    registered_at  <span class="code-keyword">DATETIME2</span> <span class="code-keyword">NOT NULL</span> <span class="code-keyword">DEFAULT</span> <span class="code-keyword">SYSUTCDATETIME</span>(),
+    <span class="code-keyword">CONSTRAINT</span> PK_SchemaSubject <span class="code-keyword">PRIMARY KEY</span> (subject_name, version),
+    <span class="code-keyword">CONSTRAINT</span> CK_SchemaSubject_compat
+        <span class="code-keyword">CHECK</span> (compatibility <span class="code-keyword">IN</span> (<span class="code-string">'BACKWARD'</span>, <span class="code-string">'FORWARD'</span>, <span class="code-string">'FULL'</span>, <span class="code-string">'NONE'</span>))
+);
+
+<span class="code-comment">-- Register a new version for a subject (version must increment by 1)</span>
+<span class="code-keyword">INSERT INTO</span> <span class="code-class">SchemaSubject</span> (subject_name, version, schema_text, compatibility)
+<span class="code-keyword">SELECT</span> <span class="code-string">'users-value'</span>,
+       <span class="code-keyword">ISNULL</span>(<span class="code-keyword">MAX</span>(version), <span class="code-number">0</span>) + <span class="code-number">1</span>,
+       <span class="code-string">'{"type":"record","name":"User","fields":[...]}'</span>,
+       <span class="code-string">'BACKWARD'</span>
+<span class="code-keyword">FROM</span> <span class="code-class">SchemaSubject</span>
+<span class="code-keyword">WHERE</span> subject_name = <span class="code-string">'users-value'</span>;
+
+<span class="code-comment">-- Consumer resolves a schema by its compact numeric ID</span>
+<span class="code-keyword">SELECT</span> schema_text
+<span class="code-keyword">FROM</span> <span class="code-class">SchemaSubject</span>
+<span class="code-keyword">WHERE</span> schema_id = <span class="code-number">42</span>;
+
+<span class="code-comment">-- Latest version currently in force for a subject</span>
+<span class="code-keyword">SELECT TOP</span> (<span class="code-number">1</span>) *
+<span class="code-keyword">FROM</span> <span class="code-class">SchemaSubject</span>
+<span class="code-keyword">WHERE</span> subject_name = <span class="code-string">'users-value'</span>
+<span class="code-keyword">ORDER BY</span> version <span class="code-keyword">DESC</span>;</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>Each row is one immutable version of a subject's schema, keyed by <code>(subject_name, version)</code> with a unique <code>schema_id</code> for compact wire references.</li>
+                    <li>The <code>CHECK</code> constraint restricts <code>compatibility</code> to the recognized modes, mirroring how a real registry enforces a compatibility policy per subject.</li>
+                    <li>Registering a new version computes <code>MAX(version) + 1</code>, so versions increase monotonically per subject, just like a schema registry.</li>
+                    <li>Producers embed <code>schema_id</code> in messages; consumers do a cheap lookup by that ID to fetch the exact schema for deserialization.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

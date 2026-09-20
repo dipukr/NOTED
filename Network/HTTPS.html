@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HTTPS - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">HTTPS</div>
+
+    <div class="intro">
+        <p>HTTPS is HTTP layered over TLS, encrypting traffic between client and server.</p>
+        <p>It provides confidentiality, integrity, and authentication of the server.</p>
+        <p>A TLS handshake negotiates keys and validates the server's certificate before any data flows.</p>
+        <p>It is the standard for secure communication on the web.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use for all web traffic; it is effectively mandatory today.</li>
+            <li>Certificates are issued by trusted Certificate Authorities.</li>
+            <li>Protects against eavesdropping and man-in-the-middle attacks.</li>
+            <li>Runs on port 443 by default.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Encrypts data in transit.</li>
+            <li>Verifies server identity via certificates.</li>
+            <li>Detects tampering with message integrity checks.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Handshake adds some latency and CPU cost.</li>
+            <li>Certificates must be issued, renewed, and managed.</li>
+            <li>Misconfiguration can silently weaken security.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># Enable HTTPS in Spring Boot (application.properties as code)</span>
+<span class="code-comment"># server.ssl.key-store=classpath:keystore.p12</span>
+<span class="code-comment"># server.ssl.key-store-password=changeit</span>
+<span class="code-comment"># server.ssl.key-store-type=PKCS12</span>
+<span class="code-comment"># server.port=8443</span>
+
+<span class="code-comment"># Making an HTTPS call with Java's HttpClient</span>
+<span class="code-class">HttpClient</span> client = <span class="code-class">HttpClient</span>.newHttpClient();
+
+<span class="code-class">HttpRequest</span> request = <span class="code-class">HttpRequest</span>.newBuilder()
+    .uri(<span class="code-class">URI</span>.create(<span class="code-string">"https://api.example.com/data"</span>))
+    .GET()
+    .build();
+
+<span class="code-class">HttpResponse</span>&lt;<span class="code-class">String</span>&gt; response =
+    client.send(request, <span class="code-class">HttpResponse</span>.BodyHandlers.ofString());
+
+<span class="code-comment"># TLS handshake and cert validation happen automatically</span>
+<span class="code-class">System</span>.out.println(response.statusCode());</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>The <code>https</code> scheme triggers a TLS handshake before the request.</li>
+                    <li><code>HttpClient</code> validates the server certificate against trusted CAs.</li>
+                    <li>All request and response bytes travel encrypted.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

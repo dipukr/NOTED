@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Async Annotation - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Async Annotation</div>
+
+    <div class="intro">
+        <p>Spring's <code>@Async</code> runs a method in a separate thread so the caller returns immediately.</p>
+        <p>It must be enabled with <code>@EnableAsync</code> and works through Spring's proxy mechanism.</p>
+        <p>Async methods can return <code>void</code>, <code>Future</code>, or <code>CompletableFuture</code>.</p>
+        <p>It is the simplest way to offload work like emails or notifications in a Spring app.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Fire-and-forget tasks: sending email, audit logging, notifications.</li>
+            <li>Enable with <code>@EnableAsync</code> and define a dedicated executor.</li>
+            <li>Self-invocation is not proxied, call from another bean.</li>
+            <li>Return <code>CompletableFuture</code> when the caller needs the result later.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Declarative; no manual thread management.</li>
+            <li>Integrates with Spring's executor configuration.</li>
+            <li>Keeps request threads free and responsive.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Only works on public methods invoked through the proxy.</li>
+            <li>Uncaught exceptions in <code>void</code> methods are easily lost.</li>
+            <li>Default <code>SimpleAsyncTaskExecutor</code> creates unbounded threads; configure your own.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-annotation">@EnableAsync</span>
+<span class="code-annotation">@Service</span>
+<span class="code-keyword">public class</span> <span class="code-class">NotificationService</span> {
+
+    <span class="code-annotation">@Async</span>(<span class="code-string">"taskExecutor"</span>)
+    <span class="code-keyword">public void</span> sendEmail(<span class="code-class">String</span> to) {
+        <span class="code-comment">// runs on a pool thread, caller returns at once</span>
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Sending to "</span> + to);
+    }
+
+    <span class="code-annotation">@Async</span>(<span class="code-string">"taskExecutor"</span>)
+    <span class="code-keyword">public</span> <span class="code-class">CompletableFuture</span>&lt;<span class="code-class">String</span>&gt; report(<span class="code-keyword">long</span> id) {
+        <span class="code-class">String</span> result = buildReport(id);
+        <span class="code-keyword">return</span> <span class="code-class">CompletableFuture</span>.completedFuture(result);
+    }
+
+    <span class="code-keyword">private</span> <span class="code-class">String</span> buildReport(<span class="code-keyword">long</span> id) { <span class="code-keyword">return</span> <span class="code-string">"report-"</span> + id; }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>@EnableAsync</code> turns on proxy-based async processing for the context.</li>
+                    <li><code>@Async("taskExecutor")</code> runs the method on the named executor bean.</li>
+                    <li>Returning <code>CompletableFuture</code> lets the caller compose or await the result.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parallel Streams - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Parallel Streams</div>
+
+    <div class="intro">
+        <p>Parallel streams split a stream's elements across threads to process them concurrently.</p>
+        <p>They run on the shared Fork-Join common pool using work-stealing.</p>
+        <p>You enable them by calling <code>parallel()</code> or <code>parallelStream()</code>.</p>
+        <p>They shine on large data with cheap splitting and expensive per-element work.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Large collections with independent, CPU-bound element work.</li>
+            <li>Operations must be stateless, associative and side-effect-free.</li>
+            <li>Use array or <code>ArrayList</code> sources that split evenly.</li>
+            <li>Measure; parallel is not always faster than sequential.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>One call to parallelise existing stream code.</li>
+            <li>Automatic splitting and result merging.</li>
+            <li>Scales with cores for suitable workloads.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Overhead can make small streams slower.</li>
+            <li>Shares one common pool across the whole JVM.</li>
+            <li>Ordering and stateful ops reduce or lose gains.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">ParallelDemo</span> {
+    <span class="code-keyword">public static void</span> <span class="code-class">main</span>(<span class="code-class">String</span>[] args) {
+        <span class="code-comment">// Parallel reduction over a large range</span>
+        <span class="code-keyword">long</span> primes = <span class="code-class">LongStream</span>.rangeClosed(<span class="code-string">2</span>, <span class="code-string">1_000_000</span>)
+            .parallel()                     <span class="code-comment">// split across pool threads</span>
+            .filter(<span class="code-class">ParallelDemo</span>::isPrime)
+            .count();
+
+        <span class="code-class">System</span>.out.println(<span class="code-string">"primes = "</span> + primes);
+    }
+
+    <span class="code-keyword">static boolean</span> <span class="code-class">isPrime</span>(<span class="code-keyword">long</span> n) {
+        <span class="code-keyword">for</span> (<span class="code-keyword">long</span> i = <span class="code-string">2</span>; i * i &lt;= n; i++) <span class="code-keyword">if</span> (n % i == <span class="code-string">0</span>) <span class="code-keyword">return</span> <span class="code-keyword">false</span>;
+        <span class="code-keyword">return</span> <span class="code-keyword">true</span>;
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>parallel()</code> marks the stream for concurrent processing.</li>
+                    <li>The range is split into sub-ranges filtered on separate workers.</li>
+                    <li><code>count</code> is associative, so partial counts sum correctly.</li>
+                    <li>The Fork-Join common pool schedules the chunks.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

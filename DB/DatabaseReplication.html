@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Database Replication - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Database Replication</div>
+
+    <div class="intro">
+        <p>Database replication is the process of copying data from one database (the primary) to one or more other databases (the replicas).</p>
+        <p>Replicas stay in sync by continuously applying the primary's changes, usually from its write-ahead log.</p>
+        <p>Replication improves read scalability, availability and fault tolerance.</p>
+        <p>It can be synchronous (the primary waits for replicas to confirm) or asynchronous (the primary does not wait).</p>
+        <p>Topologies include single-leader, multi-leader and leaderless replication.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use read replicas to spread heavy read traffic away from the primary.</li>
+            <li>Use replication for high availability and automatic failover.</li>
+            <li>Synchronous replication protects against data loss but adds write latency.</li>
+            <li>Asynchronous replication is fast but replicas can lag behind (replication lag).</li>
+            <li>Route writes to the primary and reads to replicas at the application layer.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Scales read throughput horizontally.</li>
+            <li>Improves availability and enables failover.</li>
+            <li>Replicas can serve backups and analytics without loading the primary.</li>
+            <li>Reduces latency by placing replicas closer to users.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Asynchronous replicas can serve stale data due to lag.</li>
+            <li>Synchronous replication increases write latency.</li>
+            <li>Multi-leader setups introduce write conflicts that must be resolved.</li>
+            <li>Operational complexity and extra storage cost.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">-- Writes always target the primary</span>
+<span class="code-keyword">INSERT INTO</span> <span class="code-class">Orders</span> (<span class="code-class">CustomerId</span>, <span class="code-class">Total</span>, <span class="code-class">CreatedAt</span>)
+<span class="code-keyword">VALUES</span> (<span class="code-number">42</span>, <span class="code-number">199.99</span>, <span class="code-class">SYSUTCDATETIME</span>());
+
+<span class="code-comment">-- Reads are routed to a readable secondary via an availability-group listener</span>
+<span class="code-comment">-- (application connection string adds ApplicationIntent=ReadOnly)</span>
+<span class="code-keyword">SELECT</span> <span class="code-class">OrderId</span>, <span class="code-class">Total</span>, <span class="code-class">CreatedAt</span>
+<span class="code-keyword">FROM</span> <span class="code-class">Orders</span>
+<span class="code-keyword">WHERE</span> <span class="code-class">CustomerId</span> = <span class="code-number">42</span>;
+
+<span class="code-comment">-- On the primary: inspect how far each secondary has caught up</span>
+<span class="code-keyword">SELECT</span> <span class="code-class">ag.name</span> <span class="code-keyword">AS</span> <span class="code-class">AvailabilityGroup</span>,
+       <span class="code-class">rs.replica_server_name</span>,
+       <span class="code-class">drs.synchronization_state_desc</span>,
+       <span class="code-class">drs.log_send_queue_size</span>,   <span class="code-comment">-- KB not yet sent to this replica</span>
+       <span class="code-class">drs.redo_queue_size</span>        <span class="code-comment">-- KB received but not yet replayed (lag)</span>
+<span class="code-keyword">FROM</span> <span class="code-class">sys.dm_hadr_database_replica_states</span> <span class="code-class">drs</span>
+<span class="code-keyword">JOIN</span> <span class="code-class">sys.availability_replicas</span> <span class="code-class">rs</span> <span class="code-keyword">ON</span> <span class="code-class">rs.replica_id</span> = <span class="code-class">drs.replica_id</span>
+<span class="code-keyword">JOIN</span> <span class="code-class">sys.availability_groups</span> <span class="code-class">ag</span> <span class="code-keyword">ON</span> <span class="code-class">ag.group_id</span> = <span class="code-class">drs.group_id</span>;</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>The <code>INSERT</code> is a write and is always sent to the primary replica.</li>
+                    <li>The <code>SELECT</code> is routed to a readable secondary, offloading read traffic from the primary.</li>
+                    <li><code>sys.dm_hadr_database_replica_states</code> exposes each secondary's synchronization state and queue sizes, the SQL Server equivalent of checking replication lag.</li>
+                    <li>A non-zero <code>redo_queue_size</code> means the secondary has not yet replayed all received log records, so a read against it can return slightly stale data.</li>
+                    <li>Applications routing reads to secondaries must tolerate that lag, the trade-off replication makes for read scalability.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

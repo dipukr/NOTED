@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phantom Read - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Phantom Read</div>
+
+    <div class="intro">
+        <p>A phantom read occurs when a transaction re-runs a range query and finds new rows that were inserted by another committed transaction.</p>
+        <p>The same query returns a different set of rows within one transaction.</p>
+        <p>Unlike a non-repeatable read, which is about a changed row, a phantom is about rows appearing or disappearing.</p>
+        <p>Phantom reads are prevented at the Serializable isolation level.</p>
+        <p>Some engines also prevent them at Repeatable Read using range locks or snapshots.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Happens with range/aggregate queries run twice in one transaction.</li>
+            <li>Prevent it with Serializable isolation.</li>
+            <li>Range locks (next-key locks) block inserts into the queried range.</li>
+            <li>Matters for logic like "count then act on that count".</li>
+            <li>MVCC snapshots can also hide phantoms within a transaction.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Understanding it guides correct isolation choice for range logic.</li>
+            <li>Serializable eliminates it for strict correctness.</li>
+            <li>Allowing phantoms keeps concurrency higher when safe.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Can break invariants that depend on a stable row set.</li>
+            <li>Preventing it (range locks) reduces concurrency.</li>
+            <li>Behaviour differs across database engines.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">CREATE TABLE</span> <span class="code-class">Slot</span> (
+    <span class="code-class">SlotId</span>  <span class="code-keyword">INT IDENTITY PRIMARY KEY</span>,
+    <span class="code-class">Day</span>     <span class="code-keyword">DATE NOT NULL</span>
+);
+
+<span class="code-comment">-- REPEATABLE READ: still allows a phantom row on a re-run range query</span>
+<span class="code-keyword">SET TRANSACTION ISOLATION LEVEL</span> <span class="code-keyword">REPEATABLE READ</span>;
+<span class="code-keyword">BEGIN TRANSACTION</span>;
+
+<span class="code-keyword">SELECT COUNT</span>(*) <span class="code-keyword">FROM</span> <span class="code-class">Slot</span> <span class="code-keyword">WHERE</span> <span class="code-class">Day</span> = <span class="code-string">'2024-06-01'</span>;  <span class="code-comment">-- returns 0</span>
+
+<span class="code-comment">-- Another session concurrently commits a new row for the same day:</span>
+<span class="code-comment">-- INSERT INTO Slot(Day) VALUES ('2024-06-01'); COMMIT;</span>
+
+<span class="code-keyword">SELECT COUNT</span>(*) <span class="code-keyword">FROM</span> <span class="code-class">Slot</span> <span class="code-keyword">WHERE</span> <span class="code-class">Day</span> = <span class="code-string">'2024-06-01'</span>;  <span class="code-comment">-- returns 1, a phantom</span>
+<span class="code-keyword">COMMIT</span>;
+
+<span class="code-comment">-- SERIALIZABLE: takes a range lock so the phantom insert cannot happen</span>
+<span class="code-keyword">SET TRANSACTION ISOLATION LEVEL</span> <span class="code-keyword">SERIALIZABLE</span>;
+<span class="code-keyword">BEGIN TRANSACTION</span>;
+
+<span class="code-keyword">SELECT COUNT</span>(*) <span class="code-keyword">FROM</span> <span class="code-class">Slot</span> <span class="code-keyword">WHERE</span> <span class="code-class">Day</span> = <span class="code-string">'2024-06-02'</span>;  <span class="code-comment">-- returns 0</span>
+
+<span class="code-comment">-- Concurrent INSERT INTO Slot(Day) VALUES ('2024-06-02') now blocks until commit</span>
+
+<span class="code-keyword">IF</span> @@ROWCOUNT = <span class="code-number">0</span>
+    <span class="code-keyword">INSERT INTO</span> <span class="code-class">Slot</span>(<span class="code-class">Day</span>) <span class="code-keyword">VALUES</span> (<span class="code-string">'2024-06-02'</span>);
+
+<span class="code-keyword">COMMIT</span>;</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>Under <span class="code-keyword">REPEATABLE READ</span>, existing rows can't change mid-transaction, but a range query can still gain new rows inserted by others.</li>
+                    <li>The two identical <span class="code-keyword">SELECT COUNT(*)</span> calls return different results within the same transaction &mdash; a phantom read.</li>
+                    <li><span class="code-keyword">SERIALIZABLE</span> takes a range (key-range) lock covering the queried predicate, blocking concurrent inserts into that range.</li>
+                    <li>This makes the count-then-insert pattern safe: no other transaction can sneak a matching row in between the read and the write.</li>
+                    <li>The trade-off is reduced concurrency, since the range lock is held until <span class="code-keyword">COMMIT</span>.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Distributed System Architecture - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Distributed System Architecture</div>
+
+    <div class="intro">
+        <p>Distributed system architecture structures an application as many nodes cooperating over a network to act as one system.</p>
+        <p>Nodes communicate and coordinate by passing messages to achieve a common goal.</p>
+        <p>It defines how components are placed, how they talk, and how the system stays available under failure.</p>
+        <p>Message passing may use pure HTTP, RPC connectors, or message queues.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Nodes: the individual computers or processes in the system.</li>
+            <li>Network and communication protocols (REST, RPC, MQ) tie nodes together.</li>
+            <li>Transparency: users are unaware of the underlying distribution.</li>
+            <li>Design for scalability, availability, consistency, and fault tolerance.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Scales horizontally by adding nodes.</li>
+            <li>Isolates failures so the whole system stays up.</li>
+            <li>Places compute closer to data or users for performance.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Consistency across nodes is a significant challenge (see CAP theorem).</li>
+            <li>Operational cost and complexity are much higher.</li>
+            <li>Network latency and partial failures must be designed around.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># Resilient remote call with timeout and retry</span>
+<span class="code-class">@Service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">PricingClient</span> {
+
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">RestTemplate</span> rest;
+
+    <span class="code-keyword">public</span> <span class="code-class">PricingClient</span>(<span class="code-class">RestTemplateBuilder</span> builder) {
+        <span class="code-comment"># bound the wait so a slow node cannot hang us</span>
+        <span class="code-keyword">this</span>.rest = builder
+            .setConnectTimeout(<span class="code-class">Duration</span>.ofSeconds(<span class="code-string">2</span>))
+            .setReadTimeout(<span class="code-class">Duration</span>.ofSeconds(<span class="code-string">2</span>))
+            .build();
+    }
+
+    <span class="code-class">@Retryable</span>(maxAttempts = <span class="code-string">3</span>)
+    <span class="code-keyword">public</span> <span class="code-class">Price</span> fetch(<span class="code-class">String</span> sku) {
+        <span class="code-keyword">return</span> rest.getForObject(
+            <span class="code-string">"http://pricing-service/price/"</span> + sku, <span class="code-class">Price</span>.<span class="code-keyword">class</span>);
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>Timeouts stop one slow node from blocking the caller.</li>
+                    <li><code>@Retryable</code> absorbs transient network failures.</li>
+                    <li>Each node is reached by logical name, decoupled from its location.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

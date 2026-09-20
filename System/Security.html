@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Security (AuthN, AuthZ, XSS, SSRF, CORS, CSRF, SQL Injection, Secrets) - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Security (AuthN, AuthZ, XSS, SSRF, CORS, CSRF, SQL Injection, Secrets)</div>
+
+    <div class="intro">
+        <p>Application security defends against common web attack classes and data exposure.</p>
+        <p>AuthN confirms identity; AuthZ enforces least-privilege access.</p>
+        <p>Injection, XSS, CSRF, SSRF, and misconfigured CORS are recurring OWASP risks.</p>
+        <p>Secrets must never be hardcoded and must be stored in a dedicated vault.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Prevent SQL injection with parameterized queries, never string concatenation.</li>
+            <li>Stop XSS by escaping/encoding output and using a Content-Security-Policy.</li>
+            <li>Defend CSRF with anti-forgery tokens and SameSite cookies.</li>
+            <li>Restrict CORS to trusted origins; validate outbound URLs to block SSRF.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Protects user data, integrity, and organizational reputation.</li>
+            <li>Defense in depth limits the blast radius of any single flaw.</li>
+            <li>Meets compliance and contractual security obligations.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Controls add development effort and can affect performance.</li>
+            <li>Overly strict policies (CORS, CSP) can break legitimate features.</li>
+            <li>Security is never done; it needs continuous review and patching.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">// Prevent SQL injection with a parameterized query</span>
+<span class="code-class">@Repository</span>
+<span class="code-keyword">public class</span> <span class="code-class">UserRepository</span> {
+
+    <span class="code-keyword">private final</span> <span class="code-class">JdbcTemplate</span> jdbc;
+
+    <span class="code-keyword">public</span> <span class="code-class">User</span> findByEmail(<span class="code-class">String</span> email) {
+        <span class="code-comment">// '?' binds safely; user input never becomes SQL code</span>
+        <span class="code-class">String</span> sql = <span class="code-string">"SELECT id, email FROM users WHERE email = ?"</span>;
+        <span class="code-keyword">return</span> jdbc.queryForObject(sql, <span class="code-keyword">this</span>::mapUser, email);
+    }
+
+    <span class="code-keyword">private</span> <span class="code-class">User</span> mapUser(<span class="code-class">ResultSet</span> rs, <span class="code-keyword">int</span> row) <span class="code-keyword">throws</span> <span class="code-class">SQLException</span> {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">User</span>(rs.getLong(<span class="code-string">"id"</span>), rs.getString(<span class="code-string">"email"</span>));
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>The <code>?</code> placeholder is bound as data, so input cannot alter the query.</li>
+                    <li><code>queryForObject</code> passes <code>email</code> separately from the SQL text.</li>
+                    <li>This defeats classic <code>' OR 1=1 --</code> injection attempts.</li>
+                    <li>Apply the same principle for output encoding, CSRF tokens, and secrets in a vault.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

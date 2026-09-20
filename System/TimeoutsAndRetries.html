@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Timeouts and Retries - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Timeouts and Retries</div>
+
+    <div class="intro">
+        <p>Timeouts cap how long a caller waits for a response before giving up.</p>
+        <p>Retries re-attempt a failed operation in the hope that a transient fault has cleared.</p>
+        <p>Together they make remote calls resilient without hanging forever or failing on brief glitches.</p>
+        <p>Used carelessly, they can amplify load and worsen outages, so they need backoff, jitter, and limits.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Always set timeouts on network, DB, and RPC calls - never wait indefinitely.</li>
+            <li>Retry only transient/idempotent failures; never retry a non-idempotent write blindly.</li>
+            <li>Use exponential backoff with jitter to avoid synchronized retry storms.</li>
+            <li>Cap total attempts and combine with a circuit breaker to fail fast when a dependency is down.</li>
+            <li>Budget end-to-end: nested timeouts should shrink as you go deeper in the call chain.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Prevents threads from hanging on slow or dead dependencies.</li>
+            <li>Recovers automatically from brief, transient failures.</li>
+            <li>Improves perceived reliability and stability.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Aggressive retries can overload an already-struggling service (retry storms).</li>
+            <li>Retrying non-idempotent operations can duplicate side effects.</li>
+            <li>Too-short timeouts cause false failures; too-long ones waste resources.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># Per-call timeout + bounded retries with backoff and jitter</span>
+<span class="code-keyword">public</span> <span class="code-class">String</span> fetch(<span class="code-class">String</span> url) {
+    <span class="code-keyword">int</span> max = <span class="code-string">3</span>;
+    <span class="code-keyword">for</span> (<span class="code-keyword">int</span> i = <span class="code-string">0</span>; i &lt; max; i++) {
+        <span class="code-keyword">try</span> {
+            <span class="code-keyword">return</span> client.get(url, <span class="code-class">Duration</span>.ofSeconds(<span class="code-string">2</span>)); <span class="code-comment"># timeout</span>
+        } <span class="code-keyword">catch</span> (<span class="code-class">TimeoutException</span> | <span class="code-class">TransientException</span> e) {
+            <span class="code-keyword">if</span> (i == max - <span class="code-string">1</span>) <span class="code-keyword">throw</span> e;
+            <span class="code-keyword">long</span> backoff = (<span class="code-keyword">long</span>) (<span class="code-class">Math</span>.pow(<span class="code-string">2</span>, i) * <span class="code-string">100</span>);
+            <span class="code-keyword">long</span> jitter = <span class="code-class">ThreadLocalRandom</span>.current().nextLong(<span class="code-string">50</span>);
+            sleep(backoff + jitter); <span class="code-comment"># avoid retry storms</span>
+        }
+    }
+    <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalStateException</span>(<span class="code-string">"unreachable"</span>);
+}
+</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>Each call carries a 2-second timeout so it never hangs indefinitely.</li>
+                    <li>Only timeouts and transient errors are retried, up to a fixed cap.</li>
+                    <li><code>Math.pow(2, i)</code> backoff spaces attempts out exponentially.</li>
+                    <li>Random <code>jitter</code> desynchronizes clients to prevent retry storms.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

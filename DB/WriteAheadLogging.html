@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Write-Ahead Logging (WAL) - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Write-Ahead Logging (WAL)</div>
+
+    <div class="intro">
+        <p>Write-ahead logging (WAL) is a technique where changes are first written to a sequential log before being applied to the data files.</p>
+        <p>The log record must be durably flushed to disk before the corresponding data page is modified.</p>
+        <p>This guarantees durability and enables crash recovery.</p>
+        <p>After a crash, the database replays committed log records and rolls back uncommitted ones.</p>
+        <p>WAL also underpins replication and point-in-time recovery.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>WAL is how relational engines provide the Durability in ACID.</li>
+            <li>Sequential log writes are faster than random data-page writes.</li>
+            <li>On restart, redo committed changes and undo uncommitted ones.</li>
+            <li>Replicas consume the WAL stream to stay in sync.</li>
+            <li>Checkpoints periodically flush data pages so the log can be trimmed.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Guarantees durability even across crashes.</li>
+            <li>Sequential writes are efficient.</li>
+            <li>Enables crash recovery, replication and PITR.</li>
+            <li>Allows deferring random data-file writes.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Every commit needs a durable log flush (fsync overhead).</li>
+            <li>The log consumes additional disk space.</li>
+            <li>Recovery replay can take time after a crash.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">-- Every data change is first hardened to the transaction log (ldf),</span>
+<span class="code-comment">-- then applied to the data pages -- that ordering IS write-ahead logging</span>
+<span class="code-keyword">CREATE TABLE</span> <span class="code-class">Account</span> (
+    <span class="code-class">AccountId</span> <span class="code-keyword">INT</span> <span class="code-keyword">PRIMARY KEY</span>,
+    <span class="code-class">Balance</span>   <span class="code-keyword">DECIMAL</span>(12,2) <span class="code-keyword">NOT NULL</span>
+);
+
+<span class="code-keyword">BEGIN TRANSACTION</span>;
+    <span class="code-comment">-- 1. Log record for this change is written and flushed to the log file first</span>
+    <span class="code-keyword">UPDATE</span> <span class="code-class">Account</span>
+    <span class="code-keyword">SET</span> <span class="code-class">Balance</span> = <span class="code-class">Balance</span> - <span class="code-number">500.00</span>
+    <span class="code-keyword">WHERE</span> <span class="code-class">AccountId</span> = <span class="code-number">42</span>;
+
+    <span class="code-comment">-- 2. COMMIT forces a flush of the log records for this transaction (WAL rule)</span>
+<span class="code-keyword">COMMIT TRANSACTION</span>;
+<span class="code-keyword">GO</span>
+
+<span class="code-comment">-- A checkpoint writes dirty data pages from memory to disk and</span>
+<span class="code-comment">-- records a point after which the log for committed work can be reused</span>
+<span class="code-keyword">CHECKPOINT</span>;
+
+<span class="code-comment">-- Backing up the log truncates it (in FULL/BULK_LOGGED recovery model),</span>
+<span class="code-comment">-- reclaiming space for records already hardened and checkpointed</span>
+<span class="code-keyword">BACKUP LOG</span> <span class="code-class">SalesDb</span>
+<span class="code-keyword">TO</span> <span class="code-class">DISK</span> = <span class="code-string">'D:\Backups\SalesDb_log.trn'</span>;
+
+<span class="code-comment">-- Crash recovery on restart: redo committed log records not yet on disk,</span>
+<span class="code-comment">-- then undo any records belonging to transactions that never committed</span></code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>Each <span class="code-keyword">UPDATE</span> generates log records that are appended to the sequential transaction log before the data pages are touched.</li>
+                    <li><span class="code-keyword">COMMIT TRANSACTION</span> cannot return success until its log records are durably flushed to disk, guaranteeing the change survives a crash.</li>
+                    <li><span class="code-keyword">CHECKPOINT</span> flushes dirty data pages to disk and marks how far the log has already been applied, bounding recovery time.</li>
+                    <li><span class="code-keyword">BACKUP LOG</span> archives and truncates the log, reclaiming space for records that are both committed and checkpointed.</li>
+                    <li>On restart after a crash, the engine replays (redoes) committed log records not yet applied, then rolls back (undoes) any uncommitted ones.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Distributed Locks - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Distributed Locks</div>
+
+    <div class="intro">
+        <p>A distributed lock coordinates access to a shared resource across multiple processes or machines.</p>
+        <p>It ensures that only one node performs a critical operation at a time, even though they run on different hosts.</p>
+        <p>Unlike an in-process lock, it relies on an external store such as Redis, ZooKeeper, or etcd.</p>
+        <p>Correct distributed locks require expiry, ownership checks, and fencing to remain safe.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use to prevent duplicate work (one scheduler, one job runner) across a cluster.</li>
+            <li>Always set a TTL so a crashed holder's lock is released automatically.</li>
+            <li>Store a unique owner token so only the owner can release the lock.</li>
+            <li>Use fencing tokens to reject actions from a lock that already expired.</li>
+            <li>Prefer proven implementations (Redisson, ZooKeeper recipes) over hand-rolled ones.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Guarantees mutual exclusion across separate machines.</li>
+            <li>Prevents duplicate processing and race conditions on shared resources.</li>
+            <li>Enables safe single-runner scheduling in a horizontally scaled system.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Hard to make fully correct under GC pauses, clock skew, and partitions.</li>
+            <li>The lock store is a dependency and potential single point of failure.</li>
+            <li>Locks add latency and can become a contention bottleneck.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># Redis distributed lock with owner token and safe release</span>
+<span class="code-keyword">public</span> <span class="code-keyword">boolean</span> acquire(<span class="code-class">String</span> key, <span class="code-class">String</span> token, <span class="code-class">Duration</span> ttl) {
+    <span class="code-comment"># SET key token NX EX ttl -> atomic acquire</span>
+    <span class="code-keyword">return</span> <span class="code-class">Boolean</span>.TRUE.equals(
+        redis.opsForValue().setIfAbsent(key, token, ttl));
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">void</span> release(<span class="code-class">String</span> key, <span class="code-class">String</span> token) {
+    <span class="code-comment"># only delete if we still own it (Lua = atomic check+del)</span>
+    <span class="code-class">String</span> lua = <span class="code-string">"if redis.call('get',KEYS[1])==ARGV[1] "</span> +
+                 <span class="code-string">"then return redis.call('del',KEYS[1]) else return 0 end"</span>;
+    redis.execute(<span class="code-keyword">new</span> <span class="code-class">DefaultRedisScript</span>&lt;&gt;(lua, <span class="code-class">Long</span>.class),
+        <span class="code-class">List</span>.of(key), token);
+}
+</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>setIfAbsent</code> with a TTL atomically acquires the lock and auto-expires it.</li>
+                    <li>The unique <code>token</code> identifies the owner of the lock.</li>
+                    <li>The Lua script deletes only if the token matches, avoiding releasing someone else's lock.</li>
+                    <li>Fencing tokens are still needed to guard against expired-then-resumed holders.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

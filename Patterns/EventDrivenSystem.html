@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Event-driven System - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Event-driven System</div>
+
+    <div class="intro">
+        <p>An event-driven system detects, processes, and responds to events rather than relying on synchronous request-response calls.</p>
+        <p>An event is a significant change in state, such as an order being placed or a payment succeeding.</p>
+        <p>Producers emit events and consumers react to them, without knowing about each other directly.</p>
+        <p>Communication is asynchronous, usually through a message broker or event bus.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>When components must stay loosely coupled and evolve independently.</li>
+            <li>For real-time reactions: notifications, streaming, live updates.</li>
+            <li>When one action must fan out to many independent consumers.</li>
+            <li>Backed by brokers like Kafka, RabbitMQ, or a cloud event bus.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Loose coupling: producers and consumers evolve separately.</li>
+            <li>Scalability: consumers scale independently of producers.</li>
+            <li>Resilience: a slow consumer does not block the producer.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Harder to trace and debug flows across asynchronous hops.</li>
+            <li>Eventual consistency, not immediate consistency.</li>
+            <li>Duplicate or out-of-order events must be handled by consumers.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># Producer publishes an event to Kafka</span>
+<span class="code-class">@Service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderPublisher</span> {
+
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">KafkaTemplate</span>&lt;<span class="code-class">String</span>, <span class="code-class">OrderEvent</span>&gt; kafka;
+
+    <span class="code-keyword">public</span> <span class="code-class">OrderPublisher</span>(<span class="code-class">KafkaTemplate</span>&lt;<span class="code-class">String</span>, <span class="code-class">OrderEvent</span>&gt; kafka) {
+        <span class="code-keyword">this</span>.kafka = kafka;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> publish(<span class="code-class">OrderEvent</span> event) {
+        kafka.send(<span class="code-string">"orders"</span>, event.getOrderId(), event);
+    }
+}
+
+<span class="code-comment"># Consumer reacts to the same event asynchronously</span>
+<span class="code-class">@Component</span>
+<span class="code-keyword">class</span> <span class="code-class">EmailListener</span> {
+    <span class="code-class">@KafkaListener</span>(topics = <span class="code-string">"orders"</span>, groupId = <span class="code-string">"email"</span>)
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> onOrder(<span class="code-class">OrderEvent</span> event) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Sending email for "</span> + event.getOrderId());
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>OrderPublisher</code> emits an event and returns without waiting.</li>
+                    <li><code>@KafkaListener</code> consumers subscribe independently by group.</li>
+                    <li>New reactions are added by adding listeners, not editing the producer.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

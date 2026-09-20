@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Isolation Levels - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Isolation Levels</div>
+
+    <div class="intro">
+        <p>Isolation levels define how visible one transaction's uncommitted or in-progress changes are to other concurrent transactions.</p>
+        <p>They trade consistency for concurrency: stronger isolation prevents more anomalies but reduces throughput.</p>
+        <p>The SQL standard defines four levels: Read Uncommitted, Read Committed, Repeatable Read and Serializable.</p>
+        <p>Each level prevents a specific set of read phenomena.</p>
+        <p>The right level depends on how much concurrency anomaly the application can tolerate.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Read Uncommitted: allows dirty reads; rarely used.</li>
+            <li>Read Committed: prevents dirty reads; the common default.</li>
+            <li>Repeatable Read: also prevents non-repeatable reads.</li>
+            <li>Serializable: prevents phantom reads too; behaves as if transactions ran one at a time.</li>
+            <li>Pick the lowest level that still avoids the anomalies you care about.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Lets you tune the consistency/performance trade-off per transaction.</li>
+            <li>Higher levels give stronger correctness guarantees.</li>
+            <li>Lower levels give higher concurrency.</li>
+            <li>Standardized and widely supported.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Higher isolation reduces concurrency and can increase locking.</li>
+            <li>Serializable may cause serialization failures needing retries.</li>
+            <li>Behaviour varies subtly between database engines.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">-- READ COMMITTED: the practical default; blocks dirty reads only</span>
+<span class="code-keyword">SET TRANSACTION ISOLATION LEVEL</span> <span class="code-keyword">READ COMMITTED</span>;
+<span class="code-keyword">BEGIN TRANSACTION</span>;
+    <span class="code-keyword">SELECT</span> <span class="code-class">Balance</span> <span class="code-keyword">FROM</span> <span class="code-class">Accounts</span> <span class="code-keyword">WHERE</span> <span class="code-class">AccountId</span> = <span class="code-number">1</span>;
+    <span class="code-comment">-- a concurrent committed UPDATE to this row could change the value</span>
+    <span class="code-comment">-- if this SELECT ran again in the same transaction (non-repeatable read)</span>
+<span class="code-keyword">COMMIT</span>;
+
+<span class="code-comment">-- REPEATABLE READ: holds shared locks so re-reading the same rows is stable</span>
+<span class="code-keyword">SET TRANSACTION ISOLATION LEVEL</span> <span class="code-keyword">REPEATABLE READ</span>;
+<span class="code-keyword">BEGIN TRANSACTION</span>;
+    <span class="code-keyword">SELECT</span> <span class="code-class">Balance</span> <span class="code-keyword">FROM</span> <span class="code-class">Accounts</span> <span class="code-keyword">WHERE</span> <span class="code-class">AccountId</span> = <span class="code-number">1</span>;
+    <span class="code-comment">-- ... other work ...</span>
+    <span class="code-keyword">SELECT</span> <span class="code-class">Balance</span> <span class="code-keyword">FROM</span> <span class="code-class">Accounts</span> <span class="code-keyword">WHERE</span> <span class="code-class">AccountId</span> = <span class="code-number">1</span>;
+    <span class="code-comment">-- guaranteed to return the same value, but a new matching row could still</span>
+    <span class="code-comment">-- appear on a range query (phantom read) at this level</span>
+<span class="code-keyword">COMMIT</span>;
+
+<span class="code-comment">-- SERIALIZABLE: strongest level, also blocks phantom reads via range locks</span>
+<span class="code-keyword">SET TRANSACTION ISOLATION LEVEL</span> <span class="code-keyword">SERIALIZABLE</span>;
+<span class="code-keyword">BEGIN TRANSACTION</span>;
+    <span class="code-keyword">SELECT</span> <span class="code-keyword">COUNT</span>(*) <span class="code-keyword">FROM</span> <span class="code-class">Accounts</span> <span class="code-keyword">WHERE</span> <span class="code-class">Balance</span> &gt; <span class="code-number">1000</span>;
+    <span class="code-comment">-- another transaction cannot insert a new row matching this range until commit</span>
+<span class="code-keyword">COMMIT</span>;</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>READ COMMITTED</code> only ever reads committed data, so dirty reads are blocked, but the same row read twice in one transaction can change (non-repeatable read).</li>
+                    <li><code>REPEATABLE READ</code> holds locks on rows it has read for the duration of the transaction, so re-reading the same row is guaranteed stable, but new rows can still appear in a range scan (phantom read).</li>
+                    <li><code>SERIALIZABLE</code> adds range locks, so even a repeated range query like <code>WHERE Balance &gt; 1000</code> cannot see new phantom rows inserted concurrently.</li>
+                    <li>Each step up trades concurrency for a stronger guarantee, which is why the lowest level that avoids the anomalies you actually care about is usually the right choice.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

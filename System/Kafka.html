@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kafka - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Kafka</div>
+
+    <div class="intro">
+        <p>Kafka is an open-source distributed event streaming platform.</p>
+        <p>Kafka allows systems to publish, subscribe, store, and process streams of records (events) in a fault-tolerant manner.</p>
+        <p>It decouples services and enables event-driven architectures for real-time analytics, data integration, and monitoring.</p>
+        <p>Kafka brokers are machines running the Kafka server, which could be containers or VMs.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>A topic is a logical, ordered collection of related messages, thought of as a log of events.</li>
+            <li>Topics are split into partitions, which provide parallelism and ordering within a partition.</li>
+            <li>Any number of producers can write to a topic and many consumers can read from it.</li>
+            <li>Use the Producer, Consumer, Streams, and Connect APIs for the different integration needs.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Producers and consumers are decoupled and can fail and evolve independently.</li>
+            <li>Slow consumers do not affect producers, and consumers can be added freely.</li>
+            <li>High throughput and durability through partitioned, replicated logs.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Operating a cluster (brokers, ZooKeeper/KRaft, tuning) is complex.</li>
+            <li>Ordering is guaranteed only within a partition, not across a topic.</li>
+            <li>Consumers must manage offsets and idempotency to avoid duplicates.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">// Producing and consuming with Spring for Apache Kafka</span>
+<span class="code-class">@Service</span>
+<span class="code-keyword">public class</span> <span class="code-class">EventService</span> {
+
+    <span class="code-keyword">private final</span> <span class="code-class">KafkaTemplate</span>&lt;<span class="code-class">String</span>, <span class="code-class">OrderEvent</span>&gt; kafkaTemplate;
+
+    <span class="code-keyword">public</span> <span class="code-class">EventService</span>(<span class="code-class">KafkaTemplate</span>&lt;<span class="code-class">String</span>, <span class="code-class">OrderEvent</span>&gt; kafkaTemplate) {
+        <span class="code-keyword">this</span>.kafkaTemplate = kafkaTemplate;
+    }
+
+    <span class="code-keyword">public void</span> publish(<span class="code-class">OrderEvent</span> event) {
+        <span class="code-comment">// key routes related events to the same partition, preserving order</span>
+        kafkaTemplate.send(<span class="code-string">"orders"</span>, event.getOrderId(), event);
+    }
+
+    <span class="code-class">@KafkaListener</span>(topics = <span class="code-string">"orders"</span>, groupId = <span class="code-string">"order-processors"</span>)
+    <span class="code-keyword">public void</span> consume(<span class="code-class">OrderEvent</span> event) {
+        orderProcessor.handle(event);
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>KafkaTemplate.send</code> publishes to the topic; the key determines the partition.</li>
+                    <li>Using <code>orderId</code> as the key keeps all events for one order in order.</li>
+                    <li><code>@KafkaListener</code> with a <code>groupId</code> joins a consumer group that shares partitions.</li>
+                    <li>Each partition is consumed by one member of the group, enabling parallel scaling.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

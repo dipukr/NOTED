@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Horizontal Scaling - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Horizontal Scaling</div>
+
+    <div class="intro">
+        <p>Horizontal scaling (scaling out) adds more machines to a resource pool to handle increased load.</p>
+        <p>Work is distributed across many nodes, usually behind a load balancer.</p>
+        <p>It suits stateless services where any node can serve any request.</p>
+        <p>It is the foundation of most large distributed systems because capacity grows almost linearly with nodes.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use when load exceeds what a single machine can handle economically.</li>
+            <li>Keep services stateless; push session/state to a shared store or cache.</li>
+            <li>Put a load balancer in front to spread requests across instances.</li>
+            <li>Ideal for read-heavy and traffic-spiky workloads that need elasticity.</li>
+            <li>Requires handling data partitioning/sharding for stateful stores.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Near-linear capacity growth by adding commodity machines.</li>
+            <li>No hard ceiling like a single machine's max spec.</li>
+            <li>Improves availability - one node failing does not stop the service.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Adds distributed-system complexity: consistency, coordination, networking.</li>
+            <li>Stateful data needs sharding or replication, which is hard to get right.</li>
+            <li>More nodes mean more operational and monitoring surface.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># Stateless controller: any replica can serve any request</span>
+<span class="code-class">@RestController</span>
+<span class="code-class">@RequestMapping</span>(<span class="code-string">"/api/orders"</span>)
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderController</span> {
+
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">OrderService</span> service; <span class="code-comment"># state lives in shared DB/cache</span>
+
+    <span class="code-class">OrderController</span>(<span class="code-class">OrderService</span> service) { <span class="code-keyword">this</span>.service = service; }
+
+    <span class="code-class">@GetMapping</span>(<span class="code-string">"/{id}"</span>)
+    <span class="code-keyword">public</span> <span class="code-class">OrderDto</span> get(<span class="code-class">@PathVariable</span> <span class="code-class">Long</span> id) {
+        <span class="code-keyword">return</span> service.findById(id); <span class="code-comment"># no in-memory session state</span>
+    }
+}
+</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>The controller holds no per-user state, so replicas are interchangeable.</li>
+                    <li>State lives in a shared <code>OrderService</code>/DB, letting any node answer.</li>
+                    <li>A load balancer can add or remove replicas without sticky sessions.</li>
+                    <li>This statelessness is what makes scaling out linear and safe.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

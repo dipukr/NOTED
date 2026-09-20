@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Query Optimization - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Query Optimization</div>
+
+    <div class="intro">
+        <p>Query optimization is the practice of rewriting queries and tuning the schema so the database returns results faster and with less resource use.</p>
+        <p>Core techniques include creating indexes on highly selective columns and caching results of frequent queries.</p>
+        <p>Use join fetch or eager loading in Hibernate to avoid repeated round trips.</p>
+        <p>Reading the execution plan reveals full table scans and expensive joins to fix.</p>
+        <p>The goal is to minimize rows scanned, memory used and network round trips.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Create indexes on highly selective columns used in filters and joins.</li>
+            <li>Select only the columns you need instead of SELECT *.</li>
+            <li>Use join fetch or eager loading to avoid the N+1 problem where appropriate.</li>
+            <li>Cache results of frequent read queries to reduce database load.</li>
+            <li>Inspect the query plan and remove full table scans.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Lower query latency and higher throughput.</li>
+            <li>Reduced CPU, memory and I/O on the database.</li>
+            <li>Better scalability under load.</li>
+            <li>Lower infrastructure cost.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Extra indexes slow down writes and use storage.</li>
+            <li>Over-tuning for one query can hurt others.</li>
+            <li>Requires ongoing profiling as data grows.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">CREATE TABLE</span> <span class="code-class">Orders</span> (
+    <span class="code-class">OrderId</span>     <span class="code-keyword">INT PRIMARY KEY</span>,
+    <span class="code-class">Status</span>      <span class="code-keyword">VARCHAR</span>(<span class="code-number">20</span>) <span class="code-keyword">NOT NULL</span>,
+    <span class="code-class">OrderDate</span>   <span class="code-keyword">DATETIME NOT NULL</span>,
+    <span class="code-class">CustomerId</span>  <span class="code-keyword">INT NOT NULL</span>
+);
+
+<span class="code-comment">-- SLOW: Status is VARCHAR but compared to an NVARCHAR literal,</span>
+<span class="code-comment">-- causing an implicit conversion that blocks index use (full scan)</span>
+<span class="code-keyword">SELECT</span> * <span class="code-keyword">FROM</span> <span class="code-class">Orders</span>
+<span class="code-keyword">WHERE</span> <span class="code-class">Status</span> = N<span class="code-string">'SHIPPED'</span>;
+
+<span class="code-comment">-- OPTIMIZED: matching literal type + only needed columns + covering index</span>
+<span class="code-keyword">CREATE INDEX</span> <span class="code-class">idx_orders_status_date</span>
+    <span class="code-keyword">ON</span> <span class="code-class">Orders</span>(<span class="code-class">Status</span>)
+    <span class="code-keyword">INCLUDE</span> (<span class="code-class">OrderId</span>, <span class="code-class">OrderDate</span>, <span class="code-class">CustomerId</span>);
+
+<span class="code-keyword">SELECT</span> <span class="code-class">OrderId</span>, <span class="code-class">OrderDate</span>, <span class="code-class">CustomerId</span>
+<span class="code-keyword">FROM</span> <span class="code-class">Orders</span> <span class="code-keyword">WITH</span> (<span class="code-keyword">INDEX</span>(<span class="code-class">idx_orders_status_date</span>))
+<span class="code-keyword">WHERE</span> <span class="code-class">Status</span> = <span class="code-string">'SHIPPED'</span>;
+
+<span class="code-comment">-- Compare estimated cost of both forms</span>
+<span class="code-keyword">SET</span> <span class="code-keyword">STATISTICS</span> IO <span class="code-keyword">ON</span>;
+<span class="code-keyword">SELECT</span> <span class="code-class">OrderId</span> <span class="code-keyword">FROM</span> <span class="code-class">Orders</span> <span class="code-keyword">WHERE</span> <span class="code-class">Status</span> = <span class="code-string">'SHIPPED'</span>;
+<span class="code-keyword">SET</span> <span class="code-keyword">STATISTICS</span> IO <span class="code-keyword">OFF</span>;</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>Comparing a <span class="code-keyword">VARCHAR</span> column to an <span class="code-keyword">NVARCHAR</span> literal forces SQL Server to convert every row's value, which disables an index seek and causes a full scan.</li>
+                    <li>Matching the literal's type to the column lets the optimizer seek directly on the index instead of scanning.</li>
+                    <li>The <span class="code-keyword">INCLUDE</span> columns turn the index into a covering index, so the engine never touches the base table for this query.</li>
+                    <li><span class="code-keyword">WITH (INDEX(...))</span> is a hint forcing the optimizer to use a specific index when it might otherwise choose a worse plan.</li>
+                    <li><span class="code-keyword">SET STATISTICS IO ON</span> reports logical reads, letting you measure the actual reduction in pages scanned before and after the change.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

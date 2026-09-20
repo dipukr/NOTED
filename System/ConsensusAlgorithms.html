@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Consensus Algorithms (Paxos, Raft) - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Consensus Algorithms (Paxos, Raft)</div>
+
+    <div class="intro">
+        <p>Consensus lets a cluster of nodes agree on a single value or ordered log despite failures.</p>
+        <p>Paxos is the classic, provably correct protocol but is notoriously hard to implement.</p>
+        <p>Raft targets understandability, splitting consensus into leader election, log replication, and safety.</p>
+        <p>Both tolerate crashes as long as a majority (quorum) of nodes remain available.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use consensus for leader election, distributed locks, and replicated state machines.</li>
+            <li>Raft powers etcd, Consul, and many modern coordination systems.</li>
+            <li>A cluster of N nodes tolerates floor((N-1)/2) failures; prefer odd counts.</li>
+            <li>Writes commit only after a majority acknowledges, guaranteeing durability.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Provides strong consistency and a total order of operations.</li>
+            <li>Survives node crashes and network partitions on the minority side.</li>
+            <li>Raft's clear roles make correct implementation and debugging easier.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Every commit needs a majority round trip, adding write latency.</li>
+            <li>Throughput is bounded by the single leader handling all writes.</li>
+            <li>A lost quorum halts progress, trading availability for consistency.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">// Simplified Raft-style majority commit check</span>
+<span class="code-keyword">public class</span> <span class="code-class">RaftLeader</span> {
+
+    <span class="code-keyword">private final</span> <span class="code-keyword">int</span> clusterSize;
+    <span class="code-keyword">private final</span> <span class="code-class">Map</span>&lt;<span class="code-class">String</span>, <span class="code-class">Long</span>&gt; matchIndex = <span class="code-keyword">new</span> <span class="code-class">ConcurrentHashMap</span>&lt;&gt;();
+
+    <span class="code-keyword">public boolean</span> isCommitted(<span class="code-keyword">long</span> logIndex) {
+        <span class="code-keyword">long</span> replicated = matchIndex.values().stream()
+                .filter(idx -&gt; idx &gt;= logIndex)
+                .count() + 1; <span class="code-comment">// +1 counts the leader itself</span>
+
+        <span class="code-keyword">int</span> quorum = (clusterSize / 2) + 1;
+        <span class="code-keyword">return</span> replicated &gt;= quorum;
+    }
+
+    <span class="code-keyword">public void</span> onAppendAck(<span class="code-class">String</span> followerId, <span class="code-keyword">long</span> ackedIndex) {
+        matchIndex.merge(followerId, ackedIndex, <span class="code-class">Math</span>::max);
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>matchIndex</code> tracks the highest log entry each follower has stored.</li>
+                    <li><code>isCommitted</code> counts followers at or beyond an index, plus the leader.</li>
+                    <li><code>quorum</code> is a strict majority; only then is an entry safe to apply.</li>
+                    <li><code>onAppendAck</code> records replication progress from each follower's response.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pagination (Offset vs Cursor) - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Pagination (Offset vs Cursor)</div>
+
+    <div class="intro">
+        <p>Pagination splits a large result set into smaller, ordered pages so clients fetch data incrementally.</p>
+        <p>Offset pagination uses LIMIT and OFFSET to skip rows and return the next slice.</p>
+        <p>Cursor (keyset) pagination remembers the last seen key and asks for rows after it.</p>
+        <p>Cursor pagination scales far better on deep pages and stable feeds.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use offset pagination for small datasets, admin tables, or jump-to-page UIs.</li>
+            <li>Use cursor pagination for infinite scroll, activity feeds, and large tables.</li>
+            <li>Cursor requires a stable, unique, ordered column (e.g. id or created_at + id).</li>
+            <li>Always apply a deterministic ORDER BY or pages become inconsistent.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Offset: simple, supports arbitrary page jumps and total counts.</li>
+            <li>Cursor: constant-time page reads regardless of depth.</li>
+            <li>Cursor: no rows skipped or duplicated when data is inserted mid-scroll.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Offset: deep pages scan and discard many rows, degrading performance.</li>
+            <li>Offset: inserts/deletes shift rows, causing skipped or repeated items.</li>
+            <li>Cursor: cannot jump to an arbitrary page number easily.</li>
+            <li>Cursor: exposing raw keys may leak ordering; encode the cursor token.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">// Cursor (keyset) pagination in Spring Data JPA</span>
+<span class="code-keyword">public interface</span> <span class="code-class">OrderRepository</span> <span class="code-keyword">extends</span> <span class="code-class">JpaRepository</span>&lt;<span class="code-class">Order</span>, <span class="code-class">Long</span>&gt; {
+
+    <span class="code-comment">// Fetch the next page AFTER the last seen id</span>
+    <span class="code-class">List</span>&lt;<span class="code-class">Order</span>&gt; findByIdGreaterThanOrderByIdAsc(<span class="code-class">Long</span> lastId, <span class="code-class">Pageable</span> page);
+}
+
+<span class="code-keyword">public</span> <span class="code-class">List</span>&lt;<span class="code-class">Order</span>&gt; nextPage(<span class="code-class">Long</span> cursor, <span class="code-keyword">int</span> size) {
+    <span class="code-class">Long</span> after = (cursor == <span class="code-keyword">null</span>) ? 0L : cursor;
+    <span class="code-keyword">return</span> orderRepository.findByIdGreaterThanOrderByIdAsc(
+            after, <span class="code-class">PageRequest</span>.of(0, size));
+}
+
+<span class="code-comment">// Offset pagination for comparison</span>
+<span class="code-keyword">public</span> <span class="code-class">Page</span>&lt;<span class="code-class">Order</span>&gt; offsetPage(<span class="code-keyword">int</span> pageNo, <span class="code-keyword">int</span> size) {
+    <span class="code-keyword">return</span> orderRepository.findAll(
+            <span class="code-class">PageRequest</span>.of(pageNo, size, <span class="code-class">Sort</span>.by(<span class="code-string">"id"</span>)));
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>findByIdGreaterThanOrderByIdAsc</code> reads rows strictly after the cursor, using the primary-key index.</li>
+                    <li><code>PageRequest.of(0, size)</code> limits the fetch; page 0 because the cursor already positions us.</li>
+                    <li><code>cursor == null</code> handles the first request by starting from the lowest id.</li>
+                    <li><code>findAll</code> with a page number shows the classic offset approach that scans skipped rows.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

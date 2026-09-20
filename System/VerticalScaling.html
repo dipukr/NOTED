@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vertical Scaling - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Vertical Scaling</div>
+
+    <div class="intro">
+        <p>Vertical scaling (scaling up) increases the capacity of a single machine by adding CPU, RAM, or faster storage.</p>
+        <p>The same application runs on a bigger box rather than on more boxes.</p>
+        <p>It is simple because the architecture and code usually stay unchanged.</p>
+        <p>It is limited by the maximum size of a single machine and creates a single point of failure.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use early, when a bigger machine is cheaper and simpler than going distributed.</li>
+            <li>Good for stateful systems (single-node databases) that are hard to shard.</li>
+            <li>Quick fix for immediate bottlenecks while a scale-out plan is prepared.</li>
+            <li>Watch for the hard ceiling of the largest available instance type.</li>
+            <li>Often combined later with horizontal scaling once the node is maxed out.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Simple - no code changes or distributed coordination needed.</li>
+            <li>No data partitioning; consistency stays easy on one node.</li>
+            <li>Lower network overhead than a multi-node deployment.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Hard upper limit set by the biggest machine available.</li>
+            <li>Single point of failure - the one node going down stops everything.</li>
+            <li>High-end hardware gets disproportionately expensive.</li>
+            <li>Upgrades often require downtime or a restart.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># Vertical scaling is mostly config: give the JVM more of the bigger box</span>
+<span class="code-comment"># -Xms and -Xmx set heap; more RAM on the host lets you raise them</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Runtime</span>Info {
+    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-keyword">void</span> print() {
+        <span class="code-class">Runtime</span> rt = <span class="code-class">Runtime</span>.getRuntime();
+        <span class="code-keyword">int</span> cores = rt.availableProcessors();      <span class="code-comment"># scales with more CPU</span>
+        <span class="code-keyword">long</span> maxMb = rt.maxMemory() / (<span class="code-string">1024</span> * <span class="code-string">1024</span>); <span class="code-comment"># scales with more RAM</span>
+        <span class="code-class">System</span>.out.println(<span class="code-string">"cores="</span> + cores + <span class="code-string">" maxHeapMB="</span> + maxMb);
+    }
+}
+</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>availableProcessors()</code> grows when the host gets more CPU cores.</li>
+                    <li><code>maxMemory()</code> reflects the heap ceiling raised via <code>-Xmx</code> on a bigger box.</li>
+                    <li>The application code is unchanged - only the machine and JVM flags grow.</li>
+                    <li>This simplicity is the appeal, but the single node remains the limit.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

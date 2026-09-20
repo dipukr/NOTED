@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ForkJoinPool Tasks - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">ForkJoinPool Tasks</div>
+
+    <div class="intro">
+        <p><code>ForkJoinPool</code> is designed for divide-and-conquer work that recursively splits into subtasks.</p>
+        <p>It uses a work-stealing algorithm where idle threads steal tasks from busy threads' queues.</p>
+        <p>Tasks extend <code>RecursiveTask</code> (returns a result) or <code>RecursiveAction</code> (no result).</p>
+        <p>It backs parallel streams and the common pool used across the JDK.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>CPU-bound recursive problems: sorting, searching, aggregation.</li>
+            <li>Split until subtasks are small, then compute directly.</li>
+            <li><code>fork()</code> schedules a subtask; <code>join()</code> waits for its result.</li>
+            <li>Do not use for blocking I/O; it starves the pool.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Work-stealing keeps all cores busy with minimal idle time.</li>
+            <li>Excellent throughput for recursive CPU-bound tasks.</li>
+            <li>Powers parallel streams for free.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Blocking calls stall worker threads and hurt the whole pool.</li>
+            <li>Splitting overhead can outweigh gains for small inputs.</li>
+            <li>Sharing the common pool can cause cross-task interference.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">SumTask</span> <span class="code-keyword">extends</span> <span class="code-class">RecursiveTask</span>&lt;<span class="code-class">Long</span>&gt; {
+
+    <span class="code-keyword">private static final int</span> THRESHOLD = <span class="code-number">1000</span>;
+    <span class="code-keyword">private final int</span>[] data;
+    <span class="code-keyword">private final int</span> lo, hi;
+
+    <span class="code-keyword">public</span> <span class="code-class">SumTask</span>(<span class="code-keyword">int</span>[] data, <span class="code-keyword">int</span> lo, <span class="code-keyword">int</span> hi) {
+        <span class="code-keyword">this</span>.data = data; <span class="code-keyword">this</span>.lo = lo; <span class="code-keyword">this</span>.hi = hi;
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">protected</span> <span class="code-class">Long</span> compute() {
+        <span class="code-keyword">if</span> (hi - lo &lt;= THRESHOLD) {
+            <span class="code-keyword">long</span> sum = <span class="code-number">0</span>;
+            <span class="code-keyword">for</span> (<span class="code-keyword">int</span> i = lo; i &lt; hi; i++) sum += data[i];
+            <span class="code-keyword">return</span> sum;
+        }
+        <span class="code-keyword">int</span> mid = (lo + hi) &gt;&gt;&gt; <span class="code-number">1</span>;
+        <span class="code-class">SumTask</span> left = <span class="code-keyword">new</span> <span class="code-class">SumTask</span>(data, lo, mid);
+        left.fork(); <span class="code-comment">// run left asynchronously</span>
+        <span class="code-class">SumTask</span> right = <span class="code-keyword">new</span> <span class="code-class">SumTask</span>(data, mid, hi);
+        <span class="code-keyword">return</span> right.compute() + left.join();
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>compute()</code> solves small ranges directly and splits large ones.</li>
+                    <li><code>fork()</code> queues the left half so another worker can steal it.</li>
+                    <li><code>join()</code> collects the forked result and combines it with the right half.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

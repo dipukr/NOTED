@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Database Transactions - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Database Transactions</div>
+
+    <div class="intro">
+        <p>A transaction is a single, indivisible unit of work made up of one or more database operations.</p>
+        <p>Either all operations within a transaction complete successfully, or none of them are applied.</p>
+        <p>If any part of the transaction fails, the entire transaction is rolled back to prevent partial updates.</p>
+        <p>Transactions provide the ACID guarantees that keep the database in a consistent state.</p>
+        <p>They are bounded by begin, commit and rollback operations.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Wrap multiple related writes that must succeed or fail together in one transaction.</li>
+            <li>Keep transactions short to reduce lock contention.</li>
+            <li>Choose an isolation level appropriate to the consistency you need.</li>
+            <li>Commit on success; roll back on any exception.</li>
+            <li>In Spring, <code>@Transactional</code> manages begin/commit/rollback automatically.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Guarantees all-or-nothing atomic updates.</li>
+            <li>Keeps data consistent even during concurrent access.</li>
+            <li>Survives failures via rollback and durability.</li>
+            <li>Simplifies error handling for multi-step operations.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Long transactions hold locks and reduce concurrency.</li>
+            <li>Higher isolation levels cost performance.</li>
+            <li>Distributed transactions across services are complex and slow.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">-- A multi-step transfer using a SAVEPOINT so partial work can be undone</span>
+<span class="code-keyword">BEGIN TRANSACTION</span> <span class="code-class">TransferTran</span>;
+
+<span class="code-keyword">UPDATE</span> <span class="code-class">Accounts</span> <span class="code-keyword">SET</span> <span class="code-class">Balance</span> = <span class="code-class">Balance</span> - <span class="code-number">200</span> <span class="code-keyword">WHERE</span> <span class="code-class">AccountId</span> = <span class="code-number">1</span>;
+
+<span class="code-keyword">SAVE TRANSACTION</span> <span class="code-class">AfterWithdraw</span>;   <span class="code-comment">-- checkpoint we can roll back to</span>
+
+<span class="code-keyword">UPDATE</span> <span class="code-class">Accounts</span> <span class="code-keyword">SET</span> <span class="code-class">Balance</span> = <span class="code-class">Balance</span> + <span class="code-number">200</span> <span class="code-keyword">WHERE</span> <span class="code-class">AccountId</span> = <span class="code-number">999</span>;
+
+<span class="code-keyword">IF</span> <span class="code-class">@@ROWCOUNT</span> = <span class="code-number">0</span>
+<span class="code-keyword">BEGIN</span>
+    <span class="code-comment">-- destination account did not exist: undo only the deposit attempt,</span>
+    <span class="code-comment">-- keep the withdrawal pending and retry with a valid account instead</span>
+    <span class="code-keyword">ROLLBACK TRANSACTION</span> <span class="code-class">AfterWithdraw</span>;
+
+    <span class="code-keyword">UPDATE</span> <span class="code-class">Accounts</span> <span class="code-keyword">SET</span> <span class="code-class">Balance</span> = <span class="code-class">Balance</span> + <span class="code-number">200</span> <span class="code-keyword">WHERE</span> <span class="code-class">AccountId</span> = <span class="code-number">2</span>;
+<span class="code-keyword">END</span>;
+
+<span class="code-keyword">COMMIT TRANSACTION</span> <span class="code-class">TransferTran</span>;</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>BEGIN TRANSACTION</code> starts one indivisible unit of work spanning both balance updates.</li>
+                    <li><code>SAVE TRANSACTION AfterWithdraw</code> marks a checkpoint inside the transaction without committing anything yet.</li>
+                    <li><code>ROLLBACK TRANSACTION AfterWithdraw</code> undoes only the work done since that savepoint (the failed deposit), while keeping the earlier withdrawal intact and the outer transaction open.</li>
+                    <li>This lets the code retry with a different account rather than discarding the whole transaction.</li>
+                    <li><code>COMMIT TRANSACTION</code> makes every surviving change durable at once; a full <code>ROLLBACK</code> without a savepoint name would have undone everything.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

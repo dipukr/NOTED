@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spin Locks - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Spin Locks</div>
+
+    <div class="intro">
+        <p>A spin lock is a lock where a thread repeatedly checks a flag in a loop instead of sleeping.</p>
+        <p>It "busy-waits", burning CPU cycles while it waits for the lock to become free.</p>
+        <p>In Java it is typically built with an <code>AtomicBoolean</code> or <code>AtomicReference</code> and CAS.</p>
+        <p>It only pays off when the critical section is extremely short and contention is low.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Only for very short critical sections where blocking overhead exceeds spin cost.</li>
+            <li>Built on <code>compareAndSet</code> for the acquire path.</li>
+            <li>Add <code>Thread.onSpinWait()</code> (Java 9+) to hint the CPU.</li>
+            <li>Avoid on single-core systems; the spinner starves the holder.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>No thread parking/unparking, so no context-switch cost.</li>
+            <li>Very low latency when the lock is released quickly.</li>
+            <li>Simple to implement with atomics.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Wastes CPU while spinning, harmful under high contention.</li>
+            <li>Can starve other threads and drain battery.</li>
+            <li>Poor choice for long-held locks.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">SpinLock</span> {
+
+    <span class="code-keyword">private final</span> <span class="code-class">AtomicBoolean</span> locked = <span class="code-keyword">new</span> <span class="code-class">AtomicBoolean</span>(<span class="code-keyword">false</span>);
+
+    <span class="code-keyword">public void</span> lock() {
+        <span class="code-comment">// spin until we flip false -> true</span>
+        <span class="code-keyword">while</span> (!locked.compareAndSet(<span class="code-keyword">false</span>, <span class="code-keyword">true</span>)) {
+            <span class="code-class">Thread</span>.onSpinWait(); <span class="code-comment">// CPU hint, Java 9+</span>
+        }
+    }
+
+    <span class="code-keyword">public void</span> unlock() {
+        locked.set(<span class="code-keyword">false</span>); <span class="code-comment">// release</span>
+    }
+
+    <span class="code-keyword">public void</span> runGuarded(<span class="code-class">Runnable</span> task) {
+        lock();
+        <span class="code-keyword">try</span> {
+            task.run();
+        } <span class="code-keyword">finally</span> {
+            unlock();
+        }
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>compareAndSet(false, true)</code> atomically grabs the lock only if it was free.</li>
+                    <li>The <code>while</code> loop keeps retrying (spinning) until acquisition succeeds.</li>
+                    <li><code>Thread.onSpinWait()</code> tells the CPU this is a busy-wait, improving efficiency.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DNS Resolution - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">DNS Resolution</div>
+
+    <div class="intro">
+        <p>DNS resolution translates human-readable domain names into IP addresses.</p>
+        <p>A resolver walks the hierarchy: root, then TLD, then authoritative name servers.</p>
+        <p>Records like A, AAAA, CNAME, and MX describe how to reach a domain's services.</p>
+        <p>Caching at multiple layers and TTLs make repeat lookups fast.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use low TTLs before planned migrations, higher TTLs for stable records.</li>
+            <li>DNS enables load balancing (round-robin, geo, weighted) and failover.</li>
+            <li>A records map to IPv4, AAAA to IPv6, CNAME aliases one name to another.</li>
+            <li>Resolution is cached by the OS, resolver, and application, honoring TTL.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Decouples stable names from changing IP addresses.</li>
+            <li>Enables global load distribution and failover at the DNS layer.</li>
+            <li>Caching and TTLs minimize lookup latency.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Cached records delay propagation of changes until TTL expiry.</li>
+            <li>Misconfiguration or outages can make services unreachable globally.</li>
+            <li>Plain DNS is unencrypted and vulnerable to spoofing without DNSSEC.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">// Resolve a hostname to its IP addresses in Java</span>
+<span class="code-keyword">public class</span> <span class="code-class">DnsLookup</span> {
+
+    <span class="code-keyword">public</span> <span class="code-class">List</span>&lt;<span class="code-class">String</span>&gt; resolve(<span class="code-class">String</span> host) {
+        <span class="code-keyword">try</span> {
+            <span class="code-class">InetAddress</span>[] addrs = <span class="code-class">InetAddress</span>.getAllByName(host);
+            <span class="code-keyword">return</span> <span class="code-class">Arrays</span>.stream(addrs)
+                    .map(<span class="code-class">InetAddress</span>::getHostAddress)
+                    .collect(<span class="code-class">Collectors</span>.toList());
+        } <span class="code-keyword">catch</span> (<span class="code-class">UnknownHostException</span> ex) {
+            <span class="code-comment">// name did not resolve; caller decides fallback</span>
+            <span class="code-keyword">return</span> <span class="code-class">Collections</span>.emptyList();
+        }
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>InetAddress.getAllByName</code> triggers a DNS lookup, returning every mapped IP.</li>
+                    <li>Multiple addresses support client-side round-robin and failover.</li>
+                    <li><code>getHostAddress</code> yields the textual IP for logging or connection.</li>
+                    <li><code>UnknownHostException</code> signals a failed resolution to handle gracefully.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

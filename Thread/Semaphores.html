@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Semaphores - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Semaphores</div>
+
+    <div class="intro">
+        <p>A semaphore is a counter that controls how many threads may access a resource at once.</p>
+        <p>Threads acquire a permit before entering and release it when done.</p>
+        <p>Unlike a mutex which allows exclusive access, a semaphore allows limited concurrency.</p>
+        <p>A binary semaphore (one permit) behaves like a lock.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Limit concurrent access to a pool of N resources (connections, slots).</li>
+            <li><code>acquire()</code> blocks when no permits remain; <code>release()</code> returns one.</li>
+            <li>Use a fair semaphore to grant permits in FIFO order.</li>
+            <li>Always release in a <code>finally</code> block to avoid permit leaks.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Expresses bounded concurrency directly.</li>
+            <li>Permits can be released by a different thread than acquired.</li>
+            <li>Supports fairness and timed/try acquisition.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Forgetting to release leaks permits and can deadlock.</li>
+            <li>No ownership tracking, unlike a reentrant lock.</li>
+            <li>Fair mode reduces throughput.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">ConnectionLimiter</span> {
+    <span class="code-comment">// Allow at most 3 threads at a time</span>
+    <span class="code-keyword">private final</span> <span class="code-class">Semaphore</span> permits = <span class="code-keyword">new</span> <span class="code-class">Semaphore</span>(<span class="code-string">3</span>, <span class="code-keyword">true</span>);
+
+    <span class="code-keyword">public void</span> <span class="code-class">useResource</span>() <span class="code-keyword">throws</span> <span class="code-class">InterruptedException</span> {
+        permits.acquire();               <span class="code-comment">// wait for a free slot</span>
+        <span class="code-keyword">try</span> {
+            <span class="code-class">System</span>.out.println(<span class="code-class">Thread</span>.currentThread().getName() + <span class="code-string">" working"</span>);
+            <span class="code-class">Thread</span>.sleep(<span class="code-string">500</span>);
+        } <span class="code-keyword">finally</span> {
+            permits.release();           <span class="code-comment">// always return the permit</span>
+        }
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>new Semaphore(3, true)</code> creates 3 fair permits.</li>
+                    <li><code>acquire()</code> blocks the 4th thread until a permit frees up.</li>
+                    <li><code>release()</code> in <code>finally</code> guarantees the slot is returned.</li>
+                    <li>Concurrency is capped at three without full exclusion.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

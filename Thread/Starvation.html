@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Starvation - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Starvation</div>
+
+    <div class="intro">
+        <p>Starvation occurs when a thread is perpetually denied access to resources it needs to make progress.</p>
+        <p>It often results from greedy threads or unfair scheduling that always favours others.</p>
+        <p>The starved thread stays runnable but never actually gets CPU time or a lock.</p>
+        <p>Unlike deadlock, other threads keep working; only the victim is stuck.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Recognise it when low-priority threads never run under load.</li>
+            <li>The <code>synchronized</code> keyword does not support fairness, so any waiter may win.</li>
+            <li>Long-held locks and unbounded priorities aggravate starvation.</li>
+            <li>Fair locks and balanced priorities are the usual remedies.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Understanding it drives fairer lock and scheduler design.</li>
+            <li>Highlights why priority alone is not a correctness tool.</li>
+            <li>Motivates timed acquisition and back-off strategies.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Hard to reproduce; appears only under specific load.</li>
+            <li>Fairness fixes lower overall throughput.</li>
+            <li>Symptoms mimic performance bugs, delaying diagnosis.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">StarvationDemo</span> {
+    <span class="code-comment">// Unfair lock (default) may repeatedly favour the same threads</span>
+    <span class="code-keyword">private final</span> <span class="code-class">ReentrantLock</span> unfair = <span class="code-keyword">new</span> <span class="code-class">ReentrantLock</span>(<span class="code-keyword">false</span>);
+
+    <span class="code-comment">// Fair lock grants the lock to the longest-waiting thread</span>
+    <span class="code-keyword">private final</span> <span class="code-class">ReentrantLock</span> fair = <span class="code-keyword">new</span> <span class="code-class">ReentrantLock</span>(<span class="code-keyword">true</span>);
+
+    <span class="code-keyword">public void</span> <span class="code-class">doWork</span>(<span class="code-class">ReentrantLock</span> lock) {
+        lock.lock();
+        <span class="code-keyword">try</span> {
+            <span class="code-class">System</span>.out.println(<span class="code-class">Thread</span>.currentThread().getName() + <span class="code-string">" ran"</span>);
+        } <span class="code-keyword">finally</span> {
+            lock.unlock();
+        }
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>ReentrantLock(false)</code> is unfair and can starve waiting threads.</li>
+                    <li><code>ReentrantLock(true)</code> hands the lock to the longest waiter.</li>
+                    <li>Fairness trades throughput for progress guarantees.</li>
+                    <li>Switching to the fair lock removes chronic starvation.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

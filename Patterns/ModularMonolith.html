@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modular Monolith - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Modular Monolith</div>
+
+    <div class="intro">
+        <p>A modular monolith is a single deployable application organized internally into well-defined, loosely coupled modules.</p>
+        <p>It keeps the operational simplicity of a monolith while enforcing clear boundaries like microservices.</p>
+        <p>Modules communicate through explicit interfaces, not by reaching into each other's internals.</p>
+        <p>It is often the sensible middle ground before committing to microservices.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>When you want clear boundaries but not distributed-system complexity.</li>
+            <li>Each module owns its domain, data, and public API.</li>
+            <li>Enforce boundaries with packages, modules, or build rules.</li>
+            <li>A well-modularized monolith can later be split into services.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Single deploy and one runtime keep operations simple.</li>
+            <li>Clear module boundaries improve maintainability.</li>
+            <li>Local, in-process calls avoid network cost and distributed transactions.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Boundaries erode without discipline and tooling to enforce them.</li>
+            <li>Still scaled as a single unit, not per module.</li>
+            <li>A crash can still affect the whole application.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># Modules interact only through published interfaces</span>
+<span class="code-keyword">package</span> com.shop.billing.api;
+
+<span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">BillingApi</span> {        <span class="code-comment"># billing module's public port</span>
+    <span class="code-class">Invoice</span> createInvoice(<span class="code-class">Long</span> orderId);
+}
+
+<span class="code-comment"># Ordering module depends on the interface, not internals</span>
+<span class="code-keyword">package</span> com.shop.ordering;
+
+<span class="code-class">@Service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderService</span> {
+
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">BillingApi</span> billing;
+
+    <span class="code-keyword">public</span> <span class="code-class">OrderService</span>(<span class="code-class">BillingApi</span> billing) {
+        <span class="code-keyword">this</span>.billing = billing;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> complete(<span class="code-class">Long</span> orderId) {
+        billing.createInvoice(orderId); <span class="code-comment"># cross-module via API only</span>
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>BillingApi</code> is the only thing other modules may touch.</li>
+                    <li>Internal classes of billing stay hidden behind that port.</li>
+                    <li>Swapping billing for a remote service later means implementing the same API.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

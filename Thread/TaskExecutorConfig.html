@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TaskExecutor Configuration - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">TaskExecutor Configuration</div>
+
+    <div class="intro">
+        <p>Spring's <code>TaskExecutor</code> abstraction decouples code that submits work from the pool that runs it.</p>
+        <p>Configuring named executor beans lets different workloads use isolated, right-sized pools.</p>
+        <p>Isolation prevents one slow workload from starving another sharing the same threads.</p>
+        <p>Async methods and schedulers select an executor by bean name.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Define separate executors per workload (email, reports, imports).</li>
+            <li>Name beans so <code>@Async("name")</code> can target them.</li>
+            <li>Set bounded queues and explicit rejection policies.</li>
+            <li>Enable graceful shutdown to drain in-flight tasks.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Workload isolation avoids cross-starvation.</li>
+            <li>Central, testable configuration.</li>
+            <li>Tunable per use case rather than one global pool.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>More beans to manage and document.</li>
+            <li>Over-partitioning wastes idle threads.</li>
+            <li>Misnamed qualifiers silently fall back to defaults.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-annotation">@Configuration</span>
+<span class="code-keyword">public class</span> <span class="code-class">TaskExecutors</span> {
+
+    <span class="code-annotation">@Bean</span>(<span class="code-string">"reportExecutor"</span>)
+    <span class="code-keyword">public</span> <span class="code-class">TaskExecutor</span> reportExecutor() {
+        <span class="code-keyword">return</span> build(<span class="code-string">"report-"</span>, <span class="code-number">4</span>, <span class="code-number">8</span>, <span class="code-number">50</span>);
+    }
+
+    <span class="code-annotation">@Bean</span>(<span class="code-string">"emailExecutor"</span>)
+    <span class="code-keyword">public</span> <span class="code-class">TaskExecutor</span> emailExecutor() {
+        <span class="code-keyword">return</span> build(<span class="code-string">"email-"</span>, <span class="code-number">2</span>, <span class="code-number">4</span>, <span class="code-number">200</span>);
+    }
+
+    <span class="code-keyword">private</span> <span class="code-class">TaskExecutor</span> build(<span class="code-class">String</span> prefix, <span class="code-keyword">int</span> core, <span class="code-keyword">int</span> max, <span class="code-keyword">int</span> queue) {
+        <span class="code-class">ThreadPoolTaskExecutor</span> ex = <span class="code-keyword">new</span> <span class="code-class">ThreadPoolTaskExecutor</span>();
+        ex.setThreadNamePrefix(prefix);
+        ex.setCorePoolSize(core);
+        ex.setMaxPoolSize(max);
+        ex.setQueueCapacity(queue);
+        ex.setWaitForTasksToCompleteOnShutdown(<span class="code-keyword">true</span>);
+        ex.initialize();
+        <span class="code-keyword">return</span> ex;
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>Each named bean is an isolated pool sized for its workload.</li>
+                    <li><code>@Async("reportExecutor")</code> routes a method to that specific pool.</li>
+                    <li><code>setWaitForTasksToCompleteOnShutdown(true)</code> drains work on graceful shutdown.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

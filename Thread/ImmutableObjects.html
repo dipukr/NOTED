@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Immutable Objects - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Immutable Objects</div>
+
+    <div class="intro">
+        <p>An immutable object cannot change state after construction, so it is inherently thread-safe.</p>
+        <p>Since read-read sharing is safe and there are no writes, no synchronization is ever needed.</p>
+        <p>They are built with <code>final</code> fields, no setters, and defensive copies of mutable inputs.</p>
+        <p>Java records and <code>String</code> are common examples of immutable types.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Value objects, DTOs, configuration, and map/set keys.</li>
+            <li>Make the class <code>final</code> and all fields <code>final</code> and private.</li>
+            <li>Defensively copy mutable fields on the way in and out.</li>
+            <li>Return new instances instead of mutating.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Thread-safe with zero locking.</li>
+            <li>Safe to share, cache, and reuse freely.</li>
+            <li>Simpler reasoning; no hidden state changes.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Every change allocates a new object, adding GC pressure.</li>
+            <li>Awkward for large objects with many fields.</li>
+            <li>Defensive copies add overhead for mutable members.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public final class</span> <span class="code-class">Money</span> {
+
+    <span class="code-keyword">private final long</span> amount;
+    <span class="code-keyword">private final</span> <span class="code-class">String</span> currency;
+    <span class="code-keyword">private final</span> <span class="code-class">List</span>&lt;<span class="code-class">String</span>&gt; tags;
+
+    <span class="code-keyword">public</span> <span class="code-class">Money</span>(<span class="code-keyword">long</span> amount, <span class="code-class">String</span> currency, <span class="code-class">List</span>&lt;<span class="code-class">String</span>&gt; tags) {
+        <span class="code-keyword">this</span>.amount = amount;
+        <span class="code-keyword">this</span>.currency = currency;
+        <span class="code-comment">// defensive copy of mutable input</span>
+        <span class="code-keyword">this</span>.tags = <span class="code-class">List</span>.copyOf(tags);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">Money</span> plus(<span class="code-keyword">long</span> delta) {
+        <span class="code-comment">// return a new instance, never mutate</span>
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">Money</span>(amount + delta, currency, tags);
+    }
+
+    <span class="code-keyword">public long</span> amount() { <span class="code-keyword">return</span> amount; }
+    <span class="code-keyword">public</span> <span class="code-class">List</span>&lt;<span class="code-class">String</span>&gt; tags() { <span class="code-keyword">return</span> tags; } <span class="code-comment">// already unmodifiable</span>
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>final</code> class and fields guarantee state is fixed after construction.</li>
+                    <li><code>List.copyOf</code> makes a defensive, unmodifiable copy of the input list.</li>
+                    <li><code>plus()</code> returns a fresh <code>Money</code> rather than changing this one.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

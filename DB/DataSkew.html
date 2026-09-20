@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Skew - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Data Skew</div>
+
+    <div class="intro">
+        <p>Data skew is the uneven distribution of data or load across partitions, shards or nodes.</p>
+        <p>Some partitions hold far more rows or receive far more traffic than others.</p>
+        <p>The overloaded partition becomes a hotspot and bottlenecks the whole system.</p>
+        <p>It commonly comes from a poor partition or shard key with low cardinality or skewed values.</p>
+        <p>It also degrades distributed joins and aggregations.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Choose a high-cardinality, evenly distributed shard/partition key.</li>
+            <li>Watch for celebrity keys (a few values with huge volume).</li>
+            <li>Add salting or composite keys to spread hot values.</li>
+            <li>Monitor per-partition size and request rate.</li>
+            <li>Rebalance or re-shard when skew develops.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Detecting and fixing skew restores even load and scalability.</li>
+            <li>Good key choice avoids skew from the start.</li>
+            <li>Salting techniques can neutralize hot keys.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Hotspots cap throughput regardless of total capacity.</li>
+            <li>Salting complicates queries and reassembly.</li>
+            <li>Rebalancing is disruptive and costly.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">-- Reveal skew: one CustomerId dominates the row count (a "celebrity" key)</span>
+<span class="code-keyword">SELECT</span> <span class="code-class">CustomerId</span>, <span class="code-keyword">COUNT</span>(*) <span class="code-keyword">AS</span> <span class="code-class">OrderCount</span>
+<span class="code-keyword">FROM</span> <span class="code-class">Orders</span>
+<span class="code-keyword">GROUP BY</span> <span class="code-class">CustomerId</span>
+<span class="code-keyword">ORDER BY</span> <span class="code-class">OrderCount</span> <span class="code-keyword">DESC</span>;
+<span class="code-comment">-- CustomerId 555 might own 40% of all rows, overloading its partition</span>
+
+<span class="code-comment">-- Salting: add a computed bucket column to spread a hot key over N buckets</span>
+<span class="code-keyword">ALTER TABLE</span> <span class="code-class">Orders</span>
+<span class="code-keyword">ADD</span> <span class="code-class">ShardBucket</span> <span class="code-keyword">AS</span> (<span class="code-class">CustomerId</span> % <span class="code-number">16</span>) <span class="code-keyword">PERSISTED</span>;
+
+<span class="code-comment">-- Writes: bucket is derived automatically, spreading a hot CustomerId across 16 slots</span>
+<span class="code-keyword">INSERT INTO</span> <span class="code-class">Orders</span> (<span class="code-class">CustomerId</span>, <span class="code-class">OrderDate</span>, <span class="code-class">Total</span>)
+<span class="code-keyword">VALUES</span> (<span class="code-number">555</span>, <span class="code-class">SYSUTCDATETIME</span>(), <span class="code-number">120.00</span>);
+
+<span class="code-comment">-- Reads for the hot key must fan out across every bucket and merge results</span>
+<span class="code-keyword">SELECT</span> <span class="code-class">OrderId</span>, <span class="code-class">OrderDate</span>, <span class="code-class">Total</span>
+<span class="code-keyword">FROM</span> <span class="code-class">Orders</span>
+<span class="code-keyword">WHERE</span> <span class="code-class">CustomerId</span> = <span class="code-number">555</span>
+  <span class="code-keyword">AND</span> <span class="code-class">ShardBucket</span> <span class="code-keyword">BETWEEN</span> <span class="code-number">0</span> <span class="code-keyword">AND</span> <span class="code-number">15</span>;</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>The <code>GROUP BY</code> query exposes skew directly: a few <code>CustomerId</code> values own a disproportionate share of rows.</li>
+                    <li><code>ShardBucket</code> is a persisted computed column that hashes the hot key into one of 16 buckets.</li>
+                    <li>Writes for the same logical key now spread across 16 physical slots instead of piling onto one partition.</li>
+                    <li>Reads must query across all buckets and merge, trading read simplicity for write-side load balance.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

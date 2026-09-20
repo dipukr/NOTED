@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prototype Pattern - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Prototype Pattern</div>
+
+    <div class="intro">
+        <p>Prototype is a creational design pattern that lets you create new objects by copying an existing object, known as the prototype, instead of instantiating from scratch.</p>
+        <p>It is useful when object creation is costly or complex, and when a new object should start as a duplicate of a configured instance.</p>
+        <p>In Java the pattern is often implemented with the <code>Cloneable</code> interface and the <code>clone()</code> method, taking care to choose between shallow and deep copying.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use</div>
+        <div class="section-content">
+            <ul>
+                <li>When creating an object is expensive compared to copying an existing one.</li>
+                <li>When you want to avoid a hierarchy of factory classes.</li>
+                <li>When objects have only a few different states you can configure once.</li>
+                <li>When the concrete type to instantiate is decided at runtime.</li>
+                <li>When you need many similar objects that differ only slightly.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content">
+            <ul>
+                <li>Avoids the cost of expensive object initialization.</li>
+                <li>Lets you clone objects without coupling to their concrete classes.</li>
+                <li>Reduces the need for repeated subclassing of factories.</li>
+                <li>Allows adding and removing prototypes at runtime.</li>
+                <li>Produces complex pre-configured objects conveniently.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages</div>
+        <div class="section-content">
+            <ul>
+                <li>Cloning objects with circular references can be tricky.</li>
+                <li>Deep copying of complex object graphs is hard to implement correctly.</li>
+                <li>Java's default <code>clone()</code> is shallow and can cause shared-reference bugs.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">Document</span> <span class="code-keyword">implements</span> <span class="code-class">Cloneable</span> {
+    <span class="code-keyword">private</span> String title;
+    <span class="code-keyword">private</span> List&lt;String&gt; pages;
+
+    <span class="code-keyword">public</span> <span class="code-class">Document</span>(String title, List&lt;String&gt; pages) {
+        <span class="code-keyword">this</span>.title = title;
+        <span class="code-keyword">this</span>.pages = pages;
+    }
+
+    <span class="code-class">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">Document</span> clone() {
+        <span class="code-comment"># Deep copy of the mutable list</span>
+        <span class="code-keyword">return new</span> <span class="code-class">Document</span>(title, <span class="code-keyword">new</span> <span class="code-class">ArrayList</span>&lt;&gt;(pages));
+    }
+
+    <span class="code-keyword">public void</span> setTitle(String t) { <span class="code-keyword">this</span>.title = t; }
+}
+
+<span class="code-keyword">void</span> main() {
+    <span class="code-class">Document</span> original =
+        <span class="code-keyword">new</span> <span class="code-class">Document</span>(<span class="code-string">"Draft"</span>, <span class="code-keyword">new</span> <span class="code-class">ArrayList</span>&lt;&gt;());
+    <span class="code-class">Document</span> copy = original.clone();
+    copy.setTitle(<span class="code-string">"Final"</span>);  <span class="code-comment"># original unaffected</span>
+}</code></pre>
+            </div>
+
+            <div class="code-explanation">
+                <div class="code-explanation-title">How the Prototype works</div>
+                <ul>
+                    <li><code>Document</code> implements <code>Cloneable</code> and overrides <code>clone()</code>.</li>
+                    <li>The overridden <code>clone()</code> copies the mutable <code>pages</code> list to give a true deep copy.</li>
+                    <li>New objects are produced by copying an existing prototype, not via <code>new</code> with full setup.</li>
+                    <li>Changing the copy leaves the original untouched because its data was duplicated.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

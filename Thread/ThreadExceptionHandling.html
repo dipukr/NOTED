@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Exception Handling in Threads - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Exception Handling in Threads</div>
+
+    <div class="intro">
+        <p>An uncaught exception in a thread terminates that thread but not the whole application.</p>
+        <p>Because it does not propagate to the starting thread, such failures are silently lost by default.</p>
+        <p>An <code>UncaughtExceptionHandler</code> catches these so they can be logged or recovered.</p>
+        <p>With executors, exceptions surface through the returned <code>Future</code>.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Set an <code>UncaughtExceptionHandler</code> for raw threads.</li>
+            <li>Always inspect <code>Future.get()</code>, which rethrows as <code>ExecutionException</code>.</li>
+            <li>Wrap <code>Runnable</code> bodies in try/catch for fire-and-forget tasks.</li>
+            <li>Override <code>afterExecute</code> in a custom executor for centralized logging.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Prevents silent failures from going unnoticed.</li>
+            <li>Centralizes error logging and alerting.</li>
+            <li>Enables graceful recovery or restart of failed work.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Easy to forget, leading to invisible thread death.</li>
+            <li><code>submit()</code> swallows exceptions until <code>get()</code> is called.</li>
+            <li>Handlers add boilerplate to thread setup.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">SafeTasks</span> {
+
+    <span class="code-keyword">public void</span> rawThread() {
+        <span class="code-class">Thread</span> t = <span class="code-keyword">new</span> <span class="code-class">Thread</span>(() -> {
+            <span class="code-keyword">throw new</span> <span class="code-class">RuntimeException</span>(<span class="code-string">"boom"</span>);
+        });
+        <span class="code-comment">// catch what would otherwise be lost</span>
+        t.setUncaughtExceptionHandler((thread, ex) ->
+            <span class="code-class">System</span>.err.println(thread.getName() + <span class="code-string">" failed: "</span> + ex));
+        t.start();
+    }
+
+    <span class="code-keyword">public void</span> viaExecutor() <span class="code-keyword">throws</span> <span class="code-class">InterruptedException</span> {
+        <span class="code-class">ExecutorService</span> pool = <span class="code-class">Executors</span>.newSingleThreadExecutor();
+        <span class="code-class">Future</span>&lt;?&gt; f = pool.submit(() -> { <span class="code-keyword">throw new</span> <span class="code-class">IllegalStateException</span>(); });
+        <span class="code-keyword">try</span> {
+            f.get(); <span class="code-comment">// rethrows wrapped exception</span>
+        } <span class="code-keyword">catch</span> (<span class="code-class">ExecutionException</span> e) {
+            <span class="code-class">System</span>.err.println(<span class="code-string">"Task error: "</span> + e.getCause());
+        }
+        pool.shutdown();
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>setUncaughtExceptionHandler</code> catches errors that escape a raw thread's <code>run</code>.</li>
+                    <li><code>submit()</code> captures the exception inside the <code>Future</code>.</li>
+                    <li><code>get()</code> rethrows it as <code>ExecutionException</code>, exposing the original cause.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

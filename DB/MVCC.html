@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MVCC (Multi-Version Concurrency Control) - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">MVCC (Multi-Version Concurrency Control)</div>
+
+    <div class="intro">
+        <p>MVCC is a concurrency control method where the database keeps multiple versions of a row instead of overwriting it in place.</p>
+        <p>Each transaction sees a consistent snapshot of the data as of its start time.</p>
+        <p>Readers never block writers and writers never block readers.</p>
+        <p>A write creates a new row version; old versions remain visible to transactions that started earlier.</p>
+        <p>Obsolete versions are later reclaimed by a cleanup process (for example vacuum).</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>MVCC is the default in PostgreSQL, Oracle and many modern databases.</li>
+            <li>It gives snapshot isolation without read locks.</li>
+            <li>Each version is tagged with transaction visibility information.</li>
+            <li>It prevents dirty reads and non-repeatable reads via snapshots.</li>
+            <li>Dead versions must be garbage collected to reclaim space.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>High concurrency: readers and writers do not block each other.</li>
+            <li>Consistent point-in-time snapshots per transaction.</li>
+            <li>Avoids read locks entirely.</li>
+            <li>Scales well for read-heavy workloads.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Old versions consume storage until cleaned up.</li>
+            <li>Vacuum/cleanup adds background overhead.</li>
+            <li>Long-running transactions can bloat version chains.</li>
+            <li>Does not by itself prevent write skew.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">-- Enable row-versioning based MVCC in SQL Server</span>
+<span class="code-keyword">ALTER DATABASE</span> <span class="code-class">Shop</span> <span class="code-keyword">SET ALLOW_SNAPSHOT_ISOLATION ON</span>;
+<span class="code-keyword">ALTER DATABASE</span> <span class="code-class">Shop</span> <span class="code-keyword">SET READ_COMMITTED_SNAPSHOT ON</span>;
+
+<span class="code-keyword">CREATE TABLE</span> <span class="code-class">Product</span> (
+    <span class="code-class">ProductId</span> <span class="code-keyword">INT PRIMARY KEY</span>,
+    <span class="code-class">Price</span> <span class="code-keyword">DECIMAL</span>(<span class="code-number">10</span>,<span class="code-number">2</span>) <span class="code-keyword">NOT NULL</span>
+);
+
+<span class="code-comment">-- Session A: opens a snapshot transaction and reads twice</span>
+<span class="code-keyword">SET TRANSACTION ISOLATION LEVEL SNAPSHOT</span>;
+<span class="code-keyword">BEGIN TRANSACTION</span>;
+
+    <span class="code-keyword">SELECT</span> <span class="code-class">Price</span> <span class="code-keyword">AS</span> <span class="code-class">FirstRead</span> <span class="code-keyword">FROM</span> <span class="code-class">Product</span> <span class="code-keyword">WHERE</span> <span class="code-class">ProductId</span> = <span class="code-number">1</span>;
+
+    <span class="code-comment">-- Session B commits an update to Price here, concurrently</span>
+    <span class="code-comment">-- UPDATE Product SET Price = 250.00 WHERE ProductId = 1;</span>
+
+    <span class="code-comment">-- Session A still sees the price from its own snapshot</span>
+    <span class="code-keyword">SELECT</span> <span class="code-class">Price</span> <span class="code-keyword">AS</span> <span class="code-class">SecondRead</span> <span class="code-keyword">FROM</span> <span class="code-class">Product</span> <span class="code-keyword">WHERE</span> <span class="code-class">ProductId</span> = <span class="code-number">1</span>;
+
+<span class="code-keyword">COMMIT TRANSACTION</span>;</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>ALLOW_SNAPSHOT_ISOLATION</code> and <code>READ_COMMITTED_SNAPSHOT</code> turn on row-versioning so readers use a consistent snapshot instead of locks.</li>
+                    <li>Session A's transaction fixes its snapshot at <code>BEGIN TRANSACTION</code>.</li>
+                    <li>Session B's concurrent committed update creates a new row version that is invisible to Session A's snapshot.</li>
+                    <li><code>FirstRead</code> and <code>SecondRead</code> return the same value, and Session B was never blocked by Session A's reads.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

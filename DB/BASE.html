@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BASE - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">BASE</div>
+
+    <div class="intro">
+        <p>BASE is a consistency model used by many distributed and NoSQL databases as an alternative to ACID.</p>
+        <p>BASE stands for Basically Available, Soft state and Eventually consistent.</p>
+        <p>It trades immediate consistency for high availability and horizontal scalability.</p>
+        <p>The system is basically available, its state may change over time even without input (soft state), and replicas converge to the same value eventually.</p>
+        <p>BASE arises from the CAP theorem, choosing availability and partition tolerance over strong consistency.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Basically Available: the system always responds, even if with stale or partial data.</li>
+            <li>Soft state: data may be in flux as replicas sync in the background.</li>
+            <li>Eventually consistent: given no new writes, all replicas converge to the same value.</li>
+            <li>Use BASE for large-scale, write-heavy or globally distributed systems that value uptime.</li>
+            <li>Suitable for feeds, product catalogs and analytics where slight staleness is acceptable.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>High availability and fault tolerance.</li>
+            <li>Scales horizontally with ease.</li>
+            <li>Low latency because writes need not wait for global agreement.</li>
+            <li>Resilient to network partitions.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Reads can return stale data.</li>
+            <li>Application must handle conflicts and reconciliation.</li>
+            <li>Not suitable for operations needing strict correctness like money transfers.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">-- Cart row carries a version and last-writer timestamp for reconciliation</span>
+<span class="code-keyword">CREATE TABLE</span> <span class="code-class">Cart</span> (
+    <span class="code-class">UserId</span>       <span class="code-keyword">INT</span> <span class="code-keyword">PRIMARY KEY</span>,
+    <span class="code-class">CartData</span>     <span class="code-keyword">NVARCHAR</span>(<span class="code-keyword">MAX</span>),
+    <span class="code-class">Version</span>      <span class="code-keyword">INT</span> <span class="code-keyword">NOT NULL</span> <span class="code-keyword">DEFAULT</span> <span class="code-number">1</span>,
+    <span class="code-class">UpdatedAt</span>    <span class="code-keyword">DATETIME2</span> <span class="code-keyword">NOT NULL</span> <span class="code-keyword">DEFAULT</span> <span class="code-class">SYSUTCDATETIME</span>()
+);
+
+<span class="code-comment">-- Read from a replica: may return a slightly stale (soft-state) row</span>
+<span class="code-keyword">SELECT</span> <span class="code-class">UserId</span>, <span class="code-class">CartData</span>, <span class="code-class">Version</span>, <span class="code-class">UpdatedAt</span>
+<span class="code-keyword">FROM</span> <span class="code-class">Cart</span> <span class="code-keyword">WITH</span> (<span class="code-keyword">NOLOCK</span>)     <span class="code-comment">-- tolerate reading an in-flight replica copy</span>
+<span class="code-keyword">WHERE</span> <span class="code-class">UserId</span> = <span class="code-number">42</span>;
+
+<span class="code-comment">-- Reconciliation: only overwrite if this write is newer (last-writer-wins)</span>
+<span class="code-keyword">UPDATE</span> <span class="code-class">Cart</span>
+<span class="code-keyword">SET</span> <span class="code-class">CartData</span> = <span class="code-string">'{"items":[101,205]}'</span>,
+    <span class="code-class">Version</span> = <span class="code-class">Version</span> + <span class="code-number">1</span>,
+    <span class="code-class">UpdatedAt</span> = <span class="code-class">SYSUTCDATETIME</span>()
+<span class="code-keyword">WHERE</span> <span class="code-class">UserId</span> = <span class="code-number">42</span>
+  <span class="code-keyword">AND</span> <span class="code-class">UpdatedAt</span> &lt; <span class="code-string">'2026-09-20T10:15:00'</span>;   <span class="code-comment">-- reject stale writes, allow convergence</span></code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>Every row carries a <code>Version</code> and <code>UpdatedAt</code> so conflicting writes from different replicas can be reconciled.</li>
+                    <li><code>WITH (NOLOCK)</code> reads whatever the replica currently has, illustrating basic availability even if the value is momentarily stale.</li>
+                    <li>The reconciliation <code>UPDATE</code> only applies when its timestamp is newer, a simple last-writer-wins merge rule.</li>
+                    <li>Given no further writes, all replicas eventually converge on the highest <code>Version</code>/<code>UpdatedAt</code> row.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ReentrantLock - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">ReentrantLock</div>
+
+    <div class="intro">
+        <p><code>ReentrantLock</code> is an explicit lock offering the same mutual exclusion as <code>synchronized</code> with more flexibility.</p>
+        <p>"Reentrant" means the holding thread can acquire the same lock again without deadlocking.</p>
+        <p>It supports fairness, interruptible acquisition, timed tries, and multiple condition queues.</p>
+        <p>The lock must be released in a <code>finally</code> block to avoid leaking it.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use when you need <code>tryLock()</code>, timeouts, or interruptible locking.</li>
+            <li>Use multiple <code>Condition</code>s where one monitor's single wait-set is not enough.</li>
+            <li>Optionally construct with <code>fair = true</code> for FIFO ordering.</li>
+            <li>Always pair <code>lock()</code> with <code>unlock()</code> in <code>finally</code>.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Non-blocking <code>tryLock()</code> avoids indefinite waits.</li>
+            <li>Interruptible locking allows cancellation.</li>
+            <li>Multiple conditions and optional fairness.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Manual <code>unlock()</code>; forgetting it in <code>finally</code> causes deadlocks.</li>
+            <li>More verbose than <code>synchronized</code>.</li>
+            <li>Fair mode reduces throughput.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">Account</span> {
+
+    <span class="code-keyword">private final</span> <span class="code-class">ReentrantLock</span> lock = <span class="code-keyword">new</span> <span class="code-class">ReentrantLock</span>();
+    <span class="code-keyword">private long</span> balance;
+
+    <span class="code-keyword">public void</span> deposit(<span class="code-keyword">long</span> amount) {
+        lock.lock();
+        <span class="code-keyword">try</span> {
+            balance += amount; <span class="code-comment">// protected critical section</span>
+        } <span class="code-keyword">finally</span> {
+            lock.unlock(); <span class="code-comment">// always release</span>
+        }
+    }
+
+    <span class="code-keyword">public boolean</span> withdrawIfPossible(<span class="code-keyword">long</span> amount) {
+        <span class="code-keyword">if</span> (!lock.tryLock()) <span class="code-keyword">return</span> <span class="code-keyword">false</span>; <span class="code-comment">// don't block</span>
+        <span class="code-keyword">try</span> {
+            <span class="code-keyword">if</span> (balance &lt; amount) <span class="code-keyword">return</span> <span class="code-keyword">false</span>;
+            balance -= amount;
+            <span class="code-keyword">return</span> <span class="code-keyword">true</span>;
+        } <span class="code-keyword">finally</span> {
+            lock.unlock();
+        }
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>lock()</code> blocks until the lock is acquired; the <code>finally</code> guarantees release.</li>
+                    <li><code>tryLock()</code> returns immediately with <code>false</code> if the lock is held elsewhere.</li>
+                    <li>Being reentrant, the same thread may re-enter another locked method safely.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

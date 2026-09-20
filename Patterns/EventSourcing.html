@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Event Sourcing Pattern - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Event Sourcing Pattern</div>
+
+    <div class="intro">
+        <p>Event Sourcing stores the state of an application as an ordered sequence of events rather than as current-state rows.</p>
+        <p>Every change is captured as an immutable event and appended to an event store.</p>
+        <p>Current state is derived by replaying the events from the beginning.</p>
+        <p>It gives a complete, auditable history of everything that ever happened.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use when a full audit trail or temporal queries are required.</li>
+            <li>Events are append-only and never updated or deleted.</li>
+            <li>Snapshots speed up rebuilding state from long event streams.</li>
+            <li>Pairs naturally with CQRS for read-side projections.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Complete audit log and ability to reconstruct past state.</li>
+            <li>Enables replay, debugging, and new projections after the fact.</li>
+            <li>Append-only writes are simple and fast.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Higher complexity than storing current state directly.</li>
+            <li>Querying current state requires projections or snapshots.</li>
+            <li>Schema evolution of old events is tricky.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># State is rebuilt by folding over past events</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Account</span> {
+
+    <span class="code-keyword">private</span> <span class="code-keyword">long</span> balance;
+
+    <span class="code-comment"># append-only log of what happened</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-class">Account</span> replay(<span class="code-class">List</span>&lt;<span class="code-class">Event</span>&gt; history) {
+        <span class="code-class">Account</span> acc = <span class="code-keyword">new</span> <span class="code-class">Account</span>();
+        <span class="code-keyword">for</span> (<span class="code-class">Event</span> e : history) {
+            acc.apply(e);
+        }
+        <span class="code-keyword">return</span> acc;
+    }
+
+    <span class="code-keyword">private</span> <span class="code-keyword">void</span> apply(<span class="code-class">Event</span> e) {
+        <span class="code-keyword">if</span> (e <span class="code-keyword">instanceof</span> <span class="code-class">Deposited</span> d) balance += d.amount();
+        <span class="code-keyword">else</span> <span class="code-keyword">if</span> (e <span class="code-keyword">instanceof</span> <span class="code-class">Withdrawn</span> w) balance -= w.amount();
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">long</span> getBalance() { <span class="code-keyword">return</span> balance; }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>Events like <code>Deposited</code> and <code>Withdrawn</code> are the source of truth.</li>
+                    <li><code>replay</code> folds the history to compute current <code>balance</code>.</li>
+                    <li>Nothing is overwritten; the full history is always preserved.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

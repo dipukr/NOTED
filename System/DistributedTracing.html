@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Distributed Tracing - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Distributed Tracing</div>
+
+    <div class="intro">
+        <p>Distributed tracing follows a single request as it flows across many services in a distributed system.</p>
+        <p>Each request is tagged with a trace ID, and each operation records a span with timing and metadata.</p>
+        <p>Spans link together into a tree that shows the full path and latency breakdown of the request.</p>
+        <p>It is essential for debugging performance and failures in microservices.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use to find latency bottlenecks and failures spanning multiple services.</li>
+            <li>A trace ID is propagated across service calls, usually via HTTP headers.</li>
+            <li>Each service emits spans (start, end, tags) tied to the same trace.</li>
+            <li>Context propagation must cross threads, queues, and async boundaries.</li>
+            <li>OpenTelemetry, Jaeger, and Zipkin are common implementations.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>End-to-end visibility into a request's path and timing.</li>
+            <li>Pinpoints which service or call causes slowness or errors.</li>
+            <li>Complements logs and metrics for full observability.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Instrumentation and context propagation add overhead and effort.</li>
+            <li>High-volume tracing needs sampling, which can miss rare events.</li>
+            <li>Storing and querying trace data has real cost.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># Create a span and propagate trace context to a downstream call</span>
+<span class="code-keyword">public</span> <span class="code-class">String</span> checkout(<span class="code-class">Order</span> order) {
+    <span class="code-class">Span</span> span = tracer.spanBuilder(<span class="code-string">"checkout"</span>).startSpan();
+    <span class="code-keyword">try</span> (<span class="code-class">Scope</span> scope = span.makeCurrent()) {
+        span.setAttribute(<span class="code-string">"order.id"</span>, order.getId());
+        <span class="code-comment"># trace + span IDs flow via injected headers</span>
+        <span class="code-keyword">return</span> paymentClient.charge(order); <span class="code-comment"># becomes a child span</span>
+    } <span class="code-keyword">catch</span> (<span class="code-class">Exception</span> e) {
+        span.recordException(e);
+        <span class="code-keyword">throw</span> e;
+    } <span class="code-keyword">finally</span> {
+        span.end();
+    }
+}
+</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>spanBuilder(...).startSpan()</code> opens a timed span for this operation.</li>
+                    <li><code>makeCurrent()</code> sets context so downstream calls become child spans.</li>
+                    <li>The trace ID is injected into outbound headers, linking services.</li>
+                    <li><code>recordException</code> and <code>end()</code> capture errors and close timing cleanly.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

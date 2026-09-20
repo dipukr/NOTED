@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reliability - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Reliability</div>
+
+    <div class="intro">
+        <p>Reliability is a system's ability to keep performing its function correctly over time, even when parts fail.</p>
+        <p>A reliable system produces the right result and continues working despite hardware faults, software bugs, or human error.</p>
+        <p>It is often quantified with metrics like MTBF (mean time between failures) and error rate.</p>
+        <p>Reliability is closely related to availability but focuses on correctness and consistency of behaviour, not just uptime.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Design for failure - assume disks, nodes, and networks will fail and handle it gracefully.</li>
+            <li>Use redundancy and replication so no single fault loses data or stops service.</li>
+            <li>Add retries with backoff, timeouts, and idempotency to survive transient faults.</li>
+            <li>Validate inputs and use tested code paths to reduce software-induced failures.</li>
+            <li>Measure with MTBF, MTTR, and error budgets to steer engineering effort.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Builds user trust and protects revenue and reputation.</li>
+            <li>Reduces emergency firefighting and on-call load.</li>
+            <li>Data integrity is preserved across failures.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Redundancy and replication increase cost and complexity.</li>
+            <li>Extra safety checks can add latency.</li>
+            <li>Perfect reliability is unattainable; you engineer to a target, not to zero failures.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># Idempotent retry with exponential backoff improves reliability</span>
+<span class="code-keyword">public</span> <span class="code-class">Response</span> callWithRetry(<span class="code-class">Request</span> req) {
+    <span class="code-keyword">int</span> attempts = <span class="code-string">3</span>;
+    <span class="code-keyword">for</span> (<span class="code-keyword">int</span> i = <span class="code-string">0</span>; i &lt; attempts; i++) {
+        <span class="code-keyword">try</span> {
+            <span class="code-keyword">return</span> client.send(req); <span class="code-comment"># same key =&gt; safe to retry</span>
+        } <span class="code-keyword">catch</span> (<span class="code-class">TransientException</span> e) {
+            <span class="code-keyword">if</span> (i == attempts - <span class="code-string">1</span>) <span class="code-keyword">throw</span> e;
+            sleep((<span class="code-keyword">long</span>) <span class="code-class">Math</span>.pow(<span class="code-string">2</span>, i) * <span class="code-string">100</span>);
+        }
+    }
+    <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalStateException</span>(<span class="code-string">"unreachable"</span>);
+}
+</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>TransientException</code> is retried; permanent errors propagate immediately.</li>
+                    <li><code>Math.pow(2, i)</code> spaces retries out to avoid hammering a struggling service.</li>
+                    <li>The request must be <strong>idempotent</strong> so retries do not double-apply effects.</li>
+                    <li>The final attempt rethrows so the caller learns of true failure.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

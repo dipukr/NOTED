@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Caching (Strategies, Eviction, Stampede, Invalidation) - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Caching (Strategies, Eviction, Stampede, Invalidation)</div>
+
+    <div class="intro">
+        <p>Caching stores expensive results close to consumers to cut latency and load.</p>
+        <p>Strategies include cache-aside, read-through, write-through, and write-behind.</p>
+        <p>Eviction policies (LRU, LFU, TTL) decide what to drop when the cache is full.</p>
+        <p>Invalidation and stampede protection keep cached data correct and stable.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Cache read-heavy, expensive, and relatively stable data.</li>
+            <li>Cache-aside: app loads on miss and populates the cache itself.</li>
+            <li>Prevent stampedes with locks, request coalescing, or jittered TTLs.</li>
+            <li>Invalidate on write, or accept staleness bounded by a TTL.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Dramatically lower latency for cache hits.</li>
+            <li>Reduced load on databases and downstream services.</li>
+            <li>Better throughput and cost efficiency at scale.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Stale data if invalidation is wrong or missing.</li>
+            <li>Cache stampede on expiry can overwhelm the origin.</li>
+            <li>Added complexity: consistency, eviction tuning, and warm-up.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">// Cache-aside with Spring Cache abstraction</span>
+<span class="code-class">@Service</span>
+<span class="code-keyword">public class</span> <span class="code-class">ProductService</span> {
+
+    <span class="code-comment">// populate on miss, return cached value on hit</span>
+    <span class="code-class">@Cacheable</span>(value = <span class="code-string">"products"</span>, key = <span class="code-string">"#id"</span>)
+    <span class="code-keyword">public</span> <span class="code-class">Product</span> getProduct(<span class="code-class">Long</span> id) {
+        <span class="code-keyword">return</span> productRepository.findById(id).orElseThrow();
+    }
+
+    <span class="code-comment">// invalidate the entry when the product changes</span>
+    <span class="code-class">@CacheEvict</span>(value = <span class="code-string">"products"</span>, key = <span class="code-string">"#product.id"</span>)
+    <span class="code-keyword">public</span> <span class="code-class">Product</span> update(<span class="code-class">Product</span> product) {
+        <span class="code-keyword">return</span> productRepository.save(product);
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>@Cacheable</code> checks the cache first and only hits the DB on a miss.</li>
+                    <li>The <code>key = "#id"</code> expression derives the cache key from the argument.</li>
+                    <li><code>@CacheEvict</code> removes the stale entry on update for correct invalidation.</li>
+                    <li>Configuring TTL and a max size on the backing cache handles eviction and stampede control.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

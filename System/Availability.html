@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Availability - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Availability</div>
+
+    <div class="intro">
+        <p>Availability is the proportion of time a system is operational and able to serve requests.</p>
+        <p>It is usually expressed as a percentage of uptime, such as the "nines" (99.9%, 99.99%).</p>
+        <p>Higher availability means less downtime: 99.99% allows only about 52 minutes of downtime per year.</p>
+        <p>It is achieved through redundancy, failover, and removing single points of failure.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Availability % = uptime / (uptime + downtime) over a measured window.</li>
+            <li>Eliminate single points of failure with redundant nodes across zones/regions.</li>
+            <li>Use health checks and load balancers to route away from unhealthy instances.</li>
+            <li>Availability = MTBF / (MTBF + MTTR) - lowering recovery time raises availability.</li>
+            <li>Set an SLA/SLO target; more nines cost disproportionately more.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Users can reach the service whenever they need it.</li>
+            <li>Failover keeps the service up during partial outages.</li>
+            <li>Directly supports SLAs and customer commitments.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Each additional nine of availability multiplies infrastructure cost.</li>
+            <li>Under CAP, favouring availability may sacrifice strong consistency.</li>
+            <li>Redundant multi-region setups are complex to operate and test.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># Health endpoint the load balancer polls to route only to healthy nodes</span>
+<span class="code-class">@RestController</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">HealthController</span> {
+
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">DataSource</span> ds;
+
+    <span class="code-class">HealthController</span>(<span class="code-class">DataSource</span> ds) { <span class="code-keyword">this</span>.ds = ds; }
+
+    <span class="code-class">@GetMapping</span>(<span class="code-string">"/health"</span>)
+    <span class="code-keyword">public</span> <span class="code-class">ResponseEntity</span>&lt;<span class="code-class">String</span>&gt; health() {
+        <span class="code-keyword">try</span> (<span class="code-class">Connection</span> c = ds.getConnection()) {
+            <span class="code-keyword">boolean</span> ok = c.isValid(<span class="code-string">2</span>);
+            <span class="code-keyword">return</span> ok ? <span class="code-class">ResponseEntity</span>.ok(<span class="code-string">"UP"</span>)
+                      : <span class="code-class">ResponseEntity</span>.status(<span class="code-string">503</span>).body(<span class="code-string">"DOWN"</span>);
+        } <span class="code-keyword">catch</span> (<span class="code-class">SQLException</span> e) {
+            <span class="code-keyword">return</span> <span class="code-class">ResponseEntity</span>.status(<span class="code-string">503</span>).body(<span class="code-string">"DOWN"</span>);
+        }
+    }
+}
+</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>/health</code> checks a real dependency (the DB), not just that the process is alive.</li>
+                    <li>A <code>503</code> tells the load balancer to stop sending traffic to this node.</li>
+                    <li>Routing away from unhealthy nodes keeps the overall service available.</li>
+                    <li>The 2-second validation timeout prevents the check itself from hanging.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

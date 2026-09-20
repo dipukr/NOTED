@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ExecutorService - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">ExecutorService</div>
+
+    <div class="intro">
+        <p><code>ExecutorService</code> manages a pool of worker threads and the tasks submitted to them.</p>
+        <p>It reuses threads to avoid the cost of creating one per task.</p>
+        <p>Tasks are submitted as <code>Runnable</code> or <code>Callable</code> and tracked via <code>Future</code>.</p>
+        <p>A pool limits concurrent threads, protecting the system from resource exhaustion.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Any workload with many short tasks that would otherwise spawn threads.</li>
+            <li>Create via the <code>Executors</code> factory (fixed, cached, scheduled).</li>
+            <li>Always <code>shutdown()</code> to release threads when done.</li>
+            <li>Use <code>invokeAll</code>/<code>invokeAny</code> for batches of tasks.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Thread reuse reduces creation overhead.</li>
+            <li>Bounded pools cap resource usage.</li>
+            <li>Futures provide results, cancellation and completion tracking.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Forgetting <code>shutdown()</code> leaks threads.</li>
+            <li>Unbounded queues can hide back-pressure and grow memory.</li>
+            <li>Wrong pool sizing causes contention or starvation.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">ExecutorDemo</span> {
+    <span class="code-keyword">public static void</span> <span class="code-class">main</span>(<span class="code-class">String</span>[] args) <span class="code-keyword">throws</span> <span class="code-class">Exception</span> {
+        <span class="code-class">ExecutorService</span> pool = <span class="code-class">Executors</span>.newFixedThreadPool(<span class="code-string">4</span>);
+
+        <span class="code-class">List</span>&lt;<span class="code-class">Callable</span>&lt;<span class="code-class">Integer</span>&gt;&gt; tasks = <span class="code-keyword">new</span> <span class="code-class">ArrayList</span>&lt;&gt;();
+        <span class="code-keyword">for</span> (<span class="code-keyword">int</span> i = <span class="code-string">1</span>; i &lt;= <span class="code-string">5</span>; i++) {
+            <span class="code-keyword">final int</span> n = i;
+            tasks.add(() -&gt; n * n);
+        }
+
+        <span class="code-class">List</span>&lt;<span class="code-class">Future</span>&lt;<span class="code-class">Integer</span>&gt;&gt; results = pool.invokeAll(tasks);  <span class="code-comment">// run all</span>
+        <span class="code-keyword">for</span> (<span class="code-class">Future</span>&lt;<span class="code-class">Integer</span>&gt; f : results) <span class="code-class">System</span>.out.println(f.get());
+
+        pool.shutdown();     <span class="code-comment">// release worker threads</span>
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>newFixedThreadPool(4)</code> creates four reusable workers.</li>
+                    <li><code>invokeAll</code> submits every task and returns their futures.</li>
+                    <li><code>f.get()</code> retrieves each computed result, blocking as needed.</li>
+                    <li><code>shutdown</code> stops accepting tasks and frees the threads.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

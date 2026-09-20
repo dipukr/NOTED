@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ORM and JPA - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">ORM and JPA</div>
+
+    <div class="intro">
+        <p>Object-relational mapping (ORM) is the process of mapping Java objects to relational tables of a relational database.</p>
+        <p>Each row in a table corresponds to a single object, and each column corresponds to a field of the object.</p>
+        <p>The ORM is a layer between the object-oriented language and the SQL language of the relational database; it works like an adapter that adapts object graphs to relational tables.</p>
+        <p>JPA is the Java standard API for object-relational mapping, one of many possible approaches to ORM.</p>
+        <p>JPA is only a specification and needs an implementation to work; the most popular implementation is Hibernate.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use JPA when you want to work with objects instead of hand-writing SQL for CRUD.</li>
+            <li>JPA is concerned with persistence: making Java objects outlive the process that created them.</li>
+            <li>Entities are managed within a persistence context that tracks changes.</li>
+            <li>Relationships are mapped with <code>@OneToMany</code>, <code>@ManyToOne</code>, etc.</li>
+            <li>Drop to native SQL when a query is too complex or performance-critical for the ORM.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Database independence across vendors.</li>
+            <li>Performance enhancements through caching.</li>
+            <li>Simplified development by abstracting SQL and automating table creation.</li>
+            <li>Less boilerplate JDBC code.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Hidden queries can cause the N+1 select problem.</li>
+            <li>Complex reporting queries are awkward to express.</li>
+            <li>A learning curve around the persistence context and lazy loading.</li>
+            <li>Can generate suboptimal SQL if used carelessly.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">CREATE TABLE</span> <span class="code-class">Orders</span> (
+    <span class="code-class">OrderId</span> <span class="code-keyword">INT PRIMARY KEY</span>,
+    <span class="code-class">CustomerId</span> <span class="code-keyword">INT NOT NULL</span>
+);
+<span class="code-keyword">CREATE TABLE</span> <span class="code-class">OrderItem</span> (
+    <span class="code-class">ItemId</span> <span class="code-keyword">INT PRIMARY KEY</span>,
+    <span class="code-class">OrderId</span> <span class="code-keyword">INT</span> <span class="code-keyword">REFERENCES</span> <span class="code-class">Orders</span>(<span class="code-class">OrderId</span>),
+    <span class="code-class">Sku</span> <span class="code-keyword">VARCHAR</span>(<span class="code-number">50</span>),
+    <span class="code-class">Quantity</span> <span class="code-keyword">INT</span>
+);
+
+<span class="code-comment">-- SQL Hibernate/JPA generates for: order.getItems() via "JOIN FETCH"</span>
+<span class="code-keyword">SELECT</span> o.<span class="code-class">OrderId</span>, o.<span class="code-class">CustomerId</span>, i.<span class="code-class">ItemId</span>, i.<span class="code-class">Sku</span>, i.<span class="code-class">Quantity</span>
+<span class="code-keyword">FROM</span> <span class="code-class">Orders</span> o
+<span class="code-keyword">JOIN</span> <span class="code-class">OrderItem</span> i <span class="code-keyword">ON</span> i.<span class="code-class">OrderId</span> = o.<span class="code-class">OrderId</span>
+<span class="code-keyword">WHERE</span> o.<span class="code-class">OrderId</span> = @OrderId;
+
+<span class="code-comment">-- equivalent hand-written parameterized query (avoids SQL injection)</span>
+<span class="code-keyword">SELECT</span> o.<span class="code-class">OrderId</span>, o.<span class="code-class">CustomerId</span>
+<span class="code-keyword">FROM</span> <span class="code-class">Orders</span> o
+<span class="code-keyword">WHERE</span> o.<span class="code-class">CustomerId</span> = @CustomerId
+<span class="code-keyword">ORDER BY</span> o.<span class="code-class">OrderId</span> <span class="code-keyword">DESC</span>;</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>The ORM maps the <code>Order</code>/<code>OrderItem</code> object graph onto these two tables, linked by the <code>OrderId</code> foreign key.</li>
+                    <li>A <code>JOIN FETCH</code>-style association load translates into a single <code>SELECT ... JOIN</code> that pulls the order and its items in one round trip.</li>
+                    <li>The hand-written query below it shows the same kind of parameterized <code>SELECT</code> the ORM would issue for a simple filtered read, using bind parameters instead of string concatenation.</li>
+                    <li>Whether generated by the ORM or written by hand, the database only ever executes plain, parameterized SQL like this.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

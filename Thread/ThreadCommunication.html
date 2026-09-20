@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thread Communication - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Thread Communication</div>
+
+    <div class="intro">
+        <p>Thread communication (cooperation) lets threads coordinate so one can wait for another to reach a state.</p>
+        <p>It is achieved with the wait-set associated with an object's monitor and the wait-notify mechanism.</p>
+        <p>A thread calling <code>wait</code> releases the lock and suspends until another thread signals.</p>
+        <p><code>notify</code> or <code>notifyAll</code> wakes waiting threads to re-check their condition.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>When one thread must wait for data another thread will produce.</li>
+            <li><code>wait</code>, <code>notify</code>, <code>notifyAll</code> require owning the object's monitor.</li>
+            <li>Always call <code>wait</code> inside a loop that re-checks the condition (spurious wakeups).</li>
+            <li>Prefer <code>notifyAll</code> unless you can prove one waiter suffices.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Avoids busy waiting by suspending idle threads.</li>
+            <li>Built into every Java object's monitor.</li>
+            <li>Foundation for producer-consumer and other patterns.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Easy to misuse: missed signals and lost notifications.</li>
+            <li>Must hold the monitor or an <code>IllegalMonitorStateException</code> is thrown.</li>
+            <li>Higher-level constructs like <code>BlockingQueue</code> are usually safer.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">SignalBox</span> {
+    <span class="code-keyword">private boolean</span> dataReady = <span class="code-keyword">false</span>;
+
+    <span class="code-keyword">public synchronized void</span> <span class="code-class">awaitData</span>() <span class="code-keyword">throws</span> <span class="code-class">InterruptedException</span> {
+        <span class="code-keyword">while</span> (!dataReady) {
+            wait();          <span class="code-comment">// release lock, wait for notify</span>
+        }
+        <span class="code-class">System</span>.out.println(<span class="code-string">"data received"</span>);
+    }
+
+    <span class="code-keyword">public synchronized void</span> <span class="code-class">publish</span>() {
+        dataReady = <span class="code-keyword">true</span>;
+        notifyAll();         <span class="code-comment">// wake all waiting threads</span>
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>wait()</code> releases the monitor and parks the thread in the wait-set.</li>
+                    <li>The <code>while</code> loop re-checks <code>dataReady</code> after each wakeup.</li>
+                    <li><code>notifyAll()</code> moves waiters back to the entry-set to reacquire the lock.</li>
+                    <li>Both methods are <code>synchronized</code> so the monitor is always owned.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

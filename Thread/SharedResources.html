@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shared Resources - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Shared Resources</div>
+
+    <div class="intro">
+        <p>Shared resources are data or objects accessed by multiple threads, such as memory, files or network connections.</p>
+        <p>When multiple threads modify a shared resource at once, the outcome is non-deterministic.</p>
+        <p>Concurrent access must be explicitly synchronized in a multi-threaded environment.</p>
+        <p>Read-read sharing is safe, but read-write and write-write access needs protection.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Any mutable state reachable from more than one thread.</li>
+            <li>Cached shared data can hide updates made by other threads without <code>volatile</code>.</li>
+            <li>Protect with locks, atomics or thread-safe collections.</li>
+            <li>Prefer immutability or confinement to avoid sharing entirely.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Allows threads to collaborate on common state.</li>
+            <li>Thread-safe collections encapsulate the locking.</li>
+            <li>Atomics offer lock-free updates for simple cases.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Race conditions and visibility bugs if unguarded.</li>
+            <li>Locking reduces parallelism and can deadlock.</li>
+            <li>Contention on hot resources limits scalability.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">SharedState</span> {
+    <span class="code-comment">// Lock-free thread-safe counter</span>
+    <span class="code-keyword">private final</span> <span class="code-class">AtomicInteger</span> hits = <span class="code-keyword">new</span> <span class="code-class">AtomicInteger</span>();
+
+    <span class="code-comment">// Thread-safe map handles its own synchronization</span>
+    <span class="code-keyword">private final</span> <span class="code-class">ConcurrentHashMap</span>&lt;<span class="code-class">String</span>, <span class="code-class">Integer</span>&gt; cache = <span class="code-keyword">new</span> <span class="code-class">ConcurrentHashMap</span>&lt;&gt;();
+
+    <span class="code-keyword">public void</span> <span class="code-class">record</span>(<span class="code-class">String</span> key) {
+        hits.incrementAndGet();                 <span class="code-comment">// atomic update</span>
+        cache.merge(key, <span class="code-string">1</span>, <span class="code-class">Integer</span>::sum);      <span class="code-comment">// atomic per-key</span>
+    }
+
+    <span class="code-keyword">public int</span> <span class="code-class">total</span>() { <span class="code-keyword">return</span> hits.get(); }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>AtomicInteger</code> updates the counter without explicit locks.</li>
+                    <li><code>ConcurrentHashMap</code> synchronizes access internally per bucket.</li>
+                    <li><code>merge</code> performs an atomic read-modify-write per key.</li>
+                    <li>No shared field is mutated without a thread-safe primitive.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

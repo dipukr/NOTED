@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monitoring Tools - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Monitoring Tools</div>
+
+    <div class="intro">
+        <p>Monitoring tools let you observe thread state, contention, and resource use in a running JVM.</p>
+        <p>Thread dumps reveal deadlocks, blocked threads, and hot lock contention.</p>
+        <p>Tools include jstack, jconsole, VisualVM, Java Flight Recorder, and Micrometer metrics.</p>
+        <p>They are essential for diagnosing concurrency problems in production.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Take a <code>jstack</code> thread dump when a service hangs.</li>
+            <li>Use JFR for low-overhead continuous profiling.</li>
+            <li>Expose pool metrics via Micrometer/Actuator.</li>
+            <li><code>ThreadMXBean</code> can detect deadlocks programmatically.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Pinpoints deadlocks and contention hotspots.</li>
+            <li>JFR adds negligible overhead in production.</li>
+            <li>Metrics enable alerting on pool saturation.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Thread dumps are point-in-time snapshots.</li>
+            <li>Interpreting dumps requires experience.</li>
+            <li>Excessive instrumentation adds overhead.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">DeadlockDetector</span> {
+
+    <span class="code-keyword">private final</span> <span class="code-class">ThreadMXBean</span> bean =
+            <span class="code-class">ManagementFactory</span>.getThreadMXBean();
+
+    <span class="code-keyword">public void</span> check() {
+        <span class="code-comment">// null if no deadlock detected</span>
+        <span class="code-keyword">long</span>[] ids = bean.findDeadlockedThreads();
+        <span class="code-keyword">if</span> (ids != <span class="code-keyword">null</span>) {
+            <span class="code-class">System</span>.err.println(<span class="code-string">"Deadlock among threads:"</span>);
+            <span class="code-keyword">for</span> (<span class="code-keyword">long</span> id : ids) {
+                <span class="code-class">System</span>.err.println(<span class="code-string">"  thread id "</span> + id);
+            }
+        } <span class="code-keyword">else</span> {
+            <span class="code-class">System</span>.out.println(<span class="code-string">"No deadlocks"</span>);
+        }
+    }
+
+    <span class="code-keyword">public int</span> liveThreads() {
+        <span class="code-keyword">return</span> bean.getThreadCount();
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>ThreadMXBean</code> exposes live JVM thread information via JMX.</li>
+                    <li><code>findDeadlockedThreads()</code> returns ids of threads stuck in a deadlock, or null.</li>
+                    <li><code>getThreadCount()</code> tracks live threads to spot leaks or runaway growth.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

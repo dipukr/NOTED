@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>N+1 Query Problem - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">N+1 Query Problem</div>
+
+    <div class="intro">
+        <p>The N+1 query problem is a performance issue where the application runs one query to load N parent rows, then one extra query per parent to load its related data.</p>
+        <p>This results in N+1 total queries instead of one or two.</p>
+        <p>It commonly appears with ORM lazy loading when iterating over a collection of entities.</p>
+        <p>It is often invisible in code because the extra queries are triggered implicitly.</p>
+        <p>The fix is to fetch the related data together using join fetch or a batch strategy.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Watch for it when looping over entities and accessing lazy associations.</li>
+            <li>Detect it by enabling SQL logging and counting queries.</li>
+            <li>Fix with <code>JOIN FETCH</code> or an entity graph to load associations eagerly.</li>
+            <li>Use batch fetching (<code>@BatchSize</code>) to reduce N queries to a few.</li>
+            <li>Prefer projections/DTOs when you only need a subset of fields.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Understanding it lets you cut hundreds of queries down to one.</li>
+            <li>Fixing it greatly reduces database round trips and latency.</li>
+            <li>Lazy loading itself is useful when related data is rarely needed.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Left unfixed, it severely degrades performance at scale.</li>
+            <li>Over-eager fetching can load too much data (the opposite problem).</li>
+            <li>It is easy to reintroduce accidentally during refactoring.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">CREATE TABLE</span> <span class="code-class">Author</span> (<span class="code-class">AuthorId</span> <span class="code-keyword">INT PRIMARY KEY</span>, <span class="code-class">Name</span> <span class="code-keyword">VARCHAR</span>(<span class="code-number">100</span>));
+<span class="code-keyword">CREATE TABLE</span> <span class="code-class">Book</span> (
+    <span class="code-class">BookId</span> <span class="code-keyword">INT PRIMARY KEY</span>,
+    <span class="code-class">AuthorId</span> <span class="code-keyword">INT</span> <span class="code-keyword">REFERENCES</span> <span class="code-class">Author</span>(<span class="code-class">AuthorId</span>),
+    <span class="code-class">Title</span> <span class="code-keyword">VARCHAR</span>(<span class="code-number">200</span>)
+);
+
+<span class="code-comment">-- PROBLEM: 1 query for authors, then 1 query per author for books (N+1 total)</span>
+<span class="code-keyword">SELECT</span> <span class="code-class">AuthorId</span>, <span class="code-class">Name</span> <span class="code-keyword">FROM</span> <span class="code-class">Author</span>;
+<span class="code-comment">-- ...application then loops over each row and issues:</span>
+<span class="code-keyword">SELECT</span> <span class="code-class">BookId</span>, <span class="code-class">Title</span> <span class="code-keyword">FROM</span> <span class="code-class">Book</span> <span class="code-keyword">WHERE</span> <span class="code-class">AuthorId</span> = <span class="code-number">1</span>;
+<span class="code-keyword">SELECT</span> <span class="code-class">BookId</span>, <span class="code-class">Title</span> <span class="code-keyword">FROM</span> <span class="code-class">Book</span> <span class="code-keyword">WHERE</span> <span class="code-class">AuthorId</span> = <span class="code-number">2</span>;
+<span class="code-comment">-- ...one more SELECT per author, N extra round trips</span>
+
+<span class="code-comment">-- FIX: load authors and books together with a single JOIN</span>
+<span class="code-keyword">SELECT</span> a.<span class="code-class">AuthorId</span>, a.<span class="code-class">Name</span>, b.<span class="code-class">BookId</span>, b.<span class="code-class">Title</span>
+<span class="code-keyword">FROM</span> <span class="code-class">Author</span> a
+<span class="code-keyword">JOIN</span> <span class="code-class">Book</span> b <span class="code-keyword">ON</span> b.<span class="code-class">AuthorId</span> = a.<span class="code-class">AuthorId</span>
+<span class="code-keyword">ORDER BY</span> a.<span class="code-class">AuthorId</span>;</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>The naive approach issues one <code>SELECT</code> for authors, then loops and fires one more <code>SELECT</code> per author for their books.</li>
+                    <li>That produces N+1 total round trips as the author count grows.</li>
+                    <li>The fixed query uses a single <code>JOIN</code> so authors and books are returned together in one result set.</li>
+                    <li>The application groups the flat rows back into author/books objects in memory, cutting N+1 queries down to 1.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

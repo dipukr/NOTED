@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Distributed Transactions (2PC, Saga) - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Distributed Transactions (2PC, Saga)</div>
+
+    <div class="intro">
+        <p>A distributed transaction spans multiple services or databases that must agree on a single outcome.</p>
+        <p>In a monolith we can use a single database transaction, but microservices each own their data, so a different approach is needed.</p>
+        <p>Two-Phase Commit (2PC) coordinates an all-or-nothing commit across participants but blocks and scales poorly.</p>
+        <p>The Saga pattern manages distributed transactions as a sequence of local transactions with compensating actions to undo them on failure.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li><strong>2PC:</strong> a coordinator asks all participants to prepare, then commits only if all vote yes.</li>
+            <li>2PC gives strong atomicity but blocks resources and stalls if the coordinator fails.</li>
+            <li><strong>Saga:</strong> a series of local transactions; each has a compensating transaction to undo it.</li>
+            <li>Sagas run in <em>orchestration</em> (central coordinator) or <em>choreography</em> (services react to events).</li>
+            <li>Sagas use asynchronous communication and give eventual, not immediate, consistency.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>2PC provides strict atomicity across participants.</li>
+            <li>Saga keeps services loosely coupled and scales without distributed locks.</li>
+            <li>Saga stays available and resilient to individual service failures.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>2PC is blocking, slow, and the coordinator is a single point of failure.</li>
+            <li>Saga only offers eventual consistency and exposes intermediate states.</li>
+            <li>Writing correct compensating transactions is complex and error-prone.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># Orchestrated saga: run steps, compensate in reverse on failure</span>
+<span class="code-keyword">public</span> <span class="code-keyword">void</span> placeOrder(<span class="code-class">Order</span> o) {
+    <span class="code-class">Deque</span>&lt;<span class="code-class">Runnable</span>&gt; compensations = <span class="code-keyword">new</span> <span class="code-class">ArrayDeque</span>&lt;&gt;();
+    <span class="code-keyword">try</span> {
+        inventory.reserve(o);
+        compensations.push(() -&gt; inventory.release(o)); <span class="code-comment"># undo step</span>
+
+        payment.charge(o);
+        compensations.push(() -&gt; payment.refund(o));
+
+        shipping.schedule(o);
+    } <span class="code-keyword">catch</span> (<span class="code-class">Exception</span> e) {
+        <span class="code-comment"># run compensating transactions in reverse order</span>
+        compensations.forEach(<span class="code-class">Runnable</span>::run);
+        <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">SagaFailedException</span>(e);
+    }
+}
+</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>Each step is a local transaction in its own service.</li>
+                    <li>After each success, its compensating action is pushed onto a stack.</li>
+                    <li>On failure, compensations run in reverse (LIFO) to undo prior steps.</li>
+                    <li>This achieves consistency without a blocking two-phase commit.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

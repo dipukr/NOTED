@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Volatile Variables - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Volatile Variables</div>
+
+    <div class="intro">
+        <p>The <code>volatile</code> keyword marks a field so that every read and write goes directly to main memory rather than a thread-local cache.</p>
+        <p>It guarantees visibility of changes across threads and establishes a happens-before relationship on that field.</p>
+        <p>Cached shared data can cause a thread not to notice that data was changed by another thread; volatile prevents this.</p>
+        <p>It does not provide atomicity for compound actions such as increment.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use for a simple flag or state signal written by one thread and read by others.</li>
+            <li>Guarantees visibility but not mutual exclusion.</li>
+            <li>Reads/writes of volatile <code>long</code> and <code>double</code> are atomic (unlike plain ones).</li>
+            <li>Not a substitute for locks when multiple variables must change together.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Very cheap compared to locking, no blocking or context switches.</li>
+            <li>Guarantees the latest value is always visible to every thread.</li>
+            <li>Prevents instruction reordering around the field access.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>No atomicity for read-modify-write operations like <code>count++</code>.</li>
+            <li>Cannot coordinate invariants that span multiple fields.</li>
+            <li>Overuse can hide the need for proper synchronization.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">Worker</span> <span class="code-keyword">implements</span> <span class="code-class">Runnable</span> {
+
+    <span class="code-comment">// visible to all threads immediately</span>
+    <span class="code-keyword">private volatile boolean</span> running = <span class="code-keyword">true</span>;
+
+    <span class="code-keyword">public void</span> stop() {
+        <span class="code-comment">// write flushed to main memory</span>
+        running = <span class="code-keyword">false</span>;
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public void</span> run() {
+        <span class="code-keyword">while</span> (running) {
+            <span class="code-comment">// loop keeps re-reading the fresh value</span>
+            doUnitOfWork();
+        }
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Stopped cleanly"</span>);
+    }
+
+    <span class="code-keyword">private void</span> doUnitOfWork() { <span class="code-comment">/* ... */</span> }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>volatile boolean running</code> forces the reading thread to see writes from other threads.</li>
+                    <li>Without <code>volatile</code> the JIT could cache <code>running</code> in a register, looping forever.</li>
+                    <li><code>stop()</code> only flips a flag; there is no compound update, so volatile is sufficient.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ThreadLocal Usage - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">ThreadLocal Usage</div>
+
+    <div class="intro">
+        <p><code>ThreadLocal</code> gives each thread its own independent copy of a variable.</p>
+        <p>Threads share heap memory, so shared mutable objects need synchronization; ThreadLocal sidesteps this by not sharing at all.</p>
+        <p>It is ideal for per-thread context such as user identity, transactions, or non-thread-safe helpers.</p>
+        <p>Values must be removed explicitly to avoid leaks in pooled threads.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Wrap non-thread-safe objects like <code>SimpleDateFormat</code> for reuse.</li>
+            <li>Carry request-scoped context (user, tenant, correlation id).</li>
+            <li>Always call <code>remove()</code> in a <code>finally</code> block in thread pools.</li>
+            <li><code>InheritableThreadLocal</code> passes values to child threads.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>No synchronization needed; each thread is isolated.</li>
+            <li>Avoids passing context through every method parameter.</li>
+            <li>Makes non-thread-safe objects safe to reuse per thread.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Memory leaks in pooled threads if <code>remove()</code> is forgotten.</li>
+            <li>Hidden global state makes code harder to reason about and test.</li>
+            <li>Does not propagate across asynchronous task boundaries by default.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">RequestContext</span> {
+
+    <span class="code-keyword">private static final</span> <span class="code-class">ThreadLocal</span>&lt;<span class="code-class">String</span>&gt; USER =
+            <span class="code-class">ThreadLocal</span>.withInitial(() -> <span class="code-string">"anonymous"</span>);
+
+    <span class="code-keyword">public static void</span> set(<span class="code-class">String</span> user) {
+        USER.set(user);
+    }
+
+    <span class="code-keyword">public static</span> <span class="code-class">String</span> current() {
+        <span class="code-keyword">return</span> USER.get();
+    }
+
+    <span class="code-keyword">public static void</span> handle(<span class="code-class">String</span> user, <span class="code-class">Runnable</span> job) {
+        set(user);
+        <span class="code-keyword">try</span> {
+            job.run();
+        } <span class="code-keyword">finally</span> {
+            <span class="code-comment">// critical in pooled threads to avoid leaks</span>
+            USER.remove();
+        }
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>withInitial</code> supplies a default value the first time a thread reads it.</li>
+                    <li><code>get()</code>/<code>set()</code> operate only on the calling thread's slot.</li>
+                    <li><code>remove()</code> in <code>finally</code> clears the entry before the thread returns to the pool.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

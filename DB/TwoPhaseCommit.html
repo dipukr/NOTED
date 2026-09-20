@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Two-Phase Commit (2PC) - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Two-Phase Commit (2PC)</div>
+
+    <div class="intro">
+        <p>Two-phase commit (2PC) is a protocol that coordinates a distributed transaction across multiple participants so they all commit or all abort.</p>
+        <p>A coordinator drives two phases: prepare (voting) and commit (decision).</p>
+        <p>In the prepare phase, each participant votes yes only if it can guarantee it will commit.</p>
+        <p>If all vote yes, the coordinator tells everyone to commit; otherwise everyone aborts.</p>
+        <p>It provides atomicity across systems but blocks if the coordinator fails.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use when a single transaction must span multiple databases or resources atomically.</li>
+            <li>Phase 1 (prepare): participants durably prepare and vote.</li>
+            <li>Phase 2 (commit/abort): coordinator finalizes based on the votes.</li>
+            <li>Implemented in Java via JTA/XA transactions.</li>
+            <li>Prefer sagas for long-running or high-availability microservice flows.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Guarantees atomicity across multiple resources.</li>
+            <li>All participants reach the same commit/abort decision.</li>
+            <li>Standardized through the XA protocol.</li>
+            <li>Strong consistency for distributed writes.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Blocking: participants hold locks until the coordinator decides.</li>
+            <li>A coordinator crash can leave participants stuck (in-doubt).</li>
+            <li>Poor availability and latency at scale.</li>
+            <li>Not suited to loosely coupled microservices.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">-- Distributed transaction spanning two linked servers (two resource managers)</span>
+<span class="code-keyword">CREATE TABLE</span> <span class="code-class">OrderHeader</span> (
+    <span class="code-class">OrderId</span>       <span class="code-keyword">INT</span> <span class="code-keyword">PRIMARY KEY</span>,
+    <span class="code-class">CustomerId</span>    <span class="code-keyword">INT</span> <span class="code-keyword">NOT NULL</span>,
+    <span class="code-class">Status</span>        <span class="code-keyword">VARCHAR</span>(20) <span class="code-keyword">NOT NULL</span>
+);
+
+<span class="code-comment">-- Local resource: Payments database (RM #1)</span>
+<span class="code-keyword">BEGIN DISTRIBUTED TRANSACTION</span>;
+
+<span class="code-keyword">BEGIN TRY</span>
+    <span class="code-comment">-- RM #1: mark the order as paid</span>
+    <span class="code-keyword">UPDATE</span> <span class="code-class">OrderHeader</span>
+    <span class="code-keyword">SET</span> <span class="code-class">Status</span> = <span class="code-string">'PAID'</span>
+    <span class="code-keyword">WHERE</span> <span class="code-class">OrderId</span> = <span class="code-number">1001</span>;
+
+    <span class="code-comment">-- RM #2: remote linked server holding the Payments ledger</span>
+    <span class="code-keyword">INSERT INTO</span> <span class="code-class">RemoteServer</span>.<span class="code-class">PaymentsDb</span>.dbo.<span class="code-class">Ledger</span>
+        (<span class="code-class">OrderId</span>, <span class="code-class">Amount</span>, <span class="code-class">PaidAt</span>)
+    <span class="code-keyword">VALUES</span> (<span class="code-number">1001</span>, <span class="code-number">249.99</span>, <span class="code-keyword">SYSUTCDATETIME</span>());
+
+    <span class="code-comment">-- Phase 1 (prepare): MS DTC asks both RMs to vote; Phase 2: commit both</span>
+    <span class="code-keyword">COMMIT TRANSACTION</span>;
+<span class="code-keyword">END TRY</span>
+<span class="code-keyword">BEGIN CATCH</span>
+    <span class="code-comment">-- Any participant voting "no" rolls back both resources</span>
+    <span class="code-keyword">ROLLBACK TRANSACTION</span>;
+    <span class="code-keyword">THROW</span>;
+<span class="code-keyword">END CATCH</span>;</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><span class="code-keyword">BEGIN DISTRIBUTED TRANSACTION</span> enlists both the local database and the remote linked server as separate resource managers under MS DTC.</li>
+                    <li>In the prepare phase, each resource manager durably records its changes and votes yes or no without committing yet.</li>
+                    <li>Only if every participant votes yes does <span class="code-keyword">COMMIT TRANSACTION</span> tell all of them to make the change permanent.</li>
+                    <li>If either statement fails, the <span class="code-keyword">CATCH</span> block issues <span class="code-keyword">ROLLBACK TRANSACTION</span>, undoing the change on both the local table and the remote ledger.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

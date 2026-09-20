@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Read Skew - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Read Skew</div>
+
+    <div class="intro">
+        <p>Read skew is a consistency anomaly where a transaction reads related rows at different points in time and sees an inconsistent combination.</p>
+        <p>It happens when another transaction commits changes between the individual reads.</p>
+        <p>The result violates an invariant that should hold across the rows read together.</p>
+        <p>It is a form of non-repeatable read spanning multiple rows.</p>
+        <p>Snapshot isolation or higher prevents it by giving a consistent view.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Occurs when reading two related rows separately under weak isolation.</li>
+            <li>Example: read account A, then account B, while a transfer commits in between.</li>
+            <li>Prevent it with snapshot isolation (a consistent read view).</li>
+            <li>Or read all related rows in a single query/snapshot.</li>
+            <li>Repeatable Read (MVCC snapshot) typically avoids it.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Recognizing it drives correct isolation and query design.</li>
+            <li>Snapshot isolation removes it cheaply via MVCC.</li>
+            <li>Batch reads sidestep it without heavy locking.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Produces inconsistent snapshots that violate invariants.</li>
+            <li>Subtle and hard to reproduce.</li>
+            <li>Preventing it may require higher isolation or extra care.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">-- Table used by both accounts</span>
+<span class="code-keyword">CREATE TABLE</span> <span class="code-class">Account</span> (
+    id            <span class="code-keyword">INT</span> <span class="code-keyword">PRIMARY KEY</span>,
+    balance       <span class="code-keyword">DECIMAL</span>(<span class="code-number">12</span>,<span class="code-number">2</span>) <span class="code-keyword">NOT NULL</span>
+);
+
+<span class="code-comment">-- Anomaly: read A, then B, with a transfer committing in between</span>
+<span class="code-keyword">SET</span> <span class="code-keyword">TRANSACTION</span> <span class="code-keyword">ISOLATION LEVEL</span> <span class="code-keyword">READ COMMITTED</span>;
+<span class="code-keyword">BEGIN</span> <span class="code-keyword">TRANSACTION</span>;
+    <span class="code-keyword">SELECT</span> balance <span class="code-keyword">FROM</span> <span class="code-class">Account</span> <span class="code-keyword">WHERE</span> id = <span class="code-number">1</span>;   <span class="code-comment">-- e.g. 100</span>
+    <span class="code-comment">-- ...meanwhile another session transfers 50 from acct 1 to acct 2 and commits...</span>
+    <span class="code-keyword">SELECT</span> balance <span class="code-keyword">FROM</span> <span class="code-class">Account</span> <span class="code-keyword">WHERE</span> id = <span class="code-number">2</span>;   <span class="code-comment">-- already reflects the +50</span>
+    <span class="code-comment">-- SUM(100, 150) = 250, but the true total was always 200 -> read skew</span>
+<span class="code-keyword">COMMIT</span>;
+
+<span class="code-comment">-- Fix: SNAPSHOT isolation gives one consistent view for the whole transaction</span>
+<span class="code-keyword">ALTER</span> <span class="code-keyword">DATABASE</span> <span class="code-keyword">CURRENT</span> <span class="code-keyword">SET</span> <span class="code-keyword">ALLOW_SNAPSHOT_ISOLATION</span> <span class="code-keyword">ON</span>;
+
+<span class="code-keyword">SET</span> <span class="code-keyword">TRANSACTION</span> <span class="code-keyword">ISOLATION LEVEL</span> <span class="code-keyword">SNAPSHOT</span>;
+<span class="code-keyword">BEGIN</span> <span class="code-keyword">TRANSACTION</span>;
+    <span class="code-keyword">SELECT</span> balance <span class="code-keyword">FROM</span> <span class="code-class">Account</span> <span class="code-keyword">WHERE</span> id = <span class="code-number">1</span>;   <span class="code-comment">-- 100, from tx-start snapshot</span>
+    <span class="code-keyword">SELECT</span> balance <span class="code-keyword">FROM</span> <span class="code-class">Account</span> <span class="code-keyword">WHERE</span> id = <span class="code-number">2</span>;   <span class="code-comment">-- 50, same snapshot, transfer invisible</span>
+    <span class="code-comment">-- SUM(100, 50) = 150, consistent with the true total before the transfer</span>
+<span class="code-keyword">COMMIT</span>;
+
+<span class="code-comment">-- Or avoid two round-trips entirely: read both rows in one statement</span>
+<span class="code-keyword">SELECT</span> <span class="code-keyword">SUM</span>(balance) <span class="code-keyword">AS</span> total_balance
+<span class="code-keyword">FROM</span> <span class="code-class">Account</span>
+<span class="code-keyword">WHERE</span> id <span class="code-keyword">IN</span> (<span class="code-number">1</span>, <span class="code-number">2</span>);</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>Under <code>READ COMMITTED</code>, each separate <code>SELECT</code> sees the latest committed data, so a transfer landing between the two reads produces an inconsistent combined total.</li>
+                    <li><code>SNAPSHOT</code> isolation fixes the visible data as of transaction start, so both reads see the pre-transfer state and the invariant holds.</li>
+                    <li>Enabling <code>ALLOW_SNAPSHOT_ISOLATION</code> is a one-time database setting required before using <code>SNAPSHOT</code> transactions.</li>
+                    <li>A single query summing both rows sidesteps the problem entirely by reading everything at one point in time.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

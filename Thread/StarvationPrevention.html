@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Starvation Prevention - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Starvation Prevention</div>
+
+    <div class="intro">
+        <p>Starvation prevention ensures every thread eventually gets the resources it needs to progress.</p>
+        <p>It counters greedy threads and unfair scheduling that indefinitely postpone others.</p>
+        <p>Fair locks grant access to the longest-waiting thread rather than an arbitrary one.</p>
+        <p>Balanced priorities and bounded critical sections also help.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Contended locks where some threads rarely win under load.</li>
+            <li>Use fair <code>ReentrantLock</code> or fair <code>Semaphore</code> for FIFO ordering.</li>
+            <li>Keep critical sections short so locks release quickly.</li>
+            <li>Avoid extreme priority differences that always favour a few threads.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Guarantees progress for every waiting thread.</li>
+            <li>Predictable, fair acquisition order.</li>
+            <li>Reduces tail latency for unlucky threads.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Fairness lowers overall throughput.</li>
+            <li>FIFO ordering adds bookkeeping overhead.</li>
+            <li>Not needed for uncontended locks.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">FairAccess</span> {
+    <span class="code-comment">// fair = true: longest-waiting thread acquires the lock next</span>
+    <span class="code-keyword">private final</span> <span class="code-class">ReentrantLock</span> lock = <span class="code-keyword">new</span> <span class="code-class">ReentrantLock</span>(<span class="code-keyword">true</span>);
+
+    <span class="code-keyword">public void</span> <span class="code-class">access</span>() {
+        lock.lock();
+        <span class="code-keyword">try</span> {
+            <span class="code-comment">// keep this section short to free the lock quickly</span>
+            <span class="code-class">System</span>.out.println(<span class="code-class">Thread</span>.currentThread().getName() + <span class="code-string">" served"</span>);
+        } <span class="code-keyword">finally</span> {
+            lock.unlock();
+        }
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>ReentrantLock(true)</code> enforces first-come-first-served ordering.</li>
+                    <li>No thread can be perpetually skipped over.</li>
+                    <li>A short critical section releases the lock promptly for the next waiter.</li>
+                    <li><code>unlock</code> in <code>finally</code> guarantees the queue keeps moving.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

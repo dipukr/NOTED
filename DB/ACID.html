@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACID - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">ACID</div>
+
+    <div class="intro">
+        <p>ACID properties define the reliability and integrity of database transactions.</p>
+        <p>They ensure transactions are processed reliably and that the database remains in a consistent state, even in the face of system failures.</p>
+        <p>ACID stands for Atomicity, Consistency, Isolation and Durability.</p>
+        <p>These guarantees are the hallmark of traditional relational databases.</p>
+        <p>They come at a cost in throughput and are relaxed by the BASE model in many distributed systems.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Atomicity: transactions are a single indivisible unit; either all operations succeed or none do, with rollback on failure.</li>
+            <li>Consistency: a transaction must bring the database from one valid state to another, respecting all constraints and rules.</li>
+            <li>Isolation: concurrent transactions must not interfere, as if they ran sequentially, preventing dirty reads and lost updates.</li>
+            <li>Durability: once committed, changes are permanent and survive crashes and power outages via persistent storage.</li>
+            <li>Use ACID databases when correctness of money, inventory or bookings matters.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Strong correctness guarantees for critical data.</li>
+            <li>Predictable behaviour under concurrency and failure.</li>
+            <li>Simplifies reasoning about multi-step operations.</li>
+            <li>Well supported by mature relational engines.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Strong isolation reduces concurrency and throughput.</li>
+            <li>Hard to preserve fully across distributed nodes.</li>
+            <li>Can become a scalability bottleneck at very high load.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">-- Accounts table with a CHECK constraint enforcing consistency</span>
+<span class="code-keyword">CREATE TABLE</span> <span class="code-class">Accounts</span> (
+    <span class="code-class">AccountId</span>   <span class="code-keyword">INT</span> <span class="code-keyword">PRIMARY KEY</span>,
+    <span class="code-class">Balance</span>     <span class="code-keyword">DECIMAL</span>(18,2) <span class="code-keyword">NOT NULL</span>,
+    <span class="code-keyword">CONSTRAINT</span> <span class="code-class">CK_Balance_NonNegative</span> <span class="code-keyword">CHECK</span> (<span class="code-class">Balance</span> &gt;= <span class="code-number">0</span>)
+);
+
+<span class="code-comment">-- Atomicity + Isolation: transfer money between two accounts</span>
+<span class="code-keyword">SET TRANSACTION ISOLATION LEVEL</span> <span class="code-keyword">SERIALIZABLE</span>;
+<span class="code-keyword">BEGIN TRANSACTION</span>;
+
+<span class="code-keyword">BEGIN TRY</span>
+    <span class="code-keyword">UPDATE</span> <span class="code-class">Accounts</span>
+    <span class="code-keyword">SET</span> <span class="code-class">Balance</span> = <span class="code-class">Balance</span> - <span class="code-number">500</span>
+    <span class="code-keyword">WHERE</span> <span class="code-class">AccountId</span> = <span class="code-number">1</span>;
+
+    <span class="code-keyword">UPDATE</span> <span class="code-class">Accounts</span>
+    <span class="code-keyword">SET</span> <span class="code-class">Balance</span> = <span class="code-class">Balance</span> + <span class="code-number">500</span>
+    <span class="code-keyword">WHERE</span> <span class="code-class">AccountId</span> = <span class="code-number">2</span>;
+
+    <span class="code-comment">-- Consistency: the CHECK constraint blocks an overdraft here</span>
+    <span class="code-keyword">COMMIT</span>;                       <span class="code-comment">-- Durability: change is flushed to the log</span>
+<span class="code-keyword">END TRY</span>
+<span class="code-keyword">BEGIN CATCH</span>
+    <span class="code-keyword">ROLLBACK</span>;                     <span class="code-comment">-- Atomicity: undo both updates on any failure</span>
+    <span class="code-keyword">THROW</span>;
+<span class="code-keyword">END CATCH</span>;</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>BEGIN TRANSACTION</code> / <code>COMMIT</code> / <code>ROLLBACK</code> give atomicity: both balance updates apply together or not at all.</li>
+                    <li><code>SET TRANSACTION ISOLATION LEVEL SERIALIZABLE</code> stops a concurrent transaction from seeing a half-completed transfer.</li>
+                    <li>The <code>CK_Balance_NonNegative</code> check constraint enforces the consistency rule that no account goes negative.</li>
+                    <li><code>TRY/CATCH</code> rolls back cleanly if the constraint fails or any error occurs mid-transaction.</li>
+                    <li>Once <code>COMMIT</code> returns, the transfer is durable and survives a crash or restart.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

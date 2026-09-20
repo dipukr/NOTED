@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gossip Protocol - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Gossip Protocol</div>
+
+    <div class="intro">
+        <p>A gossip protocol spreads information across a cluster the way rumours spread among people.</p>
+        <p>Each node periodically exchanges state with a few random peers, and the information propagates exponentially.</p>
+        <p>It is decentralized, requires no central coordinator, and tolerates node failures well.</p>
+        <p>It is widely used for membership, failure detection, and eventually-consistent state sharing.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use for cluster membership and failure detection in large, dynamic clusters.</li>
+            <li>Each round, a node picks random peers and merges state, converging over time.</li>
+            <li>Scales well - load per node stays roughly constant as the cluster grows.</li>
+            <li>Provides eventual consistency, not immediate agreement.</li>
+            <li>Used by Cassandra, DynamoDB, Consul, and similar systems.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Highly scalable and robust to node failures.</li>
+            <li>No single point of failure or central coordinator.</li>
+            <li>Fast, exponential propagation of updates.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Only eventually consistent - updates take several rounds to reach all nodes.</li>
+            <li>Redundant messages consume some bandwidth.</li>
+            <li>Convergence time and reasoning about state are harder than with a coordinator.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># One gossip round: merge state with a few random peers</span>
+<span class="code-class">@Scheduled</span>(fixedRate = <span class="code-string">1000</span>) <span class="code-comment"># gossip every second</span>
+<span class="code-keyword">public</span> <span class="code-keyword">void</span> gossip() {
+    <span class="code-class">List</span>&lt;<span class="code-class">Node</span>&gt; peers = cluster.randomPeers(<span class="code-string">3</span>);
+    <span class="code-keyword">for</span> (<span class="code-class">Node</span> peer : peers) {
+        <span class="code-class">Map</span>&lt;<span class="code-class">String</span>, <span class="code-class">Heartbeat</span>&gt; theirs = peer.exchange(localState);
+        theirs.forEach((id, hb) -&gt;
+            localState.merge(id, hb, <span class="code-class">Heartbeat</span>::newer)); <span class="code-comment"># keep latest</span>
+    }
+}
+</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>randomPeers(3)</code> picks a small random subset each round.</li>
+                    <li><code>exchange</code> swaps membership/heartbeat state between the two nodes.</li>
+                    <li><code>Heartbeat::newer</code> merges by keeping the most recent info per node.</li>
+                    <li>Over successive rounds every node's view converges cluster-wide.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

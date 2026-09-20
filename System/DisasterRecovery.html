@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Disaster Recovery - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Disaster Recovery</div>
+
+    <div class="intro">
+        <p>Disaster recovery (DR) is the plan and tooling to restore service after a major failure.</p>
+        <p>It targets events like region outages, data corruption, or catastrophic loss.</p>
+        <p>Two key objectives define it: RPO (data loss tolerance) and RTO (downtime tolerance).</p>
+        <p>Strategies range from cheap backups to costly active-active multi-region setups.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>RPO sets how much recent data you can afford to lose; RTO sets how fast you must recover.</li>
+            <li>Common tiers: backup-restore, pilot light, warm standby, active-active.</li>
+            <li>Replicate data cross-region and test failover regularly.</li>
+            <li>An untested DR plan is not a real DR plan.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Business continuity through catastrophic failures.</li>
+            <li>Bounded, predictable data loss and downtime.</li>
+            <li>Meets regulatory and contractual resilience requirements.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Lower RPO/RTO costs more in infrastructure and complexity.</li>
+            <li>Standby capacity is often idle, wasting spend.</li>
+            <li>Failover procedures can fail if not exercised often.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">// Health-based failover: fall back to the DR region on primary failure</span>
+<span class="code-class">@Service</span>
+<span class="code-keyword">public class</span> <span class="code-class">FailoverClient</span> {
+
+    <span class="code-keyword">private final</span> <span class="code-class">RegionClient</span> primary;
+    <span class="code-keyword">private final</span> <span class="code-class">RegionClient</span> secondary; <span class="code-comment">// DR region</span>
+
+    <span class="code-keyword">public</span> <span class="code-class">Response</span> call(<span class="code-class">Request</span> req) {
+        <span class="code-keyword">try</span> {
+            <span class="code-keyword">if</span> (primary.isHealthy()) {
+                <span class="code-keyword">return</span> primary.send(req);
+            }
+        } <span class="code-keyword">catch</span> (<span class="code-class">RegionUnavailableException</span> ex) {
+            log.warn(<span class="code-string">"Primary down, failing over to DR"</span>, ex);
+        }
+        <span class="code-keyword">return</span> secondary.send(req); <span class="code-comment">// warm standby serves traffic</span>
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>primary.isHealthy()</code> gates traffic to the main region when it is up.</li>
+                    <li>A failure or exception triggers failover to the DR region.</li>
+                    <li><code>secondary</code> is a warm standby kept in sync via cross-region replication.</li>
+                    <li>The replication lag between regions determines the achievable RPO.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

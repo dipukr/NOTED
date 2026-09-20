@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Migration - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Data Migration</div>
+
+    <div class="intro">
+        <p>Data migration is the process of moving data from one system, format or schema to another.</p>
+        <p>It covers database upgrades, moving to a new database, and transforming data into a new structure.</p>
+        <p>A typical migration extracts data from the source, transforms it, and loads it into the target (ETL).</p>
+        <p>Migrations should be repeatable, verifiable and reversible where possible.</p>
+        <p>Schema migrations are usually versioned and applied by tools like Flyway or Liquibase.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Version every schema change so environments stay in sync.</li>
+            <li>Prefer additive, backward-compatible steps to enable zero-downtime deploys.</li>
+            <li>Validate row counts and checksums after migrating data.</li>
+            <li>Run large data backfills in batches to avoid long locks.</li>
+            <li>Always test migrations on a copy of production first.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Repeatable, auditable schema evolution.</li>
+            <li>Keeps all environments consistent.</li>
+            <li>Enables safe, incremental change.</li>
+            <li>Supports rollback with down migrations.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Large migrations can lock tables and cause downtime.</li>
+            <li>Irreversible steps (dropping columns) risk data loss.</li>
+            <li>Data transformation bugs can corrupt data.</li>
+            <li>Requires careful coordination with application deploys.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">-- Track applied migrations so each version runs exactly once per environment</span>
+<span class="code-keyword">CREATE TABLE</span> <span class="code-class">SchemaVersion</span> (
+    <span class="code-class">Version</span>     <span class="code-keyword">INT</span> <span class="code-keyword">PRIMARY KEY</span>,
+    <span class="code-class">Description</span> <span class="code-keyword">NVARCHAR</span>(200),
+    <span class="code-class">AppliedAt</span>   <span class="code-keyword">DATETIME2</span> <span class="code-keyword">NOT NULL</span> <span class="code-keyword">DEFAULT</span> <span class="code-class">SYSUTCDATETIME</span>()
+);
+
+<span class="code-comment">-- V2: additive, backward-compatible column with a default</span>
+<span class="code-keyword">ALTER TABLE</span> <span class="code-class">Orders</span> <span class="code-keyword">ADD</span> <span class="code-class">Status</span> <span class="code-keyword">VARCHAR</span>(20) <span class="code-keyword">NOT NULL</span> <span class="code-keyword">DEFAULT</span> <span class="code-string">'NEW'</span>;
+
+<span class="code-comment">-- Move existing data into the new column in small batches to avoid long locks</span>
+<span class="code-keyword">WHILE</span> <span class="code-number">1</span> = <span class="code-number">1</span>
+<span class="code-keyword">BEGIN</span>
+    <span class="code-keyword">UPDATE TOP</span> (<span class="code-number">1000</span>) <span class="code-class">Orders</span>
+    <span class="code-keyword">SET</span> <span class="code-class">Status</span> = <span class="code-string">'DONE'</span>
+    <span class="code-keyword">WHERE</span> <span class="code-class">Status</span> = <span class="code-string">'NEW'</span> <span class="code-keyword">AND</span> <span class="code-class">CompletedAt</span> <span class="code-keyword">IS NOT NULL</span>;
+
+    <span class="code-keyword">IF</span> <span class="code-class">@@ROWCOUNT</span> = <span class="code-number">0</span> <span class="code-keyword">BREAK</span>;   <span class="code-comment">-- stop once no more rows match</span>
+<span class="code-keyword">END</span>;
+
+<span class="code-comment">-- Record that this version has been applied to this database</span>
+<span class="code-keyword">INSERT INTO</span> <span class="code-class">SchemaVersion</span> (<span class="code-class">Version</span>, <span class="code-class">Description</span>)
+<span class="code-keyword">VALUES</span> (<span class="code-number">2</span>, <span class="code-string">'add status column and backfill'</span>);</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>SchemaVersion</code> is a versioning table, the SQL equivalent of Flyway/Liquibase's history table, ensuring each migration runs once.</li>
+                    <li><code>ALTER TABLE ... ADD ... DEFAULT</code> is additive and backward compatible, so old application code keeps working during rollout.</li>
+                    <li><code>UPDATE TOP (1000)</code> inside a loop backfills in small batches instead of one giant transaction, avoiding a long-held table lock.</li>
+                    <li><code>@@ROWCOUNT</code> tells the loop when there is no more data left to migrate.</li>
+                    <li>The final <code>INSERT</code> records the version so the migration is not re-applied on the next deploy.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

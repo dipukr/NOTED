@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bridge Pattern - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Bridge Pattern</div>
+
+    <div class="intro">
+        <p>Bridge is a structural design pattern that decouples an abstraction from its implementation so that the two can vary independently.</p>
+        <p>Instead of binding an abstraction to a single implementation through inheritance, the Bridge places the implementation behind its own interface and holds a reference to it via composition.</p>
+        <p>This prevents a combinatorial explosion of subclasses when an abstraction can have several dimensions of variation.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use</div>
+        <div class="section-content">
+            <ul>
+                <li>When both an abstraction and its implementation should be extensible independently.</li>
+                <li>When you want to avoid a permanent binding between abstraction and implementation.</li>
+                <li>When a class has multiple orthogonal dimensions of variation.</li>
+                <li>When inheritance would otherwise cause a class explosion.</li>
+                <li>When you want to switch implementations at runtime.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content">
+            <ul>
+                <li>Abstraction and implementation can evolve separately.</li>
+                <li>Avoids a combinatorial explosion of subclasses.</li>
+                <li>Follows the open/closed principle for both hierarchies.</li>
+                <li>Hides implementation details from the client.</li>
+                <li>Allows implementations to be swapped at runtime.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages</div>
+        <div class="section-content">
+            <ul>
+                <li>Increases complexity by introducing extra layers and interfaces.</li>
+                <li>Can be hard to apply to a highly cohesive class.</li>
+                <li>The added indirection may be unnecessary for simple designs.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># Implementation side</span>
+<span class="code-keyword">public interface</span> <span class="code-class">Device</span> {
+    <span class="code-keyword">void</span> setVolume(<span class="code-keyword">int</span> percent);
+}
+
+<span class="code-keyword">public class</span> <span class="code-class">TV</span> <span class="code-keyword">implements</span> <span class="code-class">Device</span> {
+    <span class="code-keyword">public void</span> setVolume(<span class="code-keyword">int</span> p) {
+        System.out.println(<span class="code-string">"TV volume = "</span> + p);
+    }
+}
+
+<span class="code-comment"># Abstraction side holds a Device (the bridge)</span>
+<span class="code-keyword">public abstract class</span> <span class="code-class">Remote</span> {
+    <span class="code-keyword">protected final</span> <span class="code-class">Device</span> device;
+    <span class="code-keyword">protected</span> <span class="code-class">Remote</span>(<span class="code-class">Device</span> device) {
+        <span class="code-keyword">this</span>.device = device;
+    }
+    <span class="code-keyword">abstract void</span> volumeUp();
+}
+
+<span class="code-keyword">public class</span> <span class="code-class">BasicRemote</span> <span class="code-keyword">extends</span> <span class="code-class">Remote</span> {
+    <span class="code-keyword">public</span> <span class="code-class">BasicRemote</span>(<span class="code-class">Device</span> d) { <span class="code-keyword">super</span>(d); }
+    <span class="code-keyword">public void</span> volumeUp() { device.setVolume(30); }
+}
+
+<span class="code-keyword">void</span> main() {
+    <span class="code-class">Remote</span> r = <span class="code-keyword">new</span> <span class="code-class">BasicRemote</span>(<span class="code-keyword">new</span> <span class="code-class">TV</span>());
+    r.volumeUp();
+}</code></pre>
+            </div>
+
+            <div class="code-explanation">
+                <div class="code-explanation-title">How the Bridge works</div>
+                <ul>
+                    <li><code>Device</code> is the implementation hierarchy; <code>Remote</code> is the abstraction hierarchy.</li>
+                    <li><code>Remote</code> holds a <code>Device</code> reference by composition instead of extending it.</li>
+                    <li>New remotes and new devices can be added independently without cross-multiplying classes.</li>
+                    <li>The client combines any remote with any device at runtime.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

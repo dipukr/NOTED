@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Job-Scheduling Algorithm - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Job-Scheduling Algorithm</div>
+
+    <div class="intro">
+        <p>Job scheduling decides when and in what order tasks run, often on a recurring or delayed basis.</p>
+        <p>Schedulers manage priorities, delays, fixed rates and fixed delays for background work.</p>
+        <p>Java offers <code>ScheduledExecutorService</code> for time-based task execution.</p>
+        <p>Good scheduling maximises throughput while respecting deadlines and resource limits.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Recurring maintenance jobs, polling, timeouts and cron-like tasks.</li>
+            <li><code>scheduleAtFixedRate</code> fires on a fixed period regardless of task duration.</li>
+            <li><code>scheduleWithFixedDelay</code> waits a gap after each task completes.</li>
+            <li>Pick a pool size that matches concurrent scheduled jobs.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Centralised, reusable timing without manual sleep loops.</li>
+            <li>Thread pool prevents thread-per-timer explosion.</li>
+            <li>Supports both one-shot and periodic scheduling.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Fixed-rate tasks can pile up if they run longer than the period.</li>
+            <li>An uncaught exception silently cancels a periodic task.</li>
+            <li>Not a distributed scheduler; single-JVM only.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">Scheduler</span> {
+    <span class="code-keyword">public static void</span> <span class="code-class">main</span>(<span class="code-class">String</span>[] args) {
+        <span class="code-class">ScheduledExecutorService</span> ses = <span class="code-class">Executors</span>.newScheduledThreadPool(<span class="code-string">2</span>);
+
+        <span class="code-comment">// Run once after a 2 second delay</span>
+        ses.schedule(() -&gt; <span class="code-class">System</span>.out.println(<span class="code-string">"one-shot"</span>),
+                     <span class="code-string">2</span>, <span class="code-class">TimeUnit</span>.SECONDS);
+
+        <span class="code-comment">// Run every 3 seconds at a fixed rate</span>
+        ses.scheduleAtFixedRate(
+            () -&gt; <span class="code-class">System</span>.out.println(<span class="code-string">"heartbeat"</span>),
+            <span class="code-string">0</span>, <span class="code-string">3</span>, <span class="code-class">TimeUnit</span>.SECONDS);
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>newScheduledThreadPool</code> creates a pool for timed tasks.</li>
+                    <li><code>schedule</code> runs a task once after a delay.</li>
+                    <li><code>scheduleAtFixedRate</code> repeats on a fixed period.</li>
+                    <li>Tasks share pool threads instead of one timer per job.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

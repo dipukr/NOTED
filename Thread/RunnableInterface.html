@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Runnable Interface - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Runnable Interface</div>
+
+    <div class="intro">
+        <p><code>Runnable</code> is a functional interface representing a task with a single <code>run()</code> method.</p>
+        <p>It separates the work to be done from the thread that runs it.</p>
+        <p>Because it is functional, a <code>Runnable</code> can be written as a lambda.</p>
+        <p>It carries no return value and throws no checked exceptions, unlike <code>Callable</code>.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Any fire-and-forget task with no result.</li>
+            <li>Pass to a <code>Thread</code> or submit to an <code>ExecutorService</code>.</li>
+            <li>Prefer over extending <code>Thread</code> to preserve inheritance.</li>
+            <li>Use <code>Callable</code> instead when you need a result or checked exception.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Decouples task logic from execution mechanism.</li>
+            <li>Concise as a lambda or method reference.</li>
+            <li>Reusable across threads and executors.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Cannot return a value directly.</li>
+            <li>Cannot throw checked exceptions from <code>run()</code>.</li>
+            <li>Result must be communicated via shared state.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">RunnableDemo</span> {
+    <span class="code-keyword">public static void</span> <span class="code-class">main</span>(<span class="code-class">String</span>[] args) {
+        <span class="code-comment">// Runnable as a lambda: no result, no checked exception</span>
+        <span class="code-class">Runnable</span> job = () -&gt; {
+            <span class="code-class">System</span>.out.println(<span class="code-string">"running on "</span> + <span class="code-class">Thread</span>.currentThread().getName());
+        };
+
+        <span class="code-comment">// Run on a dedicated thread</span>
+        <span class="code-keyword">new</span> <span class="code-class">Thread</span>(job).start();
+
+        <span class="code-comment">// Or submit to an executor</span>
+        <span class="code-class">ExecutorService</span> pool = <span class="code-class">Executors</span>.newSingleThreadExecutor();
+        pool.execute(job);
+        pool.shutdown();
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>The lambda implements <code>run()</code> as the task body.</li>
+                    <li><code>new Thread(job).start()</code> runs it on a new thread.</li>
+                    <li><code>execute(job)</code> hands the same task to a pool thread.</li>
+                    <li>The identical <code>Runnable</code> works with both mechanisms.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

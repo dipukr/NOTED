@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 380" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#64748b"/>
+    </marker>
+  </defs>
+
+  <rect x="0" y="0" width="760" height="380" fill="#f8fafc" rx="8"/>
+
+  <!-- Clients -->
+  <text x="90" y="30" text-anchor="middle" font-size="14" font-weight="700" fill="#334155">Clients</text>
+  <g fill="#dbeafe" stroke="#2563eb" stroke-width="1.5">
+    <rect x="30" y="55"  width="120" height="46" rx="6"/>
+    <rect x="30" y="130" width="120" height="46" rx="6"/>
+    <rect x="30" y="205" width="120" height="46" rx="6"/>
+  </g>
+  <g font-size="13" fill="#1e3a8a" text-anchor="middle">
+    <text x="90" y="83">Browser</text>
+    <text x="90" y="158">Mobile App</text>
+    <text x="90" y="233">API Client</text>
+  </g>
+
+  <!-- Reverse Proxy -->
+  <rect x="300" y="120" width="160" height="120" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+  <text x="380" y="150" text-anchor="middle" font-size="15" font-weight="700" fill="#5b21b6">Reverse Proxy</text>
+  <g font-size="11.5" fill="#6d28d9" text-anchor="middle">
+    <text x="380" y="176">TLS termination</text>
+    <text x="380" y="196">Load balancing</text>
+    <text x="380" y="216">Caching / security</text>
+  </g>
+  <text x="380" y="262" text-anchor="middle" font-size="11" fill="#64748b">Nginx / HAProxy / Envoy</text>
+
+  <!-- Backend servers -->
+  <text x="650" y="30" text-anchor="middle" font-size="14" font-weight="700" fill="#334155">Backend Servers</text>
+  <g fill="#dcfce7" stroke="#16a34a" stroke-width="1.5">
+    <rect x="590" y="55"  width="130" height="46" rx="6"/>
+    <rect x="590" y="130" width="130" height="46" rx="6"/>
+    <rect x="590" y="205" width="130" height="46" rx="6"/>
+  </g>
+  <g font-size="13" fill="#166534" text-anchor="middle">
+    <text x="655" y="83">Server 1</text>
+    <text x="655" y="158">Server 2</text>
+    <text x="655" y="233">Server 3</text>
+  </g>
+
+  <!-- Client -> Proxy arrows -->
+  <g stroke="#64748b" stroke-width="2" fill="none" marker-end="url(#arrow)">
+    <path d="M150,78  C230,78  240,160 298,168"/>
+    <path d="M150,153 L298,178"/>
+    <path d="M150,228 C230,228 240,196 298,190"/>
+  </g>
+
+  <!-- Proxy -> Backend arrows -->
+  <g stroke="#64748b" stroke-width="2" fill="none" marker-end="url(#arrow)">
+    <path d="M460,168 C520,168 530,90  588,80"/>
+    <path d="M460,180 L588,155"/>
+    <path d="M460,192 C520,192 530,220 588,230"/>
+  </g>
+
+  <text x="225" y="300" text-anchor="middle" font-size="12" fill="#475569">One public endpoint</text>
+  <text x="530" y="300" text-anchor="middle" font-size="12" fill="#475569">Private backend pool</text>
+</svg>

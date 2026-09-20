@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UDP - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">UDP</div>
+
+    <div class="intro">
+        <p>UDP (User Datagram Protocol) is a connectionless transport protocol that sends independent datagrams without setup.</p>
+        <p>It offers no delivery guarantees, ordering, or retransmission.</p>
+        <p>This makes it lightweight and low-latency compared to TCP.</p>
+        <p>Applications must handle any reliability they need themselves.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use when speed matters more than guaranteed delivery.</li>
+            <li>Ideal for live streaming, gaming, VoIP, and DNS queries.</li>
+            <li>No handshake, so there is minimal startup latency.</li>
+            <li>Occasional lost packets are acceptable for the use case.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Very low latency and overhead.</li>
+            <li>No connection state to establish or maintain.</li>
+            <li>Supports broadcast and multicast.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>No guarantee of delivery; packets can be lost.</li>
+            <li>No ordering; datagrams may arrive out of sequence.</li>
+            <li>Reliability must be reimplemented by the application if needed.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># Sending a UDP datagram in Java</span>
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">UdpClient</span> {
+
+    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) <span class="code-keyword">throws</span> <span class="code-class">Exception</span> {
+        <span class="code-keyword">try</span> (<span class="code-class">DatagramSocket</span> socket = <span class="code-keyword">new</span> <span class="code-class">DatagramSocket</span>()) {
+
+            <span class="code-keyword">byte</span>[] data = <span class="code-string">"PING"</span>.getBytes();
+            <span class="code-class">InetAddress</span> host = <span class="code-class">InetAddress</span>.getByName(<span class="code-string">"localhost"</span>);
+
+            <span class="code-comment"># no connection: just fire the datagram</span>
+            <span class="code-class">DatagramPacket</span> packet =
+                <span class="code-keyword">new</span> <span class="code-class">DatagramPacket</span>(data, data.length, host, <span class="code-string">9090</span>);
+
+            socket.send(packet); <span class="code-comment"># fire and forget, no ack</span>
+            <span class="code-class">System</span>.out.println(<span class="code-string">"Datagram sent"</span>);
+        }
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>No handshake: the datagram is sent immediately.</li>
+                    <li><code>send</code> does not wait for or confirm delivery.</li>
+                    <li>Lost or reordered packets are the app's problem to handle.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

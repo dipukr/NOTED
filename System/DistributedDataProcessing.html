@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Distributed Data Processing - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Distributed Data Processing</div>
+
+    <div class="intro">
+        <p>Distributed data processing splits a large dataset across many machines that compute in parallel.</p>
+        <p>It follows a divide-and-conquer approach: tasks are broken down, processed concurrently on different nodes, then results are combined.</p>
+        <p>Batch frameworks (MapReduce, Spark) process bounded data; streaming frameworks (Flink) process unbounded data.</p>
+        <p>It enables analytics over data volumes far beyond a single machine's capacity.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use when data is too large or compute too heavy for one machine.</li>
+            <li>Map/transform steps run in parallel; reduce/aggregate steps combine results.</li>
+            <li>Data is partitioned so each node works on its own shard independently.</li>
+            <li>Move compute to the data (data locality) to cut network transfer.</li>
+            <li>Frameworks handle scheduling, shuffling, and fault-tolerant re-execution of failed tasks.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Processes massive datasets by scaling out across many nodes.</li>
+            <li>Parallelism dramatically reduces processing time.</li>
+            <li>Frameworks retry failed tasks automatically for fault tolerance.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Data shuffling between nodes is expensive and often the bottleneck.</li>
+            <li>Skewed partitions overload some nodes and idle others.</li>
+            <li>Cluster setup, tuning, and debugging are complex.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># Map-reduce style word count with Java parallel streams</span>
+<span class="code-keyword">public</span> <span class="code-class">Map</span>&lt;<span class="code-class">String</span>, <span class="code-class">Long</span>&gt; wordCount(<span class="code-class">List</span>&lt;<span class="code-class">String</span>&gt; lines) {
+    <span class="code-keyword">return</span> lines.parallelStream()               <span class="code-comment"># split work across cores</span>
+        .flatMap(line -&gt; <span class="code-class">Arrays</span>.stream(line.split(<span class="code-string">"\\s+"</span>))) <span class="code-comment"># map</span>
+        .collect(<span class="code-class">Collectors</span>.groupingBy(
+            w -&gt; w,
+            <span class="code-class">Collectors</span>.counting()));         <span class="code-comment"># reduce (aggregate)</span>
+}
+</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>parallelStream()</code> partitions the data and processes chunks concurrently.</li>
+                    <li><code>flatMap</code> is the map phase, splitting each line into words.</li>
+                    <li><code>groupingBy + counting</code> is the reduce phase that aggregates counts.</li>
+                    <li>The same map/reduce shape scales from cores to a Spark/MapReduce cluster.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

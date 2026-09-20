@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stream API - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Stream API</div>
+
+    <div class="intro">
+        <p>The Stream API processes collections declaratively with a pipeline of operations.</p>
+        <p>You describe the desired outcome instead of writing explicit loops.</p>
+        <p>Intermediate operations are lazy; a terminal operation triggers execution.</p>
+        <p>The same pipeline can run sequentially or in parallel.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Transforming, filtering and aggregating collections.</li>
+            <li>Intermediate ops (<code>map</code>, <code>filter</code>) are lazy and chainable.</li>
+            <li>Terminal ops (<code>collect</code>, <code>reduce</code>, <code>forEach</code>) run the pipeline.</li>
+            <li>Prefer stateless, side-effect-free lambdas.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Concise, readable declarative code.</li>
+            <li>Lazy evaluation can skip unnecessary work.</li>
+            <li>Trivial switch to parallel execution.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Streams are single-use and not reusable.</li>
+            <li>Debugging pipelines is harder than loops.</li>
+            <li>Side effects in lambdas break the model.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">StreamDemo</span> {
+    <span class="code-keyword">public static void</span> <span class="code-class">main</span>(<span class="code-class">String</span>[] args) {
+        <span class="code-class">List</span>&lt;<span class="code-class">String</span>&gt; names = <span class="code-class">List</span>.of(<span class="code-string">"alice"</span>, <span class="code-string">"bob"</span>, <span class="code-string">"amir"</span>, <span class="code-string">"cara"</span>);
+
+        <span class="code-class">List</span>&lt;<span class="code-class">String</span>&gt; result = names.stream()
+            .filter(n -&gt; n.startsWith(<span class="code-string">"a"</span>))   <span class="code-comment">// lazy intermediate</span>
+            .map(<span class="code-class">String</span>::toUpperCase)         <span class="code-comment">// lazy intermediate</span>
+            .sorted()
+            .collect(<span class="code-class">Collectors</span>.toList());  <span class="code-comment">// terminal: runs pipeline</span>
+
+        <span class="code-class">System</span>.out.println(result);          <span class="code-comment">// [ALICE, AMIR]</span>
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>stream()</code> creates a pipeline over the list.</li>
+                    <li><code>filter</code> and <code>map</code> are lazy and only describe steps.</li>
+                    <li><code>collect</code> is the terminal op that executes the whole pipeline.</li>
+                    <li>Each element flows through the chain one pass at a time.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

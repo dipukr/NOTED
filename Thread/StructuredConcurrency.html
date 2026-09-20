@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Structured Concurrency - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Structured Concurrency</div>
+
+    <div class="intro">
+        <p>Structured concurrency treats a group of related tasks as a single unit of work with a clear lifetime.</p>
+        <p>Subtasks are spawned within a scope and the scope does not return until all of them finish.</p>
+        <p>If one subtask fails, the others are cancelled, avoiding leaked or orphaned threads.</p>
+        <p>Java models this with <code>StructuredTaskScope</code>, introduced as a preview API.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Fan-out/fan-in work where a parent needs several concurrent results.</li>
+            <li>Scope ties subtask lifetimes to the enclosing block.</li>
+            <li><code>ShutdownOnFailure</code> cancels siblings when one fails.</li>
+            <li>Errors and cancellation propagate predictably up the call tree.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>No leaked threads; lifetimes are scoped like local variables.</li>
+            <li>Cleaner error propagation and cancellation.</li>
+            <li>Easier reasoning than free-floating futures.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Preview API; syntax may change across JDK versions.</li>
+            <li>Requires a recent JDK with preview features enabled.</li>
+            <li>Less flexible than unstructured futures for long-lived tasks.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">// Preview API: run two subtasks, fail fast if either fails</span>
+<span class="code-keyword">public class</span> <span class="code-class">Aggregator</span> {
+    <span class="code-class">String</span> <span class="code-class">load</span>() <span class="code-keyword">throws</span> <span class="code-class">Exception</span> {
+        <span class="code-keyword">try</span> (<span class="code-keyword">var</span> scope = <span class="code-keyword">new</span> <span class="code-class">StructuredTaskScope</span>.<span class="code-class">ShutdownOnFailure</span>()) {
+            <span class="code-class">Subtask</span>&lt;<span class="code-class">String</span>&gt; user  = scope.fork(() -&gt; fetchUser());
+            <span class="code-class">Subtask</span>&lt;<span class="code-class">String</span>&gt; order = scope.fork(() -&gt; fetchOrder());
+
+            scope.join();               <span class="code-comment">// wait for both</span>
+            scope.throwIfFailed();      <span class="code-comment">// propagate any error</span>
+
+            <span class="code-keyword">return</span> user.get() + <span class="code-string">" / "</span> + order.get();
+        }
+    }
+
+    <span class="code-class">String</span> <span class="code-class">fetchUser</span>()  { <span class="code-keyword">return</span> <span class="code-string">"alice"</span>; }
+    <span class="code-class">String</span> <span class="code-class">fetchOrder</span>() { <span class="code-keyword">return</span> <span class="code-string">"#42"</span>; }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>fork</code> starts each subtask concurrently within the scope.</li>
+                    <li><code>join</code> blocks until every forked subtask completes.</li>
+                    <li><code>throwIfFailed</code> cancels siblings and rethrows on any failure.</li>
+                    <li>The try-with-resources scope guarantees no thread outlives the block.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

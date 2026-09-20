@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Parallelism - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Task Parallelism</div>
+
+    <div class="intro">
+        <p>Task parallelism runs different, independent tasks at the same time on separate threads.</p>
+        <p>Where data parallelism repeats one operation over data, task parallelism runs distinct operations.</p>
+        <p>Each task can do unrelated work and produce its own result.</p>
+        <p>Java expresses it with futures that are launched together and joined.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Independent operations such as fetching from several services at once.</li>
+            <li>Launch tasks concurrently, then combine their results.</li>
+            <li><code>CompletableFuture.allOf</code> waits for a group to finish.</li>
+            <li>Best when tasks differ in nature or duration.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Overlaps unrelated work to cut total latency.</li>
+            <li>Naturally maps to service calls and pipelines.</li>
+            <li>Composes cleanly with futures.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Coordination and error handling add complexity.</li>
+            <li>Uneven task durations leave cores idle.</li>
+            <li>Shared dependencies reintroduce synchronization needs.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">TaskParallel</span> {
+    <span class="code-keyword">public static void</span> <span class="code-class">main</span>(<span class="code-class">String</span>[] args) {
+        <span class="code-comment">// Two different tasks run concurrently</span>
+        <span class="code-class">CompletableFuture</span>&lt;<span class="code-class">String</span>&gt; a = <span class="code-class">CompletableFuture</span>.supplyAsync(() -&gt; loadUser());
+        <span class="code-class">CompletableFuture</span>&lt;<span class="code-class">String</span>&gt; b = <span class="code-class">CompletableFuture</span>.supplyAsync(() -&gt; loadStats());
+
+        <span class="code-comment">// Combine both results when ready</span>
+        <span class="code-class">String</span> result = a.thenCombine(b, (u, s) -&gt; u + <span class="code-string">" | "</span> + s).join();
+        <span class="code-class">System</span>.out.println(result);
+    }
+
+    <span class="code-keyword">static</span> <span class="code-class">String</span> <span class="code-class">loadUser</span>()  { <span class="code-keyword">return</span> <span class="code-string">"user=alice"</span>; }
+    <span class="code-keyword">static</span> <span class="code-class">String</span> <span class="code-class">loadStats</span>() { <span class="code-keyword">return</span> <span class="code-string">"visits=12"</span>; }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>Two <code>supplyAsync</code> calls start distinct tasks in parallel.</li>
+                    <li><code>thenCombine</code> merges the two results once both complete.</li>
+                    <li><code>join</code> waits for the combined outcome.</li>
+                    <li>The unrelated tasks overlap instead of running one after another.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

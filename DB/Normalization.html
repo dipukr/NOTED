@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Normalization - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Normalization</div>
+
+    <div class="intro">
+        <p>Normalization is the process of organizing columns and tables to reduce data redundancy and improve data integrity.</p>
+        <p>It splits data into related tables so each fact is stored in exactly one place.</p>
+        <p>Normalization proceeds through normal forms: 1NF, 2NF, 3NF and beyond.</p>
+        <p>It removes update, insert and delete anomalies caused by duplicated data.</p>
+        <p>Relationships between the resulting tables are maintained with primary and foreign keys.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>1NF: atomic column values, no repeating groups.</li>
+            <li>2NF: 1NF plus no partial dependency of non-key columns on part of a composite key.</li>
+            <li>3NF: 2NF plus no transitive dependency between non-key columns.</li>
+            <li>Use normalization for write-heavy transactional (OLTP) systems.</li>
+            <li>Each piece of data should be stored once to avoid anomalies.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Eliminates redundant data and saves storage.</li>
+            <li>Prevents update, insert and delete anomalies.</li>
+            <li>Improves data integrity and consistency.</li>
+            <li>Makes the schema easier to extend.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Reads often need many joins, which can be slower.</li>
+            <li>Highly normalized schemas can be complex to query.</li>
+            <li>May hurt performance for read-heavy analytical workloads.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">-- UN-NORMALIZED: repeating groups and mixed facts in one row (violates 1NF)</span>
+<span class="code-keyword">CREATE TABLE</span> <span class="code-class">OrderFlat</span> (
+    <span class="code-class">OrderId</span> <span class="code-keyword">INT</span>,
+    <span class="code-class">CustomerName</span> <span class="code-keyword">VARCHAR</span>(<span class="code-number">100</span>),
+    <span class="code-class">CustomerCity</span> <span class="code-keyword">VARCHAR</span>(<span class="code-number">100</span>),
+    <span class="code-class">Product1</span> <span class="code-keyword">VARCHAR</span>(<span class="code-number">100</span>), <span class="code-class">Qty1</span> <span class="code-keyword">INT</span>,
+    <span class="code-class">Product2</span> <span class="code-keyword">VARCHAR</span>(<span class="code-number">100</span>), <span class="code-class">Qty2</span> <span class="code-keyword">INT</span>
+);
+
+<span class="code-comment">-- 1NF: atomic values, one row per order/product line, no repeating groups</span>
+<span class="code-keyword">CREATE TABLE</span> <span class="code-class">OrderLine1NF</span> (
+    <span class="code-class">OrderId</span> <span class="code-keyword">INT</span>,
+    <span class="code-class">CustomerName</span> <span class="code-keyword">VARCHAR</span>(<span class="code-number">100</span>),
+    <span class="code-class">CustomerCity</span> <span class="code-keyword">VARCHAR</span>(<span class="code-number">100</span>),
+    <span class="code-class">Product</span> <span class="code-keyword">VARCHAR</span>(<span class="code-number">100</span>),
+    <span class="code-class">Qty</span> <span class="code-keyword">INT</span>,
+    <span class="code-keyword">PRIMARY KEY</span> (<span class="code-class">OrderId</span>, <span class="code-class">Product</span>)
+);
+
+<span class="code-comment">-- 2NF: split out attributes that depend only on part of the composite key</span>
+<span class="code-keyword">CREATE TABLE</span> <span class="code-class">Customer</span> (
+    <span class="code-class">CustomerId</span> <span class="code-keyword">INT PRIMARY KEY</span>,
+    <span class="code-class">CustomerName</span> <span class="code-keyword">VARCHAR</span>(<span class="code-number">100</span>),
+    <span class="code-class">CityId</span> <span class="code-keyword">INT</span>
+);
+<span class="code-keyword">CREATE TABLE</span> <span class="code-class">Orders</span> (
+    <span class="code-class">OrderId</span> <span class="code-keyword">INT PRIMARY KEY</span>,
+    <span class="code-class">CustomerId</span> <span class="code-keyword">INT</span> <span class="code-keyword">REFERENCES</span> <span class="code-class">Customer</span>(<span class="code-class">CustomerId</span>)
+);
+<span class="code-keyword">CREATE TABLE</span> <span class="code-class">OrderLine</span> (
+    <span class="code-class">OrderId</span> <span class="code-keyword">INT</span> <span class="code-keyword">REFERENCES</span> <span class="code-class">Orders</span>(<span class="code-class">OrderId</span>),
+    <span class="code-class">Product</span> <span class="code-keyword">VARCHAR</span>(<span class="code-number">100</span>),
+    <span class="code-class">Qty</span> <span class="code-keyword">INT</span>,
+    <span class="code-keyword">PRIMARY KEY</span> (<span class="code-class">OrderId</span>, <span class="code-class">Product</span>)
+);
+
+<span class="code-comment">-- 3NF: remove the transitive dependency City -&gt; CustomerId -&gt; City name</span>
+<span class="code-keyword">CREATE TABLE</span> <span class="code-class">City</span> (
+    <span class="code-class">CityId</span> <span class="code-keyword">INT PRIMARY KEY</span>,
+    <span class="code-class">CityName</span> <span class="code-keyword">VARCHAR</span>(<span class="code-number">100</span>),
+    <span class="code-class">Pincode</span> <span class="code-keyword">VARCHAR</span>(<span class="code-number">10</span>)
+);</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>OrderFlat</code> mixes repeating product columns with customer facts, violating 1NF.</li>
+                    <li><code>OrderLine1NF</code> makes each product line its own row with atomic values, satisfying 1NF.</li>
+                    <li>Splitting <code>Customer</code>/<code>Orders</code>/<code>OrderLine</code> removes partial dependency on part of the composite key, satisfying 2NF.</li>
+                    <li>Moving city details into their own <code>City</code> table removes the transitive dependency through <code>CustomerId</code>, satisfying 3NF; each fact now lives in exactly one place, joined via foreign keys.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

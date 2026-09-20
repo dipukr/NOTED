@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Template Method Pattern - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Template Method Pattern</div>
+
+    <div class="intro">
+        <p>Template Method is a behavioral design pattern that defines the skeleton of an algorithm in a base class and lets subclasses override specific steps without changing the algorithm's overall structure.</p>
+        <p>The base class provides a "template method" that calls a sequence of steps, some of which are abstract and implemented by subclasses.</p>
+        <p>This lets subclasses redefine certain steps while the invariant parts of the algorithm stay fixed.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use</div>
+        <div class="section-content">
+            <ul>
+                <li>When several classes share the same algorithm structure but differ in some steps.</li>
+                <li>When you want to control which parts of an algorithm subclasses may change.</li>
+                <li>When you want to eliminate duplicated code across similar subclasses.</li>
+                <li>Typical uses: frameworks, build/parse pipelines, and data-processing workflows.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content">
+            <ul>
+                <li>Removes code duplication by keeping the common algorithm in one place.</li>
+                <li>Lets subclasses customize only the parts that vary.</li>
+                <li>Enforces a fixed algorithm structure, reducing errors.</li>
+                <li>Follows the "Hollywood Principle": the base class calls the subclass steps.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages</div>
+        <div class="section-content">
+            <ul>
+                <li>Relies on inheritance, which is less flexible than composition.</li>
+                <li>The fixed skeleton can limit what subclasses are able to change.</li>
+                <li>Maintaining the base class becomes harder as the number of steps grows.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public abstract class</span> <span class="code-class">DataProcessor</span> {
+
+    <span class="code-comment"># Template method: fixed algorithm skeleton</span>
+    <span class="code-keyword">public final void</span> process() {
+        read();
+        transform();
+        save();
+    }
+
+    <span class="code-keyword">abstract void</span> read();
+    <span class="code-keyword">abstract void</span> transform();
+
+    <span class="code-keyword">void</span> save() {            <span class="code-comment"># common step</span>
+        System.out.println(<span class="code-string">"Saving result"</span>);
+    }
+}
+
+<span class="code-keyword">public class</span> <span class="code-class">CsvProcessor</span> <span class="code-keyword">extends</span> DataProcessor {
+    <span class="code-keyword">void</span> read() { System.out.println(<span class="code-string">"Read CSV"</span>); }
+    <span class="code-keyword">void</span> transform() { System.out.println(<span class="code-string">"Transform CSV"</span>); }
+}
+
+<span class="code-keyword">void</span> main() {
+    DataProcessor p = <span class="code-keyword">new</span> CsvProcessor();
+    p.process();  <span class="code-comment"># Read CSV, Transform CSV, Saving result</span>
+}</code></pre>
+            </div>
+
+            <div class="code-explanation">
+                <div class="code-explanation-title">How the Template Method works</div>
+                <ul>
+                    <li><code>process()</code> is the template method and is <code>final</code>.</li>
+                    <li>It fixes the order: <code>read</code>, <code>transform</code>, then <code>save</code>.</li>
+                    <li>Subclasses supply the varying steps like <code>read()</code>.</li>
+                    <li>Common steps such as <code>save()</code> stay in the base class.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

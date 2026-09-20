@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Proxy Pattern - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Proxy Pattern</div>
+
+    <div class="intro">
+        <p>Proxy pattern is a structural design pattern that provides a proxy for other objects to control access to them.</p>
+        <p>Proxy implements the same interface as the real object and can add behavior like access control, logging, caching, lazy loading, etc.</p>
+        <p>A proxy is a wrapper or agent object that the client calls to access the real serving object behind the scenes. Extra functionalities can be provided into proxy such as caching the operations on the actual object or checking pre-conditions before calling operations on the actual object. A proxy functions as an interface to something else.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When-to use</div>
+        <div class="section-content">
+            <ul>
+                <li>When we need to perform additional operations (lazy loading, caching, access control) when accessing an object.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">Components</div>
+        <div class="section-content">
+            <ul>
+                <li>Subject (Interface) – Declares common interface for RealSubject and Proxy.</li>
+                <li>RealSubject – The actual object that does the work.</li>
+                <li>Proxy – Controls access to RealSubject, implements the same interface.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">Real-world example</div>
+        <div class="section-content">
+            <ul>
+                <li>Java RMI – Uses proxy to call remote objects.</li>
+                <li>Spring AOP – Uses proxies for method interception.</li>
+                <li>Hibernate – Lazy-loaded entities are proxies.</li>
+                <li>Security managers – Proxy access to critical resources.</li>
+                <li>Credit card - Acts as a proxy for our bank account.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public interface</span> <span class="code-class">Image</span> {
+    <span class="code-keyword">void</span> display();
+}
+
+<span class="code-keyword">public class</span> <span class="code-class">RealImage</span> <span class="code-keyword">implements</span> <span class="code-class">Image</span> {
+    <span class="code-keyword">private final</span> String file;
+    <span class="code-keyword">public</span> <span class="code-class">RealImage</span>(String file) {
+        <span class="code-keyword">this</span>.file = file;
+        System.out.println(<span class="code-string">"Loading "</span> + file);  <span class="code-comment"># expensive</span>
+    }
+    <span class="code-keyword">public void</span> display() {
+        System.out.println(<span class="code-string">"Displaying "</span> + file);
+    }
+}
+
+<span class="code-comment"># Virtual proxy: loads on first use only</span>
+<span class="code-keyword">public class</span> <span class="code-class">ImageProxy</span> <span class="code-keyword">implements</span> <span class="code-class">Image</span> {
+    <span class="code-keyword">private final</span> String file;
+    <span class="code-keyword">private</span> <span class="code-class">RealImage</span> real;
+
+    <span class="code-keyword">public</span> <span class="code-class">ImageProxy</span>(String file) { <span class="code-keyword">this</span>.file = file; }
+
+    <span class="code-keyword">public void</span> display() {
+        <span class="code-keyword">if</span> (real == <span class="code-keyword">null</span>)
+            real = <span class="code-keyword">new</span> <span class="code-class">RealImage</span>(file);
+        real.display();
+    }
+}
+
+<span class="code-keyword">void</span> main() {
+    <span class="code-class">Image</span> img = <span class="code-keyword">new</span> <span class="code-class">ImageProxy</span>(<span class="code-string">"photo.png"</span>);
+    img.display();  <span class="code-comment"># loads now</span>
+    img.display();  <span class="code-comment"># reuses loaded image</span>
+}</code></pre>
+            </div>
+
+            <div class="code-explanation">
+                <div class="code-explanation-title">How the Proxy works</div>
+                <ul>
+                    <li><code>Image</code> is the shared interface implemented by both the real object and the proxy.</li>
+                    <li><code>ImageProxy</code> stands in for <code>RealImage</code> and holds a reference to it.</li>
+                    <li>The costly <code>RealImage</code> is created lazily, only on the first <code>display()</code> call.</li>
+                    <li>The client uses <code>Image</code> and never needs to know a proxy is involved.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

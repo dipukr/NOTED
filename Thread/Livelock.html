@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Livelock Detection - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Livelock Detection</div>
+
+    <div class="intro">
+        <p>Livelock happens when threads keep changing state in response to each other but make no progress.</p>
+        <p>Unlike deadlock, the threads are not blocked; they are actively busy yet accomplish nothing.</p>
+        <p>A classic case is two threads that each politely back off and retry in lock-step forever.</p>
+        <p>Detection looks for repeated retries with no forward progress over time.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Suspect livelock when CPU is busy but throughput is zero.</li>
+            <li>Common with naive <code>tryLock</code>-and-back-off retry loops.</li>
+            <li>Detect via retry counters, timeouts and progress metrics.</li>
+            <li>Fix with randomised back-off to break the symmetry.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Threads remain responsive, unlike a hard deadlock.</li>
+            <li>Randomised back-off usually resolves it cheaply.</li>
+            <li>Retry counters make it observable and testable.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Wastes CPU while making no progress.</li>
+            <li>Harder to spot than deadlock because nothing is blocked.</li>
+            <li>Detection thresholds are workload-dependent and tricky to tune.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">LivelockGuard</span> {
+    <span class="code-keyword">boolean</span> <span class="code-class">acquire</span>(<span class="code-class">ReentrantLock</span> lock) <span class="code-keyword">throws</span> <span class="code-class">InterruptedException</span> {
+        <span class="code-keyword">int</span> attempts = <span class="code-string">0</span>;
+        <span class="code-keyword">while</span> (attempts &lt; <span class="code-string">5</span>) {                 <span class="code-comment">// bounded retries detect livelock</span>
+            <span class="code-keyword">if</span> (lock.tryLock(<span class="code-string">50</span>, <span class="code-class">TimeUnit</span>.MILLISECONDS)) <span class="code-keyword">return</span> <span class="code-keyword">true</span>;
+            attempts++;
+            <span class="code-comment">// randomised back-off breaks the lock-step</span>
+            <span class="code-class">Thread</span>.sleep(<span class="code-class">ThreadLocalRandom</span>.current().nextInt(<span class="code-string">10</span>, <span class="code-string">100</span>));
+        }
+        <span class="code-class">System</span>.out.println(<span class="code-string">"possible livelock, giving up"</span>);
+        <span class="code-keyword">return</span> <span class="code-keyword">false</span>;
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>A bounded <code>attempts</code> counter caps futile retries.</li>
+                    <li>Randomised sleep desynchronises threads that were mirroring each other.</li>
+                    <li>Exceeding the retry limit flags a likely livelock.</li>
+                    <li>The method returns instead of spinning forever.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

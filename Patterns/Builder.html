@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Builder Pattern - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Builder Pattern</div>
+
+    <div class="intro">
+        <p>Builder is a creational design pattern that lets you construct complex objects step by step, separating the construction process from the final representation.</p>
+        <p>It is especially useful when an object has many optional parameters, avoiding the "telescoping constructor" problem where constructors take long, confusing argument lists.</p>
+        <p>The same construction process can produce different representations, and the resulting object is typically immutable.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use</div>
+        <div class="section-content">
+            <ul>
+                <li>When an object requires many parameters, several of them optional.</li>
+                <li>When you want to avoid long, ambiguous telescoping constructors.</li>
+                <li>When you want to build an immutable object in readable steps.</li>
+                <li>When the construction process should be independent of the parts that make up the object.</li>
+                <li>When you need to enforce validation before the object is created.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content">
+            <ul>
+                <li>Produces highly readable, self-documenting object creation code.</li>
+                <li>Handles optional parameters cleanly without multiple constructors.</li>
+                <li>Allows the final object to be immutable and thread-safe.</li>
+                <li>Isolates complex construction logic from the object itself.</li>
+                <li>Enables validation of the object state before it is built.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages</div>
+        <div class="section-content">
+            <ul>
+                <li>Requires writing extra boilerplate for the builder class.</li>
+                <li>Increases the overall number of classes in the codebase.</li>
+                <li>Can be overkill for simple objects with few fields.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">User</span> {
+    <span class="code-keyword">private final</span> String name;      <span class="code-comment"># required</span>
+    <span class="code-keyword">private final</span> <span class="code-keyword">int</span> age;         <span class="code-comment"># optional</span>
+    <span class="code-keyword">private final</span> String email;     <span class="code-comment"># optional</span>
+
+    <span class="code-keyword">private</span> <span class="code-class">User</span>(<span class="code-class">Builder</span> b) {
+        <span class="code-keyword">this</span>.name  = b.name;
+        <span class="code-keyword">this</span>.age   = b.age;
+        <span class="code-keyword">this</span>.email = b.email;
+    }
+
+    <span class="code-keyword">public static class</span> <span class="code-class">Builder</span> {
+        <span class="code-keyword">private final</span> String name;
+        <span class="code-keyword">private</span> <span class="code-keyword">int</span> age;
+        <span class="code-keyword">private</span> String email;
+
+        <span class="code-keyword">public</span> <span class="code-class">Builder</span>(String name) {
+            <span class="code-keyword">this</span>.name = name;
+        }
+        <span class="code-keyword">public</span> <span class="code-class">Builder</span> age(<span class="code-keyword">int</span> age) {
+            <span class="code-keyword">this</span>.age = age; <span class="code-keyword">return this</span>;
+        }
+        <span class="code-keyword">public</span> <span class="code-class">Builder</span> email(String email) {
+            <span class="code-keyword">this</span>.email = email; <span class="code-keyword">return this</span>;
+        }
+        <span class="code-keyword">public</span> <span class="code-class">User</span> build() {
+            <span class="code-keyword">return new</span> <span class="code-class">User</span>(<span class="code-keyword">this</span>);
+        }
+    }
+}
+
+<span class="code-keyword">void</span> main() {
+    <span class="code-class">User</span> u = <span class="code-keyword">new</span> <span class="code-class">User</span>.<span class="code-class">Builder</span>(<span class="code-string">"Alice"</span>)
+                    .age(30)
+                    .email(<span class="code-string">"alice@mail.com"</span>)
+                    .build();
+}</code></pre>
+            </div>
+
+            <div class="code-explanation">
+                <div class="code-explanation-title">How the Builder works</div>
+                <ul>
+                    <li>The <code>User</code> constructor is <code>private</code>; objects are created only through the builder.</li>
+                    <li>Required fields go into the <code>Builder</code> constructor; optional ones use fluent setters.</li>
+                    <li>Each setter returns <code>this</code>, allowing calls to be chained.</li>
+                    <li><code>build()</code> assembles a final, immutable <code>User</code> instance.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

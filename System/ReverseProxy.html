@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reverse Proxy - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Reverse Proxy</div>
+
+    <div class="intro">
+        <p>A reverse proxy sits in front of one or more servers and forwards client requests to them.</p>
+        <p>Clients talk to the proxy as if it were the origin, unaware of the backend servers behind it.</p>
+        <p>It commonly handles load balancing, TLS termination, caching, compression, and security.</p>
+        <p>A forward proxy represents the client; a reverse proxy represents the server.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use to hide and protect backend servers behind a single public endpoint.</li>
+            <li>Terminate TLS/SSL centrally so backends can serve plain HTTP internally.</li>
+            <li>Load balance requests across a pool of backend instances.</li>
+            <li>Cache static content and compress responses to improve performance.</li>
+            <li>Nginx, HAProxy, and Envoy are common reverse proxies; an API gateway is a specialized one.</li>
+        </ul></div>
+    </div>
+
+    <div class="section-diagram">
+        <img src="../static/reverse-proxy.svg" alt="Reverse proxy routing client requests to backend servers">
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Hides backend topology and shrinks the attack surface.</li>
+            <li>Centralizes TLS, caching, and load balancing.</li>
+            <li>Enables zero-downtime deploys by shifting traffic between backends.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Potential single point of failure unless made redundant.</li>
+            <li>Adds an extra hop and some latency.</li>
+            <li>Another component to configure, secure, and monitor.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># A tiny reverse proxy endpoint that forwards to a backend</span>
+<span class="code-class">@RestController</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProxyController</span> {
+
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">WebClient</span> backend =
+        <span class="code-class">WebClient</span>.create(<span class="code-string">"http://internal-service:9000"</span>);
+
+    <span class="code-class">@GetMapping</span>(<span class="code-string">"/api/**"</span>)
+    <span class="code-keyword">public</span> <span class="code-class">Mono</span>&lt;<span class="code-class">String</span>&gt; forward(<span class="code-class">ServerHttpRequest</span> req) {
+        <span class="code-comment"># client never learns the backend address</span>
+        <span class="code-keyword">return</span> backend.get()
+            .uri(req.getURI().getPath())
+            .retrieve()
+            .bodyToMono(<span class="code-class">String</span>.class);
+    }
+}
+</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>The client calls the proxy's public path, not the internal service.</li>
+                    <li><code>WebClient</code> forwards the request to the hidden backend.</li>
+                    <li>The backend host stays private, reducing the attack surface.</li>
+                    <li>This point is where TLS, caching, and balancing would be centralized.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

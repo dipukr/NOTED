@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leader Election - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Leader Election</div>
+
+    <div class="intro">
+        <p>Leader election is the process by which distributed nodes agree on a single coordinator, or leader.</p>
+        <p>The leader takes on responsibilities that must be performed by exactly one node at a time.</p>
+        <p>If the leader fails, the remaining nodes elect a new one automatically.</p>
+        <p>Consensus algorithms like Raft and Paxos, or coordinators like ZooKeeper, implement it safely.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use when a task must run on exactly one node (scheduling, sequencing, primary writes).</li>
+            <li>A majority quorum ensures only one leader is elected, preventing two leaders.</li>
+            <li>Leases/heartbeats detect leader failure and trigger re-election.</li>
+            <li>Fencing tokens stop a stale ex-leader from acting after it is replaced.</li>
+            <li>Raft, Paxos, ZooKeeper, and etcd provide battle-tested implementations.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Guarantees a single coordinator, avoiding conflicting decisions.</li>
+            <li>Automatic failover keeps the system running when a leader dies.</li>
+            <li>Simplifies logic that would be hard to coordinate among equals.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>The leader can be a bottleneck and a single point of contention.</li>
+            <li>Election storms and split brain must be carefully prevented.</li>
+            <li>Adds latency and complexity from the consensus protocol.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># Leader election via an atomic, expiring lock in a shared store</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">LeaderElector</span> {
+
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">StringRedisTemplate</span> redis;
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">String</span> nodeId;
+
+    <span class="code-keyword">public</span> <span class="code-keyword">boolean</span> tryBecomeLeader() {
+        <span class="code-comment"># SET key node NX EX 10 -> only one node wins</span>
+        <span class="code-class">Boolean</span> won = redis.opsForValue()
+            .setIfAbsent(<span class="code-string">"cluster:leader"</span>, nodeId, <span class="code-class">Duration</span>.ofSeconds(<span class="code-string">10</span>));
+        <span class="code-keyword">return</span> <span class="code-class">Boolean</span>.TRUE.equals(won);
+    }
+}
+</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>setIfAbsent</code> is atomic, so exactly one node sets the leader key.</li>
+                    <li>The 10-second TTL means a crashed leader's lock auto-expires.</li>
+                    <li>Other nodes keep retrying and take over when the key frees up.</li>
+                    <li>Production systems use Raft/ZooKeeper for stronger guarantees and fencing.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MVC Pattern - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">MVC Pattern</div>
+
+    <div class="intro">
+        <p>MVC (Model-View-Controller) is an architectural pattern that separates an application into three interconnected parts.</p>
+        <p>The Model holds data and business logic, the View renders the UI, and the Controller handles input.</p>
+        <p>The Controller mediates between the View and the Model.</p>
+        <p>This separation of concerns makes applications easier to develop, test, and maintain.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Model: data, state, and business rules.</li>
+            <li>View: presentation of the data to the user.</li>
+            <li>Controller: receives requests and coordinates Model and View.</li>
+            <li>The backbone of web frameworks like Spring MVC.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Clear separation of concerns.</li>
+            <li>Views and models can be developed and tested independently.</li>
+            <li>Supports multiple views over the same model.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Extra layers add boilerplate for simple screens.</li>
+            <li>Controllers can grow bloated if logic leaks into them.</li>
+            <li>Navigating the layers has a learning curve.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># Controller mediates between request, model and view</span>
+<span class="code-class">@Controller</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductController</span> {
+
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">ProductService</span> service;
+
+    <span class="code-keyword">public</span> <span class="code-class">ProductController</span>(<span class="code-class">ProductService</span> service) {
+        <span class="code-keyword">this</span>.service = service;
+    }
+
+    <span class="code-class">@GetMapping</span>(<span class="code-string">"/products/{id}"</span>)
+    <span class="code-keyword">public</span> <span class="code-class">String</span> view(<span class="code-class">@PathVariable</span> <span class="code-class">Long</span> id, <span class="code-class">Model</span> model) {
+        <span class="code-class">Product</span> product = service.findById(id); <span class="code-comment"># the Model data</span>
+        model.addAttribute(<span class="code-string">"product"</span>, product);
+        <span class="code-keyword">return</span> <span class="code-string">"product-details"</span>;          <span class="code-comment"># the View name</span>
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>The <code>Controller</code> receives the request and calls the service.</li>
+                    <li>Data is put on the <code>Model</code> for the view to render.</li>
+                    <li>The returned view name selects the <code>View</code> template.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

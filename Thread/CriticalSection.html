@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Critical Section - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Critical Section</div>
+
+    <div class="intro">
+        <p>A critical section is a region of code where shared data between multiple threads is accessed.</p>
+        <p>Only one thread should execute the critical section at a time to prevent race conditions.</p>
+        <p>Access is controlled with synchronization techniques such as locks or synchronized blocks.</p>
+        <p>When one thread is inside, others must wait until it exits.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Wherever mutable shared state is read and written by several threads.</li>
+            <li>Keep the section as small as possible to maximise concurrency.</li>
+            <li>Mutual exclusion ensures write functionality is thread-safe.</li>
+            <li>Achievable via synchronized block, synchronized method, static synchronization or a monitor.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Prevents race conditions and memory inconsistency.</li>
+            <li>Simple mental model: one thread in at a time.</li>
+            <li>Built into the language via <code>synchronized</code>.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Serialises access, reducing parallelism.</li>
+            <li>Large critical sections become bottlenecks.</li>
+            <li>Poor lock ordering across sections can cause deadlock.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">Counter</span> {
+    <span class="code-keyword">private</span> <span class="code-keyword">int</span> count = <span class="code-string">0</span>;
+    <span class="code-keyword">private final</span> <span class="code-class">Object</span> lock = <span class="code-keyword">new</span> <span class="code-class">Object</span>();
+
+    <span class="code-keyword">public void</span> <span class="code-class">increment</span>() {
+        <span class="code-keyword">synchronized</span> (lock) {
+            <span class="code-comment">// critical section: only one thread here at a time</span>
+            count++;
+        }
+    }
+
+    <span class="code-keyword">public int</span> <span class="code-class">get</span>() {
+        <span class="code-keyword">synchronized</span> (lock) {
+            <span class="code-keyword">return</span> count;
+        }
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>synchronized (lock)</code> acquires the monitor of <code>lock</code>.</li>
+                    <li>The <code>count++</code> read-modify-write runs atomically inside the section.</li>
+                    <li>Other threads block on the same monitor until it is released.</li>
+                    <li>Guarding both read and write keeps values consistent.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

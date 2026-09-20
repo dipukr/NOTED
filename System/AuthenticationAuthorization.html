@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Authentication and Authorization (OAuth, JWT, Sessions, Cookies) - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Authentication and Authorization (OAuth, JWT, Sessions, Cookies)</div>
+
+    <div class="intro">
+        <p>Authentication verifies who a user is; authorization decides what they may do.</p>
+        <p>Sessions store server-side state and reference it via a cookie.</p>
+        <p>JWTs are self-contained, signed tokens carrying claims, enabling stateless auth.</p>
+        <p>OAuth 2.0 delegates access, letting apps act on a user's behalf without their password.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use sessions/cookies for classic server-rendered web apps.</li>
+            <li>Use JWTs for stateless APIs and cross-service auth; keep them short-lived.</li>
+            <li>Use OAuth 2.0 / OpenID Connect for third-party login and delegated access.</li>
+            <li>Set cookies HttpOnly, Secure, and SameSite to reduce theft and CSRF.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>JWTs scale statelessly and carry claims for authorization.</li>
+            <li>Sessions are easy to revoke instantly on the server.</li>
+            <li>OAuth avoids sharing passwords with third-party apps.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>JWTs are hard to revoke before expiry without extra machinery.</li>
+            <li>Sessions require shared/sticky state, complicating horizontal scaling.</li>
+            <li>OAuth flows are complex and easy to misconfigure insecurely.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">// Issue and validate a signed JWT</span>
+<span class="code-keyword">public class</span> <span class="code-class">JwtService</span> {
+
+    <span class="code-keyword">private final</span> <span class="code-class">Key</span> key = <span class="code-class">Keys</span>.hmacShaKeyFor(secret.getBytes());
+
+    <span class="code-keyword">public</span> <span class="code-class">String</span> issue(<span class="code-class">String</span> userId, <span class="code-class">List</span>&lt;<span class="code-class">String</span>&gt; roles) {
+        <span class="code-keyword">return</span> <span class="code-class">Jwts</span>.builder()
+                .setSubject(userId)
+                .claim(<span class="code-string">"roles"</span>, roles)
+                .setExpiration(<span class="code-class">Date</span>.from(<span class="code-class">Instant</span>.now().plusSeconds(900)))
+                .signWith(key)
+                .compact();
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">Claims</span> validate(<span class="code-class">String</span> token) {
+        <span class="code-keyword">return</span> <span class="code-class">Jwts</span>.parserBuilder().setSigningKey(key).build()
+                .parseClaimsJws(token).getBody(); <span class="code-comment">// throws if invalid/expired</span>
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>setSubject</code> and <code>claim("roles", ...)</code> embed identity and authorization data.</li>
+                    <li><code>signWith(key)</code> produces a signature so tampering is detectable.</li>
+                    <li>A 900-second expiration limits the damage window of a leaked token.</li>
+                    <li><code>parseClaimsJws</code> verifies the signature and rejects expired tokens.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

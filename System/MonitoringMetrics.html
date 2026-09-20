@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monitoring and Metrics (Prometheus, Grafana, Micrometer) - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Monitoring and Metrics (Prometheus, Grafana, Micrometer)</div>
+
+    <div class="intro">
+        <p>Monitoring collects numeric time-series metrics to track system health and performance.</p>
+        <p>Micrometer is a vendor-neutral metrics facade for JVM applications.</p>
+        <p>Prometheus scrapes and stores metrics and evaluates alerting rules.</p>
+        <p>Grafana visualizes those metrics in dashboards.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use Micrometer to instrument counters, gauges, timers, and histograms.</li>
+            <li>Prometheus pulls metrics from an exposed endpoint on a schedule.</li>
+            <li>Track the RED (rate, errors, duration) and USE (utilization, saturation, errors) signals.</li>
+            <li>Build Grafana dashboards and Prometheus alert rules on the same data.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Micrometer decouples code from any specific monitoring backend.</li>
+            <li>Prometheus is powerful, open source, and query-rich via PromQL.</li>
+            <li>Grafana gives flexible, shareable visualization.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>High-cardinality labels can explode storage and slow queries.</li>
+            <li>Pull model needs service discovery and reachable endpoints.</li>
+            <li>Long-term storage requires extra components like Thanos or Cortex.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">// Time a method and expose the metric via Micrometer</span>
+<span class="code-class">@Service</span>
+<span class="code-keyword">public class</span> <span class="code-class">SearchService</span> {
+
+    <span class="code-keyword">private final</span> <span class="code-class">Timer</span> searchTimer;
+
+    <span class="code-keyword">public</span> <span class="code-class">SearchService</span>(<span class="code-class">MeterRegistry</span> registry) {
+        <span class="code-keyword">this</span>.searchTimer = <span class="code-class">Timer</span>.builder(<span class="code-string">"search.duration"</span>)
+                .publishPercentiles(0.5, 0.95, 0.99)
+                .register(registry);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">List</span>&lt;<span class="code-class">Result</span>&gt; search(<span class="code-class">String</span> query) {
+        <span class="code-comment">// record() measures wall-clock time of the lambda</span>
+        <span class="code-keyword">return</span> searchTimer.record(() -&gt; index.query(query));
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>Timer</code> records call durations and computes p50/p95/p99 percentiles.</li>
+                    <li><code>MeterRegistry</code> is the Micrometer backend that Prometheus scrapes.</li>
+                    <li><code>record(...)</code> times the lambda and returns its value transparently.</li>
+                    <li>Grafana then charts <code>search.duration</code> from the Prometheus datasource.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

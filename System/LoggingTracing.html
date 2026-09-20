@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Logging and Distributed Tracing (ELK, Jaeger, Zipkin) - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Logging and Distributed Tracing (ELK, Jaeger, Zipkin)</div>
+
+    <div class="intro">
+        <p>Logging records discrete, timestamped events for debugging and auditing.</p>
+        <p>The ELK stack (Elasticsearch, Logstash, Kibana) centralizes and searches logs.</p>
+        <p>Distributed tracing follows a single request across many services as a set of spans.</p>
+        <p>Jaeger and Zipkin visualize traces to expose latency and bottlenecks.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use structured (JSON) logs so they are searchable and machine-parseable.</li>
+            <li>Propagate a trace id and span ids across service boundaries.</li>
+            <li>A trace is a tree of spans; each span times one operation.</li>
+            <li>Sample traces to control volume while keeping representative coverage.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Centralized logs make cross-service investigation practical.</li>
+            <li>Traces pinpoint which service and call caused latency.</li>
+            <li>Correlating logs with traces speeds root-cause analysis.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Log and trace volume drives storage and cost.</li>
+            <li>Instrumenting every service consistently takes effort.</li>
+            <li>Aggressive sampling can miss the exact failing request.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">// Structured logging plus a manual trace span (Micrometer Tracing)</span>
+<span class="code-class">@Service</span>
+<span class="code-keyword">public class</span> <span class="code-class">InvoiceService</span> {
+
+    <span class="code-keyword">private static final</span> <span class="code-class">Logger</span> log =
+            <span class="code-class">LoggerFactory</span>.getLogger(<span class="code-class">InvoiceService</span>.<span class="code-keyword">class</span>);
+
+    <span class="code-keyword">private final</span> <span class="code-class">Tracer</span> tracer;
+
+    <span class="code-keyword">public void</span> generate(<span class="code-class">Long</span> orderId) {
+        <span class="code-class">Span</span> span = tracer.nextSpan().name(<span class="code-string">"invoice.generate"</span>).start();
+        <span class="code-keyword">try</span> (<span class="code-class">Tracer.SpanInScope</span> scope = tracer.withSpan(span)) {
+            log.info(<span class="code-string">"Generating invoice orderId={}"</span>, orderId);
+            invoiceRepository.create(orderId);
+        } <span class="code-keyword">finally</span> {
+            span.end(); <span class="code-comment">// records duration into the trace</span>
+        }
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>log.info("...{}", orderId)</code> emits a structured, parameterized log line.</li>
+                    <li><code>tracer.nextSpan()</code> creates a child span for this operation.</li>
+                    <li><code>withSpan(span)</code> makes the span current so logs carry its trace id.</li>
+                    <li><code>span.end()</code> records the timing that Jaeger or Zipkin displays.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

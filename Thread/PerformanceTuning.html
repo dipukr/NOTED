@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Performance Tuning - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Performance Tuning</div>
+
+    <div class="intro">
+        <p>Concurrency performance tuning is about maximizing throughput while minimizing contention and latency.</p>
+        <p>The main levers are thread pool sizing, lock granularity, and reducing shared mutable state.</p>
+        <p>CPU-bound work scales with core count; I/O-bound work benefits from more threads.</p>
+        <p>Always measure with a profiler before and after any change.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Size CPU pools near <code>availableProcessors()</code>; size I/O pools higher.</li>
+            <li>Reduce lock scope and prefer lock-free atomics where possible.</li>
+            <li>Use striped or partitioned data to cut contention.</li>
+            <li>Profile first; never optimize on a guess.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Higher throughput and lower response times.</li>
+            <li>Better hardware utilization across cores.</li>
+            <li>Fewer thread stalls and context switches.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Premature tuning adds complexity for little gain.</li>
+            <li>Over-threading causes context-switch thrashing.</li>
+            <li>Micro-optimizations can hurt readability and correctness.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">PoolSizing</span> {
+
+    <span class="code-comment">// CPU-bound: threads ~ cores</span>
+    <span class="code-keyword">public</span> <span class="code-class">ExecutorService</span> cpuPool() {
+        <span class="code-keyword">int</span> cores = <span class="code-class">Runtime</span>.getRuntime().availableProcessors();
+        <span class="code-keyword">return</span> <span class="code-class">Executors</span>.newFixedThreadPool(cores);
+    }
+
+    <span class="code-comment">// I/O-bound: size by Little's Law</span>
+    <span class="code-keyword">public</span> <span class="code-class">ExecutorService</span> ioPool(<span class="code-keyword">double</span> waitFraction) {
+        <span class="code-keyword">int</span> cores = <span class="code-class">Runtime</span>.getRuntime().availableProcessors();
+        <span class="code-comment">// threads = cores * (1 + wait/compute)</span>
+        <span class="code-keyword">int</span> threads = (<span class="code-keyword">int</span>) (cores * (<span class="code-number">1</span> + waitFraction));
+        <span class="code-keyword">return</span> <span class="code-class">Executors</span>.newFixedThreadPool(<span class="code-class">Math</span>.max(cores, threads));
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>availableProcessors()</code> anchors CPU pool size to real core count.</li>
+                    <li>The I/O formula adds threads proportional to wait time so cores stay busy.</li>
+                    <li>Bounding the pool prevents excessive context switching.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

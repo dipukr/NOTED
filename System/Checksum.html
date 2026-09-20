@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checksum - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Checksum</div>
+
+    <div class="intro">
+        <p>A checksum is a small fixed-size value derived from a block of data to detect accidental changes.</p>
+        <p>The sender computes it, transmits it alongside the data, and the receiver recomputes and compares.</p>
+        <p>Common algorithms include CRC32, MD5, and SHA-256, trading speed for collision resistance.</p>
+        <p>Checksums detect corruption but do not by themselves prevent malicious tampering.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Verify file downloads, backups, and messages arrived without corruption.</li>
+            <li>Use CRC32 for fast error detection on storage and network frames.</li>
+            <li>Use SHA-256 when you need strong collision resistance or integrity guarantees.</li>
+            <li>For authenticity against attackers, use an HMAC (keyed hash), not a plain checksum.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Cheap to compute and compact to store or transmit.</li>
+            <li>Quickly detects bit-flips, truncation, and transfer errors.</li>
+            <li>Enables deduplication and change detection by comparing digests.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Weak checksums (CRC, MD5) can be forged, so they are not secure.</li>
+            <li>Collisions mean different inputs may share a checksum.</li>
+            <li>A matching checksum proves integrity only, never source authenticity.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">// Compute CRC32 and SHA-256 checksums for a byte array</span>
+<span class="code-keyword">public class</span> <span class="code-class">ChecksumUtil</span> {
+
+    <span class="code-keyword">public static</span> <span class="code-keyword">long</span> crc32(<span class="code-keyword">byte</span>[] data) {
+        <span class="code-class">CRC32</span> crc = <span class="code-keyword">new</span> <span class="code-class">CRC32</span>();
+        crc.update(data);
+        <span class="code-keyword">return</span> crc.getValue();
+    }
+
+    <span class="code-keyword">public static</span> <span class="code-class">String</span> sha256(<span class="code-keyword">byte</span>[] data) <span class="code-keyword">throws</span> <span class="code-class">Exception</span> {
+        <span class="code-class">MessageDigest</span> md = <span class="code-class">MessageDigest</span>.getInstance(<span class="code-string">"SHA-256"</span>);
+        <span class="code-keyword">byte</span>[] digest = md.digest(data);
+        <span class="code-class">StringBuilder</span> sb = <span class="code-keyword">new</span> <span class="code-class">StringBuilder</span>();
+        <span class="code-keyword">for</span> (<span class="code-keyword">byte</span> b : digest) {
+            sb.append(<span class="code-class">String</span>.format(<span class="code-string">"%02x"</span>, b));
+        }
+        <span class="code-keyword">return</span> sb.toString();
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>CRC32</code> accumulates a cyclic-redundancy value ideal for fast corruption checks.</li>
+                    <li><code>MessageDigest.getInstance("SHA-256")</code> produces a 256-bit cryptographic digest.</li>
+                    <li><code>md.digest(data)</code> finalizes the hash over all supplied bytes.</li>
+                    <li>The hex loop converts raw bytes into a comparable, printable string.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

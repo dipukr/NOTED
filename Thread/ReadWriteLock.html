@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ReadWriteLock - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">ReadWriteLock</div>
+
+    <div class="intro">
+        <p><code>ReadWriteLock</code> separates locking into a shared read lock and an exclusive write lock.</p>
+        <p>Many threads can read concurrently as long as none is writing, since read-read sharing is safe.</p>
+        <p>Writes are exclusive: a writer blocks all readers and other writers.</p>
+        <p><code>ReentrantReadWriteLock</code> is the standard implementation.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Ideal for read-heavy data structures with infrequent writes.</li>
+            <li>Read lock is shared; write lock is exclusive.</li>
+            <li>Supports lock downgrading (write to read) but not upgrading.</li>
+            <li>Not worth it if writes are frequent, contention overhead dominates.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Higher throughput than a plain lock when reads dominate.</li>
+            <li>Readers do not block each other.</li>
+            <li>Supports fairness and reentrancy.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Overhead is higher than a simple lock for write-heavy workloads.</li>
+            <li>Risk of writer starvation without fairness.</li>
+            <li>No lock upgrade from read to write.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">Cache</span> {
+
+    <span class="code-keyword">private final</span> <span class="code-class">Map</span>&lt;<span class="code-class">String</span>, <span class="code-class">String</span>&gt; map = <span class="code-keyword">new</span> <span class="code-class">HashMap</span>&lt;&gt;();
+    <span class="code-keyword">private final</span> <span class="code-class">ReentrantReadWriteLock</span> rw = <span class="code-keyword">new</span> <span class="code-class">ReentrantReadWriteLock</span>();
+
+    <span class="code-keyword">public</span> <span class="code-class">String</span> get(<span class="code-class">String</span> key) {
+        rw.readLock().lock(); <span class="code-comment">// shared read</span>
+        <span class="code-keyword">try</span> {
+            <span class="code-keyword">return</span> map.get(key);
+        } <span class="code-keyword">finally</span> {
+            rw.readLock().unlock();
+        }
+    }
+
+    <span class="code-keyword">public void</span> put(<span class="code-class">String</span> key, <span class="code-class">String</span> value) {
+        rw.writeLock().lock(); <span class="code-comment">// exclusive write</span>
+        <span class="code-keyword">try</span> {
+            map.put(key, value);
+        } <span class="code-keyword">finally</span> {
+            rw.writeLock().unlock();
+        }
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>readLock()</code> can be held by many threads at once for concurrent reads.</li>
+                    <li><code>writeLock()</code> is exclusive and blocks all readers and writers.</li>
+                    <li>Each lock is released in <code>finally</code> to avoid leaking it on exceptions.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

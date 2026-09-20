@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Query Planner - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Query Planner</div>
+
+    <div class="intro">
+        <p>The query planner (or optimizer) is the database component that decides how to execute a SQL statement.</p>
+        <p>It translates the declarative query into a concrete execution plan: which indexes to use, join order and join algorithms.</p>
+        <p>It considers many candidate plans and picks the one it estimates to be cheapest.</p>
+        <p>You can inspect the chosen plan with EXPLAIN.</p>
+        <p>Understanding the plan is essential for diagnosing slow queries.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use EXPLAIN / EXPLAIN ANALYZE to see the plan and actual timings.</li>
+            <li>Look for full table scans where an index seek was expected.</li>
+            <li>Check join order and join type (nested loop, hash, merge).</li>
+            <li>Keep table statistics fresh so estimates are accurate.</li>
+            <li>Rewrite queries or add indexes to guide the planner.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Frees developers from hand-optimizing execution.</li>
+            <li>Adapts plans as data and statistics change.</li>
+            <li>Exposes plans for debugging via EXPLAIN.</li>
+            <li>Chooses among many strategies automatically.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Stale statistics lead to poor plans.</li>
+            <li>Can pick a bad plan for skewed or complex queries.</li>
+            <li>Plan changes can cause sudden performance regressions.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">CREATE TABLE</span> <span class="code-class">Orders</span> (
+    <span class="code-class">OrderId</span>   <span class="code-keyword">INT PRIMARY KEY</span>,
+    <span class="code-class">Status</span>    <span class="code-keyword">VARCHAR</span>(<span class="code-number">20</span>) <span class="code-keyword">NOT NULL</span>,
+    <span class="code-class">Total</span>     <span class="code-keyword">DECIMAL</span>(<span class="code-number">10</span>,<span class="code-number">2</span>) <span class="code-keyword">NOT NULL</span>
+);
+
+<span class="code-comment">-- Ask the planner to report logical reads and CPU/elapsed time</span>
+<span class="code-keyword">SET</span> <span class="code-keyword">STATISTICS</span> IO <span class="code-keyword">ON</span>;
+<span class="code-keyword">SET</span> <span class="code-keyword">STATISTICS</span> TIME <span class="code-keyword">ON</span>;
+
+<span class="code-keyword">SELECT</span> <span class="code-class">OrderId</span>, <span class="code-class">Total</span>
+<span class="code-keyword">FROM</span> <span class="code-class">Orders</span>
+<span class="code-keyword">WHERE</span> <span class="code-class">Status</span> = <span class="code-string">'PENDING'</span>;
+
+<span class="code-comment">-- Output (conceptual):</span>
+<span class="code-comment">-- Table 'Orders'. Scan count 1, logical reads 812   <- high = missing index</span>
+<span class="code-comment">-- SQL Server Execution Times: CPU time = 47 ms, elapsed time = 52 ms</span>
+
+<span class="code-keyword">SET</span> <span class="code-keyword">STATISTICS</span> IO <span class="code-keyword">OFF</span>;
+<span class="code-keyword">SET</span> <span class="code-keyword">STATISTICS</span> TIME <span class="code-keyword">OFF</span>;
+
+<span class="code-comment">-- Capture the actual chosen plan in XML for deeper inspection</span>
+<span class="code-keyword">SET</span> SHOWPLAN_XML <span class="code-keyword">ON</span>;
+<span class="code-keyword">GO</span>
+<span class="code-keyword">SELECT</span> <span class="code-class">OrderId</span>, <span class="code-class">Total</span> <span class="code-keyword">FROM</span> <span class="code-class">Orders</span> <span class="code-keyword">WHERE</span> <span class="code-class">Status</span> = <span class="code-string">'PENDING'</span>;
+<span class="code-keyword">GO</span>
+<span class="code-keyword">SET</span> SHOWPLAN_XML <span class="code-keyword">OFF</span>;
+
+<span class="code-comment">-- In the plan, look for: "Clustered Index Scan" (reads every row -&gt; add an</span>
+<span class="code-comment">-- index on Status) versus "Index Seek" (planner used an index efficiently)</span></code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><span class="code-keyword">SET STATISTICS IO ON</span> reports the logical page reads per table touched, revealing how much data the plan actually scanned.</li>
+                    <li><span class="code-keyword">SET STATISTICS TIME ON</span> reports parse/compile and execution CPU and elapsed time for the statement.</li>
+                    <li><span class="code-keyword">SHOWPLAN_XML</span> captures the planner's chosen plan &mdash; join order, operators and estimated costs &mdash; without executing the query for real.</li>
+                    <li>A <span class="code-class">Clustered Index Scan</span> or <span class="code-class">Table Scan</span> on a filtered column signals a missing or unused index, mirroring a high logical-reads count.</li>
+                    <li>An <span class="code-class">Index Seek</span> with low logical reads confirms the planner found and used an efficient access path.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

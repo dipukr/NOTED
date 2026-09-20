@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lock Escalation - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Lock Escalation</div>
+
+    <div class="intro">
+        <p>Lock escalation is when the database converts many fine-grained locks (row or page) into a single coarse-grained lock (table).</p>
+        <p>It happens when a transaction acquires so many locks that tracking them costs too much memory.</p>
+        <p>Escalating to a table lock reduces lock-management overhead but blocks other transactions.</p>
+        <p>It is a trade-off between memory usage and concurrency.</p>
+        <p>Large bulk updates are a common trigger.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Escalation triggers when the number of row/page locks crosses a threshold.</li>
+            <li>Avoid it by updating in smaller batches instead of one huge statement.</li>
+            <li>Filter updates with indexed predicates to lock fewer rows.</li>
+            <li>Keep transactions short so locks are released quickly.</li>
+            <li>Some engines let you disable or tune escalation per table.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Reduces memory spent tracking many individual locks.</li>
+            <li>Lowers lock-management CPU overhead.</li>
+            <li>Simplifies the lock manager's bookkeeping.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>A table lock blocks other transactions, reducing concurrency.</li>
+            <li>Can cause blocking chains and timeouts under load.</li>
+            <li>Increases the chance of deadlocks.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">-- A single bulk UPDATE touching millions of rows escalates row -> page -> table</span>
+<span class="code-keyword">UPDATE</span> <span class="code-class">Product</span>
+<span class="code-keyword">SET</span> <span class="code-class">Price</span> = <span class="code-class">Price</span> * <span class="code-number">1.05</span>
+<span class="code-keyword">WHERE</span> <span class="code-class">Updated</span> = <span class="code-number">0</span>;
+<span class="code-comment">-- once the row/page lock count crosses ~5000, SQL Server escalates to</span>
+<span class="code-comment">-- a single table (X) lock, blocking all other writers on Product</span>
+
+<span class="code-comment">-- Disable escalation for this table so it never jumps straight to table-level</span>
+<span class="code-keyword">ALTER TABLE</span> <span class="code-class">Product</span> <span class="code-keyword">SET</span> (<span class="code-keyword">LOCK_ESCALATION</span> = <span class="code-keyword">DISABLE</span>);
+
+<span class="code-comment">-- Or escalate to a single partition instead of the whole table</span>
+<span class="code-keyword">ALTER TABLE</span> <span class="code-class">Product</span> <span class="code-keyword">SET</span> (<span class="code-keyword">LOCK_ESCALATION</span> = <span class="code-keyword">AUTO</span>);
+
+<span class="code-comment">-- Better fix: batch the update so each transaction stays under the threshold</span>
+<span class="code-keyword">DECLARE</span> <span class="code-class">@BatchSize</span> <span class="code-keyword">INT</span> = <span class="code-number">2000</span>, <span class="code-class">@RowsAffected</span> <span class="code-keyword">INT</span> = <span class="code-number">1</span>;
+
+<span class="code-keyword">WHILE</span> <span class="code-class">@RowsAffected</span> &gt; <span class="code-number">0</span>
+<span class="code-keyword">BEGIN</span>
+    <span class="code-keyword">UPDATE TOP</span> (<span class="code-class">@BatchSize</span>) <span class="code-class">Product</span>
+    <span class="code-keyword">SET</span> <span class="code-class">Price</span> = <span class="code-class">Price</span> * <span class="code-number">1.05</span>, <span class="code-class">Updated</span> = <span class="code-number">1</span>
+    <span class="code-keyword">WHERE</span> <span class="code-class">Updated</span> = <span class="code-number">0</span>;
+
+    <span class="code-keyword">SET</span> <span class="code-class">@RowsAffected</span> = <span class="code-class">@@ROWCOUNT</span>;
+<span class="code-keyword">END</span>;</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>The single unbatched <code>UPDATE</code> can acquire enough row/page locks that SQL Server escalates to one table-level lock, blocking every other writer.</li>
+                    <li><code>LOCK_ESCALATION = DISABLE</code> stops that table from ever escalating straight to a full table lock (it can still escalate to partition level on a partitioned table).</li>
+                    <li><code>LOCK_ESCALATION = AUTO</code> lets a partitioned table escalate to a single partition instead of the whole table, keeping other partitions free.</li>
+                    <li>The batched <code>WHILE</code> loop is the more common real-world fix: each 2000-row batch commits and releases its locks before the next one starts, so the row-lock count never gets close to the escalation threshold.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

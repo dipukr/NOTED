@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Busy Waiting - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Busy Waiting</div>
+
+    <div class="intro">
+        <p>Busy waiting (spinning) is when a thread repeatedly checks a condition in a tight loop instead of blocking.</p>
+        <p>It keeps the CPU fully occupied while waiting, wasting cycles.</p>
+        <p>The alternative is to suspend the thread and be woken by a signal such as wait-notify.</p>
+        <p>Spinning is only worthwhile when the wait is expected to be extremely short.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Only for very brief waits where a context switch costs more than spinning.</li>
+            <li>Prefer <code>wait</code>/<code>notify</code>, locks or blocking queues for anything longer.</li>
+            <li>Spin loops on plain fields need <code>volatile</code> for visibility.</li>
+            <li>Low-level spin locks are used inside JVM and OS internals.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>No context-switch or wakeup latency for ultra-short waits.</li>
+            <li>Simple to write for a quick prototype.</li>
+            <li>Can be lower latency on lightly loaded multi-core systems.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Wastes CPU and drains power while spinning.</li>
+            <li>Starves other threads that could use the core.</li>
+            <li>Missing <code>volatile</code> can loop forever on a cached value.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">SpinVsBlock</span> {
+    <span class="code-comment">// volatile ensures the flag change is visible across threads</span>
+    <span class="code-keyword">private volatile boolean</span> ready = <span class="code-keyword">false</span>;
+
+    <span class="code-keyword">public void</span> <span class="code-class">busyWait</span>() {
+        <span class="code-keyword">while</span> (!ready) {
+            <span class="code-comment">// spin: burns CPU until another thread sets ready</span>
+        }
+        <span class="code-class">System</span>.out.println(<span class="code-string">"proceeding"</span>);
+    }
+
+    <span class="code-keyword">public synchronized void</span> <span class="code-class">blockingWait</span>() <span class="code-keyword">throws</span> <span class="code-class">InterruptedException</span> {
+        <span class="code-keyword">while</span> (!ready) {
+            wait();     <span class="code-comment">// releases lock, sleeps until notified</span>
+        }
+    }
+
+    <span class="code-keyword">public synchronized void</span> <span class="code-class">signal</span>() {
+        ready = <span class="code-keyword">true</span>;
+        notifyAll();
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>busyWait</code> spins on <code>ready</code>, consuming the CPU.</li>
+                    <li><code>volatile</code> forces each read to see the latest value.</li>
+                    <li><code>blockingWait</code> uses <code>wait()</code> to sleep and free the CPU.</li>
+                    <li><code>notifyAll()</code> wakes blocked waiters without any spinning.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

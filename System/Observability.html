@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Observability - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Observability</div>
+
+    <div class="intro">
+        <p>Observability is the ability to understand a system's internal state from its external outputs.</p>
+        <p>It rests on three pillars: metrics, logs, and traces.</p>
+        <p>Unlike basic monitoring, it helps answer unanticipated questions about behavior.</p>
+        <p>Good observability shortens the path from symptom to root cause.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Essential for distributed systems where failures span many services.</li>
+            <li>Metrics show trends, logs give detail, traces reveal request flow.</li>
+            <li>Correlate the three with shared IDs (trace/correlation IDs).</li>
+            <li>Instrument with standards like OpenTelemetry for portability.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Faster detection and diagnosis of incidents.</li>
+            <li>Ability to investigate novel, unforeseen problems.</li>
+            <li>Data-driven insight into performance and capacity.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Telemetry volume drives significant storage and cost.</li>
+            <li>Instrumentation adds overhead and development effort.</li>
+            <li>Too much low-value data buries the useful signals.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">// Attach a correlation id so logs, metrics, traces align</span>
+<span class="code-class">@Component</span>
+<span class="code-keyword">public class</span> <span class="code-class">CorrelationFilter</span> <span class="code-keyword">implements</span> <span class="code-class">Filter</span> {
+
+    <span class="code-class">@Override</span>
+    <span class="code-keyword">public void</span> doFilter(<span class="code-class">ServletRequest</span> req, <span class="code-class">ServletResponse</span> res,
+                         <span class="code-class">FilterChain</span> chain) <span class="code-keyword">throws</span> <span class="code-class">IOException</span>, <span class="code-class">ServletException</span> {
+        <span class="code-class">String</span> id = ((<span class="code-class">HttpServletRequest</span>) req).getHeader(<span class="code-string">"X-Correlation-Id"</span>);
+        <span class="code-keyword">if</span> (id == <span class="code-keyword">null</span>) id = <span class="code-class">UUID</span>.randomUUID().toString();
+
+        <span class="code-class">MDC</span>.put(<span class="code-string">"correlationId"</span>, id); <span class="code-comment">// added to every log line</span>
+        <span class="code-keyword">try</span> {
+            chain.doFilter(req, res);
+        } <span class="code-keyword">finally</span> {
+            <span class="code-class">MDC</span>.clear();
+        }
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>The filter reads or generates a correlation id per incoming request.</li>
+                    <li><code>MDC.put</code> stores it so every log line within the request carries it.</li>
+                    <li>The same id can propagate downstream to link traces across services.</li>
+                    <li><code>MDC.clear()</code> prevents id leakage between pooled threads.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Producer-Consumer Problem - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Producer-Consumer Problem</div>
+
+    <div class="intro">
+        <p>The Producer-Consumer problem coordinates threads that produce data with threads that consume it through a shared bounded buffer. 
+			Producers must wait when the buffer is full; consumers must wait when it is empty.</p>
+        <p>It is a classic inter-thread cooperation problem solved with wait-notify or blocking queues.</p>
+        <p>Correct signalling prevents lost updates, busy waiting and race conditions on the shared buffer.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Decouple work generation from work processing at different rates.</li>
+            <li>Use a bounded buffer to apply back-pressure and cap memory use.</li>
+            <li>Prefer <code>BlockingQueue</code> which handles the wait/notify internally.</li>
+            <li>Always call <code>wait</code>/<code>notify</code> inside a synchronized block owning the monitor.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Smooths out bursty workloads via buffering.</li>
+            <li>Cleanly separates producer and consumer responsibilities.</li>
+            <li>Blocking queues remove the need for manual locking.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Buffer sizing is a tuning trade-off between latency and memory.</li>
+            <li>Manual wait-notify is error-prone (missed signals, spurious wakeups).</li>
+            <li>A slow consumer can throttle the whole pipeline.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout code-layout-equal">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">BoundedBuffer</span> {
+    <span class="code-keyword">private</span> <span class="code-class">ReentrantLock</span> lock = <span class="code-keyword">new</span> <span class="code-class">ReentrantLock</span>(<span class="code-keyword">true</span>);
+    <span class="code-keyword">private</span> <span class="code-class">Condition</span> notEmpty = lock.newCondition();
+    <span class="code-keyword">private</span> <span class="code-class">Condition</span> notFull = lock.newCondition();
+    <span class="code-keyword">private</span> <span class="code-class">Object</span>[] items = <span class="code-keyword">new</span> <span class="code-class">Object</span>[<span class="code-number">100</span>];
+    <span class="code-keyword">private</span> <span class="code-keyword">int</span> putptr, takeptr, count;
+
+    <span class="code-keyword">public void</span> put(<span class="code-class">Object</span> item) <span class="code-keyword">throws</span> <span class="code-class">Exception</span> {
+        lock.lock();
+        <span class="code-keyword">try</span> {
+            <span class="code-keyword">while</span> (count == items.length)
+                notFull.await();
+            items[putptr++] = item;
+            <span class="code-keyword">if</span> (putptr == items.length)
+                putptr = <span class="code-number">0</span>;
+            count += <span class="code-number">1</span>;
+            notEmpty.signalAll();
+        } <span class="code-keyword">finally</span> {
+            lock.unlock();
+        }
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">Object</span> take() <span class="code-keyword">throws</span> <span class="code-class">Exception</span> {
+        lock.lock();
+        <span class="code-keyword">try</span> {
+            <span class="code-keyword">while</span> (count == <span class="code-number">0</span>)
+                notEmpty.await();
+            <span class="code-class">Object</span> item = items[takeptr++];
+            <span class="code-keyword">if</span> (takeptr == items.length)
+                takeptr = <span class="code-number">0</span>;
+            count -= <span class="code-number">1</span>;
+            notFull.signalAll();
+            <span class="code-keyword">return</span> item;
+        } <span class="code-keyword">finally</span> {
+            lock.unlock();
+        }
+    }
+}
+
+<span class="code-keyword">void</span> main() <span class="code-keyword">throws</span> <span class="code-class">Exception</span> {
+    <span class="code-class">var</span> buffer = <span class="code-keyword">new</span> <span class="code-class">BoundedBuffer</span>();
+
+    <span class="code-class">Thread</span> producer = <span class="code-keyword">new</span> <span class="code-class">Thread</span>(() -&gt; {
+        <span class="code-keyword">try</span> {
+            <span class="code-keyword">for</span> (<span class="code-keyword">int</span> i = <span class="code-number">0</span>; i &lt; <span class="code-number">10</span>; i++) {
+                buffer.put(<span class="code-string">"item-"</span> + i);
+                <span class="code-class">System</span>.out.println(<span class="code-string">"Produced item-"</span> + i);
+            }
+        } <span class="code-keyword">catch</span> (<span class="code-class">Exception</span> e) {
+            <span class="code-class">Thread</span>.currentThread().interrupt();
+        }
+    }, <span class="code-string">"Producer"</span>);
+
+    <span class="code-class">Thread</span> consumer = <span class="code-keyword">new</span> <span class="code-class">Thread</span>(() -&gt; {
+        <span class="code-keyword">try</span> {
+            <span class="code-keyword">for</span> (<span class="code-keyword">int</span> i = <span class="code-number">0</span>; i &lt; <span class="code-number">10</span>; i++) {
+                <span class="code-class">Object</span> item = buffer.take();
+                <span class="code-class">System</span>.out.println(<span class="code-string">"Consumed "</span> + item);
+            }
+        } <span class="code-keyword">catch</span> (<span class="code-class">Exception</span> e) {
+            <span class="code-class">Thread</span>.currentThread().interrupt();
+        }
+    }, <span class="code-string">"Consumer"</span>);
+
+    producer.start();
+    consumer.start();
+    producer.join();
+    consumer.join();
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>A single <code>ReentrantLock</code> guards the shared circular array <code>items</code>; only one thread &mdash; producer or consumer &mdash; can be inside <code>put</code>/<code>take</code> at a time.</li>
+                    <li><code>lock.newCondition()</code> creates a <strong>condition variable</strong> bound to that lock. Unlike the lock itself, a condition doesn't protect data; it lets a thread that holds the lock give it up and sleep until some predicate about that data becomes true.</li>
+                    <li>Two separate conditions model two separate predicates on the same buffer: <code>notFull</code> means "there's room to put", <code>notEmpty</code> means "there's an item to take". Splitting them avoids waking every waiter for every change &mdash; a producer's signal only wakes consumers, not other producers.</li>
+                    <li>Calling <code>notFull.await()</code> atomically releases <code>lock</code> and suspends the thread. Both steps happen as one operation, so no other thread can sneak in between "check the condition" and "go to sleep" and change the buffer unseen &mdash; that gap is exactly what causes the classic lost-wakeup bug.</li>
+                    <li>While a thread waits inside <code>await()</code>, the lock is free, so the other side (say, the consumer taking items) can acquire it, run, and call <code>signalAll()</code>.</li>
+                    <li><code>signalAll()</code> wakes every thread parked on that condition, but they don't resume immediately &mdash; each first re-acquires <code>lock</code> (queueing if the signaller still holds it, which it does until <code>unlock()</code> runs in <code>finally</code>), and only then returns from <code>await()</code>.</li>
+                    <li>The condition is checked in a <code>while</code> loop, not an <code>if</code>. After being woken, a thread must re-verify the predicate itself: <code>signalAll()</code> can wake more threads than there is capacity for (e.g. three consumers woken by one <code>put</code>), and the JVM is also permitted to wake a waiter with no signal at all (a "spurious wakeup"). The loop re-checks <code>count</code> and calls <code>await()</code> again if the buffer isn't actually in the state this thread needs.</li>
+                    <li><code>putptr</code>/<code>takeptr</code> wrap around the array (circular/ring buffer) so slots are reused without shifting elements; <code>count</code> is the single source of truth both conditions are evaluated against.</li>
+                    <li>Each successful <code>put</code> increases <code>count</code> and calls <code>notEmpty.signalAll()</code> (data now exists); each successful <code>take</code> decreases <code>count</code> and calls <code>notFull.signalAll()</code> (space now exists) &mdash; each side only ever wakes the other.</li>
+                    <li>The <code>try</code>/<code>finally</code> guarantees <code>lock.unlock()</code> runs even if an exception is thrown mid-method, so the lock (and therefore the buffer) can never be left permanently stuck.</li>
+                    <li><code>void main()</code> sits outside <code>BoundedBuffer</code> as a top-level instance main method (JDK 25's implicitly-declared class feature) &mdash; no <code>public static</code>, no enclosing class, no <code>String[] args</code> needed for this simple case.</li>
+                    <li>It starts one producer thread calling <code>put</code> and one consumer thread calling <code>take</code> concurrently on the same <code>buffer</code>; <code>join()</code> waits for both to finish before the program exits.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

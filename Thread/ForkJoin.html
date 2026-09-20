@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fork-Join Framework - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Fork-Join Framework</div>
+
+    <div class="intro">
+        <p>The Fork-Join framework parallelises divide-and-conquer algorithms.</p>
+        <p>A task forks into subtasks, which run in parallel and then join their results.</p>
+        <p>It is backed by a work-stealing <code>ForkJoinPool</code> for load balancing.</p>
+        <p>Tasks extend <code>RecursiveTask</code> (returns a value) or <code>RecursiveAction</code> (no value).</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Recursively splittable problems like sums, sorts and searches.</li>
+            <li>Split until a threshold, then compute sequentially.</li>
+            <li><code>fork()</code> schedules a subtask; <code>join()</code> waits for its result.</li>
+            <li>Avoid blocking I/O inside fork-join tasks.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Automatic load balancing via work-stealing.</li>
+            <li>Scales divide-and-conquer work across cores.</li>
+            <li>Powers parallel streams under the hood.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Wrong split threshold hurts performance.</li>
+            <li>Not suited to blocking or I/O-bound tasks.</li>
+            <li>Recursion overhead for small inputs.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">SumTask</span> <span class="code-keyword">extends</span> <span class="code-class">RecursiveTask</span>&lt;<span class="code-class">Long</span>&gt; {
+    <span class="code-keyword">private final</span> <span class="code-keyword">int</span>[] arr; <span class="code-keyword">private final</span> <span class="code-keyword">int</span> lo, hi;
+    <span class="code-class">SumTask</span>(<span class="code-keyword">int</span>[] arr, <span class="code-keyword">int</span> lo, <span class="code-keyword">int</span> hi) { <span class="code-keyword">this</span>.arr = arr; <span class="code-keyword">this</span>.lo = lo; <span class="code-keyword">this</span>.hi = hi; }
+
+    <span class="code-keyword">protected</span> <span class="code-class">Long</span> <span class="code-class">compute</span>() {
+        <span class="code-keyword">if</span> (hi - lo &lt;= <span class="code-string">1000</span>) {                 <span class="code-comment">// small enough: do it directly</span>
+            <span class="code-keyword">long</span> s = <span class="code-string">0</span>; <span class="code-keyword">for</span> (<span class="code-keyword">int</span> i = lo; i &lt; hi; i++) s += arr[i]; <span class="code-keyword">return</span> s;
+        }
+        <span class="code-keyword">int</span> mid = (lo + hi) &gt;&gt;&gt; <span class="code-string">1</span>;
+        <span class="code-class">SumTask</span> left = <span class="code-keyword">new</span> <span class="code-class">SumTask</span>(arr, lo, mid);
+        <span class="code-class">SumTask</span> right = <span class="code-keyword">new</span> <span class="code-class">SumTask</span>(arr, mid, hi);
+        left.fork();                             <span class="code-comment">// async subtask</span>
+        <span class="code-keyword">return</span> right.compute() + left.join();       <span class="code-comment">// join result</span>
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>compute</code> solves small ranges directly and splits larger ones.</li>
+                    <li><code>fork()</code> queues the left half for another worker to steal.</li>
+                    <li><code>join()</code> waits for and returns the forked subtask's result.</li>
+                    <li>The pool balances work so all cores stay busy.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

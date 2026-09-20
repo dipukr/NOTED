@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebSockets - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">WebSockets</div>
+
+    <div class="intro">
+        <p>WebSockets provide a full-duplex, persistent connection between client and server over a single TCP connection.</p>
+        <p>Unlike the request-response model, either side can send data at any time.</p>
+        <p>The connection starts as an HTTP request that is upgraded to the WebSocket protocol.</p>
+        <p>It is ideal for real-time, low-latency communication.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use for chat, live dashboards, gaming, and collaborative apps.</li>
+            <li>Begins with an HTTP handshake carrying an Upgrade header.</li>
+            <li>The server can push data without the client polling.</li>
+            <li>Runs over ws:// or secure wss://.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Real-time, bidirectional communication.</li>
+            <li>Low overhead after the initial handshake.</li>
+            <li>Eliminates constant polling of the server.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Persistent connections consume server resources.</li>
+            <li>Scaling across many servers needs sticky sessions or a broker.</li>
+            <li>Some proxies and firewalls interfere with upgrades.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># A server-side WebSocket endpoint with Spring</span>
+<span class="code-class">@Component</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ChatHandler</span> <span class="code-keyword">extends</span> <span class="code-class">TextWebSocketHandler</span> {
+
+    <span class="code-class">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> afterConnectionEstablished(<span class="code-class">WebSocketSession</span> session) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Client connected: "</span> + session.getId());
+    }
+
+    <span class="code-class">@Override</span>
+    <span class="code-keyword">protected</span> <span class="code-keyword">void</span> handleTextMessage(
+            <span class="code-class">WebSocketSession</span> session, <span class="code-class">TextMessage</span> message) <span class="code-keyword">throws</span> <span class="code-class">Exception</span> {
+        <span class="code-comment"># server can push a reply any time</span>
+        session.sendMessage(
+            <span class="code-keyword">new</span> <span class="code-class">TextMessage</span>(<span class="code-string">"Echo: "</span> + message.getPayload()));
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>afterConnectionEstablished</code> fires once the upgrade completes.</li>
+                    <li>The connection stays open for two-way messaging.</li>
+                    <li><code>sendMessage</code> pushes data to the client without a request.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

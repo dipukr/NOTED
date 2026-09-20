@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Microservices - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Microservices</div>
+
+    <div class="intro">
+        <p>Microservice architecture organizes an application into a collection of small, independent, and loosely coupled services.</p>
+        <p>Each service focuses on a specific business capability and can be developed, deployed, and scaled independently.</p>
+        <p>Services do not share code or implementation and communicate via well-defined APIs.</p>
+        <p>Each component can be operated and scaled without affecting the functioning of other services.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>The key trait is independent development, deployment, and scaling per module.</li>
+            <li>Communication happens through lightweight protocols like REST or messaging.</li>
+            <li>Each service typically owns its own database.</li>
+            <li>Best for large systems and multiple autonomous teams.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Agility: faster delivery as teams deploy services independently.</li>
+            <li>Scalability: scale individual services instead of the whole app.</li>
+            <li>Resilience: a failure in one service is isolated.</li>
+            <li>Team autonomy: small teams own specific services.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Complexity: managing a distributed system is harder than a monolith.</li>
+            <li>Communication overhead: network latency and error handling between services.</li>
+            <li>Data consistency across independent services is difficult.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># One service calls another over a well-defined REST API</span>
+<span class="code-class">@FeignClient</span>(name = <span class="code-string">"inventory-service"</span>)
+<span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">InventoryClient</span> {
+
+    <span class="code-class">@GetMapping</span>(<span class="code-string">"/stock/{sku}"</span>)
+    <span class="code-class">StockDto</span> getStock(<span class="code-class">@PathVariable</span> <span class="code-class">String</span> sku);
+}
+
+<span class="code-class">@Service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderService</span> {
+
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">InventoryClient</span> inventory;
+
+    <span class="code-keyword">public</span> <span class="code-class">OrderService</span>(<span class="code-class">InventoryClient</span> inventory) {
+        <span class="code-keyword">this</span>.inventory = inventory;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">boolean</span> canFulfill(<span class="code-class">String</span> sku) {
+        <span class="code-class">StockDto</span> stock = inventory.getStock(sku); <span class="code-comment"># remote, independent service</span>
+        <span class="code-keyword">return</span> stock.getQty() &gt; <span class="code-string">0</span>;
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>@FeignClient</code> declares a typed client to another service's API.</li>
+                    <li>Each service owns its data; they share only the API contract.</li>
+                    <li>Services deploy and scale on their own release cycles.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

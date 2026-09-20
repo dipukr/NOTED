@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Circuit Breaker - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Circuit Breaker</div>
+
+    <div class="intro">
+        <p>The Circuit Breaker pattern prevents an application from repeatedly calling a service that is likely to fail.</p>
+        <p>Like an electrical breaker, it trips open after too many failures and stops further calls for a while.</p>
+        <p>It has three states: closed (calls flow), open (calls fail fast), and half-open (a few trial calls).</p>
+        <p>It protects the system from cascading failures caused by a struggling dependency.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use around remote calls that can fail or become slow.</li>
+            <li>Closed: normal; failures are counted.</li>
+            <li>Open: calls short-circuit immediately, often to a fallback.</li>
+            <li>Half-open: limited probes decide whether to close again.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Stops cascading failures across services.</li>
+            <li>Fails fast instead of piling up blocked threads.</li>
+            <li>Gives the failing dependency time to recover.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Requires careful tuning of thresholds and timeouts.</li>
+            <li>An open breaker may reject calls that would have succeeded.</li>
+            <li>Adds a dependency and state to monitor.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># Resilience4j circuit breaker with a fallback</span>
+<span class="code-class">@Service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">QuoteService</span> {
+
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">PricingClient</span> pricing;
+
+    <span class="code-keyword">public</span> <span class="code-class">QuoteService</span>(<span class="code-class">PricingClient</span> pricing) {
+        <span class="code-keyword">this</span>.pricing = pricing;
+    }
+
+    <span class="code-class">@CircuitBreaker</span>(name = <span class="code-string">"pricing"</span>, fallbackMethod = <span class="code-string">"cachedPrice"</span>)
+    <span class="code-keyword">public</span> <span class="code-class">Price</span> getPrice(<span class="code-class">String</span> sku) {
+        <span class="code-keyword">return</span> pricing.fetch(sku); <span class="code-comment"># protected remote call</span>
+    }
+
+    <span class="code-comment"># invoked when the breaker is open or the call fails</span>
+    <span class="code-keyword">public</span> <span class="code-class">Price</span> cachedPrice(<span class="code-class">String</span> sku, <span class="code-class">Throwable</span> t) {
+        <span class="code-keyword">return</span> <span class="code-class">Price</span>.lastKnown(sku);
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>@CircuitBreaker</code> tracks failures on the <code>pricing</code> instance.</li>
+                    <li>When it trips open, calls jump straight to <code>cachedPrice</code>.</li>
+                    <li>Half-open probes later restore normal flow if the service recovers.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

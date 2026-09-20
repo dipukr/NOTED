@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aggregator (Parallel Fetch) Pattern - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Aggregator (Parallel Fetch) Pattern</div>
+
+    <div class="intro">
+        <p>The Aggregator pattern collects data from multiple services and combines it into a single response for the client.</p>
+        <p>A gateway or dedicated service calls each source, often in parallel, then merges the results.</p>
+        <p>It spares the client from making many round-trips and knowing about every backend.</p>
+        <p>Parallel fetching keeps total latency close to the slowest single call, not their sum.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use when one view needs data from several independent services.</li>
+            <li>Fire calls concurrently to minimize total wait time.</li>
+            <li>Combine responses into one composite DTO.</li>
+            <li>Handle partial failures with defaults or timeouts.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Fewer client round-trips and simpler clients.</li>
+            <li>Lower latency via parallel calls.</li>
+            <li>Centralizes composition and cross-cutting logic.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>The aggregator can become a bottleneck or hotspot.</li>
+            <li>Must handle partial failures of individual sources.</li>
+            <li>Adds coupling to the shape of many backends.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># Parallel fetch and merge with CompletableFuture</span>
+<span class="code-class">@Service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProfileAggregator</span> {
+
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">UserClient</span> users;
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">OrderClient</span> orders;
+
+    <span class="code-keyword">public</span> <span class="code-class">ProfileAggregator</span>(<span class="code-class">UserClient</span> users, <span class="code-class">OrderClient</span> orders) {
+        <span class="code-keyword">this</span>.users = users;
+        <span class="code-keyword">this</span>.orders = orders;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">Profile</span> load(<span class="code-class">Long</span> id) {
+        <span class="code-comment"># both calls run at the same time</span>
+        <span class="code-class">CompletableFuture</span>&lt;<span class="code-class">User</span>&gt; u =
+            <span class="code-class">CompletableFuture</span>.supplyAsync(() -&gt; users.get(id));
+        <span class="code-class">CompletableFuture</span>&lt;<span class="code-class">List</span>&lt;<span class="code-class">Order</span>&gt;&gt; o =
+            <span class="code-class">CompletableFuture</span>.supplyAsync(() -&gt; orders.forUser(id));
+
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">Profile</span>(u.join(), o.join()); <span class="code-comment"># merge results</span>
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>supplyAsync</code> launches both remote calls concurrently.</li>
+                    <li><code>join</code> waits for both, so latency tracks the slower call.</li>
+                    <li>The merged <code>Profile</code> is returned as one response.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

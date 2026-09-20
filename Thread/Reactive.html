@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reactive - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Reactive Programming</div>
+
+    <div class="intro">
+        <p>Reactive programming is a declarative programming paradigm concerned with data streams and the propagation of change.</p>
+        <p>Reactive programming allows applications to react to updates automatically and efficiently.</p>
+        <p>Like reacting to something when user clicks this button run this function or when file IO operation is complete run this function. Imperative means when we are doing all the steps.</p>
+        <p>While declarative is where we are declaring this is what i want to happen and something is going to make that happen.</p>
+        <p>An imperative approach involves explicitly writing out the sequence of steps to achieve a result.</p>
+        <p>While a declarative approach describes the desired outcome and the programming language figures out the execution.</p>
+        <p>Main purpose of reactive programming is to avoid blocking in our code.</p>
+        <p>Synchronous = Sequential</p>
+        <p>Asynchronous = Non-sequential</p>
+        <p>List&lt;Person&gt; findByName(String name) -&gt; void findByName(String name, Callback&lt;List&lt;Person&gt;&gt; callback)</p>
+        <p>BigDecimal getIncome(String name) -&gt; void getIncome(String name, Callback&lt;BigDecimal&gt; callback)</p>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">ReactiveDemo</span> {
+    <span class="code-keyword">public static void</span> main(String[] args) {
+        Flux&lt;Integer&gt; numbers = Flux.range(1, 5)
+            .map(n -&gt; n * n)                 <span class="code-comment"># transform each item</span>
+            .filter(n -&gt; n % 2 == 1)          <span class="code-comment"># keep odds</span>
+            .delayElements(Duration.ofMillis(100));
+
+        numbers.subscribe(
+            n -&gt; System.out.println(<span class="code-string">"got: "</span> + n),
+            err -&gt; System.err.println(err),
+            () -&gt; System.out.println(<span class="code-string">"done"</span>)
+        );
+    }
+}</code></pre>
+            </div>
+
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>Flux</code> is a publisher of 0..N items emitted asynchronously.</li>
+                    <li>Operators build a pipeline but run only after <code>subscribe()</code>.</li>
+                    <li>The subscriber reacts to each item, an error, or completion.</li>
+                    <li>Work runs without blocking the calling thread.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

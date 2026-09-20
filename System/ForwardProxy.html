@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Forward Proxy - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Forward Proxy</div>
+
+    <div class="intro">
+        <p>A forward proxy sits in front of clients and forwards their requests to the internet on their behalf.</p>
+        <p>The destination server sees the proxy's address, not the individual client's.</p>
+        <p>It is typically deployed inside an organization to control, filter, and cache outbound traffic.</p>
+        <p>In short, a forward proxy represents the client; a reverse proxy represents the server.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use to enforce corporate access policies and content filtering for outbound traffic.</li>
+            <li>Provides client anonymity by masking the client's real IP from the destination.</li>
+            <li>Caches frequently requested external content to save bandwidth.</li>
+            <li>Can bypass geo-restrictions by routing through a different location.</li>
+            <li>Clients must be configured to send traffic through the proxy.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Centralized control and monitoring of outbound requests.</li>
+            <li>Client privacy - the origin server does not see client IPs.</li>
+            <li>Caching reduces bandwidth and improves response times.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>A single choke point that can fail or add latency.</li>
+            <li>Requires client-side configuration or network enforcement.</li>
+            <li>Can be misused to circumvent controls or hide malicious activity.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># A Java HTTP client routing all outbound calls through a forward proxy</span>
+<span class="code-class">HttpClient</span> client = <span class="code-class">HttpClient</span>.newBuilder()
+    .proxy(<span class="code-class">ProxySelector</span>.of(
+        <span class="code-keyword">new</span> <span class="code-class">InetSocketAddress</span>(<span class="code-string">"proxy.corp.local"</span>, <span class="code-string">8080</span>)))
+    .build();
+
+<span class="code-class">HttpRequest</span> req = <span class="code-class">HttpRequest</span>.newBuilder()
+    .uri(<span class="code-class">URI</span>.create(<span class="code-string">"https://api.example.com/data"</span>))
+    .build();
+
+<span class="code-comment"># example.com sees the proxy IP, not the client's</span>
+<span class="code-class">HttpResponse</span>&lt;<span class="code-class">String</span>&gt; res =
+    client.send(req, <span class="code-class">BodyHandlers</span>.ofString());
+</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>ProxySelector.of(...)</code> makes the client route outbound calls via the proxy.</li>
+                    <li>The proxy forwards the request, so the destination sees the proxy's IP.</li>
+                    <li>This is client-side configuration - the hallmark of a forward proxy.</li>
+                    <li>The same proxy can cache, filter, or log the traffic centrally.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

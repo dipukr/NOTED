@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bulkhead Isolation - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Bulkhead Isolation</div>
+
+    <div class="intro">
+        <p>The Bulkhead pattern isolates resources so a failure in one part of a system cannot sink the whole.</p>
+        <p>It is named after the watertight compartments in a ship's hull.</p>
+        <p>Each dependency gets its own pool of threads or connections, capped independently.</p>
+        <p>If one dependency saturates its pool, others keep running normally.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use when several dependencies share one resource pool.</li>
+            <li>Partition thread pools or connection pools per dependency.</li>
+            <li>Prevents one slow call from exhausting all threads.</li>
+            <li>Often paired with a circuit breaker and timeouts.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Contains failures to a single compartment.</li>
+            <li>Preserves capacity for healthy dependencies.</li>
+            <li>Improves overall system resilience under load.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Partitioning can under-utilize total resources.</li>
+            <li>Requires sizing each pool correctly.</li>
+            <li>More pools mean more configuration to manage.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># Resilience4j bulkhead caps concurrent calls per dependency</span>
+<span class="code-class">@Service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ReportService</span> {
+
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">ReportClient</span> client;
+
+    <span class="code-keyword">public</span> <span class="code-class">ReportService</span>(<span class="code-class">ReportClient</span> client) {
+        <span class="code-keyword">this</span>.client = client;
+    }
+
+    <span class="code-comment"># at most N concurrent calls; extras are rejected fast</span>
+    <span class="code-class">@Bulkhead</span>(name = <span class="code-string">"reports"</span>, fallbackMethod = <span class="code-string">"busy"</span>)
+    <span class="code-keyword">public</span> <span class="code-class">Report</span> generate(<span class="code-class">Long</span> id) {
+        <span class="code-keyword">return</span> client.build(id);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">Report</span> busy(<span class="code-class">Long</span> id, <span class="code-class">Throwable</span> t) {
+        <span class="code-keyword">return</span> <span class="code-class">Report</span>.tryLater(); <span class="code-comment"># compartment is full</span>
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>@Bulkhead</code> limits concurrent calls to the <code>reports</code> pool.</li>
+                    <li>Overflow calls hit <code>busy</code> instead of consuming shared threads.</li>
+                    <li>A flood of report requests cannot starve other features.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

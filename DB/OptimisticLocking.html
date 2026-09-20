@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Optimistic Locking - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Optimistic Locking</div>
+
+    <div class="intro">
+        <p>Optimistic locking assumes conflicts are rare and does not lock rows while reading.</p>
+        <p>Instead, it detects conflicts at write time using a version column or timestamp.</p>
+        <p>When updating, it checks that the version has not changed since the row was read.</p>
+        <p>If the version differs, another transaction changed the row and the update fails.</p>
+        <p>The failed transaction must retry with fresh data.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use when conflicts are infrequent and read concurrency matters.</li>
+            <li>Add a version column that increments on every update.</li>
+            <li>The UPDATE includes the expected version in its WHERE clause.</li>
+            <li>Zero rows updated means a conflict occurred.</li>
+            <li>In JPA, <code>@Version</code> enables it automatically.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>No locks held during reads, so high concurrency.</li>
+            <li>No risk of deadlocks from held locks.</li>
+            <li>Scales well for read-heavy workloads.</li>
+            <li>Simple to implement with a version field.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Wasted work when conflicts do occur and retries are needed.</li>
+            <li>Poor fit for highly contended rows.</li>
+            <li>Callers must handle and retry conflict exceptions.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">CREATE TABLE</span> <span class="code-class">Product</span> (
+    <span class="code-class">Id</span> <span class="code-keyword">INT PRIMARY KEY</span>,
+    <span class="code-class">Price</span> <span class="code-keyword">DECIMAL</span>(<span class="code-number">10</span>,<span class="code-number">2</span>) <span class="code-keyword">NOT NULL</span>,
+    <span class="code-class">RowVersion</span> <span class="code-keyword">ROWVERSION</span>              <span class="code-comment">-- auto-incrementing binary stamp per write</span>
+);
+
+<span class="code-comment">-- application reads the row and its current RowVersion first</span>
+<span class="code-keyword">SELECT</span> <span class="code-class">Id</span>, <span class="code-class">Price</span>, <span class="code-class">RowVersion</span>
+<span class="code-keyword">FROM</span> <span class="code-class">Product</span>
+<span class="code-keyword">WHERE</span> <span class="code-class">Id</span> = @Id;
+
+<span class="code-comment">-- update only succeeds if RowVersion still matches what was read</span>
+<span class="code-keyword">BEGIN TRY</span>
+    <span class="code-keyword">UPDATE</span> <span class="code-class">Product</span>
+    <span class="code-keyword">SET</span> <span class="code-class">Price</span> = @NewPrice
+    <span class="code-keyword">WHERE</span> <span class="code-class">Id</span> = @Id
+      <span class="code-keyword">AND</span> <span class="code-class">RowVersion</span> = @OriginalRowVersion;
+
+    <span class="code-keyword">IF</span> @@ROWCOUNT = <span class="code-number">0</span>
+        <span class="code-keyword">THROW</span> <span class="code-number">51000</span>, <span class="code-string">'Optimistic concurrency conflict: row changed since read'</span>, <span class="code-number">1</span>;
+<span class="code-keyword">END TRY</span>
+<span class="code-keyword">BEGIN CATCH</span>
+    <span class="code-comment">-- caller re-reads the row and retries with the new RowVersion</span>
+    <span class="code-keyword">THROW</span>;
+<span class="code-keyword">END CATCH</span></code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>RowVersion</code> is a database-maintained value that changes automatically on every write to the row.</li>
+                    <li>The <code>UPDATE</code> matches both <code>Id</code> and the <code>RowVersion</code> value read earlier, in the same statement.</li>
+                    <li>If another transaction updated the row in between, <code>RowVersion</code> no longer matches and <code>@@ROWCOUNT</code> is zero.</li>
+                    <li>The <code>TRY/CATCH</code> raises a conflict error so the caller can re-read the latest row and retry.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

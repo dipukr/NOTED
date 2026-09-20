@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQL vs NoSQL - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">SQL vs NoSQL</div>
+
+    <div class="intro">
+        <p>Depending on how data is modelled and organized, databases are grouped into two broad categories: SQL and NoSQL.</p>
+        <p>SQL (relational) databases structure data into a set of tables and a set of relationships between those tables, with a fixed schema.</p>
+        <p>NoSQL databases store data as documents, key-value pairs, wide columns or graphs, usually with a flexible or schema-less model.</p>
+        <p>SQL databases favour strong consistency and ACID transactions; many NoSQL stores favour availability and horizontal scale.</p>
+        <p>The right choice depends on data shape, query patterns, consistency needs and scale.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use SQL when data is highly relational and you need joins, transactions and strong consistency.</li>
+            <li>Use NoSQL for large volumes of loosely structured data or very high write/read throughput.</li>
+            <li>SQL scales vertically and with read replicas; NoSQL is built to scale horizontally by sharding.</li>
+            <li>SQL enforces schema on write; NoSQL often applies schema on read.</li>
+            <li>Many systems use both (polyglot persistence) for different workloads.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>SQL: mature tooling, ACID guarantees, powerful ad-hoc queries with joins.</li>
+            <li>SQL: strong integrity through keys and constraints.</li>
+            <li>NoSQL: flexible schema and easy horizontal scaling.</li>
+            <li>NoSQL: high performance for simple key-based access patterns.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>SQL: horizontal scaling is harder and schema changes can be costly.</li>
+            <li>NoSQL: limited or no joins and often eventual consistency.</li>
+            <li>NoSQL: query flexibility is weaker; you model data around access patterns.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">-- Relational (SQL): normalized tables, joined at query time</span>
+<span class="code-keyword">CREATE TABLE</span> <span class="code-class">Customer</span> (
+    id            <span class="code-keyword">INT</span> <span class="code-keyword">PRIMARY KEY</span>,
+    email         <span class="code-keyword">VARCHAR</span>(<span class="code-number">200</span>) <span class="code-keyword">NOT NULL</span>
+);
+
+<span class="code-keyword">CREATE TABLE</span> <span class="code-class">Orders</span> (
+    id            <span class="code-keyword">INT</span> <span class="code-keyword">PRIMARY KEY</span>,
+    customer_id   <span class="code-keyword">INT</span> <span class="code-keyword">NOT NULL</span> <span class="code-keyword">REFERENCES</span> <span class="code-class">Customer</span>(id),
+    order_date    <span class="code-keyword">DATE</span> <span class="code-keyword">NOT NULL</span>,
+    total_amount  <span class="code-keyword">DECIMAL</span>(<span class="code-number">10</span>,<span class="code-number">2</span>) <span class="code-keyword">NOT NULL</span>
+);
+
+<span class="code-comment">-- One customer's orders, assembled with a JOIN across normalized tables</span>
+<span class="code-keyword">SELECT</span> c.email, o.order_date, o.total_amount
+<span class="code-keyword">FROM</span> <span class="code-class">Customer</span> c
+<span class="code-keyword">JOIN</span> <span class="code-class">Orders</span> o <span class="code-keyword">ON</span> o.customer_id = c.id
+<span class="code-keyword">WHERE</span> c.email = <span class="code-string">'jane@example.com'</span>
+<span class="code-keyword">ORDER BY</span> o.order_date <span class="code-keyword">DESC</span>;
+
+<span class="code-comment">-- Denormalized (NoSQL-style) single-table equivalent: orders embedded as JSON</span>
+<span class="code-keyword">CREATE TABLE</span> <span class="code-class">CustomerDoc</span> (
+    id            <span class="code-keyword">INT</span> <span class="code-keyword">PRIMARY KEY</span>,
+    email         <span class="code-keyword">VARCHAR</span>(<span class="code-number">200</span>) <span class="code-keyword">NOT NULL</span>,
+    orders_json   <span class="code-keyword">NVARCHAR</span>(<span class="code-keyword">MAX</span>) <span class="code-keyword">NOT NULL</span>   <span class="code-comment">-- e.g. '[{"date":"2024-01-05","total":49.99}, ...]'</span>
+);
+
+<span class="code-comment">-- Same result, no join needed: shred the embedded JSON with OPENJSON</span>
+<span class="code-keyword">SELECT</span> d.email, j.order_date, j.total_amount
+<span class="code-keyword">FROM</span> <span class="code-class">CustomerDoc</span> d
+<span class="code-keyword">CROSS APPLY</span> <span class="code-keyword">OPENJSON</span>(d.orders_json)
+    <span class="code-keyword">WITH</span> (order_date <span class="code-keyword">DATE</span> <span class="code-string">'$.date'</span>, total_amount <span class="code-keyword">DECIMAL</span>(<span class="code-number">10</span>,<span class="code-number">2</span>) <span class="code-string">'$.total'</span>) <span class="code-keyword">AS</span> j
+<span class="code-keyword">WHERE</span> d.email = <span class="code-string">'jane@example.com'</span>
+<span class="code-keyword">ORDER BY</span> j.order_date <span class="code-keyword">DESC</span>;</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>The relational version keeps customers and orders in separate, normalized tables linked by a foreign key, so a <code>JOIN</code> is required to combine them.</li>
+                    <li>The denormalized version embeds each customer's orders directly as JSON in a single row, mirroring how a document store like MongoDB would model the same data.</li>
+                    <li><code>OPENJSON</code> shreds the embedded array back into rows at query time, avoiding a join at the cost of update complexity and possible duplication.</li>
+                    <li>The normalized model favors consistency and flexible querying; the denormalized model favors fast single-document reads at the expense of join-free, harder updates.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

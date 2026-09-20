@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Polymorphism - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Polymorphism</div>
+
+    <div class="intro">
+        <p>Polymorphism is a mechanism which allows an entity such as an variable, a method or an object to have more than one form.</p>
+        <p>Polymorphism enables us to deal with generalities and let the compiler and runtime environment to handle the specific.</p>
+        <p>Polymorphism can be achieved through method overloading, method overriding and generics.</p>
+        <p>Polymorphism is the provision of a single interface to entities of different types.</p>
+        <p>Polymorphism is the use of a single symbol to represent multiple different types.</p>
+        <p>Many methods can have one common name.</p>
+        <p>One method can accept many types of arguments.</p>
+        <p>One method header can be associated with many method body.</p>
+        <p>One type of reference variable can be used to access many type of objects.</p>
+        <p>Field level polymorphism: a reference variable of class E can point to objects of class E as well as objects of subclass of E.</p>
+        <p>Subtype polymorphism is a form of type polymorphism where a variable of a superclass refer to and object of a subclass.</p>
+        <p>Subtype polymorphism allows a single interface or symbol to represent different type of objects.</p>
+        <p>Which means code written for a superclass can be used with instances of its subclasses.</p>
+        <p>At runtime, the program calls the correct method based on the object's actual type.</p>
+        <p>Inheritance and substitutability - a subclass is considered a subtype of its superclass.</p>
+        <p>This relationship allows an object of the subclass to be substituted for an object of the superclass.</p>
+        <p>Dynamic method selection - the specific method that is executed is determined at runtime, not at compile time.</p>
+        <p>Single interface for multiple types: let us write code that operates on superclass type and work correctly with any of its subclasses.</p>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">Animal</span> {
+    <span class="code-keyword">public</span> String sound() { <span class="code-keyword">return</span> <span class="code-string">"..."</span>; }
+}
+
+<span class="code-keyword">public class</span> <span class="code-class">Dog</span> <span class="code-keyword">extends</span> <span class="code-class">Animal</span> {
+    <span class="code-class">@Override</span> <span class="code-keyword">public</span> String sound() { <span class="code-keyword">return</span> <span class="code-string">"Woof"</span>; }
+}
+
+<span class="code-keyword">public class</span> <span class="code-class">Cat</span> <span class="code-keyword">extends</span> <span class="code-class">Animal</span> {
+    <span class="code-class">@Override</span> <span class="code-keyword">public</span> String sound() { <span class="code-keyword">return</span> <span class="code-string">"Meow"</span>; }
+}
+
+<span class="code-keyword">void</span> main() {
+    <span class="code-comment"># one reference type, many forms</span>
+    <span class="code-class">Animal</span>[] animals = { <span class="code-keyword">new</span> <span class="code-class">Dog</span>(), <span class="code-keyword">new</span> <span class="code-class">Cat</span>() };
+    <span class="code-keyword">for</span> (<span class="code-class">Animal</span> a : animals)
+        System.out.println(a.sound());
+}</code></pre>
+            </div>
+
+            <div class="code-explanation">
+                <div class="code-explanation-title">How polymorphism works</div>
+                <ul>
+                    <li>One <code>Animal</code> reference type holds <code>Dog</code> and <code>Cat</code> objects.</li>
+                    <li>The loop calls <code>sound()</code> without knowing the exact type.</li>
+                    <li>Dynamic binding runs each object's own overridden method.</li>
+                    <li>The same call produces different behaviour per type.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

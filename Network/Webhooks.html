@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Webhooks - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Webhooks</div>
+
+    <div class="intro">
+        <p>A webhook is an HTTP callback that one system sends to another when an event occurs.</p>
+        <p>Instead of the client polling for changes, the provider pushes data to a registered URL.</p>
+        <p>The receiver exposes an endpoint that the provider calls with the event payload.</p>
+        <p>It is a simple, event-driven way to integrate systems over HTTP.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use for event notifications between services (payments, CI, git pushes).</li>
+            <li>The consumer registers a callback URL with the provider.</li>
+            <li>Payloads should be verified with a signature or secret.</li>
+            <li>Handlers must be idempotent since providers retry.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Real-time push without wasteful polling.</li>
+            <li>Simple to implement over standard HTTP.</li>
+            <li>Decouples the producer from the consumer.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>The receiver must expose a public, always-available endpoint.</li>
+            <li>Delivery can fail; retries risk duplicate processing.</li>
+            <li>Payloads must be authenticated to prevent spoofing.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># Receiving and verifying a webhook</span>
+<span class="code-class">@RestController</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">WebhookController</span> {
+
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">SignatureVerifier</span> verifier;
+
+    <span class="code-keyword">public</span> <span class="code-class">WebhookController</span>(<span class="code-class">SignatureVerifier</span> verifier) {
+        <span class="code-keyword">this</span>.verifier = verifier;
+    }
+
+    <span class="code-class">@PostMapping</span>(<span class="code-string">"/webhooks/payment"</span>)
+    <span class="code-keyword">public</span> <span class="code-class">ResponseEntity</span>&lt;<span class="code-class">Void</span>&gt; onPayment(
+            <span class="code-class">@RequestHeader</span>(<span class="code-string">"X-Signature"</span>) <span class="code-class">String</span> sig,
+            <span class="code-class">@RequestBody</span> <span class="code-class">String</span> payload) {
+
+        <span class="code-keyword">if</span> (!verifier.isValid(payload, sig)) {  <span class="code-comment"># reject spoofed calls</span>
+            <span class="code-keyword">return</span> <span class="code-class">ResponseEntity</span>.status(<span class="code-string">401</span>).build();
+        }
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Payment event: "</span> + payload);
+        <span class="code-keyword">return</span> <span class="code-class">ResponseEntity</span>.ok().build();      <span class="code-comment"># 200 acknowledges receipt</span>
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>The provider POSTs the event to the registered URL.</li>
+                    <li>The signature header is verified before trusting the payload.</li>
+                    <li>Returning 200 tells the provider not to retry.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

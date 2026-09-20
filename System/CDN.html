@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Content Delivery Networks - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Content Delivery Networks</div>
+
+    <div class="intro">
+        <p>A CDN is a geographically distributed network of edge servers that cache content near users.</p>
+        <p>Requests are routed to the closest edge, cutting latency and offloading the origin server.</p>
+        <p>CDNs serve static assets, media, and increasingly dynamic and API responses.</p>
+        <p>Cache behavior is controlled with TTLs, cache-control headers, and invalidation rules.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use a CDN for images, CSS, JS, video, and downloadable files served globally.</li>
+            <li>Set correct Cache-Control and ETag headers so edges cache and revalidate.</li>
+            <li>Use cache busting (versioned filenames) instead of frequent purges.</li>
+            <li>CDNs also add TLS termination, DDoS protection, and edge compute.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Lower latency by serving content from a nearby edge location.</li>
+            <li>Reduced origin load and bandwidth costs through caching.</li>
+            <li>Higher availability and resilience against traffic spikes and attacks.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Stale content can be served until caches expire or are purged.</li>
+            <li>Cache invalidation across many edges is hard to do instantly.</li>
+            <li>Adds cost and another vendor dependency to the stack.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">// Set cache headers so a CDN can cache static responses</span>
+<span class="code-class">@RestController</span>
+<span class="code-keyword">public class</span> <span class="code-class">AssetController</span> {
+
+    <span class="code-class">@GetMapping</span>(<span class="code-string">"/assets/logo"</span>)
+    <span class="code-keyword">public</span> <span class="code-class">ResponseEntity</span>&lt;<span class="code-keyword">byte</span>[]&gt; logo() {
+        <span class="code-keyword">byte</span>[] bytes = assetService.loadLogo();
+
+        <span class="code-keyword">return</span> <span class="code-class">ResponseEntity</span>.ok()
+                <span class="code-comment">// public + long max-age lets the CDN cache aggressively</span>
+                .cacheControl(<span class="code-class">CacheControl</span>.maxAge(<span class="code-class">Duration</span>.ofDays(30)).cachePublic())
+                .eTag(<span class="code-class">Integer</span>.toHexString(<span class="code-class">Arrays</span>.hashCode(bytes)))
+                .contentType(<span class="code-class">MediaType</span>.IMAGE_PNG)
+                .body(bytes);
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>CacheControl.maxAge(...).cachePublic()</code> tells edges and browsers to cache for 30 days.</li>
+                    <li><code>eTag(...)</code> enables conditional revalidation so unchanged assets return 304.</li>
+                    <li><code>contentType</code> ensures correct MIME handling at the edge and client.</li>
+                    <li>Versioned URLs (not shown) let you replace content without waiting for TTL expiry.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

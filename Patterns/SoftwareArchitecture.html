@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Software Architecture - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Software Architecture</div>
+
+    <div class="intro">
+        <p>Architecture of a system describes its major components, their relationships, and how they interact with each other.</p>
+        <p>It is the high-level, strategic blueprint of a system, defining its overall structure and core components to meet business needs.</p>
+        <p>Architecture defines the what and why, while design covers the how of specific implementation.</p>
+        <p>It addresses non-functional requirements like security, performance, and scalability across the whole system.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Choosing an overall pattern like microservices, monolith, or serverless.</li>
+            <li>Addressing cross-cutting concerns: security, performance, scalability.</li>
+            <li>Defining interactions between major components and external systems.</li>
+            <li>Decisions here are expensive to reverse, so they are made early and deliberately.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Gives the team a shared mental model of the system.</li>
+            <li>Aligns technical structure with business goals.</li>
+            <li>Makes quality attributes (scalability, resilience) explicit up front.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Wrong early decisions are costly and disruptive to change later.</li>
+            <li>Over-architecting adds complexity the product may never need.</li>
+            <li>Requires balancing many competing quality attributes.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># A layered architecture expressed through Spring stereotypes</span>
+<span class="code-class">@RestController</span>
+<span class="code-class">@RequestMapping</span>(<span class="code-string">"/orders"</span>)
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderController</span> {
+
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">OrderService</span> service; <span class="code-comment"># presentation -&gt; service layer</span>
+
+    <span class="code-keyword">public</span> <span class="code-class">OrderController</span>(<span class="code-class">OrderService</span> service) {
+        <span class="code-keyword">this</span>.service = service;
+    }
+
+    <span class="code-class">@GetMapping</span>(<span class="code-string">"/{id}"</span>)
+    <span class="code-keyword">public</span> <span class="code-class">OrderDto</span> get(<span class="code-class">@PathVariable</span> <span class="code-class">Long</span> id) {
+        <span class="code-keyword">return</span> service.findById(id);
+    }
+}
+
+<span class="code-class">@Service</span>
+<span class="code-keyword">class</span> <span class="code-class">OrderService</span> {           <span class="code-comment"># business layer</span>
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">OrderRepository</span> repo; <span class="code-comment"># -&gt; data layer</span>
+    <span class="code-class">OrderService</span>(<span class="code-class">OrderRepository</span> repo) { <span class="code-keyword">this</span>.repo = repo; }
+    <span class="code-class">OrderDto</span> findById(<span class="code-class">Long</span> id) { <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">OrderDto</span>(repo.load(id)); }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>Each layer talks only to the one directly below it, a key architectural rule.</li>
+                    <li><code>@RestController</code>, <code>@Service</code> mark component boundaries clearly.</li>
+                    <li>Swapping the data layer never touches the controller, keeping change localized.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

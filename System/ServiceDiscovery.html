@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Service Discovery - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Service Discovery</div>
+
+    <div class="intro">
+        <p>Service discovery lets services find the network locations of other services automatically.</p>
+        <p>In dynamic environments, instances start, stop, and move, so their addresses cannot be hardcoded.</p>
+        <p>A service registry keeps an up-to-date map of service names to healthy instance addresses.</p>
+        <p>It comes in client-side and server-side flavours.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use in microservices/cloud where instances are ephemeral and IPs change.</li>
+            <li>Instances register on startup and deregister (or expire) on shutdown/failure.</li>
+            <li>Client-side discovery: the caller queries the registry and picks an instance.</li>
+            <li>Server-side discovery: a load balancer/gateway resolves the service for the caller.</li>
+            <li>Tools include Consul, Eureka, etcd, and Kubernetes DNS/Services.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>No hardcoded addresses - services scale and move freely.</li>
+            <li>Health-aware routing sends traffic only to live instances.</li>
+            <li>Supports elasticity and automated deployments.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>The registry is critical infrastructure that must be highly available.</li>
+            <li>Stale entries can route traffic to dead instances.</li>
+            <li>Adds moving parts and consistency concerns.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># Client-side discovery via Spring Cloud DiscoveryClient</span>
+<span class="code-class">@Service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderClient</span> {
+
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">DiscoveryClient</span> discovery;
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">RestTemplate</span> http;
+
+    <span class="code-class">OrderClient</span>(<span class="code-class">DiscoveryClient</span> d, <span class="code-class">RestTemplate</span> h) {
+        <span class="code-keyword">this</span>.discovery = d; <span class="code-keyword">this</span>.http = h;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">String</span> fetch(<span class="code-class">Long</span> id) {
+        <span class="code-comment"># resolve a live instance by logical service name</span>
+        <span class="code-class">ServiceInstance</span> inst = discovery.getInstances(<span class="code-string">"order-service"</span>).get(<span class="code-string">0</span>);
+        <span class="code-class">String</span> url = inst.getUri() + <span class="code-string">"/orders/"</span> + id;
+        <span class="code-keyword">return</span> http.getForObject(url, <span class="code-class">String</span>.class);
+    }
+}
+</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>getInstances("order-service")</code> looks up live addresses from the registry.</li>
+                    <li>The caller picks an instance and builds the URL dynamically.</li>
+                    <li>No IP is hardcoded, so instances can scale or move freely.</li>
+                    <li>A real client adds load balancing and retries across instances.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

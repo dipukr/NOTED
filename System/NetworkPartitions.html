@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Network Partitions - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Network Partitions</div>
+
+    <div class="intro">
+        <p>A network partition is a split in a distributed system where nodes cannot communicate with each other.</p>
+        <p>Messages between one group of nodes and another are dropped or delayed indefinitely.</p>
+        <p>Partitions are unavoidable in real networks, which is why the CAP theorem treats partition tolerance as mandatory.</p>
+        <p>During a partition a system must choose between staying consistent and staying available.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Assume partitions will happen; design for them rather than hoping to avoid them.</li>
+            <li>A "split brain" occurs when both sides keep operating and diverge.</li>
+            <li>Quorum (majority) rules prevent two sides from both accepting writes.</li>
+            <li>CP systems block the minority side; AP systems serve stale data and reconcile later.</li>
+            <li>Use fencing tokens and conflict resolution (e.g. version vectors) after healing.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Planning for partitions yields more robust, fault-tolerant systems.</li>
+            <li>Quorum-based designs avoid conflicting writes automatically.</li>
+            <li>Explicit partition handling makes recovery behaviour predictable.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Forces a hard choice between consistency and availability.</li>
+            <li>Split brain can corrupt data if not guarded against.</li>
+            <li>Post-partition reconciliation adds significant complexity.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># Quorum check: only the majority side may accept writes during a partition</span>
+<span class="code-keyword">public</span> <span class="code-keyword">boolean</span> canAcceptWrite(<span class="code-keyword">int</span> reachableNodes, <span class="code-keyword">int</span> totalNodes) {
+    <span class="code-keyword">int</span> quorum = totalNodes / <span class="code-string">2</span> + <span class="code-string">1</span>; <span class="code-comment"># strict majority</span>
+    <span class="code-keyword">if</span> (reachableNodes &lt; quorum) {
+        <span class="code-comment"># minority side: refuse writes to avoid split brain</span>
+        <span class="code-keyword">return</span> <span class="code-keyword">false</span>;
+    }
+    <span class="code-keyword">return</span> <span class="code-keyword">true</span>;
+}
+</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>quorum</code> is a strict majority, so only one side can ever reach it.</li>
+                    <li>The minority side returns false and stops accepting writes.</li>
+                    <li>This prevents both partitions from diverging (split brain).</li>
+                    <li>When the partition heals, the minority catches up from the majority.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

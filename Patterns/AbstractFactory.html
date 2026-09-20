@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abstract Factory Pattern - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Abstract Factory Pattern</div>
+
+    <div class="intro">
+        <p>Abstract Factory is a creational design pattern that provides an interface for creating families of related or dependent objects without specifying their concrete classes.</p>
+        <p>Where a Factory Method creates a single product, an Abstract Factory groups several factory methods to produce a whole family of products that are designed to work together.</p>
+        <p>Client code interacts only with the abstract factory and abstract products, so an entire family can be swapped by changing the concrete factory.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use</div>
+        <div class="section-content">
+            <ul>
+                <li>When your system needs to create families of related products together.</li>
+                <li>When products from one family must be used consistently and not mixed with another.</li>
+                <li>When you want to isolate client code from concrete product classes.</li>
+                <li>When you need to support multiple variants (themes, platforms, vendors).</li>
+                <li>When you want to configure a system with one of several product families.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content">
+            <ul>
+                <li>Guarantees that products from a single family are used together.</li>
+                <li>Isolates concrete classes from the client code.</li>
+                <li>Makes swapping entire product families easy and centralized.</li>
+                <li>Follows the open/closed principle when adding new families.</li>
+                <li>Promotes consistency among the objects produced.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages</div>
+        <div class="section-content">
+            <ul>
+                <li>Adds many interfaces and classes, increasing complexity.</li>
+                <li>Adding a new product type requires changing every factory.</li>
+                <li>Can be over-engineered for systems with a single product family.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public interface</span> <span class="code-class">Button</span>  { <span class="code-keyword">void</span> paint(); }
+<span class="code-keyword">public interface</span> <span class="code-class">Checkbox</span> { <span class="code-keyword">void</span> paint(); }
+
+<span class="code-keyword">public class</span> <span class="code-class">WinButton</span>   <span class="code-keyword">implements</span> <span class="code-class">Button</span>   { <span class="code-keyword">public void</span> paint(){ System.out.println(<span class="code-string">"Win button"</span>);} }
+<span class="code-keyword">public class</span> <span class="code-class">WinCheckbox</span> <span class="code-keyword">implements</span> <span class="code-class">Checkbox</span> { <span class="code-keyword">public void</span> paint(){ System.out.println(<span class="code-string">"Win checkbox"</span>);} }
+
+<span class="code-comment"># Abstract factory: a family of related products</span>
+<span class="code-keyword">public interface</span> <span class="code-class">GUIFactory</span> {
+    <span class="code-class">Button</span> createButton();
+    <span class="code-class">Checkbox</span> createCheckbox();
+}
+
+<span class="code-keyword">public class</span> <span class="code-class">WinFactory</span> <span class="code-keyword">implements</span> <span class="code-class">GUIFactory</span> {
+    <span class="code-keyword">public</span> <span class="code-class">Button</span> createButton()     { <span class="code-keyword">return new</span> <span class="code-class">WinButton</span>(); }
+    <span class="code-keyword">public</span> <span class="code-class">Checkbox</span> createCheckbox() { <span class="code-keyword">return new</span> <span class="code-class">WinCheckbox</span>(); }
+}
+
+<span class="code-keyword">void</span> main() {
+    <span class="code-class">GUIFactory</span> factory = <span class="code-keyword">new</span> <span class="code-class">WinFactory</span>();
+    factory.createButton().paint();
+    factory.createCheckbox().paint();
+}</code></pre>
+            </div>
+
+            <div class="code-explanation">
+                <div class="code-explanation-title">How the Abstract Factory works</div>
+                <ul>
+                    <li><code>Button</code> and <code>Checkbox</code> are abstract products of one family.</li>
+                    <li><code>GUIFactory</code> declares creation methods for the whole family.</li>
+                    <li><code>WinFactory</code> produces matching Windows-style widgets that belong together.</li>
+                    <li>The client uses only the factory and product interfaces; swapping to another factory changes the entire look.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

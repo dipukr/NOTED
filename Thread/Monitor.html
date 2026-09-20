@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monitor - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Monitor</div>
+
+    <div class="intro">
+        <p>Synchronization is built around an internal entity known as the monitor.</p>
+        <p>Monitors are used to achieved mutual exclusion and threads cooperation.</p>
+        <p>A monitor is an entity that possesses a lock, a wait-queue and an entry-queue.</p>
+        <p>Every Java objects has a monitor associated with them.</p>
+        <p>Lock enforces mutual exclusive access to synchronized code block or method invoked on the associated object.</p>
+        <p>Entry-set is the set of all the threads who has already requested for the lock and the lock is not acquired by them yet.</p>
+        <p>Wait-set is the set of all the threads waiting on an monitor object that is used to provide coordination between multiple threads.</p>
+        <p>A lock is a tool for controlling access to a shared resource by multiple threads.</p>
+        <p>Every objects in java has an intrinsic lock associated with it.</p>
+        <p>Only one thread at a time can acquire the lock and all access to the shared resource requires that the lock be acquired first.</p>
+        <p>When a new thread tries to acquire the lock and if already a thread owns the lock then that thread will be waiting on the entry set to acquire the lock. When the thread which is acquired the lock completes execution of its critical section then it will release the lock. Next thread will acquire the lock but this next thread is taken from the entry set and will be determined by JVM based on some criteria like FIFO.</p>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">BoundedBuffer</span> {
+    <span class="code-keyword">private final</span> Queue&lt;Integer&gt; q = <span class="code-keyword">new</span> LinkedList&lt;&gt;();
+    <span class="code-keyword">private final int</span> capacity = 10;
+
+    <span class="code-keyword">public synchronized void</span> put(<span class="code-keyword">int</span> x) <span class="code-keyword">throws</span> InterruptedException {
+        <span class="code-keyword">while</span> (q.size() == capacity)
+            wait();                 <span class="code-comment"># release lock, wait for space</span>
+        q.add(x);
+        notifyAll();                <span class="code-comment"># wake consumers</span>
+    }
+
+    <span class="code-keyword">public synchronized int</span> take() <span class="code-keyword">throws</span> InterruptedException {
+        <span class="code-keyword">while</span> (q.isEmpty())
+            wait();                 <span class="code-comment"># wait for an item</span>
+        <span class="code-keyword">int</span> x = q.remove();
+        notifyAll();                <span class="code-comment"># wake producers</span>
+        <span class="code-keyword">return</span> x;
+    }
+}</code></pre>
+            </div>
+
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>synchronized</code> makes the object's monitor guard the queue.</li>
+                    <li><code>wait()</code> blocks and releases the lock when the buffer is full or empty.</li>
+                    <li>The <code>while</code> loop rechecks the condition after every wake-up.</li>
+                    <li><code>notifyAll()</code> signals waiting producers or consumers.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CompletableFuture Async - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">CompletableFuture Async</div>
+
+    <div class="intro">
+        <p><code>CompletableFuture</code> (Java 8+) represents an asynchronous computation that can be composed and chained.</p>
+        <p>It implements <code>Future</code> and <code>CompletionStage</code>, enabling non-blocking pipelines.</p>
+        <p>Callbacks like <code>thenApply</code>, <code>thenCompose</code> and <code>thenCombine</code> run when results become available.</p>
+        <p>It handles errors with <code>exceptionally</code> and <code>handle</code> without blocking.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Compose multiple async calls without nested callbacks.</li>
+            <li>Run independent tasks in parallel and combine results.</li>
+            <li>Always supply an explicit <code>Executor</code> for I/O-bound work.</li>
+            <li>Avoid blocking with <code>get()</code> inside async pipelines.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Fluent composition of dependent and independent tasks.</li>
+            <li>Non-blocking callbacks and built-in error handling.</li>
+            <li>Combine many futures with <code>allOf</code>/<code>anyOf</code>.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Defaults to the common <code>ForkJoinPool</code>, bad for blocking I/O.</li>
+            <li>Deep chains can be hard to debug and read.</li>
+            <li>Exceptions are wrapped in <code>CompletionException</code>.</li>
+        </ul></div>
+    </div>
+
+    <div class="section cmp">
+        <div class="section-title">Future vs CompletableFuture</div>
+        <div class="section-content">
+            <table class="cmp-table">
+                <thead><tr><th>Aspect</th><th>Future</th><th>CompletableFuture</th></tr></thead>
+                <tbody>
+                    <tr><td>Introduced</td><td>Java 5</td><td>Java 8</td></tr>
+                    <tr><td>Completion</td><td>Only by the executing task</td><td>Can be completed manually via <code>complete()</code> / <code>completeExceptionally()</code></td></tr>
+                    <tr><td>Result retrieval</td><td>Blocking <code>get()</code> only</td><td>Non-blocking callbacks (<code>thenApply</code>, <code>thenAccept</code>&hellip;) plus <code>get()</code>/<code>join()</code></td></tr>
+                    <tr><td>Chaining</td><td>Not supported</td><td>Fluent chaining and composition (<code>thenCompose</code>, <code>thenCombine</code>)</td></tr>
+                    <tr><td>Combining tasks</td><td>Manual, with multiple blocking <code>get()</code> calls</td><td>Built-in <code>allOf</code>, <code>anyOf</code>, <code>thenCombine</code></td></tr>
+                    <tr><td>Error handling</td><td>Catch <code>ExecutionException</code> around <code>get()</code></td><td>Declarative <code>exceptionally</code>, <code>handle</code>, <code>whenComplete</code></td></tr>
+                    <tr><td>Manual completion</td><td>No</td><td>Yes</td></tr>
+                    <tr><td>Timeout support</td><td>Only <code>get(timeout, unit)</code></td><td><code>orTimeout()</code> and <code>completeOnTimeout()</code> (Java 9+)</td></tr>
+                    <tr><td>Executor control</td><td>Fixed at submission</td><td>Per-stage via <code>*Async(&hellip;, Executor)</code> overloads</td></tr>
+                    <tr><td>Manual cancellation</td><td><code>cancel()</code> (may not interrupt)</td><td><code>cancel()</code>; also completes exceptionally</td></tr>
+                    <tr><td>Implements</td><td><code>Future</code></td><td><code>Future</code> + <code>CompletionStage</code></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="section api">
+        <div class="section-title">API Reference</div>
+        <div class="section-content">
+            <table class="api-table">
+                <tbody>
+                    <tr class="api-row"><td><div class="api-sig"><code>static &lt;U&gt; CompletableFuture&lt;U&gt; completedFuture(U value)</code></div><div class="api-desc"><p>Wraps an already-known value in a future that is done immediately, useful as a default or a cache hit.</p><pre class="api-code"><code>CompletableFuture&lt;String&gt; cached = CompletableFuture.completedFuture(<span class="code-string">"cached-value"</span>);
+CompletableFuture&lt;String&gt; cf = cache.containsKey(id) ? cached : loadAsync(id);</code></pre></div></td></tr>
+                    <tr class="api-row"><td><div class="api-sig"><code>static CompletableFuture&lt;Void&gt; runAsync(Runnable r)</code></div><div class="api-desc"><p>Runs a fire-and-forget task with no return value on the common ForkJoinPool.</p><pre class="api-code"><code>CompletableFuture&lt;Void&gt; cf = CompletableFuture.runAsync(() -&gt; {
+    auditLog.write(<span class="code-string">"user logged in"</span>);
+});
+cf.join(); // wait for the audit write to finish</code></pre></div></td></tr>
+                    <tr class="api-row"><td><div class="api-sig"><code>static CompletableFuture&lt;Void&gt; runAsync(Runnable r, Executor e)</code></div><div class="api-desc"><p>Same as runAsync, but the task runs on the executor you supply instead of the common pool.</p><pre class="api-code"><code>ExecutorService ioPool = Executors.newFixedThreadPool(<span class="code-number">4</span>);
+CompletableFuture.runAsync(() -&gt; writeToDisk(payload), ioPool);</code></pre></div></td></tr>
+                    <tr class="api-row"><td><div class="api-sig"><code>static &lt;U&gt; CompletableFuture&lt;U&gt; supplyAsync(Supplier&lt;U&gt; s)</code></div><div class="api-desc"><p>Runs a value-returning task asynchronously on the common pool and completes the future with its result.</p><pre class="api-code"><code>CompletableFuture&lt;Integer&gt; cf = CompletableFuture.supplyAsync(() -&gt; {
+    // expensive computation on the common pool
+    return compute(<span class="code-number">42</span>);
+});</code></pre></div></td></tr>
+                    <tr class="api-row"><td><div class="api-sig"><code>static &lt;U&gt; CompletableFuture&lt;U&gt; supplyAsync(Supplier&lt;U&gt; s, Executor e)</code></div><div class="api-desc"><p>Same as supplyAsync, but the task runs on the given executor rather than the common pool.</p><pre class="api-code"><code>ExecutorService dbPool = Executors.newFixedThreadPool(<span class="code-number">8</span>);
+CompletableFuture&lt;User&gt; cf = CompletableFuture.supplyAsync(
+    () -&gt; userRepository.findById(id), dbPool);</code></pre></div></td></tr>
+                    <tr class="api-row"><td><div class="api-sig"><code>&lt;U&gt; CompletableFuture&lt;U&gt; thenApply(Function&lt;? super T,? extends U&gt; fn)</code></div><div class="api-desc"><p>Transforms the result into a new value once it arrives, similar to Stream.map.</p><pre class="api-code"><code>CompletableFuture&lt;String&gt; cf = CompletableFuture.supplyAsync(() -&gt; <span class="code-string">"order-42"</span>)
+    .thenApply(<span class="code-class">String</span>::toUpperCase)
+    .thenApply(s -&gt; s + <span class="code-string">" [READY]"</span>);</code></pre></div></td></tr>
+                    <tr class="api-row"><td><div class="api-sig"><code>CompletableFuture&lt;Void&gt; thenAccept(Consumer&lt;? super T&gt; a)</code></div><div class="api-desc"><p>Consumes the result for a side effect (like printing or saving) without producing a new value.</p><pre class="api-code"><code>CompletableFuture.supplyAsync(() -&gt; orderService.place(request))
+    .thenAccept(order -&gt; log.info(<span class="code-string">"placed order {}"</span>, order.id()));</code></pre></div></td></tr>
+                    <tr class="api-row"><td><div class="api-sig"><code>CompletableFuture&lt;Void&gt; thenRun(Runnable r)</code></div><div class="api-desc"><p>Runs an action after completion while ignoring the result entirely, useful for cleanup or notifications.</p><pre class="api-code"><code>CompletableFuture.supplyAsync(() -&gt; saveReport(report))
+    .thenRun(() -&gt; notificationService.notifyAdmins());</code></pre></div></td></tr>
+                    <tr class="api-row"><td><div class="api-sig"><code>&lt;U&gt; CompletableFuture&lt;U&gt; thenCompose(Function&lt;? super T,? extends CompletionStage&lt;U&gt;&gt; fn)</code></div><div class="api-desc"><p>Chains a dependent asynchronous call and flattens the nested future, avoiding CompletableFuture&lt;CompletableFuture&lt;T&gt;&gt;.</p><pre class="api-code"><code>CompletableFuture&lt;Integer&gt; count = fetchUserAsync(id)
+    .thenCompose(u -&gt; fetchOrdersAsync(u.id())) // flattened, not nested
+    .thenApply(orders -&gt; orders.size());</code></pre></div></td></tr>
+                    <tr class="api-row"><td><div class="api-sig"><code>&lt;U,V&gt; CompletableFuture&lt;V&gt; thenCombine(CompletionStage&lt;U&gt; other, BiFunction&lt;T,U,V&gt; fn)</code></div><div class="api-desc"><p>Waits for two independent futures and merges their results with the given function once both finish.</p><pre class="api-code"><code>CompletableFuture&lt;User&gt; user = fetchUserAsync(id);
+CompletableFuture&lt;Stock&gt; stock = fetchStockAsync(sku);
+CompletableFuture&lt;String&gt; summary =
+    user.thenCombine(stock, (u, s) -&gt; u.name() + <span class="code-string">" has "</span> + s.qty());</code></pre></div></td></tr>
+                    <tr class="api-row"><td><div class="api-sig"><code>static CompletableFuture&lt;Void&gt; allOf(CompletableFuture&lt;?&gt;... cfs)</code></div><div class="api-desc"><p>Completes only once every supplied future completes; join each one afterward to collect their results.</p><pre class="api-code"><code>CompletableFuture&lt;Void&gt; f1 = sendEmail(order);
+CompletableFuture&lt;Void&gt; f2 = updateInventory(order);
+CompletableFuture&lt;Void&gt; f3 = chargeCard(order);
+CompletableFuture.allOf(f1, f2, f3).join(); // waits for all three</code></pre></div></td></tr>
+                    <tr class="api-row"><td><div class="api-sig"><code>static CompletableFuture&lt;Object&gt; anyOf(CompletableFuture&lt;?&gt;... cfs)</code></div><div class="api-desc"><p>Completes as soon as the first of the supplied futures completes, carrying that future&rsquo;s value.</p><pre class="api-code"><code>CompletableFuture&lt;String&gt; primary = fetchFromPrimary();
+CompletableFuture&lt;String&gt; mirror = fetchFromMirror();
+Object fastest = CompletableFuture.anyOf(primary, mirror).join();</code></pre></div></td></tr>
+                    <tr class="api-row"><td><div class="api-sig"><code>CompletableFuture&lt;T&gt; exceptionally(Function&lt;Throwable,? extends T&gt; fn)</code></div><div class="api-desc"><p>Recovers from a failure by supplying a fallback value, without affecting a successful result.</p><pre class="api-code"><code>CompletableFuture&lt;String&gt; cf = fetchProfile(id)
+    .exceptionally(ex -&gt; {
+        log.warn(<span class="code-string">"profile fetch failed: {}"</span>, ex.getMessage());
+        return <span class="code-string">"anonymous"</span>;
+    });</code></pre></div></td></tr>
+                    <tr class="api-row"><td><div class="api-sig"><code>&lt;U&gt; CompletableFuture&lt;U&gt; handle(BiFunction&lt;? super T, Throwable, ? extends U&gt; fn)</code></div><div class="api-desc"><p>Processes either the result or the exception, whichever occurred, and always runs regardless of outcome.</p><pre class="api-code"><code>CompletableFuture&lt;Response&gt; cf = callRemoteService(request)
+    .handle((res, ex) -&gt; ex != <span class="code-keyword">null</span>
+        ? Response.error(ex.getMessage())
+        : Response.ok(res));</code></pre></div></td></tr>
+                    <tr class="api-row"><td><div class="api-sig"><code>CompletableFuture&lt;T&gt; whenComplete(BiConsumer&lt;? super T, ? super Throwable&gt; a)</code></div><div class="api-desc"><p>Peeks at the result or exception for logging or metrics, without changing what the future ultimately carries.</p><pre class="api-code"><code>callPaymentGateway(order)
+    .whenComplete((res, ex) -&gt; {
+        metrics.recordLatency(<span class="code-string">"payment"</span>);
+        if (ex != <span class="code-keyword">null</span>) alerting.notify(ex);
+    });</code></pre></div></td></tr>
+                    <tr class="api-row"><td><div class="api-sig"><code>boolean complete(T value)</code></div><div class="api-desc"><p>Completes the future manually with the given value if it is not already done; returns true only if this call did it.</p><pre class="api-code"><code>CompletableFuture&lt;String&gt; cf = <span class="code-keyword">new</span> CompletableFuture&lt;&gt;();
+listener.onDataReceived(data -&gt; cf.complete(data)); // completed from a callback
+String result = cf.get(); // blocks until complete() is called</code></pre></div></td></tr>
+                    <tr class="api-row"><td><div class="api-sig"><code>boolean completeExceptionally(Throwable ex)</code></div><div class="api-desc"><p>Completes the future manually with a failure, propagating the exception to every dependent stage.</p><pre class="api-code"><code>CompletableFuture&lt;Response&gt; cf = <span class="code-keyword">new</span> CompletableFuture&lt;&gt;();
+watchdog.onTimeout(() -&gt; cf.completeExceptionally(
+    <span class="code-keyword">new</span> TimeoutException(<span class="code-string">"gateway timed out"</span>)));</code></pre></div></td></tr>
+                    <tr class="api-row"><td><div class="api-sig"><code>CompletableFuture&lt;T&gt; completeOnTimeout(T value, long timeout, TimeUnit unit)</code></div><div class="api-desc"><p>Falls back to the given default value if the future has not completed within the timeout (Java 9+).</p><pre class="api-code"><code>CompletableFuture&lt;Config&gt; cf = fetchRemoteConfig()
+    .completeOnTimeout(Config.defaults(), <span class="code-number">2</span>, TimeUnit.SECONDS);
+applyConfig(cf.join());</code></pre></div></td></tr>
+                    <tr class="api-row"><td><div class="api-sig"><code>CompletableFuture&lt;T&gt; orTimeout(long timeout, TimeUnit unit)</code></div><div class="api-desc"><p>Fails the future with a TimeoutException if it has not completed within the given time (Java 9+).</p><pre class="api-code"><code>CompletableFuture&lt;Price&gt; cf = fetchLivePrice(symbol)
+    .orTimeout(<span class="code-number">500</span>, TimeUnit.MILLISECONDS)
+    .exceptionally(ex -&gt; Price.lastKnown(symbol));</code></pre></div></td></tr>
+                    <tr class="api-row"><td><div class="api-sig"><code>boolean cancel(boolean mayInterruptIfRunning)</code></div><div class="api-desc"><p>Attempts to cancel the future, completing it exceptionally with a CancellationException.</p><pre class="api-code"><code>CompletableFuture&lt;Report&gt; cf = generateReportAsync(query);
+<span class="code-keyword">if</span> (userClosedTab) {
+    cf.cancel(<span class="code-keyword">true</span>);
+}</code></pre></div></td></tr>
+                    <tr class="api-row"><td><div class="api-sig"><code>T get()</code></div><div class="api-desc"><p>Blocks the calling thread until the result is available, throwing checked InterruptedException or ExecutionException.</p><pre class="api-code"><code>CompletableFuture&lt;String&gt; cf = CompletableFuture.supplyAsync(() -&gt; <span class="code-string">"data"</span>);
+<span class="code-keyword">try</span> {
+    String result = cf.get(); // blocks here
+} <span class="code-keyword">catch</span> (InterruptedException | ExecutionException e) {
+    <span class="code-keyword">throw new</span> RuntimeException(e);
+}</code></pre></div></td></tr>
+                    <tr class="api-row"><td><div class="api-sig"><code>T get(long timeout, TimeUnit unit)</code></div><div class="api-desc"><p>Blocks like get(), but gives up and throws TimeoutException after the specified duration.</p><pre class="api-code"><code><span class="code-keyword">try</span> {
+    String result = cf.get(<span class="code-number">3</span>, TimeUnit.SECONDS);
+} <span class="code-keyword">catch</span> (TimeoutException e) {
+    result = <span class="code-string">"fallback"</span>;
+}</code></pre></div></td></tr>
+                    <tr class="api-row"><td><div class="api-sig"><code>T join()</code></div><div class="api-desc"><p>Blocks until the result is available like get(), but throws an unchecked CompletionException on failure.</p><pre class="api-code"><code>List&lt;String&gt; names = ids.stream()
+    .map(id -&gt; fetchNameAsync(id)) // returns futures
+    .map(CompletableFuture::join) // blocks per future, in order
+    .toList();</code></pre></div></td></tr>
+                    <tr class="api-row"><td><div class="api-sig"><code>T getNow(T valueIfAbsent)</code></div><div class="api-desc"><p>Returns the result immediately without blocking, or the given fallback if the future is not yet complete.</p><pre class="api-code"><code>CompletableFuture&lt;String&gt; cf = startBackgroundRefresh();
+<span class="code-class">String</span> value = cf.getNow(cachedValue); // non-blocking read</code></pre></div></td></tr>
+                    <tr class="api-row"><td><div class="api-sig"><code>boolean isDone(), isCancelled(), isCompletedExceptionally()</code></div><div class="api-desc"><p>Non-blocking checks that report whether the future has finished, was cancelled, or failed.</p><pre class="api-code"><code><span class="code-keyword">if</span> (poll.isDone()) {
+    <span class="code-keyword">if</span> (poll.isCompletedExceptionally()) {
+        handleFailure();
+    } <span class="code-keyword">else</span> {
+        handleResult(poll.getNow(<span class="code-keyword">null</span>));
+    }
+}</code></pre></div></td></tr>
+                    <tr class="api-note"><td colspan="1">Most stage-transforming methods above (thenApply, thenAccept, thenRun, thenCompose, handle, whenComplete&hellip;) also have *Async and *Async(&hellip;, Executor) forms for explicit thread control.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">OrderService</span> {
+
+    <span class="code-keyword">private final</span> <span class="code-class">ExecutorService</span> pool;
+
+    <span class="code-keyword">public</span> <span class="code-class">OrderService</span>(<span class="code-class">ExecutorService</span> pool) {
+        <span class="code-keyword">this</span>.pool = pool;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">CompletableFuture</span>&lt;<span class="code-class">String</span>&gt; placeOrder(<span class="code-keyword">long</span> id) {
+        <span class="code-class">CompletableFuture</span>&lt;<span class="code-class">String</span>&gt; user =
+                <span class="code-class">CompletableFuture</span>.supplyAsync(() -> loadUser(id), pool);
+        <span class="code-class">CompletableFuture</span>&lt;<span class="code-class">String</span>&gt; stock =
+                <span class="code-class">CompletableFuture</span>.supplyAsync(() -> checkStock(id), pool);
+
+        <span class="code-keyword">return</span> user.thenCombine(stock, (u, s) -> u + <span class="code-string">" / "</span> + s)
+                   .thenApply(<span class="code-class">String</span>::toUpperCase)
+                   .exceptionally(ex -> <span class="code-string">"FAILED: "</span> + ex.getMessage());
+    }
+
+    <span class="code-keyword">private</span> <span class="code-class">String</span> loadUser(<span class="code-keyword">long</span> id) { <span class="code-keyword">return</span> <span class="code-string">"user"</span>; }
+    <span class="code-keyword">private</span> <span class="code-class">String</span> checkStock(<span class="code-keyword">long</span> id) { <span class="code-keyword">return</span> <span class="code-string">"in-stock"</span>; }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>supplyAsync(..., pool)</code> runs each task on the provided executor in parallel.</li>
+                    <li><code>thenCombine</code> merges the two results once both complete.</li>
+                    <li><code>exceptionally</code> converts any failure into a fallback value without throwing.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+document.querySelectorAll('.api-table tr.api-row').forEach(function (row) {
+    var cell = row.querySelector('td');
+    var sig = row.querySelector('.api-sig');
+    var desc = row.querySelector('.api-desc');
+    if (!cell || !sig || !desc) return;
+    sig.addEventListener('mousemove', function (e) {
+        var rect = cell.getBoundingClientRect();
+        var x = e.clientX - rect.left;
+        var max = rect.width - 40;
+        if (x > max) x = max;
+        if (x < 0) x = 0;
+        desc.style.setProperty('--desc-x', x + 'px');
+    });
+});
+</script>
+</body>
+</html>

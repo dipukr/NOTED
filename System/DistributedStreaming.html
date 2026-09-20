@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Distributed Streaming - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Distributed Streaming</div>
+
+    <div class="intro">
+        <p>Distributed streaming continuously moves and processes unbounded event data across a cluster in near real time.</p>
+        <p>Producers publish events to durable, partitioned logs that consumers read at their own pace.</p>
+        <p>Platforms like Apache Kafka and Pulsar decouple producers from consumers and retain events for replay.</p>
+        <p>It underpins event-driven architectures, real-time analytics, and data pipelines.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use for real-time pipelines, event sourcing, and decoupling services asynchronously.</li>
+            <li>Topics are split into partitions for parallelism; order is guaranteed within a partition.</li>
+            <li>Consumer groups let many consumers share partitions and scale horizontally.</li>
+            <li>Offsets track progress and enable replay from any point in the retained log.</li>
+            <li>Choose a partition key carefully to balance load and preserve per-key ordering.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Decouples producers and consumers, improving resilience and flexibility.</li>
+            <li>High throughput with horizontal scaling via partitions.</li>
+            <li>Durable, replayable log enables reprocessing and multiple consumers.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Operationally complex to run and tune (brokers, partitions, retention).</li>
+            <li>Only per-partition ordering, not global ordering.</li>
+            <li>At-least-once delivery often requires idempotent consumers.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># Kafka consumer in a group; key preserves per-order sequencing</span>
+<span class="code-class">@KafkaListener</span>(topics = <span class="code-string">"orders"</span>, groupId = <span class="code-string">"billing"</span>)
+<span class="code-keyword">public</span> <span class="code-keyword">void</span> onEvent(<span class="code-class">ConsumerRecord</span>&lt;<span class="code-class">String</span>, <span class="code-class">String</span>&gt; rec) {
+    <span class="code-class">String</span> key = rec.key();      <span class="code-comment"># same key =&gt; same partition =&gt; ordered</span>
+    <span class="code-keyword">long</span> offset = rec.offset();  <span class="code-comment"># position in the partition log</span>
+    <span class="code-keyword">try</span> {
+        billing.process(rec.value()); <span class="code-comment"># make this idempotent</span>
+    } <span class="code-keyword">catch</span> (<span class="code-class">Exception</span> e) {
+        log.error(<span class="code-string">"failed at offset {}"</span>, offset, e);
+        <span class="code-keyword">throw</span> e; <span class="code-comment"># let the framework retry / dead-letter</span>
+    }
+}
+</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>groupId</code> lets consumers in a group split partitions for parallelism.</li>
+                    <li>The record <code>key</code> maps to a partition, preserving order per key.</li>
+                    <li><code>offset</code> records progress and allows replay from any point.</li>
+                    <li>Processing should be idempotent because delivery is at-least-once.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

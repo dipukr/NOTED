@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Distributed System - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Distributed System</div>
+
+    <div class="intro">
+        <p>Distributed computing involves multiple computers working together over a network to solve a problem, acting as a single, powerful system.</p>
+        <p>It is a divide-and-conquer approach where tasks are broken down and processed concurrently on different nodes, then combined.</p>
+        <p>Components communicate and coordinate by passing messages to achieve a common goal.</p>
+        <p>When one component fails, the entire system does not fail.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Three core challenges: concurrency, lack of a global clock, and independent failures.</li>
+            <li>Message passing may use pure HTTP, RPC connectors, or message queues.</li>
+            <li>Examples range from SOA and microservices to MMO games and peer-to-peer apps.</li>
+            <li>Use when a single machine cannot meet scale, performance, or resilience needs.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Greater scalability by adding more nodes.</li>
+            <li>Higher performance through concurrent processing.</li>
+            <li>Improved resilience since failures are isolated.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Cost significantly more than monolithic architectures (extra hardware, gateways, proxies).</li>
+            <li>Network partitions and partial failures are hard to reason about.</li>
+            <li>Maintaining consistency across nodes is a significant challenge.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># Inter-node communication over HTTP using RestTemplate</span>
+<span class="code-class">@Service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">InventoryClient</span> {
+
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">RestTemplate</span> rest;
+
+    <span class="code-keyword">public</span> <span class="code-class">InventoryClient</span>(<span class="code-class">RestTemplate</span> rest) {
+        <span class="code-keyword">this</span>.rest = rest;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">boolean</span> isAvailable(<span class="code-class">String</span> sku) {
+        <span class="code-keyword">try</span> {
+            <span class="code-class">StockDto</span> stock = rest.getForObject(
+                <span class="code-string">"http://inventory-service/stock/"</span> + sku, <span class="code-class">StockDto</span>.<span class="code-keyword">class</span>);
+            <span class="code-keyword">return</span> stock != <span class="code-keyword">null</span> &amp;&amp; stock.getQty() &gt; <span class="code-string">0</span>;
+        } <span class="code-keyword">catch</span> (<span class="code-class">RestClientException</span> e) {
+            <span class="code-comment"># remote node may be down: fail gracefully</span>
+            <span class="code-keyword">return</span> <span class="code-keyword">false</span>;
+        }
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>One node calls another by its logical service name, resolved by the network.</li>
+                    <li>The <code>catch</code> block treats a remote failure as a normal, expected case.</li>
+                    <li>No shared memory: coordination happens purely through messages.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

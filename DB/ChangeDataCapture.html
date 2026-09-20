@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Change Data Capture (CDC) - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Change Data Capture (CDC)</div>
+
+    <div class="intro">
+        <p>Change data capture (CDC) is a technique for detecting and streaming row-level changes (inserts, updates, deletes) from a database.</p>
+        <p>Log-based CDC reads the database's write-ahead log to capture changes with minimal overhead.</p>
+        <p>Captured changes are published as events other systems can consume.</p>
+        <p>It keeps caches, search indexes, data warehouses and microservices in sync.</p>
+        <p>Tools like Debezium implement CDC and publish changes to Kafka.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use to propagate database changes to other systems in near real time.</li>
+            <li>Log-based CDC avoids polling and adds little load.</li>
+            <li>Powers the outbox pattern for reliable event publishing.</li>
+            <li>Keeps read models, search indexes and warehouses fresh.</li>
+            <li>Preserves change order per row via the log.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Near real-time propagation of changes.</li>
+            <li>Low overhead when reading the WAL.</li>
+            <li>Decouples producers from consumers.</li>
+            <li>Captures every change, including deletes.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Adds pipeline infrastructure (connector, broker) to operate.</li>
+            <li>Consumers must handle eventual consistency and ordering.</li>
+            <li>Schema changes in the source can break consumers.</li>
+            <li>Initial snapshot of large tables can be heavy.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">-- Enable CDC on the database, then on a specific table</span>
+<span class="code-keyword">EXEC</span> <span class="code-class">sys.sp_cdc_enable_db</span>;
+
+<span class="code-keyword">EXEC</span> <span class="code-class">sys.sp_cdc_enable_table</span>
+    <span class="code-class">@source_schema</span> = <span class="code-string">N'dbo'</span>,
+    <span class="code-class">@source_name</span>   = <span class="code-string">N'Customer'</span>,
+    <span class="code-class">@role_name</span>     = <span class="code-string">NULL</span>,
+    <span class="code-class">@capture_instance</span> = <span class="code-string">N'dbo_Customer'</span>,
+    <span class="code-class">@supports_net_changes</span> = <span class="code-number">1</span>;
+
+<span class="code-comment">-- List available capture instances and their change tables</span>
+<span class="code-keyword">SELECT</span> <span class="code-class">capture_instance</span>, <span class="code-class">source_object_id</span>, <span class="code-class">create_date</span>
+<span class="code-keyword">FROM</span> <span class="code-class">cdc.change_tables</span>;
+
+<span class="code-comment">-- Pull all inserts/updates/deletes since a given LSN</span>
+<span class="code-keyword">DECLARE</span> <span class="code-class">@from_lsn</span> <span class="code-keyword">BINARY</span>(10) = <span class="code-class">sys.fn_cdc_get_min_lsn</span>(<span class="code-string">'dbo_Customer'</span>);
+<span class="code-keyword">DECLARE</span> <span class="code-class">@to_lsn</span>   <span class="code-keyword">BINARY</span>(10) = <span class="code-class">sys.fn_cdc_get_max_lsn</span>();
+
+<span class="code-keyword">SELECT</span> <span class="code-class">__$operation</span>,     <span class="code-comment">-- 1=delete, 2=insert, 3=update(before), 4=update(after)</span>
+       <span class="code-class">CustomerId</span>, <span class="code-class">Name</span>, <span class="code-class">Email</span>
+<span class="code-keyword">FROM</span> <span class="code-class">cdc.fn_cdc_get_all_changes_dbo_Customer</span>(<span class="code-class">@from_lsn</span>, <span class="code-class">@to_lsn</span>, <span class="code-string">N'all'</span>)
+<span class="code-keyword">ORDER BY</span> <span class="code-class">__$start_lsn</span>;</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>sys.sp_cdc_enable_db</code> / <code>sys.sp_cdc_enable_table</code> turn on log-based capture for a table, creating a shadow change table and capture jobs.</li>
+                    <li><code>cdc.change_tables</code> lists which capture instances exist and where their data lives.</li>
+                    <li><code>sys.fn_cdc_get_min_lsn</code> / <code>sys.fn_cdc_get_max_lsn</code> define the log range to read.</li>
+                    <li><code>cdc.fn_cdc_get_all_changes_dbo_Customer</code> returns every row-level change in that range, with <code>__$operation</code> identifying insert/update/delete.</li>
+                    <li>Consumers poll this function incrementally instead of scanning the whole table, keeping downstream systems in sync with minimal overhead.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

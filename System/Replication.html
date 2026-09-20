@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Replication (Leader-Follower, Multi-leader) - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Replication (Leader-Follower, Multi-leader)</div>
+
+    <div class="intro">
+        <p>Replication keeps copies of data on multiple nodes for availability, durability, and read scaling.</p>
+        <p>In leader-follower, one node accepts writes and streams changes to read-only followers.</p>
+        <p>Multi-leader allows several nodes to accept writes, needing conflict resolution.</p>
+        <p>Replication can be synchronous (safe, slower) or asynchronous (fast, risk of loss).</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use leader-follower to scale reads and provide failover for most databases.</li>
+            <li>Use multi-leader for multi-region writes or offline-capable clients.</li>
+            <li>Synchronous replication guarantees no data loss on failover but adds latency.</li>
+            <li>Watch for replication lag causing stale reads on followers.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>High availability through failover to a replica.</li>
+            <li>Read scaling by distributing queries across followers.</li>
+            <li>Geographic locality reduces latency for distant users.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Async replication risks losing recent writes on leader failure.</li>
+            <li>Multi-leader introduces write conflicts requiring resolution logic.</li>
+            <li>Replication lag produces inconsistent reads across replicas.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">// Route reads to a follower, writes to the leader datasource</span>
+<span class="code-keyword">public class</span> <span class="code-class">RoutingDataSource</span> <span class="code-keyword">extends</span> <span class="code-class">AbstractRoutingDataSource</span> {
+
+    <span class="code-class">@Override</span>
+    <span class="code-keyword">protected</span> <span class="code-class">Object</span> determineCurrentLookupKey() {
+        <span class="code-comment">// read-only transactions go to a replica</span>
+        <span class="code-keyword">return</span> <span class="code-class">TransactionSynchronizationManager</span>
+                .isCurrentTransactionReadOnly() ? <span class="code-string">"replica"</span> : <span class="code-string">"primary"</span>;
+    }
+}
+
+<span class="code-class">@Service</span>
+<span class="code-keyword">public class</span> <span class="code-class">ReportService</span> {
+
+    <span class="code-class">@Transactional</span>(readOnly = <span class="code-keyword">true</span>) <span class="code-comment">// served by a follower</span>
+    <span class="code-keyword">public</span> <span class="code-class">List</span>&lt;<span class="code-class">Sale</span>&gt; recentSales() {
+        <span class="code-keyword">return</span> saleRepository.findTop100ByOrderByCreatedAtDesc();
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>AbstractRoutingDataSource</code> picks a datasource per transaction at runtime.</li>
+                    <li><code>isCurrentTransactionReadOnly()</code> distinguishes reads from writes.</li>
+                    <li><code>@Transactional(readOnly = true)</code> marks queries safe to serve from a replica.</li>
+                    <li>Writes fall through to <code>"primary"</code>, the single leader that streams to followers.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

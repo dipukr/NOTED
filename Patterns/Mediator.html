@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mediator Pattern - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Mediator Pattern</div>
+
+    <div class="intro">
+        <p>Mediator is a behavioral design pattern that promotes loose coupling between objects by centralizing communication between them.</p>
+        <p>Instead of objects referring to each other directly, they communicate through a mediator object.</p>
+        <p>This makes the system easier to maintain, modify, and scale, especially as the number of objects increases.</p>
+        <p>Mediator pattern focuses on simplifying communication between objects by managing and coordinating their interations through a mediator.</p>
+        <p>Mediator pattern is used for coordinating communication while the proxy pattern is used for controlling access.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">Components</div>
+        <div class="section-content">
+            <ul>
+                <li>Mediator interface: Declares the communication contract used by components.</li>
+                <li>ConcreteMediator: Implements coordination logic and knows all components (colleagues).</li>
+                <li>Colleague: Individual objects that communicate via mediator. Knows about the mediator but not other colleagues.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Pros and Cons</div>
+        <div class="section-content">
+            <ul>
+                <li>Promotes low coupling between components.</li>
+                <li>Simplifies maintenance and enhances reusability.</li>
+                <li>Centralizes complex communications.</li>
+                <li>Mediator can become a God object if it gets too complex.</li>
+                <li>Too much logic inside the mediator can lead to poor scalability.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public interface</span> <span class="code-class">ChatMediator</span> {
+    <span class="code-keyword">void</span> send(String msg, User from);
+}
+
+<span class="code-keyword">public class</span> <span class="code-class">ChatRoom</span> <span class="code-keyword">implements</span> ChatMediator {
+    <span class="code-keyword">private</span> List&lt;User&gt; users = <span class="code-keyword">new</span> ArrayList&lt;&gt;();
+    <span class="code-keyword">void</span> register(User u) { users.add(u); }
+
+    <span class="code-keyword">public void</span> send(String msg, User from) {
+        <span class="code-keyword">for</span> (User u : users)
+            <span class="code-keyword">if</span> (u != from) u.receive(msg);
+    }
+}
+
+<span class="code-keyword">public class</span> <span class="code-class">User</span> {
+    <span class="code-keyword">private</span> String name;
+    <span class="code-keyword">private</span> ChatMediator mediator;
+    User(String name, ChatMediator m) { <span class="code-keyword">this</span>.name = name; mediator = m; }
+
+    <span class="code-keyword">void</span> send(String msg) { mediator.send(msg, <span class="code-keyword">this</span>); }
+    <span class="code-keyword">void</span> receive(String msg) {
+        System.out.println(name + <span class="code-string">" got: "</span> + msg);
+    }
+}
+
+<span class="code-keyword">void</span> main() {
+    ChatRoom room = <span class="code-keyword">new</span> ChatRoom();
+    User a = <span class="code-keyword">new</span> User(<span class="code-string">"Amit"</span>, room);
+    User b = <span class="code-keyword">new</span> User(<span class="code-string">"Bina"</span>, room);
+    room.register(a); room.register(b);
+    a.send(<span class="code-string">"Hello"</span>);  <span class="code-comment"># Bina got: Hello</span>
+}</code></pre>
+            </div>
+
+            <div class="code-explanation">
+                <div class="code-explanation-title">How the Mediator works</div>
+                <ul>
+                    <li><code>ChatRoom</code> is the mediator that routes all messages.</li>
+                    <li><code>User</code> objects never reference each other directly.</li>
+                    <li>A user calls <code>send()</code>; the mediator decides who receives it.</li>
+                    <li>Adding a new user needs no change to existing users.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

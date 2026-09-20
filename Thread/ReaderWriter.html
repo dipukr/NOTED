@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reader-Writer Problem - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Reader-Writer Problem</div>
+
+    <div class="intro">
+        <p>The Reader-Writer problem coordinates access to shared data where many threads read but few write.</p>
+        <p>Read-read sharing is safe, but read-write and write-write access must be mutually exclusive.</p>
+        <p>The goal is to allow concurrent reads while giving writers exclusive access.</p>
+        <p>Java's <code>ReentrantReadWriteLock</code> provides a ready-made solution.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Read-heavy shared data such as caches or configuration.</li>
+            <li>Multiple readers may hold the read lock at once.</li>
+            <li>A writer needs the exclusive write lock; readers block while it is held.</li>
+            <li>Choose a fairness/bias policy to avoid starving writers or readers.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Higher read throughput than a plain mutex.</li>
+            <li>Preserves correctness by serialising writes.</li>
+            <li>Built-in lock avoids hand-rolled synchronization.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Reader preference can starve writers (and vice versa).</li>
+            <li>More overhead than a simple lock for write-heavy loads.</li>
+            <li>Lock upgrade from read to write is not supported directly.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">SharedStore</span> {
+    <span class="code-keyword">private final</span> <span class="code-class">ReadWriteLock</span> lock = <span class="code-keyword">new</span> <span class="code-class">ReentrantReadWriteLock</span>();
+    <span class="code-keyword">private</span> <span class="code-keyword">int</span> value = <span class="code-string">0</span>;
+
+    <span class="code-keyword">public int</span> <span class="code-class">read</span>() {
+        lock.readLock().lock();
+        <span class="code-keyword">try</span> { <span class="code-keyword">return</span> value; }        <span class="code-comment">// concurrent readers allowed</span>
+        <span class="code-keyword">finally</span> { lock.readLock().unlock(); }
+    }
+
+    <span class="code-keyword">public void</span> <span class="code-class">write</span>(<span class="code-keyword">int</span> v) {
+        lock.writeLock().lock();
+        <span class="code-keyword">try</span> { value = v; }             <span class="code-comment">// exclusive access</span>
+        <span class="code-keyword">finally</span> { lock.writeLock().unlock(); }
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>readLock()</code> can be held by many threads simultaneously.</li>
+                    <li><code>writeLock()</code> is exclusive and blocks all readers and writers.</li>
+                    <li>Unlocking in <code>finally</code> guarantees release even on exception.</li>
+                    <li>The pair enforces the read-read-safe, write-exclusive rule.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

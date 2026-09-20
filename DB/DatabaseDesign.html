@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Database Design - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Database Design</div>
+
+    <div class="intro">
+        <p>Database design is the process of modelling data into tables, columns, keys and relationships so information is stored consistently and retrieved efficiently.</p>
+        <p>A database is a collection of data modelled and organized in a specific way, managed by a database management system (DBMS).</p>
+        <p>In a relational database, data is structured into a set of tables and a set of relationships between those tables.</p>
+        <p>Good design captures entities, their attributes and the cardinality of the relationships between them before any code is written.</p>
+        <p>The goal is to reduce redundancy, enforce integrity and keep the schema flexible enough to evolve.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Identify entities and their attributes, then choose a primary key that uniquely identifies each row.</li>
+            <li>Use foreign keys to enforce referential integrity between parent and child tables.</li>
+            <li>Model relationships as one-to-one, one-to-many or many-to-many (with a join table).</li>
+            <li>Apply normalization to remove redundancy, then denormalize selectively for read performance.</li>
+            <li>Pick correct data types and add constraints (NOT NULL, UNIQUE, CHECK) up front.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Reduces data redundancy and prevents update anomalies.</li>
+            <li>Enforces data integrity through keys and constraints.</li>
+            <li>Makes queries predictable and easier to optimize.</li>
+            <li>A clear schema simplifies onboarding and maintenance.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Over-normalized schemas can require many joins, hurting read performance.</li>
+            <li>Rigid schemas are harder to change once large amounts of data exist.</li>
+            <li>Poor upfront design is expensive to correct later.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">-- A small normalized schema: Country -> Customer -> Order (one-to-many)</span>
+<span class="code-keyword">CREATE TABLE</span> <span class="code-class">Country</span> (
+    <span class="code-class">CountryId</span>   <span class="code-keyword">INT</span> <span class="code-keyword">IDENTITY</span> <span class="code-keyword">PRIMARY KEY</span>,
+    <span class="code-class">Name</span>        <span class="code-keyword">NVARCHAR</span>(100) <span class="code-keyword">NOT NULL</span> <span class="code-keyword">UNIQUE</span>
+);
+
+<span class="code-keyword">CREATE TABLE</span> <span class="code-class">Customer</span> (
+    <span class="code-class">CustomerId</span>  <span class="code-keyword">INT</span> <span class="code-keyword">IDENTITY</span> <span class="code-keyword">PRIMARY KEY</span>,
+    <span class="code-class">Email</span>       <span class="code-keyword">NVARCHAR</span>(255) <span class="code-keyword">NOT NULL</span> <span class="code-keyword">UNIQUE</span>,
+    <span class="code-class">CountryId</span>   <span class="code-keyword">INT</span> <span class="code-keyword">NOT NULL</span>,
+    <span class="code-keyword">CONSTRAINT</span> <span class="code-class">FK_Customer_Country</span>
+        <span class="code-keyword">FOREIGN KEY</span> (<span class="code-class">CountryId</span>) <span class="code-keyword">REFERENCES</span> <span class="code-class">Country</span>(<span class="code-class">CountryId</span>)
+);
+
+<span class="code-keyword">CREATE TABLE</span> <span class="code-class">Orders</span> (
+    <span class="code-class">OrderId</span>     <span class="code-keyword">INT</span> <span class="code-keyword">IDENTITY</span> <span class="code-keyword">PRIMARY KEY</span>,
+    <span class="code-class">CustomerId</span>  <span class="code-keyword">INT</span> <span class="code-keyword">NOT NULL</span>,
+    <span class="code-class">Total</span>       <span class="code-keyword">DECIMAL</span>(18,2) <span class="code-keyword">NOT NULL</span> <span class="code-keyword">CHECK</span> (<span class="code-class">Total</span> &gt;= <span class="code-number">0</span>),
+    <span class="code-class">OrderDate</span>   <span class="code-keyword">DATETIME2</span> <span class="code-keyword">NOT NULL</span> <span class="code-keyword">DEFAULT</span> <span class="code-class">SYSUTCDATETIME</span>(),
+    <span class="code-keyword">CONSTRAINT</span> <span class="code-class">FK_Order_Customer</span>
+        <span class="code-keyword">FOREIGN KEY</span> (<span class="code-class">CustomerId</span>) <span class="code-keyword">REFERENCES</span> <span class="code-class">Customer</span>(<span class="code-class">CustomerId</span>)
+);
+
+<span class="code-comment">-- Joining across the modelled relationships</span>
+<span class="code-keyword">SELECT</span> <span class="code-class">c.Email</span>, <span class="code-class">co.Name</span> <span class="code-keyword">AS</span> <span class="code-class">Country</span>, <span class="code-class">o.OrderId</span>, <span class="code-class">o.Total</span>
+<span class="code-keyword">FROM</span> <span class="code-class">Customer</span> <span class="code-class">c</span>
+<span class="code-keyword">JOIN</span> <span class="code-class">Country</span> <span class="code-class">co</span> <span class="code-keyword">ON</span> <span class="code-class">co.CountryId</span> = <span class="code-class">c.CountryId</span>
+<span class="code-keyword">JOIN</span> <span class="code-class">Orders</span> <span class="code-class">o</span> <span class="code-keyword">ON</span> <span class="code-class">o.CustomerId</span> = <span class="code-class">c.CustomerId</span>;</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>Each table has a single-column <code>IDENTITY PRIMARY KEY</code> that uniquely identifies its rows.</li>
+                    <li><code>UNIQUE</code> on <code>Email</code> and <code>Country.Name</code> prevents duplicate values at the schema level.</li>
+                    <li><code>FK_Customer_Country</code> and <code>FK_Order_Customer</code> enforce referential integrity between parent and child tables.</li>
+                    <li>The <code>CHECK</code> constraint on <code>Total</code> stops invalid data from ever being stored.</li>
+                    <li>The final query walks the one-to-many relationships (<code>Country</code> to <code>Customer</code> to <code>Orders</code>) via ordinary joins.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

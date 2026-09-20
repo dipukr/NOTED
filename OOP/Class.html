@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Class - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Class</div>
+
+    <div class="intro">
+        <p>A class body contains specification of a set of fields which defines attributes of the objects and a set of methods which defines behaviours of the objects.</p>
+        <p>Class is the unit of modularization in object oriented program.</p>
+        <p>A class is a blueprint which defines the attributes (fields) and behaviours (methods) common to a number of objects.</p>
+        <p>A class is a user defined blueprint based on which objects are created.</p>
+        <p><span style="color: purple;">Object</span> is a concrete entity with a set of attributes and a set of behaviours.</p>
+        <p>Object also have identify, lifetime and scope and belongs to a class.</p>
+        <p>Fields defines the attributes of objects instantiated from a class.</p>
+        <p>Methods defines the behaviors of objects instantiated from a class.</p>
+        <p>Objects maintain state in instance variables (attributes).</p>
+        <p>Objects are allocated from the heap and accessed by reference variables.</p>
+        <p>Objects communicates with one another by sending and receiving message.</p>
+    </div>
+
+    <table style="width: 99%;border-collapse: collapse;border: 1px solid #ccc;margin-top: 10px;margin-bottom: 10px;margin-left: auto;margin-right: auto;"><tbody><tr><td style="border: 1px solid #ccc;padding-top: 8px;padding-bottom: 8px;padding-left: 17px;padding-right: 17px;text-align: center;background-color: #f0f0f0;font-weight: bold;">Definition</td><td style="border: 1px solid #ccc;padding-top: 8px;padding-bottom: 8px;padding-left: 17px;padding-right: 17px;text-align: center;background-color: #f0f0f0;font-weight: bold;">Description</td></tr><tr><td style="border: 1px solid rgb(204, 204, 204); padding: 8px 17px 17px; text-align: justify;">    class Snake {
+          Size size;
+          Color color;
+          Point position;
+          void move(Dir dir) {}
+          void eat(Food food) {}
+    }</td><td style="border: 1px solid rgb(204, 204, 204); padding: 8px 17px 17px; text-align: center;">Defines attributes and behaviours of snakes.
+  Behaviours are used to change states.
+  State is combination of attributes values.
+
+     Attributes = {size, color, position}
+     Behaviours = {move, eat}
+     Attributes = Form</td></tr></tbody></table>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">Car</span> {
+
+    <span class="code-comment"># fields (state)</span>
+    <span class="code-keyword">private</span> String model;
+    <span class="code-keyword">private int</span> speed;
+
+    <span class="code-comment"># constructor</span>
+    <span class="code-keyword">public</span> <span class="code-class">Car</span>(String model) {
+        <span class="code-keyword">this</span>.model = model;
+        <span class="code-keyword">this</span>.speed = <span class="code-string">0</span>;
+    }
+
+    <span class="code-comment"># behaviour</span>
+    <span class="code-keyword">public void</span> accelerate(<span class="code-keyword">int</span> delta) {
+        speed += delta;
+    }
+
+    <span class="code-keyword">public int</span> getSpeed() {
+        <span class="code-keyword">return</span> speed;
+    }
+}
+
+<span class="code-keyword">void</span> main() {
+    <span class="code-class">Car</span> car = <span class="code-keyword">new</span> <span class="code-class">Car</span>(<span class="code-string">"Tesla"</span>);
+    car.accelerate(<span class="code-string">60</span>);
+    System.out.println(car.getSpeed());
+}</code></pre>
+            </div>
+
+            <div class="code-explanation">
+                <div class="code-explanation-title">How the class works</div>
+                <ul>
+                    <li><code>Car</code> is the blueprint; <code>car</code> is an object created from it.</li>
+                    <li><code>model</code> and <code>speed</code> are fields holding each object's state.</li>
+                    <li>The constructor initialises the object when <code>new</code> is used.</li>
+                    <li><code>accelerate()</code> and <code>getSpeed()</code> define its behaviour.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

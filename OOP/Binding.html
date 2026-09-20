@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Binding - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Binding</div>
+
+    <div class="intro">
+        <p>Dynamic binding is a process in which a call to overridden method is resolved at the runtime rather than compile time.</p>
+        <p>Which means that the code to be executed for a specific method call is not known until runtime.</p>
+        <p>Dynamic dispatch is used when multiple classes contain different implementations of the same method.</p>
+        <p>Dynamic binding (dispatch) is the process of linking function call to a specific sequence of code (function) at run-time.</p>
+        <p>Dynamic dispatch is a mechanism for selecting the function to be executed from various function alternatives at the runtime.</p>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">Animal</span> {
+    <span class="code-keyword">public void</span> sound() { System.out.println(<span class="code-string">"..."</span>); }
+}
+
+<span class="code-keyword">public class</span> <span class="code-class">Cat</span> <span class="code-keyword">extends</span> <span class="code-class">Animal</span> {
+    <span class="code-class">@Override</span>
+    <span class="code-keyword">public void</span> sound() { System.out.println(<span class="code-string">"Meow"</span>); }
+}
+
+<span class="code-keyword">void</span> main() {
+    <span class="code-comment"># reference type Animal, object type Cat</span>
+    <span class="code-class">Animal</span> a = <span class="code-keyword">new</span> <span class="code-class">Cat</span>();
+    a.sound();   <span class="code-comment"># prints Meow via dynamic binding</span>
+}</code></pre>
+            </div>
+
+            <div class="code-explanation">
+                <div class="code-explanation-title">How binding works</div>
+                <ul>
+                    <li>The reference <code>a</code> is of type <code>Animal</code>.</li>
+                    <li>The actual object is a <code>Cat</code> at runtime.</li>
+                    <li>Dynamic binding picks <code>Cat.sound()</code>, printing Meow.</li>
+                    <li>The decision happens at runtime, not compile time.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

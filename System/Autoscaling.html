@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Autoscaling - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Autoscaling</div>
+
+    <div class="intro">
+        <p>Autoscaling automatically adjusts the number of running instances based on live demand.</p>
+        <p>It adds capacity when load rises and removes it when load falls, without manual intervention.</p>
+        <p>Scaling decisions are driven by metrics such as CPU, memory, request rate, or queue depth.</p>
+        <p>It keeps performance stable during spikes while controlling cost during quiet periods.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use for variable or spiky workloads where fixed capacity wastes money or fails under load.</li>
+            <li>Reactive autoscaling responds to metrics; predictive autoscaling forecasts demand.</li>
+            <li>Set min/max bounds and cooldowns to avoid thrashing (rapid scale up/down).</li>
+            <li>Requires stateless, horizontally scalable services to add/remove replicas safely.</li>
+            <li>Pair with health checks so new instances only receive traffic once ready.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Matches capacity to demand, cutting idle-resource cost.</li>
+            <li>Absorbs traffic spikes without human intervention.</li>
+            <li>Improves availability by replacing unhealthy instances.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Scaling lag - new instances take time to boot and warm up.</li>
+            <li>Misconfigured thresholds cause flapping or runaway cost.</li>
+            <li>Only helps stateless tiers; stateful stores need separate strategies.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># Expose a queue-depth metric so the autoscaler can scale on backlog</span>
+<span class="code-class">@Component</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">QueueMetrics</span> {
+
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">TaskQueue</span> queue;
+
+    <span class="code-class">QueueMetrics</span>(<span class="code-class">MeterRegistry</span> reg, <span class="code-class">TaskQueue</span> queue) {
+        <span class="code-keyword">this</span>.queue = queue;
+        reg.gauge(<span class="code-string">"queue.depth"</span>, queue, <span class="code-class">TaskQueue</span>::size); <span class="code-comment"># scaling signal</span>
+    }
+}
+</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>reg.gauge()</code> continuously publishes the current queue depth.</li>
+                    <li>The autoscaler reads <code>queue.depth</code> and adds workers when backlog grows.</li>
+                    <li>Scaling on backlog reacts faster than CPU for queue-driven workloads.</li>
+                    <li>As workers drain the queue, the metric falls and instances scale back in.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

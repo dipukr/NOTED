@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Consistency Models (Strong vs Eventual) - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Consistency Models (Strong vs Eventual)</div>
+
+    <div class="intro">
+        <p>A consistency model defines what guarantees readers get after data is written in a distributed store.</p>
+        <p>Strong consistency ensures every read returns the most recent committed write.</p>
+        <p>Eventual consistency allows temporary staleness but converges once updates propagate.</p>
+        <p>The CAP theorem forces a choice between consistency and availability during partitions.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use strong consistency for balances, inventory, and anything requiring correctness now.</li>
+            <li>Use eventual consistency for feeds, counters, and caches that tolerate lag.</li>
+            <li>Read-your-writes and monotonic reads are useful middle-ground guarantees.</li>
+            <li>Consistency level is often tunable per operation (e.g. quorum reads/writes).</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Strong: simple reasoning, no stale reads, correctness by default.</li>
+            <li>Eventual: higher availability and lower latency, survives partitions.</li>
+            <li>Eventual: scales writes across regions without global coordination.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Strong: higher latency and reduced availability under partitions.</li>
+            <li>Eventual: apps must handle stale reads and conflict resolution.</li>
+            <li>Eventual: harder to reason about and test correctly.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">// Optimistic locking gives strong consistency on a single row</span>
+<span class="code-class">@Entity</span>
+<span class="code-keyword">public class</span> <span class="code-class">Account</span> {
+
+    <span class="code-class">@Id</span>
+    <span class="code-keyword">private</span> <span class="code-class">Long</span> id;
+
+    <span class="code-keyword">private</span> <span class="code-class">BigDecimal</span> balance;
+
+    <span class="code-class">@Version</span>
+    <span class="code-keyword">private</span> <span class="code-keyword">long</span> version; <span class="code-comment">// incremented on every update</span>
+}
+
+<span class="code-class">@Service</span>
+<span class="code-keyword">public class</span> <span class="code-class">AccountService</span> {
+
+    <span class="code-class">@Transactional</span>
+    <span class="code-keyword">public void</span> withdraw(<span class="code-class">Long</span> id, <span class="code-class">BigDecimal</span> amount) {
+        <span class="code-class">Account</span> acc = repository.findById(id).orElseThrow();
+        acc.setBalance(acc.getBalance().subtract(amount));
+        <span class="code-comment">// OptimisticLockException if version changed concurrently</span>
+        repository.save(acc);
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>@Version</code> tracks a row version so concurrent updates are detected.</li>
+                    <li>A stale version on save throws an <code>OptimisticLockException</code>, preventing lost updates.</li>
+                    <li><code>@Transactional</code> makes read-modify-write atomic for strong per-row consistency.</li>
+                    <li>Eventual stores instead accept the write and reconcile versions later.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

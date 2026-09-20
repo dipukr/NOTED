@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memory Leaks - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Memory Leaks</div>
+
+    <div class="intro">
+        <p>A Java memory leak happens when objects are no longer needed but remain reachable, so GC cannot reclaim them.</p>
+        <p>In concurrent code, common culprits are unremoved <code>ThreadLocal</code>s, unbounded caches, and listener registrations.</p>
+        <p>Leaks manifest as steadily rising heap usage and eventual <code>OutOfMemoryError</code>.</p>
+        <p>They are found with heap dumps and diagnosed by tracing GC roots.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Always <code>remove()</code> ThreadLocals in pooled threads.</li>
+            <li>Bound caches or use <code>WeakHashMap</code>/eviction policies.</li>
+            <li>Deregister listeners and callbacks when done.</li>
+            <li>Analyze heap dumps to find the retaining GC root.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Fixing leaks restores stable memory and uptime.</li>
+            <li>Prevents costly production crashes.</li>
+            <li>Improves GC efficiency and latency.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Leaks can stay hidden until sustained load.</li>
+            <li>Heap-dump analysis is time-consuming.</li>
+            <li>Weak references add complexity and subtle behavior.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">RequestScope</span> {
+
+    <span class="code-keyword">private static final</span> <span class="code-class">ThreadLocal</span>&lt;<span class="code-class">byte</span>[]&gt; BUFFER =
+            <span class="code-keyword">new</span> <span class="code-class">ThreadLocal</span>&lt;&gt;();
+
+    <span class="code-keyword">public void</span> handle(<span class="code-class">Runnable</span> job) {
+        BUFFER.set(<span class="code-keyword">new</span> <span class="code-keyword">byte</span>[<span class="code-number">1</span> &lt;&lt; <span class="code-number">20</span>]); <span class="code-comment">// 1 MB per thread</span>
+        <span class="code-keyword">try</span> {
+            job.run();
+        } <span class="code-keyword">finally</span> {
+            <span class="code-comment">// WITHOUT this, pooled threads leak 1 MB each</span>
+            BUFFER.remove();
+        }
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>Pool threads live long, so a <code>ThreadLocal</code> value survives every request.</li>
+                    <li>Without <code>remove()</code>, each thread permanently retains its 1 MB buffer.</li>
+                    <li>Clearing it in <code>finally</code> lets the GC reclaim the buffer between requests.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

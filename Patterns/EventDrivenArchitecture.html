@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Event-driven Architecture - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Event-driven Architecture</div>
+
+    <div class="intro">
+        <p>Event-driven architecture (EDA) is a software design pattern that allows a system to detect, process, and respond to events.</p>
+        <p>It is a design paradigm where components react to events rather than relying on synchronous request-response patterns.</p>
+        <p>Events flow through a broker, decoupling the producers of events from their consumers.</p>
+        <p>It underpins reactive, streaming, and highly scalable systems.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Producers publish events; consumers subscribe and react.</li>
+            <li>Patterns include pub/sub, event streaming, and event sourcing.</li>
+            <li>Ideal for asynchronous, fan-out, and real-time workloads.</li>
+            <li>Commonly built on Kafka, RabbitMQ, or cloud event buses.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Strong decoupling between services.</li>
+            <li>Elastic scaling of consumers under load.</li>
+            <li>Easy to add new reactions without changing producers.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Eventual consistency complicates reasoning about state.</li>
+            <li>Distributed tracing and debugging become harder.</li>
+            <li>Requires idempotent consumers to handle duplicate events.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># In-process EDA with Spring's ApplicationEventPublisher</span>
+<span class="code-class">@Service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderService</span> {
+
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">ApplicationEventPublisher</span> publisher;
+
+    <span class="code-keyword">public</span> <span class="code-class">OrderService</span>(<span class="code-class">ApplicationEventPublisher</span> publisher) {
+        <span class="code-keyword">this</span>.publisher = publisher;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> placeOrder(<span class="code-class">Order</span> order) {
+        <span class="code-comment"># persist, then announce the event</span>
+        publisher.publishEvent(<span class="code-keyword">new</span> <span class="code-class">OrderPlacedEvent</span>(order.getId()));
+    }
+}
+
+<span class="code-class">@Component</span>
+<span class="code-keyword">class</span> <span class="code-class">InvoiceHandler</span> {
+    <span class="code-class">@EventListener</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> on(<span class="code-class">OrderPlacedEvent</span> event) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Generating invoice for "</span> + event.orderId());
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>publishEvent</code> broadcasts without knowing who listens.</li>
+                    <li><code>@EventListener</code> handlers react independently.</li>
+                    <li>Adding a handler needs no change to <code>OrderService</code>.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

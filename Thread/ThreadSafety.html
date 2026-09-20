@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thread Safety - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Thread Safety</div>
+
+    <div class="intro">
+        <p>Thread safety means a class behaves correctly when accessed from multiple threads at once.</p>
+        <p>When multiple threads modify a shared resource simultaneously the outcome is non-deterministic unless access is synchronized.</p>
+        <p>Read-read sharing is safe, but read-write and write-write races cause memory inconsistencies.</p>
+        <p>It is achieved through confinement, immutability, synchronization, or thread-safe libraries.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Prefer immutability and confinement before reaching for locks.</li>
+            <li>Guard all access to shared mutable state, not just writes.</li>
+            <li>Use <code>ConcurrentHashMap</code> and other concurrent collections.</li>
+            <li>Local primitives are safe; shared heap references are not.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Correct results under concurrency, no corrupted state.</li>
+            <li>Prevents race conditions and visibility bugs.</li>
+            <li>Enables safe scaling across cores.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Synchronization adds latency and contention.</li>
+            <li>Over-locking can serialize an otherwise parallel program.</li>
+            <li>Subtle bugs are hard to reproduce and test.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">WordStats</span> {
+
+    <span class="code-comment">// thread-safe map, no external lock needed</span>
+    <span class="code-keyword">private final</span> <span class="code-class">ConcurrentHashMap</span>&lt;<span class="code-class">String</span>, <span class="code-class">LongAdder</span>&gt; counts =
+            <span class="code-keyword">new</span> <span class="code-class">ConcurrentHashMap</span>&lt;&gt;();
+
+    <span class="code-keyword">public void</span> record(<span class="code-class">String</span> word) {
+        <span class="code-comment">// atomic get-or-create then atomic increment</span>
+        counts.computeIfAbsent(word, k -> <span class="code-keyword">new</span> <span class="code-class">LongAdder</span>()).increment();
+    }
+
+    <span class="code-keyword">public long</span> count(<span class="code-class">String</span> word) {
+        <span class="code-class">LongAdder</span> a = counts.get(word);
+        <span class="code-keyword">return</span> a == <span class="code-keyword">null</span> ? <span class="code-number">0</span> : a.sum();
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>ConcurrentHashMap</code> allows concurrent reads and segmented writes safely.</li>
+                    <li><code>computeIfAbsent</code> atomically inserts the adder only once per key.</li>
+                    <li><code>LongAdder.increment()</code> scales better than a locked counter under contention.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

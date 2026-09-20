@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Database Sharding Strategies - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Database Sharding Strategies</div>
+
+    <div class="intro">
+        <p>Sharding is the process of dividing a database table (dataset) into smaller, more manageable pieces called shards, which are distributed across multiple machines or nodes.</p>
+        <p>Sharding usually refers to splitting one large table's data horizontally (row-wise) across multiple databases or servers.</p>
+        <p>Each shard contains a subset of rows of the table, and all shards share the same schema, just different data.</p>
+        <p>It splits large datasets into smaller chunks to spread load across servers.</p>
+        <p>A shard key determines which shard a given row belongs to.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use sharding when one server can no longer hold the data or handle the write throughput.</li>
+            <li>Range sharding: split by ranges of the shard key (good for range scans, risk of hotspots).</li>
+            <li>Hash sharding: hash the key to distribute rows evenly (good balance, poor range scans).</li>
+            <li>Directory/lookup sharding: a lookup table maps keys to shards (flexible, extra hop).</li>
+            <li>Choose a shard key with high cardinality and even access to avoid hot shards.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Enables near-linear horizontal scaling of storage and writes.</li>
+            <li>Smaller per-shard datasets mean faster queries and indexes.</li>
+            <li>Failure of one shard affects only part of the data.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Cross-shard queries and joins are complex and slow.</li>
+            <li>A poor shard key causes hotspots and uneven load.</li>
+            <li>Re-sharding to add capacity is difficult and risky.</li>
+            <li>Distributed transactions across shards are hard to guarantee.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">-- Every shard database has an identically-shaped Customer table</span>
+<span class="code-keyword">CREATE TABLE</span> <span class="code-class">Customer</span> (
+    <span class="code-class">CustomerId</span>  <span class="code-keyword">INT</span> <span class="code-keyword">PRIMARY KEY</span>,     <span class="code-comment">-- the shard key</span>
+    <span class="code-class">Email</span>       <span class="code-keyword">NVARCHAR</span>(255) <span class="code-keyword">NOT NULL</span>,
+    <span class="code-class">Region</span>      <span class="code-keyword">NVARCHAR</span>(50) <span class="code-keyword">NOT NULL</span>
+);
+
+<span class="code-comment">-- Insert on Shard1 only routes rows whose CustomerId hashes here</span>
+<span class="code-keyword">INSERT INTO</span> <span class="code-class">Customer</span> (<span class="code-class">CustomerId</span>, <span class="code-class">Email</span>, <span class="code-class">Region</span>)
+<span class="code-keyword">VALUES</span> (<span class="code-number">10042</span>, <span class="code-string">'a@example.com'</span>, <span class="code-string">'EU'</span>);   <span class="code-comment">-- CustomerId % 4 = 2 -> Shard3</span>
+
+<span class="code-comment">-- Cross-shard query fanning out via linked servers and merging results</span>
+<span class="code-keyword">SELECT</span> <span class="code-class">CustomerId</span>, <span class="code-class">Email</span>, <span class="code-class">Region</span> <span class="code-keyword">FROM</span> <span class="code-class">Shard0</span>.<span class="code-class">Sales</span>.<span class="code-class">dbo</span>.<span class="code-class">Customer</span>
+<span class="code-keyword">UNION ALL</span>
+<span class="code-keyword">SELECT</span> <span class="code-class">CustomerId</span>, <span class="code-class">Email</span>, <span class="code-class">Region</span> <span class="code-keyword">FROM</span> <span class="code-class">Shard1</span>.<span class="code-class">Sales</span>.<span class="code-class">dbo</span>.<span class="code-class">Customer</span>
+<span class="code-keyword">UNION ALL</span>
+<span class="code-keyword">SELECT</span> <span class="code-class">CustomerId</span>, <span class="code-class">Email</span>, <span class="code-class">Region</span> <span class="code-keyword">FROM</span> <span class="code-class">Shard2</span>.<span class="code-class">Sales</span>.<span class="code-class">dbo</span>.<span class="code-class">Customer</span>
+<span class="code-keyword">UNION ALL</span>
+<span class="code-keyword">SELECT</span> <span class="code-class">CustomerId</span>, <span class="code-class">Email</span>, <span class="code-class">Region</span> <span class="code-keyword">FROM</span> <span class="code-class">Shard3</span>.<span class="code-class">Sales</span>.<span class="code-class">dbo</span>.<span class="code-class">Customer</span>
+<span class="code-keyword">WHERE</span> <span class="code-class">Region</span> = <span class="code-string">'EU'</span>;</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>Every shard database hosts the identical <code>Customer</code> table definition; only the data differs.</li>
+                    <li><code>CustomerId</code> is the shard key; a hash of it (<code>CustomerId % 4</code>) decides which shard database owns a given row.</li>
+                    <li>A single-customer lookup goes directly to the one shard that owns that key, an O(1) routing decision.</li>
+                    <li>A query that needs data across all customers, like the <code>Region</code> filter here, must fan out to every shard via four-part names and combine results with <code>UNION ALL</code>.</li>
+                    <li>This fan-out cost is exactly why cross-shard queries and joins are more expensive than single-shard lookups.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

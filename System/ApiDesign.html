@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>API Design - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">API Design</div>
+
+    <div class="intro">
+        <p>An API is a set of rules and protocols that allows different software applications to communicate with each other.</p>
+        <p>Good API design makes an interface intuitive, consistent, and stable for the clients that depend on it.</p>
+        <p>API authentication ensures the right person is accessing the right data.</p>
+        <p>Well-designed APIs use clear resources, correct HTTP semantics, versioning, and predictable errors.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Model resources as nouns; use HTTP verbs (GET, POST, PUT, DELETE) for actions.</li>
+            <li>Return correct status codes (200, 201, 400, 404, 500) and consistent error bodies.</li>
+            <li>Version the API (e.g. /v1) so changes do not break existing clients.</li>
+            <li>Use pagination, filtering, and sorting for large collections.</li>
+            <li>Secure with authentication/authorization; validate all inputs; keep responses idempotent where possible.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Predictable, consistent APIs are easy to learn and integrate.</li>
+            <li>Versioning and clear contracts allow safe evolution.</li>
+            <li>Proper status codes and errors simplify client handling.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Public contracts are hard to change once clients depend on them.</li>
+            <li>Over-engineering (too many options) hurts usability.</li>
+            <li>Versioning and backward compatibility add maintenance burden.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># RESTful, versioned resource with proper status codes and validation</span>
+<span class="code-class">@RestController</span>
+<span class="code-class">@RequestMapping</span>(<span class="code-string">"/v1/orders"</span>)
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderController</span> {
+
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">OrderService</span> service;
+
+    <span class="code-class">OrderController</span>(<span class="code-class">OrderService</span> service) { <span class="code-keyword">this</span>.service = service; }
+
+    <span class="code-class">@GetMapping</span>(<span class="code-string">"/{id}"</span>)
+    <span class="code-keyword">public</span> <span class="code-class">OrderDto</span> get(<span class="code-class">@PathVariable</span> <span class="code-class">Long</span> id) {
+        <span class="code-keyword">return</span> service.findById(id); <span class="code-comment"># 404 if missing via handler</span>
+    }
+
+    <span class="code-class">@PostMapping</span>
+    <span class="code-class">@ResponseStatus</span>(<span class="code-class">HttpStatus</span>.CREATED) <span class="code-comment"># 201 on create</span>
+    <span class="code-keyword">public</span> <span class="code-class">OrderDto</span> create(<span class="code-class">@Valid</span> <span class="code-class">@RequestBody</span> <span class="code-class">CreateOrder</span> body) {
+        <span class="code-keyword">return</span> service.create(body);
+    }
+}
+</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>/v1/orders</code> versions the resource so clients are shielded from breaking changes.</li>
+                    <li>HTTP verbs map to actions; <code>@ResponseStatus(CREATED)</code> returns a correct 201.</li>
+                    <li><code>@Valid</code> enforces input validation and yields 400 on bad requests.</li>
+                    <li>DTOs form the stable contract, decoupling clients from internal entities.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

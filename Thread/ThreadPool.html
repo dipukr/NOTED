@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thread Pool - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Thread Pool</div>
+
+    <div class="intro">
+        <p>Thread pool is a collection of pre-created worker threads that are kept ready to perform tasks.</p>
+        <p>Thread pool avoids the overhead of creating and destroying new threads for each task.</p>
+        <p>When a task is submitted, it is assigned to an available thread from the pool.</p>
+        <p>When all threads are busy, the task waits in a queue until a thread becomes free.</p>
+        <p>Thread pools improve performance by reusing threads and manage resources by limiting the no of threads running concurrently.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">Key characteristics</div>
+        <div class="section-content">
+            <ul>
+                <li>Worker threads: A set of threads that are created at the start and are always ready to execute tasks.</li>
+                <li>Task queue: A queue to hold tasks when all threads in the pool are busy.</li>
+                <li>Configurable: Thread pools allow configuration of the no. of threads, type of queue to use and how to handle rejected tasks.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">How it works</div>
+        <div class="section-content">
+            <ul>
+                <li>Task submission: Tasks are submitted to the thread pool, not directly to individual threads.</li>
+                <li>Task assignment: An available worker thread from the pool is assigned to the task.</li>
+                <li>Queueing: If all threads are busy, the task is placed in a waiting queue.</li>
+                <li>Thread reuse: After completing a task, the thread returns to the pool to wait for another task, instead of being terminated.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content">
+            <ul>
+                <li>Improved performance: Reduces the significant cost of creating and destroying threads for each task.</li>
+                <li>Resource management: Limits the total no. of threads, preventing the system from running out of resources like memory.</li>
+                <li>Simplified programming: Developers can focus on the task logic rather than the complexities of managing thread lifecycles.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">PoolDemo</span> {
+    <span class="code-keyword">public void</span> main(String[] args) <span class="code-keyword">throws</span> Exception {
+        var pool = Executors.newFixedThreadPool(3);
+
+        <span class="code-keyword">for</span> (<span class="code-keyword">int</span> i = 0; i &lt; 5; i++) {
+            <span class="code-keyword">final int</span> id = i;
+            pool.submit(() -&gt; System.out.println(<span class="code-string">"task "</span> + id));
+        }
+
+        Future&lt;Integer&gt; f = pool.submit(() -&gt; 40 + 2);
+        System.out.println(<span class="code-string">"result: "</span> + f.get());  <span class="code-comment"># 42</span>
+
+        pool.shutdown();          <span class="code-comment"># stop accepting new tasks</span>
+    }
+}</code></pre>
+            </div>
+
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>Three worker threads run the five queued tasks by reuse.</li>
+                    <li><code>submit()</code> queues a task and returns a <code>Future</code>.</li>
+                    <li><code>Callable</code> returns a value fetched with <code>f.get()</code>.</li>
+                    <li><code>shutdown()</code> lets running tasks finish, then stops the pool.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

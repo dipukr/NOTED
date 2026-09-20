@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aggregation - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Aggregation</div>
+
+    <div class="intro">
+        <p>Aggregation is a special form of association where one object contains another object.</p>
+        <p>However the contained object can exist independently of the container.</p>
+        <p>Lifetime of the contained object is not dependent on the lifetime of the container.</p>
+        <p>Aggregation represents has-a relationship between objects.</p>
+        <p>Composition represents part-of relationship between objects.</p>
+        <p>An aggregation is a collection or the gathering of things together.</p>
+        <p>Aggregation - A has an instance of B, B can exists without A.</p>
+        <p>Composition - A has an instance of B, B cannot exists without A.</p>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">Professor</span> {
+    String name;
+    <span class="code-class">Professor</span>(String name) { <span class="code-keyword">this</span>.name = name; }
+}
+
+<span class="code-keyword">public class</span> <span class="code-class">Department</span> {
+    <span class="code-comment"># references professors created elsewhere</span>
+    <span class="code-keyword">private</span> List&lt;<span class="code-class">Professor</span>&gt; professors;
+
+    <span class="code-class">Department</span>(List&lt;<span class="code-class">Professor</span>&gt; professors) {
+        <span class="code-keyword">this</span>.professors = professors;
+    }
+}</code></pre>
+            </div>
+
+            <div class="code-explanation">
+                <div class="code-explanation-title">How aggregation works</div>
+                <ul>
+                    <li><code>Department</code> holds a list of <code>Professor</code> objects.</li>
+                    <li>The professors are created outside and passed in, not owned.</li>
+                    <li>If the department is removed, the professors still exist.</li>
+                    <li>This models a weak <em>has-a</em> with independent lifecycles.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atomic Classes - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Atomic Classes</div>
+
+    <div class="intro">
+        <p>Classes in <code>java.util.concurrent.atomic</code> provide lock-free, thread-safe operations on single variables.</p>
+        <p>They use low-level compare-and-swap (CAS) CPU instructions instead of locks.</p>
+        <p>Common types include <code>AtomicInteger</code>, <code>AtomicLong</code>, <code>AtomicBoolean</code> and <code>AtomicReference</code>.</p>
+        <p>They solve the race condition that plain <code>volatile</code> cannot: atomic read-modify-write.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use for counters, sequence generators, and accumulators under contention.</li>
+            <li><code>incrementAndGet()</code>, <code>compareAndSet()</code> execute atomically.</li>
+            <li><code>LongAdder</code> scales better than <code>AtomicLong</code> under very high write contention.</li>
+            <li>Prefer over <code>synchronized</code> when only a single variable is involved.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>No blocking, no deadlocks, no context switching.</li>
+            <li>Often faster than locks for single-variable updates.</li>
+            <li>Rich API: get-and-set, CAS, atomic accumulate.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Only atomic for one variable, not multi-field invariants.</li>
+            <li>CAS retries can spin under extreme contention.</li>
+            <li>Vulnerable to the ABA problem (use <code>AtomicStampedReference</code> if needed).</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">HitCounter</span> {
+
+    <span class="code-keyword">private final</span> <span class="code-class">AtomicInteger</span> hits = <span class="code-keyword">new</span> <span class="code-class">AtomicInteger</span>(<span class="code-number">0</span>);
+
+    <span class="code-keyword">public void</span> record() {
+        <span class="code-comment">// atomic read-modify-write, no lock needed</span>
+        hits.incrementAndGet();
+    }
+
+    <span class="code-keyword">public boolean</span> reserveIfBelow(<span class="code-keyword">int</span> limit) {
+        <span class="code-keyword">int</span> current;
+        <span class="code-keyword">do</span> {
+            current = hits.get();
+            <span class="code-keyword">if</span> (current >= limit) <span class="code-keyword">return</span> <span class="code-keyword">false</span>;
+        } <span class="code-keyword">while</span> (!hits.compareAndSet(current, current + <span class="code-number">1</span>));
+        <span class="code-keyword">return</span> <span class="code-keyword">true</span>;
+    }
+
+    <span class="code-keyword">public int</span> total() { <span class="code-keyword">return</span> hits.get(); }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>incrementAndGet()</code> performs the increment atomically via CAS.</li>
+                    <li><code>compareAndSet(expected, new)</code> only updates if the value is still <code>expected</code>.</li>
+                    <li>The retry loop handles the case where another thread changed the value first.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

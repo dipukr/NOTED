@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Pipelines - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Data Pipelines</div>
+
+    <div class="intro">
+        <p>A data pipeline moves and transforms data from sources to destinations in stages.</p>
+        <p>Stages typically extract, transform, and load (ETL) or load then transform (ELT).</p>
+        <p>Pipelines run in batch on a schedule or as continuous streaming flows.</p>
+        <p>They feed analytics, warehouses, machine learning, and reporting systems.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Use batch for periodic bulk loads; use streaming for near real-time needs.</li>
+            <li>Design stages to be idempotent and replayable after failures.</li>
+            <li>Track data lineage, schema, and quality checks at each step.</li>
+            <li>Tools include Kafka, Spark, Airflow, and Flink.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Automates reliable, repeatable data movement and transformation.</li>
+            <li>Decouples producers from consumers of processed data.</li>
+            <li>Enables timely analytics and centralized, cleaned datasets.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Complex to build, monitor, and recover after partial failures.</li>
+            <li>Schema changes upstream can silently break downstream stages.</li>
+            <li>Latency and cost grow with data volume and transformation depth.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">// A simple streaming ETL stage consuming, transforming, publishing</span>
+<span class="code-class">@Service</span>
+<span class="code-keyword">public class</span> <span class="code-class">EnrichmentStage</span> {
+
+    <span class="code-keyword">private final</span> <span class="code-class">KafkaTemplate</span>&lt;<span class="code-class">String</span>, <span class="code-class">EnrichedEvent</span>&gt; out;
+    <span class="code-keyword">private final</span> <span class="code-class">GeoLookup</span> geoLookup;
+
+    <span class="code-class">@KafkaListener</span>(topics = <span class="code-string">"raw-events"</span>, groupId = <span class="code-string">"enricher"</span>)
+    <span class="code-keyword">public void</span> process(<span class="code-class">RawEvent</span> raw) {
+        <span class="code-comment">// transform: enrich with geo data, drop invalid rows</span>
+        <span class="code-keyword">if</span> (raw.getIp() == <span class="code-keyword">null</span>) <span class="code-keyword">return</span>;
+
+        <span class="code-class">EnrichedEvent</span> enriched = <span class="code-keyword">new</span> <span class="code-class">EnrichedEvent</span>(
+                raw.getId(), geoLookup.country(raw.getIp()), raw.getPayload());
+
+        out.send(<span class="code-string">"enriched-events"</span>, enriched.getId(), enriched);
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>@KafkaListener</code> consumes the raw source topic as one pipeline stage.</li>
+                    <li>The null-IP guard performs data-quality filtering before transformation.</li>
+                    <li><code>geoLookup.country(...)</code> enriches each record with derived fields.</li>
+                    <li><code>out.send</code> publishes to the next topic, chaining stages together.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

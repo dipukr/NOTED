@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Schema Evolution - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Schema Evolution</div>
+
+    <div class="intro">
+        <p>Schema evolution is the ability to change a database or message schema over time without breaking existing data or consumers.</p>
+        <p>It covers adding, removing and modifying fields while keeping backward and forward compatibility.</p>
+        <p>Backward compatibility lets new code read old data; forward compatibility lets old code read new data.</p>
+        <p>It is critical for long-lived databases and for event streaming systems like Kafka.</p>
+        <p>Compatibility rules guide which changes are safe.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Add new fields as optional or with defaults to stay backward compatible.</li>
+            <li>Avoid renaming or removing fields still used by consumers.</li>
+            <li>Deprecate before deleting; roll changes out in phases.</li>
+            <li>Use expand-and-contract: add new, migrate, then remove old.</li>
+            <li>For events, enforce compatibility via a schema registry.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Enables continuous change without downtime.</li>
+            <li>Old and new versions can coexist safely.</li>
+            <li>Reduces the risk of breaking consumers.</li>
+            <li>Supports independent deployment of services.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Maintaining compatibility adds complexity.</li>
+            <li>Deprecated fields linger and clutter the schema.</li>
+            <li>Multi-phase changes take longer to complete.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">-- Original table</span>
+<span class="code-keyword">CREATE TABLE</span> <span class="code-class">AppUser</span> (
+    id            <span class="code-keyword">INT</span> <span class="code-keyword">IDENTITY</span> <span class="code-keyword">PRIMARY KEY</span>,
+    full_name     <span class="code-keyword">VARCHAR</span>(<span class="code-number">200</span>) <span class="code-keyword">NOT NULL</span>
+);
+
+<span class="code-comment">-- EXPAND: add new columns as optional / with a default so old writers still work</span>
+<span class="code-keyword">ALTER TABLE</span> <span class="code-class">AppUser</span> <span class="code-keyword">ADD</span> first_name <span class="code-keyword">VARCHAR</span>(<span class="code-number">100</span>) <span class="code-keyword">NULL</span>;
+<span class="code-keyword">ALTER TABLE</span> <span class="code-class">AppUser</span> <span class="code-keyword">ADD</span> last_name  <span class="code-keyword">VARCHAR</span>(<span class="code-number">100</span>) <span class="code-keyword">NULL</span>;
+<span class="code-keyword">ALTER TABLE</span> <span class="code-class">AppUser</span>
+    <span class="code-keyword">ADD</span> status <span class="code-keyword">VARCHAR</span>(<span class="code-number">20</span>) <span class="code-keyword">NOT NULL</span>
+    <span class="code-keyword">CONSTRAINT</span> DF_AppUser_status <span class="code-keyword">DEFAULT</span> <span class="code-string">'ACTIVE'</span>;
+
+<span class="code-comment">-- MIGRATE: backfill new columns from the old one, in batches</span>
+<span class="code-keyword">UPDATE</span> <span class="code-class">AppUser</span>
+<span class="code-keyword">SET</span> first_name = <span class="code-keyword">LEFT</span>(full_name, <span class="code-keyword">CHARINDEX</span>(<span class="code-string">' '</span>, full_name + <span class="code-string">' '</span>) - <span class="code-number">1</span>),
+    last_name  = <span class="code-keyword">LTRIM</span>(<span class="code-keyword">SUBSTRING</span>(full_name, <span class="code-keyword">CHARINDEX</span>(<span class="code-string">' '</span>, full_name + <span class="code-string">' '</span>), <span class="code-number">100</span>))
+<span class="code-keyword">WHERE</span> first_name <span class="code-keyword">IS NULL</span>;
+
+<span class="code-comment">-- CONTRACT: only after all readers/writers use first_name/last_name</span>
+<span class="code-keyword">ALTER TABLE</span> <span class="code-class">AppUser</span> <span class="code-keyword">ALTER COLUMN</span> first_name <span class="code-keyword">VARCHAR</span>(<span class="code-number">100</span>) <span class="code-keyword">NOT NULL</span>;
+<span class="code-keyword">ALTER TABLE</span> <span class="code-class">AppUser</span> <span class="code-keyword">DROP COLUMN</span> full_name;</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>ADD ... NULL</code> introduces <code>first_name</code>/<code>last_name</code> without breaking existing rows or old writers that don't set them.</li>
+                    <li>The <code>status</code> column uses a <code>DEFAULT</code> constraint so existing rows get a value automatically and old inserts remain valid.</li>
+                    <li>A backfill <code>UPDATE</code> migrates existing data into the new columns while both old and new code paths keep working.</li>
+                    <li>The contract phase (<code>ALTER COLUMN ... NOT NULL</code>, then <code>DROP COLUMN</code>) only runs once every consumer has moved off the old field.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

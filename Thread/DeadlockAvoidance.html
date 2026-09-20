@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deadlock Avoidance - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Deadlock Avoidance</div>
+
+    <div class="intro">
+        <p>Deadlock occurs when threads each wait for a resource held by another, forming a circular wait.</p>
+        <p>It happens when multiple threads acquire the same set of locks in different orders.</p>
+        <p>Avoidance breaks one of the four Coffman conditions that deadlock requires.</p>
+        <p>The most practical technique is imposing a consistent global lock ordering.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use / Key points</div>
+        <div class="section-content"><ul>
+            <li>Any code that acquires more than one lock at a time.</li>
+            <li>Deadlock needs mutual exclusion, hold-and-wait, no preemption and circular wait.</li>
+            <li>Break circular wait with a fixed ordering of lock acquisition.</li>
+            <li>Use <code>tryLock</code> with timeout to back off and retry.</li>
+        </ul></div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content"><ul>
+            <li>Lock ordering is simple and provably deadlock-free.</li>
+            <li><code>tryLock</code> lets threads recover instead of hanging.</li>
+            <li>Fewer, coarser locks reduce ordering complexity.</li>
+        </ul></div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages / Trade-offs</div>
+        <div class="section-content"><ul>
+            <li>Global ordering can be hard to maintain in large codebases.</li>
+            <li><code>tryLock</code> retry loops can cause livelock if unthrottled.</li>
+            <li>Coarser locks lower concurrency.</li>
+        </ul></div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Code</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">Transfer</span> {
+    <span class="code-comment">// tryLock with timeout avoids waiting forever</span>
+    <span class="code-keyword">boolean</span> <span class="code-class">move</span>(<span class="code-class">ReentrantLock</span> a, <span class="code-class">ReentrantLock</span> b) <span class="code-keyword">throws</span> <span class="code-class">InterruptedException</span> {
+        <span class="code-keyword">if</span> (a.tryLock(<span class="code-string">1</span>, <span class="code-class">TimeUnit</span>.SECONDS)) {
+            <span class="code-keyword">try</span> {
+                <span class="code-keyword">if</span> (b.tryLock(<span class="code-string">1</span>, <span class="code-class">TimeUnit</span>.SECONDS)) {
+                    <span class="code-keyword">try</span> { <span class="code-comment">/* do transfer */</span> <span class="code-keyword">return</span> <span class="code-keyword">true</span>; }
+                    <span class="code-keyword">finally</span> { b.unlock(); }
+                }
+            } <span class="code-keyword">finally</span> { a.unlock(); }
+        }
+        <span class="code-keyword">return</span> <span class="code-keyword">false</span>;   <span class="code-comment">// could not get both; caller retries</span>
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li><code>tryLock(timeout)</code> gives up rather than blocking indefinitely.</li>
+                    <li>If the second lock is unavailable, the first is released in <code>finally</code>.</li>
+                    <li>Returning <code>false</code> lets the caller back off and retry.</li>
+                    <li>No thread holds one lock while waiting forever for another.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
