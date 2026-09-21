@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OOP</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Object-oriented Programming</div>
+
+    <div class="intro">
+        <p>Object-oriented programming is a programming paradigm that organizes code around data, which are self-contained units that bundle data and functions together. 
+            Object-oriented programming uses concepts like classes (templates for objects), encapsulation (bundling data and methods), inheritance (reusing properties from other classes), 
+            and polymorphism (objects taking on many forms) to create modular, reusable, and maintainable code.</p> <br>
+        <p>An object oriented program is basically a collection of objects and relationships among them and they communicate or interact with each other using message passing.</p>
+        <p>Four main concept of OOPs are abstraction, encapsulation, inheritance and polymorphism which help us to write modular, reusable, extensible and generic software system.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">Use cases</div>
+        <div class="section-content">
+            <ul>
+                <li>Domains that map naturally to real-world entities with state and behaviour (orders, accounts, users, devices).</li>
+                <li>Large, long-lived systems where modularity and clear ownership of data matter more than raw brevity.</li>
+                <li>When many variations of a concept share common behaviour, so inheritance or interfaces can capture the commonality.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content">
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-title">Modularity</div>
+                    <p>Encapsulation bundles data with the methods that operate on it, so each class is a self-contained unit.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Reusability</div>
+                    <p>Inheritance and composition let existing classes be reused without duplicating code or data.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Maintainability</div>
+                    <p>One part of the code can change without breaking others, because internals stay hidden behind interfaces.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Extensibility</div>
+                    <p>New types can be added without modifying existing code, following the open-closed principle.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Data hiding and security</div>
+                    <p>Private fields with getters and setters protect state from uncontrolled external modification.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Flexibility through polymorphism</div>
+                    <p>One interface can work with many implementations, chosen at runtime.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Easier modelling</div>
+                    <p>Classes and relationships map closely to the problem domain, making designs easier to reason about.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Testability</div>
+                    <p>Depending on abstractions rather than concrete classes makes components easy to mock and test in isolation.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages</div>
+        <div class="section-content">
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-title">Added complexity</div>
+                    <p>Simple problems can end up spread across many small classes and layers of indirection.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Steeper learning curve</div>
+                    <p>Abstraction, inheritance hierarchies and dynamic dispatch take time to understand and design well.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Performance overhead</div>
+                    <p>Object allocation, indirection and virtual method calls cost more than plain procedural code.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Fragile base class problem</div>
+                    <p>Deep inheritance hierarchies couple subclasses tightly to their parents, so parent changes ripple downward.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Over-engineering</div>
+                    <p>It is easy to build abstractions for flexibility that is never actually needed.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Shared mutable state</div>
+                    <p>Objects holding mutable state need careful synchronisation in multi-threaded environments.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Harder to trace flow</div>
+                    <p>Behaviour resolved at runtime through polymorphism can make execution paths less obvious when debugging.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>
