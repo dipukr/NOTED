@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Composition - Notes</title>
+<title>Composition</title>
 <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
@@ -28,15 +28,15 @@
         <div class="code-layout">
             <div class="code-wrapper">
 <pre><code><span class="code-keyword">public class</span> <span class="code-class">Room</span> {
-    String name;
-    <span class="code-class">Room</span>(String name) { <span class="code-keyword">this</span>.name = name; }
+    <span class="code-keyword">private</span> String name;
+    <span class="code-class">public Room</span>(String name) {<span class="code-keyword">this</span>.name = name;}
 }
 
 <span class="code-keyword">public class</span> <span class="code-class">House</span> {
     <span class="code-comment"># House owns and creates its Rooms</span>
-    <span class="code-keyword">private final</span> List&lt;<span class="code-class">Room</span>&gt; rooms = <span class="code-keyword">new</span> java.util.ArrayList&lt;&gt;();
+    <span class="code-keyword">private</span> List&lt;<span class="code-class">Room</span>&gt; rooms = <span class="code-keyword">new</span> ArrayList&lt;&gt;();
 
-    <span class="code-class">House</span>() {
+    <span class="code-class">public House</span>() {
         rooms.add(<span class="code-keyword">new</span> <span class="code-class">Room</span>(<span class="code-string">"Kitchen"</span>));
         rooms.add(<span class="code-keyword">new</span> <span class="code-class">Room</span>(<span class="code-string">"Bedroom"</span>));
     }
@@ -52,6 +52,27 @@
                     <li>This models a strong <em>part-of</em> ownership relationship.</li>
                 </ul>
             </div>
+        </div>
+    </div>
+
+    <div class="section cmp">
+        <div class="section-title">Composition vs Inheritance</div>
+        <div class="section-content">
+            <table class="cmp-table">
+                <thead><tr><th>Aspect</th><th>Composition</th><th>Inheritance</th></tr></thead>
+                <tbody>
+                    <tr><td>Relationship</td><td><em>has-a</em> &mdash; an object holds a reference to another</td><td><em>is-a</em> &mdash; a subclass is a kind of its superclass</td></tr>
+                    <tr><td>Coupling</td><td>Loose &mdash; depends only on the other type's interface</td><td>Tight &mdash; subclass is bound to the parent's implementation</td></tr>
+                    <tr><td>Binding</td><td>Decided at runtime; behaviour can be swapped dynamically</td><td>Fixed at compile time by the class hierarchy</td></tr>
+                    <tr><td>Flexibility</td><td>High &mdash; swap or add parts without touching the container</td><td>Low &mdash; changing the hierarchy affects all subclasses</td></tr>
+                    <tr><td>Code reuse</td><td>By delegating to contained objects</td><td>By inheriting fields and methods from the parent</td></tr>
+                    <tr><td>Polymorphism</td><td>Via interfaces the parts implement</td><td>Via subtype substitution of the superclass</td></tr>
+                    <tr><td>Encapsulation</td><td>Strong &mdash; internals of the part stay hidden</td><td>Weaker &mdash; subclass sees protected members of the parent</td></tr>
+                    <tr><td>Fragile base class</td><td>Not affected &mdash; parts are independent</td><td>Prone &mdash; parent changes can silently break subclasses</td></tr>
+                    <tr><td>Multiple sources</td><td>Can compose many objects freely</td><td>Java allows only single class inheritance</td></tr>
+                    <tr><td>When to use</td><td>Default choice for reuse; parts vary or change over time</td><td>Only when you need both code reuse and subtype polymorphism</td></tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

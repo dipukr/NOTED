@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Overriding - Notes</title>
+<title>Overriding</title>
 <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
@@ -11,10 +11,9 @@
     <div class="title">Method Overriding</div>
 
     <div class="intro">
-        <p>Method-overriding is the process of redefining a parent class instance method into its child class is known as method overriding.</p>
-        <p>An instance method defined in the parent class is redefined into its child class to give specific implementation of the parent class method.</p>
-        <p>Referenced object type, not the reference variable type determines which method will be called.</p>
-        <p>When we create a parent class reference variable and assign a child class object then calling an overridden method on that variable will call the child class behaviour.</p>
+        <p>Process of redefining a parent class instance method into its child class to give specific implementation of the
+        parent class method is known as method overriding. Referenced object type, not the reference variable type determines <br> which method will be called.
+        When we create a parent class reference variable and assign a child class object <br> then calling an overridden method on that variable will call the child class behaviour.</p>
     </div>
 
     <div class="section when-use">
@@ -42,7 +41,7 @@
         <div class="code-layout">
             <div class="code-wrapper">
 <pre><code><span class="code-keyword">public class</span> <span class="code-class">Shape</span> {
-    <span class="code-keyword">public</span> String name() { <span class="code-keyword">return</span> <span class="code-string">"shape"</span>; }
+    <span class="code-keyword">public</span> String name() {<span class="code-keyword">return</span> <span class="code-string">"shape"</span>;}
 }
 
 <span class="code-keyword">public class</span> <span class="code-class">Circle</span> <span class="code-keyword">extends</span> <span class="code-class">Shape</span> {
@@ -61,7 +60,7 @@
             <div class="code-explanation">
                 <div class="code-explanation-title">How overriding works</div>
                 <ul>
-                    <li><code>Circle</code> redefines <code>name()</code> with the same signature.</li>
+                    <li><code>Circle</code> redefines <code>name</code> with the same signature.</li>
                     <li><code>@Override</code> tells the compiler to verify the match.</li>
                     <li>The <code>Shape</code> reference points to a <code>Circle</code> object.</li>
                     <li>Dynamic binding calls <code>Circle.name()</code> at runtime.</li>

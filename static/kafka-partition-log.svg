@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 250" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <marker id="pl-arrow" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L8,3 L0,6 Z" fill="#2563eb"/></marker>
+  </defs>
+  <rect x="0" y="0" width="760" height="250" fill="#f8fafc" rx="8"/>
+  <text x="20" y="30" font-size="13.5" font-weight="700" fill="#1f2937">Partition = ordered, append-only log</text>
+
+  <g font-size="12" font-weight="700" fill="#5b21b6" font-family="Consolas, monospace">
+    <text x="20" y="78">P0</text><text x="20" y="140">P1</text><text x="20" y="202">P2</text>
+  </g>
+
+  <!-- rows -->
+  <g>
+    <!-- P0 -->
+    <g>
+      <rect x="60" y="58" width="90" height="30" rx="5" fill="#e0e7ff" stroke="#94a3b8"/><text x="105" y="78" text-anchor="middle" font-size="11.5" font-family="Consolas, monospace" fill="#1f2937">0 Order-A</text>
+      <rect x="156" y="58" width="90" height="30" rx="5" fill="#e0e7ff" stroke="#94a3b8"/><text x="201" y="78" text-anchor="middle" font-size="11.5" font-family="Consolas, monospace" fill="#1f2937">1 Order-D</text>
+      <rect x="252" y="58" width="90" height="30" rx="5" fill="#e0e7ff" stroke="#94a3b8"/><text x="297" y="78" text-anchor="middle" font-size="11.5" font-family="Consolas, monospace" fill="#1f2937">2 Order-G</text>
+      <rect x="348" y="58" width="90" height="30" rx="5" fill="#ffffff" stroke="#94a3b8"/><text x="393" y="78" text-anchor="middle" font-size="11.5" font-family="Consolas, monospace" fill="#1f2937">3 Order-J</text>
+    </g>
+    <!-- P1 -->
+    <g>
+      <rect x="60" y="120" width="90" height="30" rx="5" fill="#e0e7ff" stroke="#94a3b8"/><text x="105" y="140" text-anchor="middle" font-size="11.5" font-family="Consolas, monospace" fill="#1f2937">0 Order-B</text>
+      <rect x="156" y="120" width="90" height="30" rx="5" fill="#e0e7ff" stroke="#94a3b8"/><text x="201" y="140" text-anchor="middle" font-size="11.5" font-family="Consolas, monospace" fill="#1f2937">1 Order-E</text>
+      <rect x="252" y="120" width="90" height="30" rx="5" fill="#ffffff" stroke="#94a3b8"/><text x="297" y="140" text-anchor="middle" font-size="11.5" font-family="Consolas, monospace" fill="#1f2937">2 Order-H</text>
+    </g>
+    <!-- P2 -->
+    <g>
+      <rect x="60" y="182" width="90" height="30" rx="5" fill="#e0e7ff" stroke="#94a3b8"/><text x="105" y="202" text-anchor="middle" font-size="11.5" font-family="Consolas, monospace" fill="#1f2937">0 Order-C</text>
+      <rect x="156" y="182" width="90" height="30" rx="5" fill="#e0e7ff" stroke="#94a3b8"/><text x="201" y="202" text-anchor="middle" font-size="11.5" font-family="Consolas, monospace" fill="#1f2937">1 Order-F</text>
+      <rect x="252" y="182" width="90" height="30" rx="5" fill="#ffffff" stroke="#94a3b8"/><text x="297" y="202" text-anchor="middle" font-size="11.5" font-family="Consolas, monospace" fill="#1f2937">2 Order-I</text>
+    </g>
+  </g>
+
+  <path d="M448,73 L520,73" stroke="#2563eb" stroke-width="1.6" marker-end="url(#pl-arrow)"/>
+  <text x="530" y="70" font-size="11" fill="#2563eb">append</text>
+  <text x="530" y="84" font-size="11" fill="#2563eb">new records</text>
+
+  <text x="20" y="238" font-size="11.5" fill="#64748b">Offsets increase per partition; ordering is guaranteed within a partition only, not across the topic.</text>
+</svg>

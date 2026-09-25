@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 300" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <marker id="cg-arrow" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L8,3 L0,6 Z" fill="#475569"/></marker>
+    <filter id="cg-shadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="1.5" stdDeviation="2" flood-color="#0f172a" flood-opacity="0.12"/></filter>
+  </defs>
+  <rect x="0" y="0" width="720" height="300" fill="#f8fafc" rx="8"/>
+  <text x="20" y="30" font-size="13.5" font-weight="700" fill="#1f2937">Topic: orders &#8212; consumer group "order-service"</text>
+
+  <!-- partitions -->
+  <g filter="url(#cg-shadow)">
+    <rect x="40" y="60" width="150" height="46" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+    <rect x="40" y="130" width="150" height="46" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+    <rect x="40" y="200" width="150" height="46" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5"/>
+  </g>
+  <g font-size="13" font-weight="700" fill="#5b21b6" text-anchor="middle">
+    <text x="115" y="88">Partition 0</text>
+    <text x="115" y="158">Partition 1</text>
+    <text x="115" y="228">Partition 2</text>
+  </g>
+
+  <!-- consumers -->
+  <g filter="url(#cg-shadow)">
+    <rect x="470" y="60" width="200" height="46" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
+    <rect x="470" y="130" width="200" height="46" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
+    <rect x="470" y="200" width="200" height="46" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5"/>
+  </g>
+  <g font-size="13" font-weight="700" fill="#166534" text-anchor="middle">
+    <text x="570" y="88">Consumer A</text>
+    <text x="570" y="158">Consumer B</text>
+    <text x="570" y="228">Consumer C</text>
+  </g>
+
+  <path d="M190,83 L466,83" stroke="#475569" stroke-width="2" fill="none" marker-end="url(#cg-arrow)"/>
+  <path d="M190,153 L466,153" stroke="#475569" stroke-width="2" fill="none" marker-end="url(#cg-arrow)"/>
+  <path d="M190,223 L466,223" stroke="#475569" stroke-width="2" fill="none" marker-end="url(#cg-arrow)"/>
+
+  <text x="360" y="285" text-anchor="middle" font-size="11.5" fill="#64748b">Within a group each partition is owned by exactly one consumer (parallelism is capped by partition count).</text>
+</svg>

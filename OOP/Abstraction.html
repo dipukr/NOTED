@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Abstraction - Notes</title>
+<title>Abstraction</title>
 <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
@@ -11,8 +11,11 @@
     <div class="title">Abstraction</div>
 
     <div class="intro">
-        <p>Mechanism of hiding unnecessary details and showing only essential details to the user by separating interface from its impl.</p>
-        <p>Main goal of the abstraction it to reduce the complexity of the design and implementation process of software system.</p>
+        <p>Mechanism of hiding unnecessary details and showing only essential details to the user by separating interface from <br>its impl.
+           Abstraction is the OOP principle of exposing only the essential operations of an object while hiding the implementation details 
+           that are not necessary for the user of that object.</p> <br>
+        <p>Main goal of the abstraction is to reduce the complexity of the design and implementation process of software system.</p>
+        <p>Main goal of the abstraction is to hide complexity of the system.</p>
         <p>Abstraction also generalises by capturing the common essense among unrelated classes.</p>
         <p>Abstraction can be achieved through interface and abstract class.</p>
         <p>Method = Method header + method body.</p>
@@ -21,6 +24,61 @@
         <p>Abstraction: Complete abstraction can be achieved through interface.</p>
         <p>Security: Hides implementation details and only show the important details of an object.</p>
         <p>Multiple inheritance: Can be achieved through interface because a class can implements multiple interfaces.</p>
+    </div>
+
+    <div class="section-diagram">
+        <img src="../static/abstraction.svg" alt="Abstraction diagram">
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">Key points</div>
+        <div class="section-content">
+            <ul>
+                <li>Think of abstraction as a boundary between.</li>
+                <li>The Teacher and Student can exist independently. Neither object owns the lifecycle of the other.</li>
+                <li>The association can be one-to-one, many-to-one or many-to-many.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content">
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-title">Reduced complexity</div>
+                    <p>Callers work with a small, essential set of operations instead of the full implementation, so the system is easier to understand and use.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Security and data hiding</div>
+                    <p>Internal details stay hidden behind the interface, so sensitive state and logic cannot be accessed or misused from outside.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Loose coupling</div>
+                    <p>Code depends on an abstraction rather than a concrete class, so implementations can be swapped without touching the callers.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Freedom to change</div>
+                    <p>The implementation can be rewritten or optimised at any time; as long as the contract holds, nothing downstream breaks.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Multiple inheritance of type</div>
+                    <p>A class can implement many interfaces, so it can take on several abstract roles that a single-inheritance hierarchy could not express.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Generalisation</div>
+                    <p>Abstraction captures the common essence among otherwise unrelated classes, letting one piece of code operate over many types.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Reusability</div>
+                    <p>An abstract class can share common implemented behaviour with all its subclasses while leaving the varying parts abstract.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Testability</div>
+                    <p>Depending on an interface makes it simple to substitute mocks or stubs, so units can be tested in isolation.</p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="section code-section">

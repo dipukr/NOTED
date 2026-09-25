@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Aggregation - Notes</title>
+<title>Aggregation</title>
 <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
@@ -26,8 +26,8 @@
         <div class="code-layout">
             <div class="code-wrapper">
 <pre><code><span class="code-keyword">public class</span> <span class="code-class">Professor</span> {
-    String name;
-    <span class="code-class">Professor</span>(String name) { <span class="code-keyword">this</span>.name = name; }
+    <span class="code-keyword">private</span> String name;
+    <span class="code-class">public Professor</span>(String name) {<span class="code-keyword">this</span>.name = name;}
 }
 
 <span class="code-keyword">public class</span> <span class="code-class">Department</span> {

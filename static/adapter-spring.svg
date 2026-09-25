@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1020 160" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <marker id="a6" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L8,3 L0,6 Z" fill="#475569"/></marker>
+    <filter id="s6" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="1.5" stdDeviation="2" flood-color="#0f172a" flood-opacity="0.12"/></filter>
+  </defs>
+  <rect x="0" y="0" width="1020" height="160" fill="#f8fafc" rx="8"/>
+
+  <rect x="20" y="56" width="150" height="56" rx="8" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5" filter="url(#s6)"/>
+  <text x="95" y="89" text-anchor="middle" font-size="13.5" font-weight="700" fill="#1e3a8a">Business Layer</text>
+
+  <rect x="250" y="56" width="200" height="56" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5" filter="url(#s6)"/>
+  <text x="350" y="89" text-anchor="middle" font-size="13.5" font-weight="700" fill="#5b21b6">NotificationService</text>
+
+  <rect x="560" y="56" width="180" height="56" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5" filter="url(#s6)"/>
+  <text x="650" y="89" text-anchor="middle" font-size="13.5" font-weight="700" fill="#166534">SmsProviderAdapter</text>
+
+  <rect x="820" y="56" width="180" height="56" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="1.5" filter="url(#s6)"/>
+  <text x="910" y="82" text-anchor="middle" font-size="12.5" font-weight="700" fill="#92400e">External SMS</text>
+  <text x="910" y="99" text-anchor="middle" font-size="12.5" font-weight="700" fill="#92400e">Provider</text>
+
+  <path d="M170,84 L246,84" stroke="#475569" stroke-width="2" fill="none" marker-end="url(#a6)"/>
+  <text x="208" y="75" text-anchor="middle" font-size="11" fill="#475569">uses</text>
+
+  <path d="M560,84 L454,84" stroke="#475569" stroke-width="2" fill="none" marker-end="url(#a6)"/>
+  <text x="507" y="75" text-anchor="middle" font-size="11" fill="#475569">implements</text>
+
+  <path d="M740,84 L816,84" stroke="#475569" stroke-width="2" fill="none" marker-end="url(#a6)"/>
+  <text x="778" y="75" text-anchor="middle" font-size="11" fill="#475569">delegates</text>
+</svg>

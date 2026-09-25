@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 320" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <marker id="mvc-arrow" markerWidth="8" markerHeight="8" refX="6.5" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L7,3 L0,6 Z" fill="#475569"/></marker>
+    <filter id="mvc-shadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-color="#0f172a" flood-opacity="0.14"/></filter>
+  </defs>
+  <rect x="0" y="0" width="800" height="320" fill="#f8fafc" rx="8"/>
+
+  <!-- Model (top center) -->
+  <rect x="320" y="26" width="160" height="58" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5" filter="url(#mvc-shadow)"/>
+  <text x="400" y="52" text-anchor="middle" font-size="17" font-weight="700" fill="#5b21b6">Model</text>
+  <text x="400" y="71" text-anchor="middle" font-size="12" fill="#7c3aed">data + logic</text>
+
+  <!-- Controller (bottom left) -->
+  <rect x="60" y="200" width="160" height="58" rx="10" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5" filter="url(#mvc-shadow)"/>
+  <text x="140" y="226" text-anchor="middle" font-size="17" font-weight="700" fill="#166534">Controller</text>
+  <text x="140" y="245" text-anchor="middle" font-size="12" fill="#16a34a">handles input</text>
+
+  <!-- View (bottom right) -->
+  <rect x="580" y="200" width="160" height="58" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="1.5" filter="url(#mvc-shadow)"/>
+  <text x="660" y="226" text-anchor="middle" font-size="17" font-weight="700" fill="#1e3a8a">View</text>
+  <text x="660" y="245" text-anchor="middle" font-size="12" fill="#2563eb">renders UI</text>
+
+  <!-- User -->
+  <circle cx="400" cy="288" r="20" fill="#e5e7eb" stroke="#6b7280" stroke-width="1.4"/>
+  <text x="400" y="293" text-anchor="middle" font-size="12" font-weight="700" fill="#374151">User</text>
+
+  <!-- Controller -> Model : updates -->
+  <path d="M150,200 C132,140 210,96 316,82" stroke="#475569" stroke-width="1.8" fill="none" marker-end="url(#mvc-arrow)"/>
+  <g><rect x="120" y="128" width="62" height="20" rx="4" fill="#f8fafc"/><text x="151" y="142" text-anchor="middle" font-size="13" fill="#475569">updates</text></g>
+
+  <!-- Model -> View : notifies -->
+  <path d="M484,82 C590,96 668,140 650,200" stroke="#475569" stroke-width="1.8" fill="none" marker-end="url(#mvc-arrow)"/>
+  <g><rect x="618" y="128" width="62" height="20" rx="4" fill="#f8fafc"/><text x="649" y="142" text-anchor="middle" font-size="13" fill="#475569">notifies</text></g>
+
+  <!-- View -> Controller (dashed) : reads state -->
+  <path d="M580,238 L222,238" stroke="#94a3b8" stroke-width="1.4" fill="none" stroke-dasharray="5 4" marker-end="url(#mvc-arrow)"/>
+  <g><rect x="360" y="228" width="80" height="20" rx="4" fill="#f8fafc"/><text x="400" y="242" text-anchor="middle" font-size="12" fill="#94a3b8">reads state</text></g>
+
+  <!-- User -> Controller : input -->
+  <path d="M380,282 C320,266 260,256 224,248" stroke="#475569" stroke-width="1.8" fill="none" marker-end="url(#mvc-arrow)"/>
+  <g><rect x="266" y="266" width="42" height="20" rx="4" fill="#f8fafc"/><text x="287" y="280" text-anchor="middle" font-size="12" fill="#475569">input</text></g>
+
+  <!-- View -> User : output -->
+  <path d="M576,248 C540,256 480,266 420,282" stroke="#475569" stroke-width="1.8" fill="none" marker-end="url(#mvc-arrow)"/>
+  <g><rect x="490" y="266" width="52" height="20" rx="4" fill="#f8fafc"/><text x="516" y="280" text-anchor="middle" font-size="12" fill="#475569">output</text></g>
+</svg>

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 300" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <marker id="rp-arrow" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L8,3 L0,6 Z" fill="#475569"/></marker>
+    <filter id="rp-shadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="1.5" stdDeviation="2" flood-color="#0f172a" flood-opacity="0.12"/></filter>
+  </defs>
+  <rect x="0" y="0" width="620" height="300" fill="#f8fafc" rx="8"/>
+  <text x="20" y="30" font-size="13.5" font-weight="700" fill="#1f2937">Partition 0 &#8212; replication factor 3</text>
+
+  <!-- ISR box -->
+  <rect x="40" y="46" width="540" height="200" rx="12" fill="none" stroke="#16a34a" stroke-width="1.4" stroke-dasharray="6 5"/>
+  <text x="56" y="68" font-size="12.5" font-weight="700" fill="#166534">ISR &#8212; in-sync replicas</text>
+
+  <!-- Leader -->
+  <rect x="70" y="86" width="480" height="46" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="1.8" filter="url(#rp-shadow)"/>
+  <text x="90" y="114" font-size="13" font-weight="700" fill="#166534">Broker 1 &#8212; Leader</text>
+  <text x="530" y="114" text-anchor="end" font-size="11" fill="#166534">handles reads &amp; writes</text>
+
+  <!-- Follower A -->
+  <rect x="70" y="146" width="480" height="42" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="1.4" filter="url(#rp-shadow)"/>
+  <text x="90" y="172" font-size="13" font-weight="700" fill="#1e3a8a">Broker 2 &#8212; Follower</text>
+  <text x="530" y="172" text-anchor="end" font-size="11" fill="#2563eb">caught up</text>
+
+  <!-- Follower B -->
+  <rect x="70" y="196" width="480" height="42" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="1.4" filter="url(#rp-shadow)"/>
+  <text x="90" y="222" font-size="13" font-weight="700" fill="#1e3a8a">Broker 3 &#8212; Follower</text>
+  <text x="530" y="222" text-anchor="end" font-size="11" fill="#2563eb">caught up</text>
+
+  <!-- replicate arrows -->
+  <path d="M120,132 L120,144" stroke="#475569" stroke-width="1.6" fill="none" marker-end="url(#rp-arrow)"/>
+  <path d="M120,188 L120,194" stroke="#475569" stroke-width="1.6" fill="none" marker-end="url(#rp-arrow)"/>
+  <text x="132" y="143" font-size="10.5" fill="#475569">replicate</text>
+</svg>

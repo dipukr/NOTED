@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Association - Notes</title>
+<title>Association</title>
 <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
@@ -11,10 +11,20 @@
     <div class="title">Association</div>
 
     <div class="intro">
-        <p>Association represents a relationship where one object is linked to another object.</p>
-        <p>Association describes relationships between classes.</p>
-        <p>The association can be one-way or two-way. Which implies that two classes are related, but neither class owns the other.</p>
-        <p>Associations relate entities that can exist independently of each other - such as authors and books.</p>
+        <p>Association is a general relationship between objects. Association is a relationship between two classes 
+            where objects <br> of one class are connected to or interact with objects of another class.</p>
+        <p>Objects are simply related.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">Key points</div>
+        <div class="section-content">
+            <ul>
+                <li>Associations relate entities that can exist independently of each other - such as Teacher and Student.</li>
+                <li>The Teacher and Student can exist independently. Neither object owns the lifecycle of the other.</li>
+                <li>The association can be one-to-one, many-to-one or many-to-many.</li>
+            </ul>
+        </div>
     </div>
 
     <div class="section code-section">
@@ -22,16 +32,16 @@
         <div class="code-layout">
             <div class="code-wrapper">
 <pre><code><span class="code-keyword">public class</span> <span class="code-class">Driver</span> {
-    String name;
-    <span class="code-class">Driver</span>(String name) { <span class="code-keyword">this</span>.name = name; }
+    private String name;
+    <span class="code-class">public Driver</span>(String name) {<span class="code-keyword">this</span>.name = name;}
 }
 
 <span class="code-keyword">public class</span> <span class="code-class">Car</span> {
-    String model;
-    <span class="code-class">Car</span>(String model) { <span class="code-keyword">this</span>.model = model; }
+    private String model;
+    <span class="code-class">public Car</span>(String model) {<span class="code-keyword">this</span>.model = model;}
 
     <span class="code-comment"># Car is associated with a Driver</span>
-     <span class="code-keyword">public void</span> drive(<span class="code-class">Driver</span> driver) {
+    <span class="code-keyword">public void</span> drive(<span class="code-class">Driver</span> driver) {
         System.out.println(driver.name + <span class="code-string">" drives "</span> + model);
     }
 }</code></pre>

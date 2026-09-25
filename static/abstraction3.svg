@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1728" height="864" viewBox="0 0 1728 864">
+  <defs>
+    <linearGradient id="leftBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#f8fbff"/>
+    </linearGradient>
+    <linearGradient id="rightBg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fbfdff"/>
+      <stop offset="1" stop-color="#f3f8ff"/>
+    </linearGradient>
+    <linearGradient id="blueBox" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#eaf3ff"/>
+      <stop offset="1" stop-color="#dceaff"/>
+    </linearGradient>
+    <linearGradient id="greenBox" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#eefaf1"/>
+      <stop offset="1" stop-color="#e3f6e8"/>
+    </linearGradient>
+    <linearGradient id="redBox" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff0f1"/>
+      <stop offset="1" stop-color="#ffe5e7"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#8ba0b8" flood-opacity=".12"/>
+    </filter>
+    <style>
+      .title { font-family: Arial, Helvetica, sans-serif; fill:#12213f; font-weight:700; }
+      .body { font-family: Arial, Helvetica, sans-serif; fill:#17233b; }
+      .mono { font-family: Consolas, "Courier New", monospace; fill:#18233a; }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1728" height="864" fill="#ffffff"/>
+
+  <!-- Panels -->
+  <rect x="22" y="24" width="905" height="816" rx="22" fill="url(#leftBg)" stroke="#dce7f2" stroke-width="2"/>
+  <rect x="949" y="24" width="757" height="816" rx="22" fill="url(#rightBg)" stroke="#e2ebf5" stroke-width="2"/>
+
+  <!-- LEFT: YOUR CODE -->
+  <rect x="148" y="68" width="382" height="101" rx="12" fill="url(#blueBox)" stroke="#2478e8" stroke-width="2.5" filter="url(#shadow)"/>
+  <!-- code icon -->
+  <path d="M225 104 L208 118 L225 132 M252 104 L269 118 L252 132 M244 99 L233 137"
+        fill="none" stroke="#2e7ddd" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="287" y="126" class="title" font-size="29">YOUR CODE</text>
+
+  <!-- Connector -->
+  <line x1="339" y1="169" x2="339" y2="233" stroke="#5e7188" stroke-width="3"/>
+  <polygon points="339,247 331,232 347,232" fill="#5e7188"/>
+
+  <!-- Consumer callout -->
+  <line x1="530" y1="118" x2="603" y2="118" stroke="#4e92ed" stroke-width="2" stroke-dasharray="7 7"/>
+  <circle cx="535" cy="118" r="6" fill="#4e92ed"/>
+  <rect x="605" y="74" width="278" height="95" rx="13" fill="#edf4fd"/>
+  <text x="628" y="108" class="body" font-size="21">Consumer code uses</text>
+  <text x="628" y="138" class="body" font-size="21">the abstraction.</text>
+
+  <!-- ABSTRACTION -->
+  <rect x="148" y="234" width="382" height="217" rx="12" fill="url(#greenBox)" stroke="#248b4a" stroke-width="2.5" filter="url(#shadow)"/>
+  <text x="339" y="274" text-anchor="middle" class="title" font-size="24">ABSTRACTION</text>
+  <rect x="171" y="298" width="336" height="126" rx="11" fill="#ffffff" opacity=".88"/>
+  <text x="339" y="340" text-anchor="middle" class="mono" font-size="22">pay()</text>
+  <text x="339" y="377" text-anchor="middle" class="mono" font-size="22">start()</text>
+  <text x="339" y="414" text-anchor="middle" class="mono" font-size="22">save()</text>
+
+  <!-- Abstraction callout -->
+  <line x1="530" y1="344" x2="603" y2="344" stroke="#39a861" stroke-width="2" stroke-dasharray="7 7"/>
+  <circle cx="535" cy="344" r="6" fill="#39a861"/>
+  <rect x="605" y="296" width="278" height="124" rx="13" fill="#eaf7ed"/>
+  <text x="628" y="329" class="body" font-size="19">A <tspan font-weight="700">simple and clear</tspan></text>
+  <text x="628" y="357" class="body" font-size="19">interface that hides</text>
+  <text x="628" y="385" class="body" font-size="19">the complex details.</text>
+
+  <!-- Connector -->
+  <line x1="339" y1="451" x2="339" y2="510" stroke="#5e7188" stroke-width="3"/>
+  <polygon points="339,524 331,509 347,509" fill="#5e7188"/>
+
+  <!-- IMPLEMENTATION -->
+  <rect x="148" y="515" width="382" height="273" rx="12" fill="url(#redBox)" stroke="#e34c55" stroke-width="2.5" filter="url(#shadow)"/>
+  <text x="339" y="555" text-anchor="middle" class="title" font-size="24">IMPLEMENTATION</text>
+  <rect x="171" y="578" width="336" height="181" rx="11" fill="#ffffff" opacity=".88"/>
+  <text x="194" y="615" class="mono" font-size="20">Complex logic</text>
+  <text x="194" y="646" class="mono" font-size="20">Algorithms</text>
+  <text x="194" y="677" class="mono" font-size="20">Database calls</text>
+  <text x="194" y="708" class="mono" font-size="20">Network calls</text>
+  <text x="194" y="739" class="mono" font-size="20">etc.</text>
+
+  <!-- Implementation callout -->
+  <line x1="530" y1="650" x2="603" y2="650" stroke="#e34c55" stroke-width="2" stroke-dasharray="7 7"/>
+  <circle cx="535" cy="650" r="6" fill="#e34c55"/>
+  <rect x="605" y="594" width="278" height="116" rx="13" fill="#fff0f1"/>
+  <text x="628" y="626" class="body" font-size="19">Implementation details</text>
+  <text x="628" y="654" class="body" font-size="19">are hidden behind</text>
+  <text x="628" y="682" class="body" font-size="19">the abstraction.</text>
+
+  <!-- RIGHT PANEL -->
+  <rect x="995" y="109" width="143" height="5" rx="3" fill="#287ff0"/>
+  <text x="995" y="205" class="title" font-size="46">What Abstraction Means</text>
+
+  <!-- Point 1 -->
+  <circle cx="1036" cy="310" r="38" fill="#dbeafe"/>
+  <text x="1036" y="322" text-anchor="middle" class="title" font-size="28">1</text>
+  <text x="1110" y="319" class="body" font-size="26">
+    Think of abstraction as a <tspan font-weight="700">boundary.</tspan>
+  </text>
+
+  <!-- Point 2 -->
+  <circle cx="1036" cy="440" r="38" fill="#dff5e7"/>
+  <text x="1036" y="452" text-anchor="middle" class="title" font-size="28">2</text>
+  <text x="1110" y="431" class="body" font-size="25">The consumer interacts with the</text>
+  <text x="1110" y="466" class="body" font-size="25"><tspan font-weight="700">simple abstraction.</tspan></text>
+
+  <!-- Point 3 -->
+  <circle cx="1036" cy="591" r="38" fill="#ffe0e2"/>
+  <text x="1036" y="603" text-anchor="middle" class="title" font-size="28">3</text>
+  <text x="1110" y="568" class="body" font-size="25">The implementation can be</text>
+  <text x="1110" y="603" class="body" font-size="25">complicated and can even <tspan font-weight="700">change</tspan></text>
+  <text x="1110" y="638" class="body" font-size="25">without requiring the consumer</text>
+  <text x="1110" y="673" class="body" font-size="25">to understand those details.</text>
+</svg>

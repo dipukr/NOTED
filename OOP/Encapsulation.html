@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Encapsulation - Notes</title>
+<title>Encapsulation</title>
 <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
@@ -11,9 +11,9 @@
     <div class="title">Encapsulation</div>
 
     <div class="intro">
-        <p>Encapsulation makes out software system modular ie. we can change one part of the code without affecting other parts of code.</p>
-        <p>Encapsulation is the process of wrapping of related data and code into a single unit which modularizes our software system.</p>
-        <p>Encapsulation also help us to achieve data hiding: the process of hiding sensitive data of the objects from the outside world.</p>
+        <p>Encapsulation is the process of wrapping of related data and code into a single unit which modularizes our software system.
+        Encapsulation makes out software system modular ie. we can change one part of the code without affecting other parts of code.
+        Encapsulation also help us to achieve data hiding: the process of hiding sensitive data of the objects from the outside world.</p> <br>
         <p>Encapsulation refers to the bundling of data with the mechanisms or methods that operate on the data.</p>
         <p>Encapsulation also refer to the limiting of direct access to some of that data, such as an object's components.</p>
         <p>Essentially encapsulation prevents external code from being concerned with the internal workings of an object.</p>
@@ -40,15 +40,18 @@
             <div class="code-wrapper">
 <pre><code><span class="code-keyword">public class</span> <span class="code-class">BankAccount</span> {
 
-    <span class="code-comment"># hidden internal state</span> <span class="code-keyword">private double</span> balance;
+    <span class="code-comment"># hidden internal state</span>
+    <span class="code-keyword">private double</span> balance;
 
-    <span class="code-comment"># controlled mutation</span> <span class="code-keyword">public void</span> deposit(<span class="code-keyword">double</span> amount) {
+    <span class="code-comment"># controlled mutation</span>
+    <span class="code-keyword">public void</span> deposit(<span class="code-keyword">double</span> amount) {
         <span class="code-keyword">if</span> (amount &gt; <span class="code-string">0</span>) {
             balance += amount;
         }
     }
 
-    <span class="code-comment"># controlled read</span> <span class="code-keyword">public double</span> getBalance() {
+    <span class="code-comment"># controlled read</span>
+    <span class="code-keyword">public double</span> getBalance() {
         <span class="code-keyword">return</span> balance;
     }
 }</code></pre>

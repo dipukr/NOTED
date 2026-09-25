@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 330" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <marker id="a7" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L8,3 L0,6 Z" fill="#475569"/></marker>
+    <filter id="s7" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="1.5" stdDeviation="2" flood-color="#0f172a" flood-opacity="0.12"/></filter>
+  </defs>
+  <rect x="0" y="0" width="560" height="330" fill="#f8fafc" rx="8"/>
+
+  <!-- Interface -->
+  <rect x="180" y="24" width="200" height="64" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5" filter="url(#s7)"/>
+  <text x="280" y="52" text-anchor="middle" font-size="14" font-weight="700" fill="#5b21b6">PaymentProcessor</text>
+  <text x="280" y="71" text-anchor="middle" font-size="11" fill="#7c3aed">&lt;&lt;interface&gt;&gt;</text>
+
+  <!-- bus -->
+  <path d="M280,88 L280,116 M150,116 L410,116" stroke="#475569" stroke-width="2" fill="none"/>
+  <path d="M150,116 L150,150" stroke="#475569" stroke-width="2" fill="none" marker-end="url(#a7)"/>
+  <path d="M410,116 L410,150" stroke="#475569" stroke-width="2" fill="none" marker-end="url(#a7)"/>
+
+  <!-- Adapters -->
+  <rect x="70" y="152" width="160" height="52" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5" filter="url(#s7)"/>
+  <text x="150" y="183" text-anchor="middle" font-size="13" font-weight="700" fill="#166534">Adapter 1</text>
+
+  <rect x="330" y="152" width="160" height="52" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5" filter="url(#s7)"/>
+  <text x="410" y="183" text-anchor="middle" font-size="13" font-weight="700" fill="#166534">Adapter 2</text>
+
+  <!-- adapters -> providers -->
+  <path d="M150,204 L150,254" stroke="#475569" stroke-width="2" fill="none" marker-end="url(#a7)"/>
+  <path d="M410,204 L410,254" stroke="#475569" stroke-width="2" fill="none" marker-end="url(#a7)"/>
+
+  <!-- Providers -->
+  <rect x="70" y="256" width="160" height="52" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="1.5" filter="url(#s7)"/>
+  <text x="150" y="287" text-anchor="middle" font-size="13" font-weight="700" fill="#92400e">Provider A</text>
+
+  <rect x="330" y="256" width="160" height="52" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="1.5" filter="url(#s7)"/>
+  <text x="410" y="287" text-anchor="middle" font-size="13" font-weight="700" fill="#92400e">Provider B</text>
+</svg>

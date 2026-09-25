@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 330" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <marker id="a4" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L8,3 L0,6 Z" fill="#475569"/></marker>
+    <filter id="s4" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="1.5" stdDeviation="2" flood-color="#0f172a" flood-opacity="0.12"/></filter>
+  </defs>
+  <rect x="0" y="0" width="720" height="330" fill="#f8fafc" rx="8"/>
+
+  <!-- Interface -->
+  <rect x="260" y="24" width="200" height="64" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.5" filter="url(#s4)"/>
+  <text x="360" y="52" text-anchor="middle" font-size="14" font-weight="700" fill="#5b21b6">PaymentProcessor</text>
+  <text x="360" y="71" text-anchor="middle" font-size="11" fill="#7c3aed">&lt;&lt;interface&gt;&gt;</text>
+
+  <!-- connectors interface -> adapters (bus) -->
+  <path d="M360,88 L360,120 M110,120 L610,120" stroke="#475569" stroke-width="2" fill="none"/>
+  <path d="M110,120 L110,150" stroke="#475569" stroke-width="2" fill="none" marker-end="url(#a4)"/>
+  <path d="M360,120 L360,150" stroke="#475569" stroke-width="2" fill="none" marker-end="url(#a4)"/>
+  <path d="M610,120 L610,150" stroke="#475569" stroke-width="2" fill="none" marker-end="url(#a4)"/>
+
+  <!-- Adapters -->
+  <rect x="30" y="152" width="160" height="52" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5" filter="url(#s4)"/>
+  <text x="110" y="183" text-anchor="middle" font-size="13" font-weight="700" fill="#166534">StripeAdapter</text>
+
+  <rect x="280" y="152" width="160" height="52" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5" filter="url(#s4)"/>
+  <text x="360" y="183" text-anchor="middle" font-size="13" font-weight="700" fill="#166534">PayPalAdapter</text>
+
+  <rect x="530" y="152" width="160" height="52" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="1.5" filter="url(#s4)"/>
+  <text x="610" y="183" text-anchor="middle" font-size="13" font-weight="700" fill="#166534">RazorpayAdapter</text>
+
+  <!-- adapters -> apis -->
+  <path d="M110,204 L110,254" stroke="#475569" stroke-width="2" fill="none" marker-end="url(#a4)"/>
+  <path d="M360,204 L360,254" stroke="#475569" stroke-width="2" fill="none" marker-end="url(#a4)"/>
+  <path d="M610,204 L610,254" stroke="#475569" stroke-width="2" fill="none" marker-end="url(#a4)"/>
+
+  <!-- APIs -->
+  <rect x="30" y="256" width="160" height="52" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="1.5" filter="url(#s4)"/>
+  <text x="110" y="287" text-anchor="middle" font-size="13" font-weight="700" fill="#92400e">Stripe API</text>
+
+  <rect x="280" y="256" width="160" height="52" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="1.5" filter="url(#s4)"/>
+  <text x="360" y="287" text-anchor="middle" font-size="13" font-weight="700" fill="#92400e">PayPal API</text>
+
+  <rect x="530" y="256" width="160" height="52" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="1.5" filter="url(#s4)"/>
+  <text x="610" y="287" text-anchor="middle" font-size="13" font-weight="700" fill="#92400e">Razorpay API</text>
+</svg>

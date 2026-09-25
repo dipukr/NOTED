@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Binding - Notes</title>
+<title>Binding</title>
 <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
@@ -15,7 +15,7 @@
         <p>Which means that the code to be executed for a specific method call is not known until runtime.</p>
         <p>Dynamic dispatch is used when multiple classes contain different implementations of the same method.</p>
         <p>Dynamic binding (dispatch) is the process of linking function call to a specific sequence of code (function) at run-time.</p>
-        <p>Dynamic dispatch is a mechanism for selecting the function to be executed from various function alternatives at the runtime.</p>
+        <p>Late binding is a mechanism for selecting the function to be executed from various function alternatives at the runtime.</p>
     </div>
 
     <div class="section code-section">
@@ -23,12 +23,12 @@
         <div class="code-layout">
             <div class="code-wrapper">
 <pre><code><span class="code-keyword">public class</span> <span class="code-class">Animal</span> {
-    <span class="code-keyword">public void</span> sound() { System.out.println(<span class="code-string">"..."</span>); }
+    <span class="code-keyword">public void</span> sound() {System.out.println(<span class="code-string">"..."</span>);}
 }
 
 <span class="code-keyword">public class</span> <span class="code-class">Cat</span> <span class="code-keyword">extends</span> <span class="code-class">Animal</span> {
     <span class="code-class">@Override</span>
-    <span class="code-keyword">public void</span> sound() { System.out.println(<span class="code-string">"Meow"</span>); }
+    <span class="code-keyword">public void</span> sound() {System.out.println(<span class="code-string">"Meow"</span>);}
 }
 
 <span class="code-keyword">void</span> main() {

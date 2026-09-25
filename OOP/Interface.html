@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Interface - Notes</title>
+<title>Interface</title>
 <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
@@ -11,19 +11,18 @@
     <div class="title">Interface</div>
 
     <div class="intro">
-        <p>An interface is a reference type in Java that defines a contract of abstract methods a class must implement, containing no instance state.</p>
-        <p>It specifies <em>what</em> a class can do without dictating <em>how</em>, enabling pure abstraction and multiple inheritance of type.</p>
-        <p>Since Java 8 an interface may also contain <code>default</code> and <code>static</code> methods with bodies, and constants that are implicitly public, static and final.</p>
+        <p>An interface is a contract that defines what a class must be able to do, without necessarily defining how it does it. <br>
+        It specifies <em>what</em> a class can do without dictating <em>how</em>, enabling pure abstraction and multiple inheritance of type.</p>
     </div>
 
     <div class="section when-use">
-        <div class="section-title">Key points</div>
+        <div class="section-title">Key Points</div>
         <div class="section-content">
             <ul>
-                <li>Declares a contract that implementing classes must fulfil.</li>
+                <li>Declares a contract that implementing classes must fulfill.</li>
                 <li>A class implements an interface with the <code>implements</code> keyword.</li>
                 <li>A class can implement multiple interfaces.</li>
-                <li>Methods are implicitly public and abstract (unless default/static).</li>
+                <li>Methods are implicitly public and abstract (unless default or static).</li>
                 <li>Use interfaces to program to an abstraction, not an implementation.</li>
             </ul>
         </div>
@@ -68,7 +67,7 @@
     }
 }
 
-<span class="code-keyword">void</span> main() {
+<span class="code-keyword">void</span> main(String[] args) {
     <span class="code-class">Payment</span> p = <span class="code-keyword">new</span> <span class="code-class">CreditCardPayment</span>();
     p.pay(<span class="code-string">100</span>);
 }</code></pre>

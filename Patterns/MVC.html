@@ -17,13 +17,47 @@
         <p>This separation of concerns makes applications easier to develop, test, and maintain.</p>
     </div>
 
+    <div class="section-diagram">
+        <img src="../static/mvc.svg" alt="MVC triangle: the user sends input to the Controller, which updates the Model; the Model notifies the View, which renders output the user sees">
+    </div>
+
     <div class="section when-use">
-        <div class="section-title">When to use / Key points</div>
+        <div class="section-title">The three roles</div>
+        <div class="section-content">
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-title">Model</div>
+                    <p>The application's data, state, and business rules. It knows nothing about the UI &mdash; in classic MVC it notifies its observers (views) whenever its state changes.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">View</div>
+                    <p>The presentation layer. It renders the model's data to the user and forwards user actions to the controller. It holds no business logic.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Controller</div>
+                    <p>Receives user input (clicks, requests), translates it into operations on the model, and selects which view to render.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">Interaction flow</div>
         <div class="section-content"><ul>
-            <li>Model: data, state, and business rules.</li>
-            <li>View: presentation of the data to the user.</li>
-            <li>Controller: receives requests and coordinates Model and View.</li>
-            <li>The backbone of web frameworks like Spring MVC.</li>
+            <li>The user acts on the <strong>View</strong> (e.g. clicks a button).</li>
+            <li>The <strong>Controller</strong> handles the event and updates the <strong>Model</strong>.</li>
+            <li>The <strong>Model</strong> changes state and notifies its observers.</li>
+            <li>The <strong>View</strong> reads the updated model and re-renders &mdash; the user sees the new output.</li>
+            <li>In classic desktop MVC the Model uses the <em>Observer</em> pattern to push change notifications; in web MVC (Spring MVC) each request is a fresh cycle and the controller hands a model to the view to render.</li>
+        </ul></div>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">When to use</div>
+        <div class="section-content"><ul>
+            <li>Interactive applications where the same data is shown in multiple ways or must stay in sync across views.</li>
+            <li>The backbone of web frameworks (Spring MVC, ASP.NET MVC, Rails) and desktop UI toolkits (Java Swing).</li>
+            <li>Whenever you want UI, logic, and input handling to evolve and be tested independently.</li>
         </ul></div>
     </div>
 
@@ -46,33 +80,210 @@
     </div>
 
     <div class="section code-section">
-        <div class="section-title">Code</div>
-        <div class="code-layout">
+        <div class="section-title">Web MVC Example &mdash; Spring</div>
+        <div class="code-layout code-layout-stacked">
             <div class="code-wrapper">
-<pre><code><span class="code-comment"># Controller mediates between request, model and view</span>
+<pre><code><span class="code-comment">// Controller: turns a request into a model + a view name</span>
 <span class="code-class">@Controller</span>
-<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductController</span> {
+<span class="code-class">@RequestMapping</span>(<span class="code-string">"/products"</span>)
+<span class="code-keyword">public class</span> <span class="code-class">ProductController</span> {
 
-    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">ProductService</span> service;
+    <span class="code-keyword">private final</span> <span class="code-class">ProductService</span> service;
 
     <span class="code-keyword">public</span> <span class="code-class">ProductController</span>(<span class="code-class">ProductService</span> service) {
-        <span class="code-keyword">this</span>.service = service;
+        <span class="code-keyword">this</span>.service = service;   <span class="code-comment">// constructor injection</span>
     }
 
-    <span class="code-class">@GetMapping</span>(<span class="code-string">"/products/{id}"</span>)
-    <span class="code-keyword">public</span> <span class="code-class">String</span> view(<span class="code-class">@PathVariable</span> <span class="code-class">Long</span> id, <span class="code-class">Model</span> model) {
-        <span class="code-class">Product</span> product = service.findById(id); <span class="code-comment"># the Model data</span>
+    <span class="code-class">@GetMapping</span>(<span class="code-string">"/{id}"</span>)
+    <span class="code-keyword">public</span> <span class="code-class">String</span> details(<span class="code-class">@PathVariable</span> <span class="code-class">Long</span> id, <span class="code-class">Model</span> model) {
+        <span class="code-class">Product</span> product = service.findById(id)          <span class="code-comment">// the Model data</span>
+            .orElseThrow(() -&gt; <span class="code-keyword">new</span> <span class="code-class">ProductNotFoundException</span>(id));
+
         model.addAttribute(<span class="code-string">"product"</span>, product);
-        <span class="code-keyword">return</span> <span class="code-string">"product-details"</span>;          <span class="code-comment"># the View name</span>
+        <span class="code-keyword">return</span> <span class="code-string">"product-details"</span>;                        <span class="code-comment">// the View name</span>
     }
 }</code></pre>
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
                 <ul>
-                    <li>The <code>Controller</code> receives the request and calls the service.</li>
-                    <li>Data is put on the <code>Model</code> for the view to render.</li>
-                    <li>The returned view name selects the <code>View</code> template.</li>
+                    <li>The <code>Controller</code> receives the HTTP request and asks the service for data &mdash; it holds no business logic itself.</li>
+                    <li>A missing product becomes a domain exception instead of a silent <code>null</code>, keeping error handling out of the view.</li>
+                    <li>The fetched <code>Product</code> is placed on the <code>Model</code>, and the returned name (<code>"product-details"</code>) selects the <code>View</code> template that renders it.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="subheading">Java Swing Example &mdash; a Calculator</div>
+
+    <div class="intro">
+        <p>A desktop MVC calculator: the <strong>Model</strong> holds the running result and the arithmetic rules and notifies listeners when the result changes; the <strong>View</strong> is a Swing window with a display, two number fields, and operation buttons; the <strong>Controller</strong> reads the inputs, calls the right model operation, and the view re-renders. The view and model never reference each other directly.</p>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Model</div>
+        <div class="code-layout code-layout-stacked">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">// Holds the result + arithmetic rules; notifies observers on change</span>
+<span class="code-keyword">public class</span> <span class="code-class">CalculatorModel</span> {
+
+    <span class="code-keyword">private double</span> result = <span class="code-number">0</span>;
+    <span class="code-keyword">private final</span> <span class="code-class">List</span>&lt;<span class="code-class">Runnable</span>&gt; listeners = <span class="code-keyword">new</span> <span class="code-class">ArrayList</span>&lt;&gt;();
+
+    <span class="code-keyword">public double</span> getResult() {
+        <span class="code-keyword">return</span> result;
+    }
+
+    <span class="code-keyword">public void</span> add(<span class="code-keyword">double</span> a, <span class="code-keyword">double</span> b)      { result = a + b; notifyListeners(); }
+    <span class="code-keyword">public void</span> subtract(<span class="code-keyword">double</span> a, <span class="code-keyword">double</span> b) { result = a - b; notifyListeners(); }
+    <span class="code-keyword">public void</span> multiply(<span class="code-keyword">double</span> a, <span class="code-keyword">double</span> b) { result = a * b; notifyListeners(); }
+
+    <span class="code-keyword">public void</span> divide(<span class="code-keyword">double</span> a, <span class="code-keyword">double</span> b) {
+        <span class="code-keyword">if</span> (b == <span class="code-number">0</span>) <span class="code-keyword">throw new</span> <span class="code-class">ArithmeticException</span>(<span class="code-string">"divide by zero"</span>);
+        result = a / b;
+        notifyListeners();
+    }
+
+    <span class="code-keyword">public void</span> addListener(<span class="code-class">Runnable</span> listener) {
+        listeners.add(listener);
+    }
+
+    <span class="code-keyword">private void</span> notifyListeners() {
+        <span class="code-keyword">for</span> (<span class="code-class">Runnable</span> listener : listeners) listener.run();
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>Owns the <code>result</code> and the four arithmetic rules &mdash; the business logic.</li>
+                    <li>Validates input (division by zero) independently of any UI.</li>
+                    <li>Fires its listeners on every change (Observer), with no reference to Swing.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">View</div>
+        <div class="code-layout code-layout-stacked">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">// Renders the UI; exposes widgets, holds no business logic</span>
+<span class="code-keyword">public class</span> <span class="code-class">CalculatorView</span> <span class="code-keyword">extends</span> <span class="code-class">JFrame</span> {
+
+    <span class="code-keyword">private final</span> <span class="code-class">JTextField</span> a = <span class="code-keyword">new</span> <span class="code-class">JTextField</span>(<span class="code-number">6</span>);
+    <span class="code-keyword">private final</span> <span class="code-class">JTextField</span> b = <span class="code-keyword">new</span> <span class="code-class">JTextField</span>(<span class="code-number">6</span>);
+    <span class="code-keyword">private final</span> <span class="code-class">JLabel</span> display = <span class="code-keyword">new</span> <span class="code-class">JLabel</span>(<span class="code-string">"0"</span>, <span class="code-class">SwingConstants</span>.CENTER);
+    <span class="code-keyword">private final</span> <span class="code-class">JButton</span> plus = <span class="code-keyword">new</span> <span class="code-class">JButton</span>(<span class="code-string">"+"</span>);
+    <span class="code-keyword">private final</span> <span class="code-class">JButton</span> minus = <span class="code-keyword">new</span> <span class="code-class">JButton</span>(<span class="code-string">"-"</span>);
+    <span class="code-keyword">private final</span> <span class="code-class">JButton</span> times = <span class="code-keyword">new</span> <span class="code-class">JButton</span>(<span class="code-string">"*"</span>);
+    <span class="code-keyword">private final</span> <span class="code-class">JButton</span> divide = <span class="code-keyword">new</span> <span class="code-class">JButton</span>(<span class="code-string">"/"</span>);
+
+    <span class="code-keyword">public</span> <span class="code-class">CalculatorView</span>() {
+        setTitle(<span class="code-string">"MVC Calculator"</span>);
+        setDefaultCloseOperation(<span class="code-class">JFrame</span>.EXIT_ON_CLOSE);
+        setLayout(<span class="code-keyword">new</span> <span class="code-class">BorderLayout</span>(<span class="code-number">8</span>, <span class="code-number">8</span>));
+
+        <span class="code-class">JPanel</span> inputs = <span class="code-keyword">new</span> <span class="code-class">JPanel</span>();
+        inputs.add(a); inputs.add(b);
+        <span class="code-class">JPanel</span> ops = <span class="code-keyword">new</span> <span class="code-class">JPanel</span>();
+        ops.add(plus); ops.add(minus); ops.add(times); ops.add(divide);
+
+        add(inputs, <span class="code-class">BorderLayout</span>.NORTH);
+        add(display, <span class="code-class">BorderLayout</span>.CENTER);
+        add(ops, <span class="code-class">BorderLayout</span>.SOUTH);
+        setSize(<span class="code-number">320</span>, <span class="code-number">160</span>);
+    }
+
+    <span class="code-keyword">public double</span> getA() { <span class="code-keyword">return</span> <span class="code-class">Double</span>.parseDouble(a.getText()); }
+    <span class="code-keyword">public double</span> getB() { <span class="code-keyword">return</span> <span class="code-class">Double</span>.parseDouble(b.getText()); }
+
+    <span class="code-keyword">public void</span> setDisplay(<span class="code-class">String</span> text) { display.setText(text); }
+
+    <span class="code-comment">// let the controller attach handlers to each operation</span>
+    <span class="code-keyword">public void</span> addAddListener(<span class="code-class">ActionListener</span> l)      { plus.addActionListener(l); }
+    <span class="code-keyword">public void</span> addSubtractListener(<span class="code-class">ActionListener</span> l) { minus.addActionListener(l); }
+    <span class="code-keyword">public void</span> addMultiplyListener(<span class="code-class">ActionListener</span> l) { times.addActionListener(l); }
+    <span class="code-keyword">public void</span> addDivideListener(<span class="code-class">ActionListener</span> l)   { divide.addActionListener(l); }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>Lays out the fields, display, and operation buttons.</li>
+                    <li>Exposes <code>getA()</code>/<code>getB()</code> to read input and <code>setDisplay()</code> to show results.</li>
+                    <li>Offers one <code>add&hellip;Listener</code> per button so the controller can react; it holds no arithmetic.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Controller</div>
+        <div class="code-layout code-layout-stacked">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment">// Wires input to the model, and model changes back to the view</span>
+<span class="code-keyword">public class</span> <span class="code-class">CalculatorController</span> {
+
+    <span class="code-keyword">private final</span> <span class="code-class">CalculatorModel</span> model;
+    <span class="code-keyword">private final</span> <span class="code-class">CalculatorView</span> view;
+
+    <span class="code-keyword">public</span> <span class="code-class">CalculatorController</span>(<span class="code-class">CalculatorModel</span> model, <span class="code-class">CalculatorView</span> view) {
+        <span class="code-keyword">this</span>.model = model;
+        <span class="code-keyword">this</span>.view = view;
+
+        <span class="code-comment">// user input -&gt; call the matching model operation</span>
+        view.addAddListener(e -&gt; run(model::add));
+        view.addSubtractListener(e -&gt; run(model::subtract));
+        view.addMultiplyListener(e -&gt; run(model::multiply));
+        view.addDivideListener(e -&gt; run(model::divide));
+
+        <span class="code-comment">// model change -&gt; refresh the display</span>
+        model.addListener(() -&gt; view.setDisplay(<span class="code-class">String</span>.valueOf(model.getResult())));
+    }
+
+    <span class="code-keyword">private void</span> run(<span class="code-class">BiConsumer</span>&lt;<span class="code-class">Double</span>, <span class="code-class">Double</span>&gt; op) {
+        <span class="code-keyword">try</span> {
+            op.accept(view.getA(), view.getB());
+        } <span class="code-keyword">catch</span> (<span class="code-class">NumberFormatException</span> ex) {
+            view.setDisplay(<span class="code-string">"enter two numbers"</span>);
+        } <span class="code-keyword">catch</span> (<span class="code-class">ArithmeticException</span> ex) {
+            view.setDisplay(ex.getMessage());
+        }
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>Each button maps to a model method reference (<code>model::add</code>, etc.).</li>
+                    <li>It reads the two operands from the view, invokes the model, and translates errors into a friendly display message.</li>
+                    <li>When the model updates, its listener refreshes the display &mdash; model and view stay decoupled.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Wiring it together</div>
+        <div class="code-layout code-layout-stacked">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">void</span> <span class="code-class">main</span>(<span class="code-class">String</span>[] args) {
+    <span class="code-class">SwingUtilities</span>.invokeLater(() -&gt; {
+        <span class="code-class">CalculatorModel</span> model = <span class="code-keyword">new</span> <span class="code-class">CalculatorModel</span>();
+        <span class="code-class">CalculatorView</span> view = <span class="code-keyword">new</span> <span class="code-class">CalculatorView</span>();
+        <span class="code-keyword">new</span> <span class="code-class">CalculatorController</span>(model, view);   <span class="code-comment">// controller wires them</span>
+        view.setVisible(<span class="code-keyword">true</span>);
+    });
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <ul>
+                    <li>Creates the three parts and lets the controller connect them.</li>
+                    <li><code>invokeLater</code> builds the UI on the Swing event-dispatch thread.</li>
+                    <li>Clicking an operator flows: View &rarr; Controller &rarr; Model &rarr; (notify) &rarr; View.</li>
                 </ul>
             </div>
         </div>

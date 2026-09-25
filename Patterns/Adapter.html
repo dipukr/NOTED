@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Adapter Pattern - Notes</title>
+<title>Adapter Pattern</title>
 <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
@@ -12,10 +12,11 @@
 
     <div class="intro">
         <p>Adapter pattern is a structural design pattern that allows objects with incompatible interfaces to work together.</p>
-        <p>Adapter acts as a bridge between two incompatible interfaces.</p>
-        <p>Adapter pattern converts the interface of a class into another interface that the client expects.</p>
-        <p>Adapter lets classes work together that couldn't otherwise because of incompatible interfaces.</p>
+        <p>Adapter allows classes with incompatible interfaces to collaborate without modifying the existing class.</p>
+        <p>Adapter converts the interface of an existing class into the interface that the client expects.</p>
         <p>Adapter catches calls for one object and transforms them to format and interface recognizable by the second object.</p>
+        <p>Adapter lets classes work together that couldn't otherwise because of incompatible interfaces.</p>
+        <p>Adapter acts as a bridge between two incompatible interfaces.</p>
     </div>
 
     <div class="section when-use">
@@ -95,6 +96,600 @@
                     <li>The client calls <code>play()</code> and stays unaware of the legacy method underneath.</li>
                 </ul>
             </div>
+        </div>
+    </div>
+    
+    <div class="callout callout-note">
+        <p><strong>Definition:</strong> Adapter converts the interface of an existing class into an interface expected by the client. It allows classes with incompatible interfaces to collaborate without modifying the existing class.</p>
+    </div>
+
+    <div class="intro">
+        <p>A simple real-world analogy is a power adapter. A device may expect one type of electrical socket, while the wall provides another. The adapter sits between them and translates one connection into another.</p>
+    </div>
+
+        <div class="section-diagram">
+        <img src="../static/adapter-concept.svg" alt="Client expects the Target Interface; the Adapter implements it and understands the existing third-party class">
+    </div>
+
+    <div class="subheading">The Problem</div>
+
+    <div class="intro">
+        <p>Suppose an application expects every payment provider to implement this interface:</p>
+    </div>
+
+    <div class="code-block"><pre><code><span class="code-keyword">public interface</span> <span class="code-class">PaymentProcessor</span> {
+    <span class="code-keyword">void</span> pay(<span class="code-keyword">double</span> amount);
+}</code></pre></div>
+
+    <div class="intro">
+        <p>The application has a checkout service:</p>
+    </div>
+
+    <div class="code-block"><pre><code><span class="code-keyword">public class</span> <span class="code-class">CheckoutService</span> {
+    <span class="code-keyword">private</span> <span class="code-class">PaymentProcessor</span> paymentProcessor;
+
+    <span class="code-keyword">public</span> <span class="code-class">CheckoutService</span>(<span class="code-class">PaymentProcessor</span> paymentProcessor) {
+        <span class="code-keyword">this</span>.paymentProcessor = paymentProcessor;
+    }
+
+    <span class="code-keyword">public void</span> checkout(<span class="code-keyword">double</span> amount) {
+        paymentProcessor.pay(amount);
+    }
+}</code></pre></div>
+
+    <div class="intro">
+        <p>Now imagine that a third-party PayPal library exposes a different API:</p>
+    </div>
+
+    <div class="code-block"><pre><code><span class="code-keyword">public class</span> <span class="code-class">PayPalApi</span> {
+    <span class="code-keyword">public void</span> makePayment(<span class="code-keyword">double</span> amountInDollars) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Payment made using PayPal: $"</span> + amountInDollars);
+    }
+}</code></pre></div>
+
+    <div class="intro">
+        <p>The interfaces do not match:</p>
+    </div>
+
+    <div class="intro">
+        <p><code>CheckoutService</code> cannot directly use <code>PayPalApi</code> as a <code>PaymentProcessor</code>.</p>
+    </div>
+
+    <div class="subheading">Without Adapter</div>
+
+    <div class="intro">
+        <p>One approach would be to modify the third-party class:</p>
+    </div>
+
+    <div class="code-block"><pre><code><span class="code-keyword">public class</span> <span class="code-class">PayPalApi</span> <span class="code-keyword">implements</span> <span class="code-class">PaymentProcessor</span> {
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public void</span> pay(<span class="code-keyword">double</span> amount) {
+        makePayment(amount);
+    }
+
+    <span class="code-keyword">public void</span> makePayment(<span class="code-keyword">double</span> amountInDollars) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Payment made using PayPal: $"</span> + amountInDollars);
+    }
+}</code></pre></div>
+
+    <div class="intro">
+        <p>This is usually undesirable or impossible because:</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">Why modifying the class fails</div>
+        <div class="section-content">
+            <ul>
+                <li>We do not own the third-party source code.</li>
+                <li>The third-party class may be <code>final</code>.</li>
+                <li>Modifying external libraries creates maintenance problems.</li>
+                <li>Library upgrades can overwrite or break local modifications.</li>
+                <li>It creates unnecessary coupling between application code and the vendor implementation.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="callout callout-warning">
+        <p><strong>Core problem:</strong> The existing class works, but its interface does not match what the client expects. We need a translation layer rather than changing either side.</p>
+    </div>
+
+    <div class="subheading">Adapter Solution</div>
+
+    <div class="intro">
+        <p>Create an adapter that impl the interface expected by the application and internally delegates to the incompatible class.</p>
+    </div>
+
+    <div class="section-diagram">
+        <img src="../static/adapter-solution.svg" alt="Adapter solution: Client uses PaymentProcessor; PayPalAdapter implements it and delegates to the third-party PayPalApi">
+    </div>
+
+    <div class="intro">
+        <p>The adapter performs the translation: <code>pay(amount)</code> -> <code>makePayment(amount)</code></p>
+    </div>
+
+    <div class="subheading">Complete Java Example</div>
+
+    <div class="intro">
+        <p><strong>Target Interface</strong> &mdash; the interface expected by the client.</p>
+    </div>
+
+    <div class="code-block"><pre><code><span class="code-keyword">public interface</span> <span class="code-class">PaymentProcessor</span> {
+    <span class="code-keyword">void</span> pay(<span class="code-keyword">double</span> amount);
+}</code></pre></div>
+
+    <div class="intro">
+        <p><strong>Adaptee</strong> &mdash; the existing class whose interface is incompatible.</p>
+    </div>
+
+    <div class="code-block"><pre><code><span class="code-keyword">public class</span> <span class="code-class">PayPalApi</span> {
+
+    <span class="code-keyword">public void</span> makePayment(<span class="code-keyword">double</span> amountInDollars) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Payment made using PayPal: $"</span> + amountInDollars);
+    }
+}</code></pre></div>
+
+    <div class="intro">
+        <p><strong>Adapter</strong> &mdash; implements the target interface and delegates to the adaptee.</p>
+    </div>
+
+    <div class="code-block"><pre><code><span class="code-keyword">public class</span> <span class="code-class">PayPalAdapter</span> <span class="code-keyword">implements</span> <span class="code-class">PaymentProcessor</span> {
+    <span class="code-keyword">private</span> <span class="code-class">PayPalApi</span> payPalApi;
+
+    <span class="code-keyword">public</span> <span class="code-class">PayPalAdapter</span>(<span class="code-class">PayPalApi</span> payPalApi) {
+        <span class="code-keyword">this</span>.payPalApi = payPalApi;
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public void</span> pay(<span class="code-keyword">double</span> amount) {
+        payPalApi.makePayment(amount);
+    }
+}</code></pre></div>
+
+    <div class="intro">
+        <p><strong>Client</strong></p>
+    </div>
+
+    <div class="code-block"><pre><code><span class="code-keyword">public class</span> <span class="code-class">CheckoutService</span> {
+    <span class="code-keyword">private</span> <span class="code-class">PaymentProcessor</span> paymentProcessor;
+
+    <span class="code-keyword">public</span> <span class="code-class">CheckoutService</span>(<span class="code-class">PaymentProcessor</span> paymentProcessor) {
+        <span class="code-keyword">this</span>.paymentProcessor = paymentProcessor;
+    }
+
+    <span class="code-keyword">public void</span> checkout(<span class="code-keyword">double</span> amount) {
+        paymentProcessor.pay(amount);
+    }
+}</code></pre></div>
+
+    <div class="intro">
+        <p><strong>Main</strong></p>
+    </div>
+
+    <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+    <span class="code-class">PayPalApi</span> payPalApi = <span class="code-keyword">new</span> <span class="code-class">PayPalApi</span>();
+    <span class="code-class">PaymentProcessor</span> paymentProcessor = <span class="code-keyword">new</span> <span class="code-class">PayPalAdapter</span>(payPalApi);
+    <span class="code-class">CheckoutService</span> checkoutService = <span class="code-keyword">new</span> <span class="code-class">CheckoutService</span>(paymentProcessor);
+    checkoutService.checkout(<span class="code-number">500</span>);
+}</code></pre></div>
+
+    <div class="callout callout-success">
+        <p><strong>Important:</strong> <code>CheckoutService</code> only knows about <code>PaymentProcessor</code>. It does not need to know that PayPal is being used internally.</p>
+    </div>
+
+    <div class="subheading">How the Adapter Works</div>
+
+        <div class="section-diagram">
+        <img src="../static/adapter-flow.svg" alt="CheckoutService calls pay on PaymentProcessor; PayPalAdapter implements it and calls makePayment on PayPalApi">
+    </div>
+
+    <div class="intro">
+        <p>The client thinks it is communicating with <code>PaymentProcessor</code>. </p>
+        <p>The adapter translates that call into the API understood by <code>PayPalApi</code>.</p>
+    </div>
+
+    <div class="subheading">Multiple Payment Providers</div>
+
+    <div class="intro">
+        <p>The Adapter Pattern becomes especially useful when an application integrates several third-party providers.</p>
+        <p><strong>Common Application Interface</strong></p>
+    </div>
+
+    <div class="code-block"><pre><code><span class="code-keyword">public interface</span> <span class="code-class">PaymentProcessor</span> {
+    <span class="code-keyword">void</span> pay(<span class="code-keyword">double</span> amount);
+}</code></pre></div>
+
+    <div class="intro">
+        <p><strong>Stripe API and Adapter</strong></p>
+    </div>
+
+    <div class="code-block"><pre><code><span class="code-keyword">public class</span> <span class="code-class">StripeApi</span> {
+    <span class="code-keyword">public void</span> charge(<span class="code-keyword">double</span> amount) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Stripe charged: $"</span> + amount);
+    }
+}
+
+<span class="code-keyword">public class</span> <span class="code-class">StripeAdapter</span> <span class="code-keyword">implements</span> <span class="code-class">PaymentProcessor</span> {
+    <span class="code-keyword">private</span> <span class="code-class">StripeApi</span> stripeApi;
+
+    <span class="code-keyword">public</span> <span class="code-class">StripeAdapter</span>(<span class="code-class">StripeApi</span> stripeApi) {
+        <span class="code-keyword">this</span>.stripeApi = stripeApi;
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public void</span> pay(<span class="code-keyword">double</span> amount) {
+        stripeApi.charge(amount);
+    }
+}</code></pre></div>
+
+    <div class="intro">
+        <p><strong>PayPal API and Adapter</strong></p>
+    </div>
+
+    <div class="code-block"><pre><code><span class="code-keyword">public class</span> <span class="code-class">PayPalApi</span> {
+    <span class="code-keyword">public void</span> makePayment(<span class="code-keyword">double</span> amountInDollars) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"PayPal payment: $"</span> + amountInDollars);
+    }
+}
+
+<span class="code-keyword">public class</span> <span class="code-class">PayPalAdapter</span> <span class="code-keyword">implements</span> <span class="code-class">PaymentProcessor</span> {
+    <span class="code-keyword">private</span> <span class="code-class">PayPalApi</span> payPalApi;
+
+    <span class="code-keyword">public</span> <span class="code-class">PayPalAdapter</span>(<span class="code-class">PayPalApi</span> payPalApi) {
+        <span class="code-keyword">this</span>.payPalApi = payPalApi;
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public void</span> pay(<span class="code-keyword">double</span> amount) {
+        payPalApi.makePayment(amount);
+    }
+}</code></pre></div>
+
+    <div class="intro">
+        <p><strong>Razorpay API and Adapter</strong></p>
+    </div>
+
+    <div class="code-block"><pre><code><span class="code-keyword">public class</span> <span class="code-class">RazorpayApi</span> {
+    <span class="code-keyword">public void</span> createOrder(<span class="code-keyword">long</span> amountInPaise, <span class="code-class">String</span> currency) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Razorpay order created: "</span> + amountInPaise + <span class="code-string">" "</span> + currency);
+    }
+}
+
+<span class="code-keyword">public class</span> <span class="code-class">RazorpayAdapter</span> <span class="code-keyword">implements</span> <span class="code-class">PaymentProcessor</span> {
+    <span class="code-keyword">private</span> <span class="code-class">RazorpayApi</span> razorpayApi;
+
+    <span class="code-keyword">public</span> <span class="code-class">RazorpayAdapter</span>(<span class="code-class">RazorpayApi</span> razorpayApi) {
+        <span class="code-keyword">this</span>.razorpayApi = razorpayApi;
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public void</span> pay(<span class="code-keyword">double</span> amount) {
+        <span class="code-keyword">long</span> amountInPaise = <span class="code-class">Math</span>.round(amount * <span class="code-number">100</span>);
+        razorpayApi.createOrder(amountInPaise, <span class="code-string">"INR"</span>);
+    }
+}</code></pre></div>
+
+    <div class="intro">
+        <p><strong>Client Remains Unchanged</strong> &mdash; switching providers needs no change to <code>CheckoutService</code>:</p>
+    </div>
+
+    <div class="code-block"><pre><code><span class="code-comment">// PayPal</span>
+<span class="code-class">PaymentProcessor</span> processor = <span class="code-keyword">new</span> <span class="code-class">PayPalAdapter</span>(<span class="code-keyword">new</span> <span class="code-class">PayPalApi</span>());
+<span class="code-class">CheckoutService</span> checkout = <span class="code-keyword">new</span> <span class="code-class">CheckoutService</span>(processor);
+checkout.checkout(<span class="code-number">500</span>);
+
+<span class="code-comment">// Or Stripe</span>
+processor = <span class="code-keyword">new</span> <span class="code-class">StripeAdapter</span>(<span class="code-keyword">new</span> <span class="code-class">StripeApi</span>());
+
+<span class="code-comment">// Or Razorpay</span>
+processor = <span class="code-keyword">new</span> <span class="code-class">RazorpayAdapter</span>(<span class="code-keyword">new</span> <span class="code-class">RazorpayApi</span>());</code></pre></div>
+
+    <div class="subheading">Participants in Adapter Pattern</div>
+
+    <div class="section cmp">
+        <div class="section-content">
+            <table class="cmp-table">
+                <thead><tr><th>Component</th><th>Meaning</th><th>Example</th></tr></thead>
+                <tbody>
+                    <tr><td>Client</td><td>Code that wants to use the service</td><td><code>CheckoutService</code></td></tr>
+                    <tr><td>Target</td><td>Interface expected by the client</td><td><code>PaymentProcessor</code></td></tr>
+                    <tr><td>Adapter</td><td>Converts calls from Target to Adaptee</td><td><code>PayPalAdapter</code></td></tr>
+                    <tr><td>Adaptee</td><td>Existing incompatible class</td><td><code>PayPalApi</code></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+        <div class="section-diagram">
+        <img src="../static/adapter-participants.svg" alt="Client uses Target Interface; Adapter implements it and delegates to the Adaptee">
+    </div>
+
+    <div class="subheading">Adapter Can Also Transform Data</div>
+
+    <div class="intro">
+        <p>An adapter does not have to translate only method names. It can translate parameters, return values, data models, units, exceptions, and other API conventions.</p>
+        <p><strong>Legacy API</strong></p>
+    </div>
+
+    <div class="code-block"><pre><code><span class="code-keyword">public class</span> <span class="code-class">LegacyPaymentApi</span> {
+    <span class="code-keyword">public</span> <span class="code-class">PaymentResult</span> process(<span class="code-class">String</span> customerId, <span class="code-keyword">int</span> amountInPaise) {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">PaymentResult</span>(<span class="code-keyword">true</span>);
+    }
+}</code></pre></div>
+
+    <div class="intro">
+        <p><strong>Application Interface</strong></p>
+    </div>
+
+    <div class="code-block"><pre><code><span class="code-keyword">public interface</span> <span class="code-class">PaymentProcessor</span> {
+    <span class="code-class">PaymentResponse</span> pay(<span class="code-class">PaymentRequest</span> request);
+}</code></pre></div>
+
+    <div class="intro">
+        <p><strong>Adapter</strong></p>
+    </div>
+
+    <div class="code-block"><pre><code><span class="code-keyword">public class</span> <span class="code-class">LegacyPaymentAdapter</span> <span class="code-keyword">implements</span> <span class="code-class">PaymentProcessor</span> {
+    <span class="code-keyword">private</span> <span class="code-class">LegacyPaymentApi</span> legacyApi;
+
+    <span class="code-keyword">public</span> <span class="code-class">LegacyPaymentAdapter</span>(<span class="code-class">LegacyPaymentApi</span> legacyApi) {
+        <span class="code-keyword">this</span>.legacyApi = legacyApi;
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">PaymentResponse</span> pay(<span class="code-class">PaymentRequest</span> request) {
+        <span class="code-keyword">int</span> amountInPaise = request.amount() * <span class="code-number">100</span>;
+        <span class="code-class">PaymentResult</span> result = legacyApi.process(request.customerId(), amountInPaise);
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">PaymentResponse</span>(result.success());
+    }
+}</code></pre></div>
+
+    <div class="subheading">Object Adapter vs Class Adapter</div>
+
+    <div class="intro">
+        <p><strong>Object Adapter</strong> &mdash; the adapter contains an instance of the adaptee (composition).</p>
+        <p>Object adapters are generally the more flexible approach in Java.</p>
+    </div>
+
+    <div class="code-block"><pre><code><span class="code-keyword">public class</span> <span class="code-class">PayPalAdapter</span> <span class="code-keyword">implements</span> <span class="code-class">PaymentProcessor</span> {
+    <span class="code-keyword">private</span> <span class="code-class">PayPalApi</span> payPalApi;
+
+    <span class="code-keyword">public</span> <span class="code-class">PayPalAdapter</span>(<span class="code-class">PayPalApi</span> payPalApi) {
+        <span class="code-keyword">this</span>.payPalApi = payPalApi;
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public void</span> pay(<span class="code-keyword">double</span> amount) {
+        payPalApi.makePayment(amount);
+    }
+}</code></pre></div>
+
+    <div class="intro">
+        <p><strong>Class Adapter</strong> &mdash; uses inheritance plus interface implementation:</p>
+    </div>
+
+    <div class="code-block"><pre><code><span class="code-keyword">public class</span> <span class="code-class">PayPalAdapter</span>
+        <span class="code-keyword">extends</span> <span class="code-class">PayPalApi</span>
+        <span class="code-keyword">implements</span> <span class="code-class">PaymentProcessor</span> {
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public void</span> pay(<span class="code-keyword">double</span> amount) {
+        makePayment(amount);
+    }
+}</code></pre></div>
+
+    <div class="section cmp">
+        <div class="section-content">
+            <table class="cmp-table cmp-peer">
+                <thead><tr><th>Object Adapter</th><th>Class Adapter</th></tr></thead>
+                <tbody>
+                    <tr><td>Uses composition</td><td>Uses inheritance</td></tr>
+                    <tr><td>Contains adaptee instance</td><td>Extends adaptee</td></tr>
+                    <tr><td>Usually more flexible</td><td>More tightly coupled</td></tr>
+                    <tr><td>Works with final adaptee classes</td><td>Cannot extend a final class</td></tr>
+                    <tr><td>Can wrap different instances</td><td>Bound to inherited implementation</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="subheading">Adapter in Spring Boot</div>
+
+    <div class="intro">
+        <p>Adapters are very common in Spring applications, especially at integration boundaries.</p>
+        <p><strong>Application Interface</strong></p>
+    </div>
+
+    <div class="code-block"><pre><code><span class="code-keyword">public interface</span> <span class="code-class">NotificationService</span> {
+    <span class="code-keyword">void</span> send(<span class="code-class">String</span> recipient, <span class="code-class">String</span> message);
+}</code></pre></div>
+
+    <div class="intro">
+        <p><strong>External Provider</strong></p>
+    </div>
+
+    <div class="code-block"><pre><code><span class="code-keyword">public class</span> <span class="code-class">SmsProvider</span> {
+    <span class="code-keyword">public void</span> sendSms(<span class="code-class">String</span> phoneNumber, <span class="code-class">String</span> text) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Sending SMS to "</span> + phoneNumber);
+    }
+}</code></pre></div>
+
+    <div class="intro">
+        <p><strong>Adapter</strong></p>
+    </div>
+
+    <div class="code-block"><pre><code><span class="code-annotation">@Service</span>
+<span class="code-keyword">public class</span> <span class="code-class">SmsProviderAdapter</span> <span class="code-keyword">implements</span> <span class="code-class">NotificationService</span> {
+    <span class="code-annotation">@Autowired</span>
+    <span class="code-keyword">private</span> <span class="code-class">SmsProvider</span> smsProvider;
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public void</span> send(<span class="code-class">String</span> recipient, <span class="code-class">String</span> message) {
+        smsProvider.sendSms(recipient, message);
+    }
+}</code></pre></div>
+
+    <div class="intro">
+        <p><strong>Business Service</strong></p>
+    </div>
+
+    <div class="code-block"><pre><code><span class="code-annotation">@Service</span>
+<span class="code-keyword">public class</span> <span class="code-class">OrderService</span> {
+    <span class="code-annotation">@Autowired</span>
+    <span class="code-keyword">private</span> <span class="code-class">NotificationService</span> notificationService;
+    
+    <span class="code-keyword">public void</span> placeOrder() {
+        <span class="code-comment">// business logic</span>
+        notificationService.send(
+                <span class="code-string">"9876543210"</span>,
+                <span class="code-string">"Order placed successfully"</span>
+        );
+    }
+}</code></pre></div>
+
+        <div class="section-diagram">
+        <img src="../static/adapter-spring.svg" alt="Business Layer uses NotificationService; SmsProviderAdapter implements it and delegates to the external SMS provider">
+    </div>
+
+    <div class="intro">
+        <p>The business layer is isolated from the external provider's API.</p>
+    </div>
+
+    <div class="subheading">Adapter and Dependency Inversion</div>
+
+    <div class="intro">
+        <p>The Adapter Pattern works particularly well with the <strong>Dependency Inversion Principle</strong>. Instead of tightly coupling business logic to a vendor SDK, the application depends on its own abstraction.</p>
+    </div>
+
+    <div class="intro">
+        <p>The business layer depends on <code>PaymentProcessor</code>, not directly on <code>PayPalApi</code>, <code>StripeApi</code>, or another vendor implementation.</p>
+    </div>
+
+    <div class="callout callout-note">
+        <p><strong>Architectural benefit:</strong> Adapters are especially useful at application boundaries, where internal domain/application models meet external APIs, SDKs, legacy systems, databases, messaging systems, or infrastructure libraries.</p>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">Use Adapter when</div>
+        <div class="section-content">
+            <ul>
+                <li>An existing class has an incompatible interface</strong> &mdash; expected <code>pay()</code> but actual <code>makePayment()</code>.</li>
+                <li>You cannot or should not modify the existing class</strong> &mdash; a third-party library, vendor SDK, legacy system, shared library, or external API client.</li>
+                <li>You want to isolate external dependencies</strong> behind your own interface (Business Layer &rarr; Your Interface &rarr; Adapter &rarr; External SDK).</li>
+                <li>You want to integrate legacy code</strong> gradually (New Application &rarr; Adapter &rarr; Legacy System), allowing modernization instead of rewriting everything at once.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="subheading">Advantages</div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content">
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-title">Loose Coupling</div>
+                    <p>The client does not depend directly on the adaptee; it talks only to the target interface.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Reusability</div>
+                    <p>Existing classes can be reused without modifying them.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Open/Closed Principle</div>
+                    <p>New providers are integrated by adding new adapters rather than modifying existing business logic.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Third-Party Isolation</div>
+                    <p>External APIs remain behind an application-owned interface, so vendor changes stay contained.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Easier Testing</div>
+                    <p>Business services can be tested against the application interface without requiring the real external provider.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="subheading">Disadvantages</div>
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages</div>
+        <div class="section-content">
+            <ul>
+                <li>Adds another layer of abstraction.</li>
+                <li>Can increase the number of classes in the application.</li>
+                <li>Complex interface mismatches may require substantial translation code.</li>
+                <li>Too many adapters can make a codebase harder to navigate.</li>
+                <li>A poorly designed adapter can become a place for unrelated business logic.</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="callout callout-warning">
+        <p><strong>Design guideline:</strong> Keep adapters focused on integration and translation. Avoid turning an adapter into a large business-service class.</p>
+    </div>
+
+    <div class="subheading">Adapter vs Other Structural Patterns</div>
+
+    <div class="section cmp">
+        <div class="section-content">
+            <table class="cmp-table">
+                <thead><tr><th>Pattern</th><th>Main Purpose</th><th>Typical Question</th></tr></thead>
+                <tbody>
+                    <tr><td>Adapter</td><td>Make incompatible interfaces compatible</td><td>How can I make these two incompatible APIs work together?</td></tr>
+                    <tr><td>Facade</td><td>Simplify a complex subsystem</td><td>How can I provide one simple entry point to several services?</td></tr>
+                    <tr><td>Decorator</td><td>Add behavior without changing the interface</td><td>How can I add functionality dynamically?</td></tr>
+                    <tr><td>Proxy</td><td>Control access to another object</td><td>How can I control or intercept access?</td></tr>
+                    <tr><td>Bridge</td><td>Separate abstraction from implementation</td><td>How can I vary these two dimensions independently?</td></tr>
+                    <tr><td>Composite</td><td>Treat individual objects and groups uniformly</td><td>How can clients treat a tree and a leaf the same way?</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="callout callout-note">
+        <p><strong>Adapter vs Decorator in one sentence:</strong> Adapter changes <strong>how an object is accessed</strong> (it changes the interface); Decorator changes or extends <strong>what the object does</strong> while normally preserving the same interface.</p>
+    </div>
+
+    <div class="subheading">The Most Important Mental Model</div>
+
+    <div class="intro">
+        <p>Whenever you see an expected interface and an existing incompatible implementation, insert an adapter that performs <code>operation()</code> &rarr; <code>differentOperation()</code>.</p>
+    </div>
+
+        <div class="section-diagram">
+        <img src="../static/adapter-mental.svg" alt="Client expects Interface A; Adapter implements it and translates to Class B, the adaptee">
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">In real applications the translation can also include</div>
+        <div class="section-content">
+            <ul>
+                <li>Parameter conversion</li>
+                <li>Return-value conversion</li>
+                <li>Unit conversion</li>
+                <li>Request-response model conversion</li>
+                <li>Exception translation</li>
+                <li>Authentication-header translation</li>
+                <li>Legacy API compatibility</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section cmp">
+        <div class="section-content">
+            <table class="cmp-table">
+                <thead><tr><th>Concept</th><th>Remember</th></tr></thead>
+                <tbody>
+                    <tr><td>Adapter</td><td>Converts one interface into another expected interface.</td></tr>
+                    <tr><td>Target</td><td>The interface the client expects.</td></tr>
+                    <tr><td>Adaptee</td><td>The existing incompatible class.</td></tr>
+                    <tr><td>Client</td><td>Uses the Target interface.</td></tr>
+                    <tr><td>Object Adapter</td><td>Uses composition; adapter contains the adaptee.</td></tr>
+                    <tr><td>Class Adapter</td><td>Uses inheritance; adapter extends the adaptee.</td></tr>
+                    <tr><td>Spring Usage</td><td>Very useful for isolating external SDKs and APIs.</td></tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

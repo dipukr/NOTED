@@ -11,45 +11,84 @@
     <div class="title">Prototype Pattern</div>
 
     <div class="intro">
-        <p>Prototype is a creational design pattern that lets you create new objects by copying an existing object, known as the prototype, instead of instantiating from scratch.</p>
-        <p>It is useful when object creation is costly or complex, and when a new object should start as a duplicate of a configured instance.</p>
+        <p>The Prototype Pattern is a creational design pattern that creates new objects by copying an existing object (prototype) instead of creating a new object from scratch.
+        This is useful when object creation is costly or complex, and when a new object should start as a duplicate of a configured instance.</p>
         <p>In Java the pattern is often implemented with the <code>Cloneable</code> interface and the <code>clone()</code> method, taking care to choose between shallow and deep copying.</p>
     </div>
 
-    <div class="section when-use">
-        <div class="section-title">When to use</div>
+    <div class="section advantages">
+        <div class="section-title">Use Prototype when</div>
         <div class="section-content">
-            <ul>
-                <li>When creating an object is expensive compared to copying an existing one.</li>
-                <li>When you want to avoid a hierarchy of factory classes.</li>
-                <li>When objects have only a few different states you can configure once.</li>
-                <li>When the concrete type to instantiate is decided at runtime.</li>
-                <li>When you need many similar objects that differ only slightly.</li>
-            </ul>
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-title">Object creation is expensive</div>
+                    <p>Database initialization, complex calculations, large object graphs, external resource loading, or expensive configuration.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Objects have complex configuration</div>
+                    <p>Instead of repeatedly calling many setters, create one configured prototype and copy it.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Many similar objects are required</div>
+                    <p>Clone the prototype and customize each copy.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">The concrete class should be hidden</div>
+                    <p>The client works against a prototype abstraction without knowing the construction details.</p>
+                </div>
+            </div>
         </div>
     </div>
 
     <div class="section advantages">
         <div class="section-title">Advantages</div>
         <div class="section-content">
-            <ul>
-                <li>Avoids the cost of expensive object initialization.</li>
-                <li>Lets you clone objects without coupling to their concrete classes.</li>
-                <li>Reduces the need for repeated subclassing of factories.</li>
-                <li>Allows adding and removing prototypes at runtime.</li>
-                <li>Produces complex pre-configured objects conveniently.</li>
-            </ul>
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-title">Reduced creation cost</div>
+                    <p>Expensive initialization can be avoided for every new object by copying an initialized prototype.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Preserves object state</div>
+                    <p>A clone starts with the prototype's already-configured state.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Less repeated construction</div>
+                    <p>Common configuration lives in the prototype instead of being rebuilt each time.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Hides complex construction</div>
+                    <p>The client does not need to know how the object was originally built.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Runtime configuration</div>
+                    <p>Different prototypes can represent different predefined configurations chosen at runtime.</p>
+                </div>
+            </div>
         </div>
     </div>
 
     <div class="section disadvantages">
         <div class="section-title">Disadvantages</div>
         <div class="section-content">
-            <ul>
-                <li>Cloning objects with circular references can be tricky.</li>
-                <li>Deep copying of complex object graphs is hard to implement correctly.</li>
-                <li>Java's default <code>clone()</code> is shallow and can cause shared-reference bugs.</li>
-            </ul>
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-title">Cloning can be complicated</div>
+                    <p>Complex object graphs require careful, correct copying.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Shallow-copy bugs</div>
+                    <p>Mutable nested objects may accidentally remain shared between original and clone.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Deep-copy complexity</div>
+                    <p>Nested references, circular references, and resource ownership make copying difficult.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Maintenance</div>
+                    <p>Whenever the object structure changes, the copy logic may also need to change.</p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -72,7 +111,7 @@
         <span class="code-keyword">return new</span> <span class="code-class">Document</span>(title, <span class="code-keyword">new</span> <span class="code-class">ArrayList</span>&lt;&gt;(pages));
     }
 
-    <span class="code-keyword">public void</span> setTitle(String t) { <span class="code-keyword">this</span>.title = t; }
+    <span class="code-keyword">public void</span> setTitle(String t) {<span class="code-keyword">this</span>.title = t;}
 }
 
 <span class="code-keyword">void</span> main() {
@@ -92,6 +131,335 @@
                     <li>Changing the copy leaves the original untouched because its data was duplicated.</li>
                 </ul>
             </div>
+        </div>
+    </div>
+    
+    <div class="subheading">The Problem Prototype Solves</div>
+
+    <div class="intro">
+        <p>Suppose an application creates a complex <code>Document</code> object:</p>
+    </div>
+
+    <div class="code-block"><pre><code><span class="code-keyword">public class</span> <span class="code-class">Document</span> {
+    <span class="code-keyword">private</span> <span class="code-class">String</span> title;
+    <span class="code-keyword">private</span> <span class="code-class">String</span> content;
+    <span class="code-keyword">private</span> <span class="code-class">String</span> author;
+    <span class="code-keyword">private</span> <span class="code-class">List</span>&lt;<span class="code-class">String</span>&gt; tags;
+
+    <span class="code-comment"># constructor, getters, setters</span>
+}</code></pre></div>
+
+    <div class="intro">
+        <p>If every document requires many configuration steps, repeatedly constructing the object can be verbose and expensive.</p>
+    </div>
+
+    <div class="code-block"><pre><code><span class="code-class">Document</span> document = <span class="code-keyword">new</span> <span class="code-class">Document</span>();
+
+document.setTitle(<span class="code-string">"Java Design Patterns"</span>);
+document.setContent(<span class="code-string">"..."</span>);
+document.setAuthor(<span class="code-string">"John"</span>);
+document.setTags(<span class="code-class">List</span>.of(<span class="code-string">"Java"</span>, <span class="code-string">"Design Patterns"</span>));</code></pre></div>
+
+    <div class="intro">
+        <p>Now imagine that creating the object also requires</p>
+        <ul>
+            <li>Reading configuration</li>
+            <li>Loading data from a database</li>
+            <li>Performing expensive calculations</li>
+            <li>Creating many nested objects</li>
+            <li>Loading external resources</li>
+        </ul>
+        <p>In such cases, cloning an already initialized object can be much cheaper than constructing a fresh one every time.</p>
+    </div>
+
+    <div class="subheading">Basic Prototype Structure</div>
+
+    <div class="section cmp">
+        <div class="section-content">
+            <table class="cmp-table">
+                <thead><tr><th>Component</th><th>Responsibility</th></tr></thead>
+                <tbody>
+                    <tr><td>Prototype</td><td>Defines the cloning operation.</td></tr>
+                    <tr><td>Concrete Prototype</td><td>Implements the cloning/copying operation.</td></tr>
+                    <tr><td>Client</td><td>Requests a new object by cloning a prototype.</td></tr>
+                    <tr><td>Clone</td><td>The newly created object copied from the prototype.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="subheading">4. Real-World Example: Invoice</div>
+
+    <div class="intro">
+        <p>Imagine an application that generates invoices. A standard invoice might contain common company information, tax configuration, payment terms, currency, and formatting configuration.</p>
+    </div>
+
+    <div class="ascii-diagram">              Invoice Prototype
+                      |
+          +-----------+-----------+
+          |           |           |
+        clone()     clone()     clone()
+          |           |           |
+          v           v           v
+      Invoice #101 Invoice #102 Invoice #103</div>
+
+    <div class="intro">
+        <p>The prototype contains the common configuration. Each clone can then be customized for a particular invoice.</p>
+    </div>
+
+    <div class="subheading">Simple Java Example</div>
+
+    <div class="intro">
+        <p><strong>Prototype Interface</strong></p>
+    </div>
+
+    <div class="code-block"><pre><code><span class="code-keyword">public interface</span> <span class="code-class">Cloneable</span>&lt;<span class="code-class">T</span>&gt; {
+    <span class="code-class">T</span> clone();
+}</code></pre></div>
+
+    <div class="intro">
+        <p><strong>Concrete Prototype</strong></p>
+    </div>
+
+    <div class="code-block"><pre><code><span class="code-keyword">public class</span> <span class="code-class">Document</span> <span class="code-keyword">implements</span> <span class="code-class">Cloneable</span>&lt;<span class="code-class">Document</span>&gt; {
+    <span class="code-keyword">private</span> <span class="code-class">String</span> title;
+    <span class="code-keyword">private</span> <span class="code-class">String</span> content;
+    <span class="code-keyword">private</span> <span class="code-class">String</span> author;
+    <span class="code-keyword">private</span> <span class="code-class">List</span>&lt;<span class="code-class">String</span>&gt; tags;
+
+    <span class="code-keyword">public</span> <span class="code-class">Document</span>(<span class="code-class">String</span> title, <span class="code-class">String</span> content, <span class="code-class">String</span> author, <span class="code-class">List</span>&lt;<span class="code-class">String</span>&gt; tags) {
+        <span class="code-keyword">this</span>.title = title;
+        <span class="code-keyword">this</span>.content = content;
+        <span class="code-keyword">this</span>.author = author;
+        <span class="code-keyword">this</span>.tags = <span class="code-keyword">new</span> <span class="code-class">ArrayList</span>&lt;&gt;(tags);
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">Document</span> clone() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">Document</span>(<span class="code-keyword">this</span>.title, <span class="code-keyword">this</span>.content, <span class="code-keyword">this</span>.author, <span class="code-keyword">this</span>.tags);
+    }
+}</code></pre></div>
+
+    <div class="intro">
+        <p><strong>Client Code</strong></p>
+    </div>
+
+    <div class="code-block"><pre><code><span class="code-class">Document</span> prototype = <span class="code-keyword">new</span> <span class="code-class">Document</span>(
+        <span class="code-string">"Java Design Patterns"</span>,
+        <span class="code-string">"Prototype Pattern..."</span>,
+        <span class="code-string">"John"</span>,
+        <span class="code-class">List</span>.of(<span class="code-string">"Java"</span>, <span class="code-string">"Design Patterns"</span>));
+
+<span class="code-class">Document</span> document1 = prototype.clone();
+<span class="code-class">Document</span> document2 = prototype.clone();</code></pre></div>
+    <div class="subheading">Why Not Just Use <code>new?</code></div>
+
+    <div class="intro">
+        <p>Without Prototype, the client needs to know the complete construction process:</p>
+    </div>
+
+    <div class="code-block"><pre><code><span class="code-class">Document</span> document1 = <span class="code-keyword">new</span> <span class="code-class">Document</span>(
+        <span class="code-string">"Java Design Patterns"</span>, <span class="code-string">"Prototype Pattern..."</span>,
+        <span class="code-string">"John"</span>, <span class="code-class">List</span>.of(<span class="code-string">"Java"</span>, <span class="code-string">"Design Patterns"</span>));
+
+<span class="code-class">Document</span> document2 = <span class="code-keyword">new</span> <span class="code-class">Document</span>(
+        <span class="code-string">"Java Design Patterns"</span>, <span class="code-string">"Prototype Pattern..."</span>,
+        <span class="code-string">"John"</span>, <span class="code-class">List</span>.of(<span class="code-string">"Java"</span>, <span class="code-string">"Design Patterns"</span>));</code></pre></div>
+
+    <div class="intro">
+        <p>With Prototype:</p>
+    </div>
+
+    <div class="code-block"><pre><code><span class="code-class">Document</span> document1 = prototype.clone();
+<span class="code-class">Document</span> document2 = prototype.clone();</code></pre></div>
+
+    <div class="intro">
+        <p>The client does not need to know the details of how the original object was constructed.</p>
+    </div>
+
+    <div class="subheading">Prototype with Expensive Object Creation</div>
+
+    <div class="intro">
+        <p>Consider an object whose constructor performs expensive initialization:</p>
+    </div>
+
+    <div class="code-block"><pre><code><span class="code-keyword">public class</span> <span class="code-class">Report</span> {
+
+    <span class="code-keyword">private</span> <span class="code-class">String</span> data;
+
+    <span class="code-keyword">public</span> <span class="code-class">Report</span>() {
+        loadDataFromDatabase();
+        performComplexCalculation();
+        initializeFormatting();
+    }
+
+    <span class="code-keyword">private void</span> loadDataFromDatabase() {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Loading data..."</span>);
+    }
+
+    <span class="code-keyword">private void</span> performComplexCalculation() {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Performing calculations..."</span>);
+    }
+
+    <span class="code-keyword">private void</span> initializeFormatting() {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Initializing formatting..."</span>);
+    }
+}</code></pre></div>
+
+    <div class="intro">
+        <p>Repeated construction can repeat the expensive initialization:</p>
+    </div>
+
+    <div class="code-block"><pre><code><span class="code-class">Report</span> report1 = <span class="code-keyword">new</span> <span class="code-class">Report</span>();
+<span class="code-class">Report</span> report2 = <span class="code-keyword">new</span> <span class="code-class">Report</span>();
+<span class="code-class">Report</span> report3 = <span class="code-keyword">new</span> <span class="code-class">Report</span>();</code></pre></div>
+
+    <div class="intro">
+        <p>With a suitable Prototype implementation, an initialized prototype can be copied and then modified as necessary.</p>
+    </div>
+
+    <div class="subheading">Shallow Copy vs Deep Copy</div>
+
+    <div class="intro">
+        <p>This is one of the most important considerations when implementing Prototype.</p>
+        <p><strong>Shallow Copy</strong> &mdash; copies primitive values and references, but referenced mutable objects may still be shared.</p>
+        <p><strong>Deep Copy</strong> &mdash; also copies the nested mutable objects so that the original and clone have independent object graphs.</p>
+    </div>
+
+    <div class="section-diagram">
+        <img src="../static/prototype-copy.svg" alt="Shallow copy shares one Address object between original and clone; deep copy gives each employee its own independent Address">
+    </div>
+
+    <div class="code-block"><pre><code><span class="code-keyword">public class</span> <span class="code-class">Employee</span> <span class="code-keyword">implements</span> <span class="code-class">Cloneable/span>&lt;<span class="code-class">Employee</span>&gt; {
+    <span class="code-keyword">private</span> <span class="code-class">String</span> name;
+    <span class="code-keyword">private</span> <span class="code-class">Address</span> address;
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">Employee</span> clone() {
+        <span class="code-class">Employee</span> clone = <span class="code-keyword">new</span> <span class="code-class">Employee</span>();
+        clone.name = <span class="code-keyword">this</span>.name;
+        clone.address = <span class="code-keyword">this</span>.address.clone();
+        <span class="code-keyword">return</span> clone;
+    }
+}</code></pre></div>
+
+    <div class="subheading">Copy Constructor Approach</div>
+
+    <div class="intro">
+        <p>An explicit copy constructor is often a clear way to implement Prototype-style copying.</p>
+    </div>
+
+    <div class="section code-section">
+        <div class="code-layout code-layout-equal">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">Employee</span> {
+    <span class="code-keyword">private</span> <span class="code-class">String</span> name;
+    <span class="code-keyword">private</span> <span class="code-class">Address</span> address;
+
+    <span class="code-keyword">public</span> <span class="code-class">Employee</span>(<span class="code-class">String</span> name, <span class="code-class">Address</span> address) {
+        <span class="code-keyword">this</span>.name = name;
+        <span class="code-keyword">this</span>.address = address;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">Employee</span>(<span class="code-class">Employee</span> other) {
+        <span class="code-keyword">this</span>.name = other.name;
+        <span class="code-keyword">this</span>.address = <span class="code-keyword">new</span> <span class="code-class">Address</span>(other.address);
+    }
+}</code></pre>
+            </div>
+            <div class="code-wrapper code-wrapper-right">
+<pre><code><span class="code-comment">@ Usage</span>
+<span class="code-class">Employee</span> prototype = <span class="code-keyword">new</span> <span class="code-class">Employee</span>(<span class="code-string">"DEEPOO"</span>, 
+        <span class="code-keyword">new</span> <span class="code-class">Address</span>(<span class="code-string">"Delhi"</span>));
+
+<span class="code-comment">@ copy constructor makes an independent copy</span>
+<span class="code-class">Employee</span> copy = <span class="code-keyword">new</span> <span class="code-class">Employee</span>(prototype);</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <div class="subheading">Prototype Registry</div>
+
+    <div class="intro">
+        <p>A Prototype Registry stores predefined prototype objects. Clients can request a clone using a key.</p>
+    </div>
+
+    <div class="code-block"><pre><code><span class="code-keyword">public class</span> <span class="code-class">PrototypeRegistry</span> {
+    <span class="code-keyword">private final</span> <span class="code-class">Map</span>&lt;<span class="code-class">String</span>, <span class="code-class">Document</span>&gt; prototypes = <span class="code-keyword">new</span> <span class="code-class">HashMap</span>&lt;&gt;();
+
+    <span class="code-keyword">public void</span> register(<span class="code-class">String</span> key, <span class="code-class">Document</span> prototype) {
+        prototypes.put(key, prototype);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">Document</span> create(<span class="code-class">String</span> key) {
+        <span class="code-class">Document</span> prototype = prototypes.get(key);
+        <span class="code-keyword">if</span> (prototype == <span class="code-keyword">null</span>)
+            <span class="code-keyword">throw new</span> <span class="code-class">IllegalArgumentException</span>(<span class="code-string">"Unknown prototype: "</span> + key);}
+        <span class="code-keyword">return</span> prototype.clone();
+    }
+}</code></pre></div>
+
+    <div class="intro">
+        <p>Usage:</p>
+    </div>
+
+    <div class="code-block"><pre><code><span class="code-class">PrototypeRegistry</span> registry = <span class="code-keyword">new</span> <span class="code-class">PrototypeRegistry</span>();
+<span class="code-class">Document</span> invoicePrototype = <span class="code-keyword">new</span> <span class="code-class">Document</span>(<span class="code-string">"Invoice"</span>, <span class="code-string">"Invoice Content"</span>, <span class="code-string">"Company"</span>, <span class="code-class">List</span>.of(<span class="code-string">"Finance"</span>, <span class="code-string">"Invoice"</span>));
+registry.register(<span class="code-string">"invoice"</span>, invoicePrototype);
+
+<span class="code-class">Document</span> invoice1 = registry.create(<span class="code-string">"invoice"</span>);
+<span class="code-class">Document</span> invoice2 = registry.create(<span class="code-string">"invoice"</span>);
+<span class="code-class">Document</span> invoice3 = registry.create(<span class="code-string">"invoice"</span>);</code></pre></div>
+
+    <div class="subheading">12. Prototype vs Factory</div>
+
+    <div class="section cmp">
+        <div class="section-title">Prototype vs Factory</div>
+        <div class="section-content">
+            <table class="cmp-table cmp-peer">
+                <thead><tr><th>Prototype</th><th>Factory</th></tr></thead>
+                <tbody>
+                    <tr><td>Creates objects by copying an existing object.</td><td>Creates objects through factory creation logic.</td></tr>
+                    <tr><td>Uses cloning/copying.</td><td>Uses factory methods or factory classes.</td></tr>
+                    <tr><td>Useful when an existing object's state is a useful template.</td><td>Useful when creation logic should be centralized.</td></tr>
+                    <tr><td>Existing object acts as the template.</td><td>Factory acts as the creator.</td></tr>
+                    <tr><td>Can preserve complex configured state.</td><td>Usually creates a new object from creation parameters.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="subheading">Prototype vs Builder</div>
+
+    <div class="section cmp">
+        <div class="section-content">
+            <table class="cmp-table cmp-peer">
+                <thead><tr><th>Builder</th><th>Prototype</th></tr></thead>
+                <tbody>
+                    <tr><td>Constructs an object step-by-step.</td><td>Creates an object by copying an existing object.</td></tr>
+                    <tr><td>Useful when many construction parameters exist.</td><td>Useful when a configured object can act as a template.</td></tr>
+                    <tr><td>Starts with construction data.</td><td>Starts with an existing object.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="subheading">Quick Revision</div>
+
+    <div class="section cmp">
+        <div class="section-content">
+            <table class="cmp-table">
+                <thead><tr><th>Question</th><th>Answer</th></tr></thead>
+                <tbody>
+                    <tr><td>Pattern category</td><td>Creational</td></tr>
+                    <tr><td>Main idea</td><td>Create objects by copying an existing prototype.</td></tr>
+                    <tr><td>Main operation</td><td><code>clone()</code>, <code>copy()</code>, or a copy constructor.</td></tr>
+                    <tr><td>Important issue</td><td>Shallow copy vs deep copy.</td></tr>
+                    <tr><td>Useful when</td><td>Object construction is expensive or complex, or many similar objects are required.</td></tr>
+                    <tr><td>Common Java approach</td><td>Explicit copy constructor or <code>copy()</code>/<code>clone()</code> method.</td></tr>
+                    <tr><td>Related patterns</td><td>Factory, Builder.</td></tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

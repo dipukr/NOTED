@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SOLID - Notes</title>
+<title>SOLID</title>
 <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
@@ -15,38 +15,116 @@
         <p>Solid principle help us break big problem into smaller easier to handle parts.</p>
         <p>Solid reduces dependencies on code so changes in one area won't break another.</p>
         <p>Solid reduces tight coupling, making code more flexible and easier to maintain.</p>
+        <p>They help break a big problem into smaller, easier-to-handle parts, reduce dependencies so a change in one area<br>won't break another, and cut tight coupling to keep code flexible and maintainable.</p>
     </div>
 
-    <div class="section code-section">
-        <div class="section-title">Code</div>
-        <div class="code-layout">
-            <div class="code-wrapper">
-<pre><code><span class="code-comment"># D: depend on an abstraction</span>
-<span class="code-keyword">public interface</span> <span class="code-class">Switchable</span> {
-    <span class="code-keyword">void</span> turnOn();
-}
-
-<span class="code-comment"># S: Fan has a single responsibility</span>
-<span class="code-keyword">public class</span> <span class="code-class">Fan</span> <span class="code-keyword">implements</span> <span class="code-class">Switchable</span> {
-    <span class="code-keyword">public void</span> turnOn() { System.out.println(<span class="code-string">"Fan on"</span>); }
-}
-
-<span class="code-comment"># Switch depends on Switchable, not Fan</span>
-<span class="code-keyword">public class</span> <span class="code-class">Switch</span> {
-    <span class="code-keyword">private final</span> <span class="code-class">Switchable</span> device;
-    <span class="code-class">Switch</span>(<span class="code-class">Switchable</span> device) { <span class="code-keyword">this</span>.device = device; }
-    <span class="code-keyword">public void</span> press() { device.turnOn(); }
-}</code></pre>
+    <div class="solid-grid">
+        <div class="solid-card solid-s">
+            <div class="solid-badge">S</div>
+            <div class="solid-body">
+                <div class="solid-name">Single Responsibility</div>
+                <p class="solid-tag">A class should have one reason to change.</p>
+                <p>Each class should own a single, well-defined responsibility. Mixing unrelated concerns &mdash; like business logic and persistence &mdash; makes a class fragile, because a change to one concern can break the other.</p>
             </div>
+        </div>
 
-            <div class="code-explanation">
-                <div class="code-explanation-title">How SOLID is applied here</div>
-                <ul>
-                    <li><code>Switch</code> depends on the <code>Switchable</code> abstraction, not <code>Fan</code>.</li>
-                    <li>New devices implement <code>Switchable</code> without changing <code>Switch</code> (open/closed).</li>
-                    <li>Any <code>Switchable</code> can substitute another (Liskov).</li>
-                    <li>The small <code>Switchable</code> interface follows interface segregation.</li>
-                </ul>
+        <div class="solid-card solid-o">
+            <div class="solid-badge">O</div>
+            <div class="solid-body">
+                <div class="solid-name">Open / Closed</div>
+                <p class="solid-tag">Open for extension, closed for modification.</p>
+                <p>You should be able to add new behaviour without editing existing, tested code. Depend on an abstraction and add new implementations rather than adding branches to classes that already work.</p>
+            </div>
+        </div>
+
+        <div class="solid-card solid-l">
+            <div class="solid-badge">L</div>
+            <div class="solid-body">
+                <div class="solid-name">Liskov Substitution</div>
+                <p class="solid-tag">Subtypes must be usable as their base type.</p>
+                <p>Objects of a subclass must work anywhere the superclass is expected without breaking correctness. A subtype that cannot honour the parent's contract signals a wrong hierarchy.</p>
+            </div>
+        </div>
+
+        <div class="solid-card solid-i">
+            <div class="solid-badge">I</div>
+            <div class="solid-body">
+                <div class="solid-name">Interface Segregation</div>
+                <p class="solid-tag">Many small interfaces beat one fat interface.</p>
+                <p>Clients should not be forced to depend on methods they do not use. Fat interfaces push implementers into empty or dummy methods; small, focused interfaces keep them decoupled.</p>
+            </div>
+        </div>
+
+        <div class="solid-card solid-d">
+            <div class="solid-badge">D</div>
+            <div class="solid-body">
+                <div class="solid-name">Dependency Inversion</div>
+                <p class="solid-tag">Depend on abstractions, not concretions.</p>
+                <p>High-level and low-level modules should both depend on abstractions, and details should depend on abstractions &mdash; not the other way round. Inject implementations instead of hard-wiring them.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section advantages">
+        <div class="section-title">Advantages</div>
+        <div class="section-content">
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-title">Maintainability</div>
+                    <p>Small, single-purpose classes are easier to read, change and debug without unexpected side effects.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Extensibility</div>
+                    <p>New behaviour is added by writing new classes, not editing tested code, so features grow with less risk.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Loose coupling</div>
+                    <p>Depending on abstractions keeps modules independent, so a change in one rarely ripples into others.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Testability</div>
+                    <p>Injected abstractions are easy to replace with mocks, making units simple to test in isolation.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Reusability</div>
+                    <p>Focused, decoupled components can be reused across features and projects with little modification.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Parallel development</div>
+                    <p>Clear boundaries and contracts let teams work on separate modules at the same time without collisions.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages</div>
+        <div class="section-content">
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-title">More classes and files</div>
+                    <p>Splitting responsibilities can produce many small types, adding navigation and boilerplate overhead.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Upfront complexity</div>
+                    <p>Extra interfaces and indirection can feel like over-engineering for small or short-lived projects.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Steeper learning curve</div>
+                    <p>Applying the principles well takes experience; misapplied, they add abstraction without real benefit.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Harder to trace flow</div>
+                    <p>Layers of abstraction and injection can make it less obvious which concrete code actually runs.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Risk of over-abstraction</div>
+                    <p>Designing for flexibility that never materialises wastes effort and complicates the codebase.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Slower initial delivery</div>
+                    <p>The extra structure costs time early on, paying off only as the system grows and changes.</p>
+                </div>
             </div>
         </div>
     </div>
