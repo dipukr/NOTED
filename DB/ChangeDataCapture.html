@@ -78,13 +78,11 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>sys.sp_cdc_enable_db</code> / <code>sys.sp_cdc_enable_table</code> turn on log-based capture for a table, creating a shadow change table and capture jobs.</li>
-                    <li><code>cdc.change_tables</code> lists which capture instances exist and where their data lives.</li>
-                    <li><code>sys.fn_cdc_get_min_lsn</code> / <code>sys.fn_cdc_get_max_lsn</code> define the log range to read.</li>
-                    <li><code>cdc.fn_cdc_get_all_changes_dbo_Customer</code> returns every row-level change in that range, with <code>__$operation</code> identifying insert/update/delete.</li>
-                    <li>Consumers poll this function incrementally instead of scanning the whole table, keeping downstream systems in sync with minimal overhead.</li>
-                </ul>
+                <p><code>sys.sp_cdc_enable_db</code> / <code>sys.sp_cdc_enable_table</code> turn on log-based capture for a table, creating a shadow change table and capture jobs.<br><br>
+                    <code>cdc.change_tables</code> lists which capture instances exist and where their data lives.<br><br>
+                    <code>sys.fn_cdc_get_min_lsn</code> / <code>sys.fn_cdc_get_max_lsn</code> define the log range to read.<br><br>
+                    <code>cdc.fn_cdc_get_all_changes_dbo_Customer</code> returns every row-level change in that range, with <code>__$operation</code> identifying insert/update/delete.<br><br>
+                    Consumers poll this function incrementally instead of scanning the whole table, keeping downstream systems in sync with minimal overhead.</p>
             </div>
         </div>
     </div>

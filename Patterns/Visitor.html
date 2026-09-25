@@ -96,12 +96,10 @@
 
             <div class="code-explanation">
                 <div class="code-explanation-title">How the Visitor works</div>
-                <ul>
-                    <li><code>Item.accept()</code> passes the element to the visitor.</li>
-                    <li>Each element calls the <code>visit</code> overload for its own type (double dispatch).</li>
-                    <li><code>PriceVisitor</code> holds the operation, kept out of the element classes.</li>
-                    <li>A new operation is just a new visitor, no element changes.</li>
-                </ul>
+                <p><code>Item.accept()</code> passes the element to the visitor.<br><br>
+                    Each element calls the <code>visit</code> overload for its own type (double dispatch).<br><br>
+                    <code>PriceVisitor</code> holds the operation, kept out of the element classes.<br><br>
+                    A new operation is just a new visitor, no element changes.</p>
             </div>
         </div>
     </div>

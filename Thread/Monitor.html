@@ -51,12 +51,10 @@
 
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>synchronized</code> makes the object's monitor guard the queue.</li>
-                    <li><code>wait()</code> blocks and releases the lock when the buffer is full or empty.</li>
-                    <li>The <code>while</code> loop rechecks the condition after every wake-up.</li>
-                    <li><code>notifyAll()</code> signals waiting producers or consumers.</li>
-                </ul>
+                <p><code>synchronized</code> makes the object's monitor guard the queue.<br><br>
+                    <code>wait()</code> blocks and releases the lock when the buffer is full or empty.<br><br>
+                    The <code>while</code> loop rechecks the condition after every wake-up.<br><br>
+                    <code>notifyAll()</code> signals waiting producers or consumers.</p>
             </div>
         </div>
     </div>

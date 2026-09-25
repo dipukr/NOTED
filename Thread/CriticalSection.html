@@ -69,12 +69,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>synchronized (lock)</code> acquires the monitor of <code>lock</code>.</li>
-                    <li>The <code>count++</code> read-modify-write runs atomically inside the section.</li>
-                    <li>Other threads block on the same monitor until it is released.</li>
-                    <li>Guarding both read and write keeps values consistent.</li>
-                </ul>
+                <p><code>synchronized (lock)</code> acquires the monitor of <code>lock</code>.<br><br>
+                    The <code>count++</code> read-modify-write runs atomically inside the section.<br><br>
+                    Other threads block on the same monitor until it is released.<br><br>
+                    Guarding both read and write keeps values consistent.</p>
             </div>
         </div>
     </div>

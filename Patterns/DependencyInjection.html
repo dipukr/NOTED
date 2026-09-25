@@ -55,12 +55,10 @@
 
             <div class="code-explanation">
                 <div class="code-explanation-title">How Dependency Injection works</div>
-                <ul>
-                    <li><code>Notifier</code> depends on the <code>MessageService</code> abstraction.</li>
-                    <li>The dependency is passed in through the constructor.</li>
-                    <li>The container picks the <code>@Service</code> bean and wires it in.</li>
-                    <li>Swapping to an SMS service needs no change inside <code>Notifier</code>.</li>
-                </ul>
+                <p><code>Notifier</code> depends on the <code>MessageService</code> abstraction.<br><br>
+                    The dependency is passed in through the constructor.<br><br>
+                    The container picks the <code>@Service</code> bean and wires it in.<br><br>
+                    Swapping to an SMS service needs no change inside <code>Notifier</code>.</p>
             </div>
         </div>
     </div>

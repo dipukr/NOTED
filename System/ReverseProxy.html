@@ -74,12 +74,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li>The client calls the proxy's public path, not the internal service.</li>
-                    <li><code>WebClient</code> forwards the request to the hidden backend.</li>
-                    <li>The backend host stays private, reducing the attack surface.</li>
-                    <li>This point is where TLS, caching, and balancing would be centralized.</li>
-                </ul>
+                <p>The client calls the proxy's public path, not the internal service.<br><br>
+                    <code>WebClient</code> forwards the request to the hidden backend.<br><br>
+                    The backend host stays private, reducing the attack surface.<br><br>
+                    This point is where TLS, caching, and balancing would be centralized.</p>
             </div>
         </div>
     </div>

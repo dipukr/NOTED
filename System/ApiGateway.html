@@ -69,12 +69,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>path("/api/orders/**")</code> matches inbound requests to a route.</li>
-                    <li>Filters apply cross-cutting policy (headers, rate limiting) before forwarding.</li>
-                    <li><code>lb://order-service</code> resolves via service discovery and load balances.</li>
-                    <li>Clients call one gateway URL; routing to services stays internal.</li>
-                </ul>
+                <p><code>path("/api/orders/**")</code> matches inbound requests to a route.<br><br>
+                    Filters apply cross-cutting policy (headers, rate limiting) before forwarding.<br><br>
+                    <code>lb://order-service</code> resolves via service discovery and load balances.<br><br>
+                    Clients call one gateway URL; routing to services stays internal.</p>
             </div>
         </div>
     </div>

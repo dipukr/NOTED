@@ -76,13 +76,11 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li>A linked server lets one SQL Server instance reference tables on another; the four-part name (<code>Server.Database.Schema.Table</code>) addresses the remote table directly.</li>
-                    <li>The plain join pulls rows from the remote table row-by-row over the network, which is the expensive part of a distributed join.</li>
-                    <li><code>OPENQUERY</code> instead sends the whole filtered query text to execute on the remote server, so only the already-filtered result set crosses the network.</li>
-                    <li>The last query is a broadcast-join pattern: the small <code>Region</code> table is kept locally on every node so it never needs to be shipped across the network to match a large remote table.</li>
-                    <li>Pushing filters down (via <code>OPENQUERY</code> or predicate placement) and co-locating small dimension tables are the two main ways to keep distributed joins affordable.</li>
-                </ul>
+                <p>A linked server lets one SQL Server instance reference tables on another; the four-part name (<code>Server.Database.Schema.Table</code>) addresses the remote table directly.<br><br>
+                    The plain join pulls rows from the remote table row-by-row over the network, which is the expensive part of a distributed join.<br><br>
+                    <code>OPENQUERY</code> instead sends the whole filtered query text to execute on the remote server, so only the already-filtered result set crosses the network.<br><br>
+                    The last query is a broadcast-join pattern: the small <code>Region</code> table is kept locally on every node so it never needs to be shipped across the network to match a large remote table.<br><br>
+                    Pushing filters down (via <code>OPENQUERY</code> or predicate placement) and co-locating small dimension tables are the two main ways to keep distributed joins affordable.</p>
             </div>
         </div>
     </div>

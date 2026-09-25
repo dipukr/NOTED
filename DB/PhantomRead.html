@@ -83,13 +83,11 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li>Under <span class="code-keyword">REPEATABLE READ</span>, existing rows can't change mid-transaction, but a range query can still gain new rows inserted by others.</li>
-                    <li>The two identical <span class="code-keyword">SELECT COUNT(*)</span> calls return different results within the same transaction &mdash; a phantom read.</li>
-                    <li><span class="code-keyword">SERIALIZABLE</span> takes a range (key-range) lock covering the queried predicate, blocking concurrent inserts into that range.</li>
-                    <li>This makes the count-then-insert pattern safe: no other transaction can sneak a matching row in between the read and the write.</li>
-                    <li>The trade-off is reduced concurrency, since the range lock is held until <span class="code-keyword">COMMIT</span>.</li>
-                </ul>
+                <p>Under <span class="code-keyword">REPEATABLE READ</span>, existing rows can't change mid-transaction, but a range query can still gain new rows inserted by others.<br><br>
+                    The two identical <span class="code-keyword">SELECT COUNT(*)</span> calls return different results within the same transaction &mdash; a phantom read.<br><br>
+                    <span class="code-keyword">SERIALIZABLE</span> takes a range (key-range) lock covering the queried predicate, blocking concurrent inserts into that range.<br><br>
+                    This makes the count-then-insert pattern safe: no other transaction can sneak a matching row in between the read and the write.<br><br>
+                    The trade-off is reduced concurrency, since the range lock is held until <span class="code-keyword">COMMIT</span>.</p>
             </div>
         </div>
     </div>

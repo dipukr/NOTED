@@ -65,12 +65,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li>A bounded <code>attempts</code> counter caps futile retries.</li>
-                    <li>Randomised sleep desynchronises threads that were mirroring each other.</li>
-                    <li>Exceeding the retry limit flags a likely livelock.</li>
-                    <li>The method returns instead of spinning forever.</li>
-                </ul>
+                <p>A bounded <code>attempts</code> counter caps futile retries.<br><br>
+                    Randomised sleep desynchronises threads that were mirroring each other.<br><br>
+                    Exceeding the retry limit flags a likely livelock.<br><br>
+                    The method returns instead of spinning forever.</p>
             </div>
         </div>
     </div>

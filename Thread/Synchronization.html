@@ -60,12 +60,10 @@
 
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li>All methods lock the same monitor (<code>this</code>), so updates are serialized.</li>
-                    <li>A synchronized method is shorthand for <code>synchronized(this)</code>.</li>
-                    <li>The lock also flushes writes, so <code>getBalance()</code> sees fresh values.</li>
-                    <li>Only one thread can modify <code>balance</code> at any instant.</li>
-                </ul>
+                <p>All methods lock the same monitor (<code>this</code>), so updates are serialized.<br><br>
+                    A synchronized method is shorthand for <code>synchronized(this)</code>.<br><br>
+                    The lock also flushes writes, so <code>getBalance()</code> sees fresh values.<br><br>
+                    Only one thread can modify <code>balance</code> at any instant.</p>
             </div>
         </div>
     </div>

@@ -67,12 +67,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>setIfAbsent</code> is atomic, so exactly one node sets the leader key.</li>
-                    <li>The 10-second TTL means a crashed leader's lock auto-expires.</li>
-                    <li>Other nodes keep retrying and take over when the key frees up.</li>
-                    <li>Production systems use Raft/ZooKeeper for stronger guarantees and fencing.</li>
-                </ul>
+                <p><code>setIfAbsent</code> is atomic, so exactly one node sets the leader key.<br><br>
+                    The 10-second TTL means a crashed leader's lock auto-expires.<br><br>
+                    Other nodes keep retrying and take over when the key frees up.<br><br>
+                    Production systems use Raft/ZooKeeper for stronger guarantees and fencing.</p>
             </div>
         </div>
     </div>

@@ -88,12 +88,10 @@
 
             <div class="code-explanation">
                 <div class="code-explanation-title">How the chain works</div>
-                <ul>
-                    <li><code>Handler</code> holds a reference to the <code>next</code> handler.</li>
-                    <li>Each concrete handler either processes the request or forwards it.</li>
-                    <li><code>Manager</code> handles small amounts; larger ones flow to <code>Director</code>.</li>
-                    <li>The client calls only the first handler and stays unaware of who handles it.</li>
-                </ul>
+                <p><code>Handler</code> holds a reference to the <code>next</code> handler.<br><br>
+                    Each concrete handler either processes the request or forwards it.<br><br>
+                    <code>Manager</code> handles small amounts; larger ones flow to <code>Director</code>.<br><br>
+                    The client calls only the first handler and stays unaware of who handles it.</p>
             </div>
         </div>
     </div>

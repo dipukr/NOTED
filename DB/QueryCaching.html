@@ -84,13 +84,11 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li>The stored procedure is compiled once; the resulting execution plan is stored in the plan cache keyed by its signature.</li>
-                    <li>Subsequent <span class="code-keyword">EXEC</span> calls with different parameter values reuse the same cached plan instead of recompiling.</li>
-                    <li><span class="code-class">sys.dm_exec_cached_plans</span> joined to <span class="code-class">sys.dm_exec_sql_text</span> shows what plans are cached and how many times each was used (<span class="code-class">usecounts</span>).</li>
-                    <li>A high <span class="code-class">usecounts</span> value confirms the plan is being reused rather than recompiled per call.</li>
-                    <li><span class="code-keyword">sp_recompile</span> evicts the cached plan, forcing a fresh compile on the next execution &mdash; the SQL analogue of a cache eviction.</li>
-                </ul>
+                <p>The stored procedure is compiled once; the resulting execution plan is stored in the plan cache keyed by its signature.<br><br>
+                    Subsequent <span class="code-keyword">EXEC</span> calls with different parameter values reuse the same cached plan instead of recompiling.<br><br>
+                    <span class="code-class">sys.dm_exec_cached_plans</span> joined to <span class="code-class">sys.dm_exec_sql_text</span> shows what plans are cached and how many times each was used (<span class="code-class">usecounts</span>).<br><br>
+                    A high <span class="code-class">usecounts</span> value confirms the plan is being reused rather than recompiled per call.<br><br>
+                    <span class="code-keyword">sp_recompile</span> evicts the cached plan, forcing a fresh compile on the next execution &mdash; the SQL analogue of a cache eviction.</p>
             </div>
         </div>
     </div>

@@ -78,12 +78,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>sys.dm_exec_sessions</code> joined with <code>sys.dm_exec_connections</code> shows every live connection a pool is holding open, useful for sizing and diagnosing leaks (the classic <code>sp_who2</code> use case).</li>
-                    <li>The stored procedure does one small unit of work and returns immediately, so a pooled connection is held only briefly per call.</li>
-                    <li>Short, single-purpose procedures like this let a fixed-size pool serve many more logical requests per second.</li>
-                    <li>Filtering by <code>program_name</code> lets an operator see exactly how many connections the application's pool currently has open.</li>
-                </ul>
+                <p><code>sys.dm_exec_sessions</code> joined with <code>sys.dm_exec_connections</code> shows every live connection a pool is holding open, useful for sizing and diagnosing leaks (the classic <code>sp_who2</code> use case).<br><br>
+                    The stored procedure does one small unit of work and returns immediately, so a pooled connection is held only briefly per call.<br><br>
+                    Short, single-purpose procedures like this let a fixed-size pool serve many more logical requests per second.<br><br>
+                    Filtering by <code>program_name</code> lets an operator see exactly how many connections the application's pool currently has open.</p>
             </div>
         </div>
     </div>

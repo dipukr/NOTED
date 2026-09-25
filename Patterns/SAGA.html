@@ -74,11 +74,9 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li>Each step is a local transaction in its own service.</li>
-                    <li>If a later step fails, <code>refund</code> compensates the earlier one.</li>
-                    <li>Consistency is achieved without a global distributed transaction.</li>
-                </ul>
+                <p>Each step is a local transaction in its own service.<br><br>
+                    If a later step fails, <code>refund</code> compensates the earlier one.<br><br>
+                    Consistency is achieved without a global distributed transaction.</p>
             </div>
         </div>
     </div>

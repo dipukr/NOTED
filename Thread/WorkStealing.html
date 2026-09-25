@@ -66,12 +66,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>newWorkStealingPool()</code> creates a <code>ForkJoinPool</code> with per-worker deques.</li>
-                    <li>Submitted tasks are distributed and idle workers steal pending ones.</li>
-                    <li><code>awaitTermination</code> waits for all tasks to finish after shutdown.</li>
-                    <li>Load spreads across threads without manual assignment.</li>
-                </ul>
+                <p><code>newWorkStealingPool()</code> creates a <code>ForkJoinPool</code> with per-worker deques.<br><br>
+                    Submitted tasks are distributed and idle workers steal pending ones.<br><br>
+                    <code>awaitTermination</code> waits for all tasks to finish after shutdown.<br><br>
+                    Load spreads across threads without manual assignment.</p>
             </div>
         </div>
     </div>

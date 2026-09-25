@@ -85,12 +85,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><span class="code-keyword">BEGIN DISTRIBUTED TRANSACTION</span> enlists both the local database and the remote linked server as separate resource managers under MS DTC.</li>
-                    <li>In the prepare phase, each resource manager durably records its changes and votes yes or no without committing yet.</li>
-                    <li>Only if every participant votes yes does <span class="code-keyword">COMMIT TRANSACTION</span> tell all of them to make the change permanent.</li>
-                    <li>If either statement fails, the <span class="code-keyword">CATCH</span> block issues <span class="code-keyword">ROLLBACK TRANSACTION</span>, undoing the change on both the local table and the remote ledger.</li>
-                </ul>
+                <p><span class="code-keyword">BEGIN DISTRIBUTED TRANSACTION</span> enlists both the local database and the remote linked server as separate resource managers under MS DTC.<br><br>
+                    In the prepare phase, each resource manager durably records its changes and votes yes or no without committing yet.<br><br>
+                    Only if every participant votes yes does <span class="code-keyword">COMMIT TRANSACTION</span> tell all of them to make the change permanent.<br><br>
+                    If either statement fails, the <span class="code-keyword">CATCH</span> block issues <span class="code-keyword">ROLLBACK TRANSACTION</span>, undoing the change on both the local table and the remote ledger.</p>
             </div>
         </div>
     </div>

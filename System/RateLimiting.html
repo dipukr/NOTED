@@ -75,12 +75,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li>Tokens refill continuously at <code>refillPerSec</code> up to <code>capacity</code>.</li>
-                    <li>Each request consumes one token; bursts are allowed until the bucket empties.</li>
-                    <li><code>tryAcquire()</code> returning false signals the caller to respond with 429.</li>
-                    <li><code>synchronized</code> keeps the counter correct under concurrency (per instance).</li>
-                </ul>
+                <p>Tokens refill continuously at <code>refillPerSec</code> up to <code>capacity</code>.<br><br>
+                    Each request consumes one token; bursts are allowed until the bucket empties.<br><br>
+                    <code>tryAcquire()</code> returning false signals the caller to respond with 429.<br><br>
+                    <code>synchronized</code> keeps the counter correct under concurrency (per instance).</p>
             </div>
         </div>
     </div>

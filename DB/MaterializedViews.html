@@ -80,12 +80,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>CREATE MATERIALIZED VIEW</code> stores the aggregated <code>SUM</code> per day physically instead of recomputing it on every read.</li>
-                    <li><code>REFRESH MATERIALIZED VIEW CONCURRENTLY</code> recomputes and repersists the result without locking out readers.</li>
-                    <li>In SQL Server, <code>WITH SCHEMABINDING</code> plus a unique clustered index turns a normal view into an indexed (materialized) view.</li>
-                    <li>Reads against the materialized/indexed view skip the join and aggregation entirely, trading staleness for speed.</li>
-                </ul>
+                <p><code>CREATE MATERIALIZED VIEW</code> stores the aggregated <code>SUM</code> per day physically instead of recomputing it on every read.<br><br>
+                    <code>REFRESH MATERIALIZED VIEW CONCURRENTLY</code> recomputes and repersists the result without locking out readers.<br><br>
+                    In SQL Server, <code>WITH SCHEMABINDING</code> plus a unique clustered index turns a normal view into an indexed (materialized) view.<br><br>
+                    Reads against the materialized/indexed view skip the join and aggregation entirely, trading staleness for speed.</p>
             </div>
         </div>
     </div>

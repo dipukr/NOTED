@@ -85,12 +85,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>BEGIN DISTRIBUTED TRANSACTION</code> enlists MS DTC, which coordinates the local and linked-server (remote) resource managers as participants.</li>
-                    <li>Phase 1 corresponds to each participant executing its statement and being ready to vote; a failure here lets everyone abort cleanly, unlike in 2PC where this window can block.</li>
-                    <li>Phase 2 (preCommit) is where DTC asks every resource manager to prepare; <code>XACT_STATE() = 1</code> confirms the transaction is still committable before moving on.</li>
-                    <li>Phase 3 (doCommit) is the final <code>COMMIT TRANSACTION</code>, applied to all participants; <code>TRY/CATCH</code> with <code>ROLLBACK</code> handles the abort path if any phase fails.</li>
-                </ul>
+                <p><code>BEGIN DISTRIBUTED TRANSACTION</code> enlists MS DTC, which coordinates the local and linked-server (remote) resource managers as participants.<br><br>
+                    Phase 1 corresponds to each participant executing its statement and being ready to vote; a failure here lets everyone abort cleanly, unlike in 2PC where this window can block.<br><br>
+                    Phase 2 (preCommit) is where DTC asks every resource manager to prepare; <code>XACT_STATE() = 1</code> confirms the transaction is still committable before moving on.<br><br>
+                    Phase 3 (doCommit) is the final <code>COMMIT TRANSACTION</code>, applied to all participants; <code>TRY/CATCH</code> with <code>ROLLBACK</code> handles the abort path if any phase fails.</p>
             </div>
         </div>
     </div>

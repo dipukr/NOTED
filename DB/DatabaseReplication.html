@@ -75,13 +75,11 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li>The <code>INSERT</code> is a write and is always sent to the primary replica.</li>
-                    <li>The <code>SELECT</code> is routed to a readable secondary, offloading read traffic from the primary.</li>
-                    <li><code>sys.dm_hadr_database_replica_states</code> exposes each secondary's synchronization state and queue sizes, the SQL Server equivalent of checking replication lag.</li>
-                    <li>A non-zero <code>redo_queue_size</code> means the secondary has not yet replayed all received log records, so a read against it can return slightly stale data.</li>
-                    <li>Applications routing reads to secondaries must tolerate that lag, the trade-off replication makes for read scalability.</li>
-                </ul>
+                <p>The <code>INSERT</code> is a write and is always sent to the primary replica.<br><br>
+                    The <code>SELECT</code> is routed to a readable secondary, offloading read traffic from the primary.<br><br>
+                    <code>sys.dm_hadr_database_replica_states</code> exposes each secondary's synchronization state and queue sizes, the SQL Server equivalent of checking replication lag.<br><br>
+                    A non-zero <code>redo_queue_size</code> means the secondary has not yet replayed all received log records, so a read against it can return slightly stale data.<br><br>
+                    Applications routing reads to secondaries must tolerate that lag, the trade-off replication makes for read scalability.</p>
             </div>
         </div>
     </div>

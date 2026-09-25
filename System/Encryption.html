@@ -71,12 +71,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>KeyStore</code> (PKCS12) holds the server certificate chain and private key.</li>
-                    <li><code>KeyManagerFactory</code> exposes those keys to the TLS engine during the handshake.</li>
-                    <li><code>SSLContext.getInstance("TLSv1.3")</code> pins the protocol version to the modern standard.</li>
-                    <li><code>SecureRandom</code> supplies cryptographically strong randomness for key generation.</li>
-                </ul>
+                <p><code>KeyStore</code> (PKCS12) holds the server certificate chain and private key.<br><br>
+                    <code>KeyManagerFactory</code> exposes those keys to the TLS engine during the handshake.<br><br>
+                    <code>SSLContext.getInstance("TLSv1.3")</code> pins the protocol version to the modern standard.<br><br>
+                    <code>SecureRandom</code> supplies cryptographically strong randomness for key generation.</p>
             </div>
         </div>
     </div>

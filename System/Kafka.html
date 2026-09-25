@@ -346,10 +346,8 @@ producer.send(record, (metadata, exception) -&gt; {
 
 properties.put(<span class="code-class">ConsumerConfig</span>.BOOTSTRAP_SERVERS_CONFIG, <span class="code-string">"localhost:9092"</span>);
 properties.put(<span class="code-class">ConsumerConfig</span>.GROUP_ID_CONFIG, <span class="code-string">"order-service"</span>);
-properties.put(<span class="code-class">ConsumerConfig</span>.KEY_DESERIALIZER_CLASS_CONFIG,
-        <span class="code-class">StringDeserializer</span>.<span class="code-keyword">class</span>.getName());
-properties.put(<span class="code-class">ConsumerConfig</span>.VALUE_DESERIALIZER_CLASS_CONFIG,
-        <span class="code-class">StringDeserializer</span>.<span class="code-keyword">class</span>.getName());</code></pre></div>
+properties.put(<span class="code-class">ConsumerConfig</span>.KEY_DESERIALIZER_CLASS_CONFIG, <span class="code-class">StringDeserializer</span>.<span class="code-keyword">class</span>.getName());
+properties.put(<span class="code-class">ConsumerConfig</span>.VALUE_DESERIALIZER_CLASS_CONFIG, <span class="code-class">StringDeserializer</span>.<span class="code-keyword">class</span>.getName());</code></pre></div>
 
     <div class="subheading">Consumer Group</div>
 
@@ -411,11 +409,9 @@ consumer.subscribe(<span class="code-class">List</span>.of(<span class="code-str
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>group.id</code> joins a consumer group that shares the topic's partitions.</li>
-                    <li><code>poll()</code> fetches batches and keeps the member alive in the group.</li>
-                    <li><code>auto.offset.reset=earliest</code> starts from the beginning when there is no committed offset.</li>
-                </ul>
+                <p><code>group.id</code> joins a consumer group that shares the topic's partitions.<br><br>
+                    <code>poll()</code> fetches batches and keeps the member alive in the group.<br><br>
+                    <code>auto.offset.reset=earliest</code> starts from the beginning when there is no committed offset.</p>
             </div>
         </div>
     </div>

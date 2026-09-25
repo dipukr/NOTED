@@ -81,13 +81,11 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><span class="code-keyword">WITH (UPDLOCK, ROWLOCK)</span> takes an update lock on just that row as soon as it is read.</li>
-                    <li>Any other transaction trying to read or write the same row with a compatible lock hint must wait.</li>
-                    <li>The lock is held for the whole transaction and released only on <span class="code-keyword">COMMIT</span> or <span class="code-keyword">ROLLBACK</span>.</li>
-                    <li>This prevents two concurrent reservations from both reading the same quantity and overselling stock.</li>
-                    <li><span class="code-keyword">SELECT ... FOR UPDATE</span> is the portable ANSI form of the same pattern on PostgreSQL/Oracle/MySQL.</li>
-                </ul>
+                <p><span class="code-keyword">WITH (UPDLOCK, ROWLOCK)</span> takes an update lock on just that row as soon as it is read.<br><br>
+                    Any other transaction trying to read or write the same row with a compatible lock hint must wait.<br><br>
+                    The lock is held for the whole transaction and released only on <span class="code-keyword">COMMIT</span> or <span class="code-keyword">ROLLBACK</span>.<br><br>
+                    This prevents two concurrent reservations from both reading the same quantity and overselling stock.<br><br>
+                    <span class="code-keyword">SELECT ... FOR UPDATE</span> is the portable ANSI form of the same pattern on PostgreSQL/Oracle/MySQL.</p>
             </div>
         </div>
     </div>

@@ -42,12 +42,10 @@
 
             <div class="code-explanation">
                 <div class="code-explanation-title">How it deadlocks</div>
-                <ul>
-                    <li><code>t1</code> holds <code>a</code> and waits for <code>b</code>.</li>
-                    <li><code>t2</code> holds <code>b</code> and waits for <code>a</code>: circular wait.</li>
-                    <li>Neither can proceed, so both block permanently.</li>
-                    <li>Enforcing one global lock order (a then b) removes the cycle.</li>
-                </ul>
+                <p><code>t1</code> holds <code>a</code> and waits for <code>b</code>.<br><br>
+                    <code>t2</code> holds <code>b</code> and waits for <code>a</code>: circular wait.<br><br>
+                    Neither can proceed, so both block permanently.<br><br>
+                    Enforcing one global lock order (a then b) removes the cycle.</p>
             </div>
         </div>
     </div>
@@ -80,12 +78,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>tryLock(timeout)</code> gives up rather than blocking indefinitely.</li>
-                    <li>If the second lock is unavailable, the first is released in <code>finally</code>.</li>
-                    <li>Returning <code>false</code> lets the caller back off and retry.</li>
-                    <li>No thread holds one lock while waiting forever for another.</li>
-                </ul>
+                <p><code>tryLock(timeout)</code> gives up rather than blocking indefinitely.<br><br>
+                    If the second lock is unavailable, the first is released in <code>finally</code>.<br><br>
+                    Returning <code>false</code> lets the caller back off and retry.<br><br>
+                    No thread holds one lock while waiting forever for another.</p>
             </div>
         </div>
     </div>

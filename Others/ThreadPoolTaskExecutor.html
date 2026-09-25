@@ -70,11 +70,9 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li>Tasks run on core threads first, then queue, then expand toward max.</li>
-                    <li><code>CallerRunsPolicy</code> applies backpressure by running overflow on the caller.</li>
-                    <li><code>initialize()</code> builds the underlying <code>ThreadPoolExecutor</code>.</li>
-                </ul>
+                <p>Tasks run on core threads first, then queue, then expand toward max.<br><br>
+                    <code>CallerRunsPolicy</code> applies backpressure by running overflow on the caller.<br><br>
+                    <code>initialize()</code> builds the underlying <code>ThreadPoolExecutor</code>.</p>
             </div>
         </div>
     </div>

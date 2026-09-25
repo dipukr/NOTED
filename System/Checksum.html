@@ -71,12 +71,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>CRC32</code> accumulates a cyclic-redundancy value ideal for fast corruption checks.</li>
-                    <li><code>MessageDigest.getInstance("SHA-256")</code> produces a 256-bit cryptographic digest.</li>
-                    <li><code>md.digest(data)</code> finalizes the hash over all supplied bytes.</li>
-                    <li>The hex loop converts raw bytes into a comparable, printable string.</li>
-                </ul>
+                <p><code>CRC32</code> accumulates a cyclic-redundancy value ideal for fast corruption checks.<br><br>
+                    <code>MessageDigest.getInstance("SHA-256")</code> produces a 256-bit cryptographic digest.<br><br>
+                    <code>md.digest(data)</code> finalizes the hash over all supplied bytes.<br><br>
+                    The hex loop converts raw bytes into a comparable, printable string.</p>
             </div>
         </div>
     </div>

@@ -75,11 +75,9 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>setUncaughtExceptionHandler</code> catches errors that escape a raw thread's <code>run</code>.</li>
-                    <li><code>submit()</code> captures the exception inside the <code>Future</code>.</li>
-                    <li><code>get()</code> rethrows it as <code>ExecutionException</code>, exposing the original cause.</li>
-                </ul>
+                <p><code>setUncaughtExceptionHandler</code> catches errors that escape a raw thread's <code>run</code>.<br><br>
+                    <code>submit()</code> captures the exception inside the <code>Future</code>.<br><br>
+                    <code>get()</code> rethrows it as <code>ExecutionException</code>, exposing the original cause.</p>
             </div>
         </div>
     </div>

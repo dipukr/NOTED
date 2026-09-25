@@ -89,12 +89,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li>The relational version keeps customers and orders in separate, normalized tables linked by a foreign key, so a <code>JOIN</code> is required to combine them.</li>
-                    <li>The denormalized version embeds each customer's orders directly as JSON in a single row, mirroring how a document store like MongoDB would model the same data.</li>
-                    <li><code>OPENJSON</code> shreds the embedded array back into rows at query time, avoiding a join at the cost of update complexity and possible duplication.</li>
-                    <li>The normalized model favors consistency and flexible querying; the denormalized model favors fast single-document reads at the expense of join-free, harder updates.</li>
-                </ul>
+                <p>The relational version keeps customers and orders in separate, normalized tables linked by a foreign key, so a <code>JOIN</code> is required to combine them.<br><br>
+                    The denormalized version embeds each customer's orders directly as JSON in a single row, mirroring how a document store like MongoDB would model the same data.<br><br>
+                    <code>OPENJSON</code> shreds the embedded array back into rows at query time, avoiding a join at the cost of update complexity and possible duplication.<br><br>
+                    The normalized model favors consistency and flexible querying; the denormalized model favors fast single-document reads at the expense of join-free, harder updates.</p>
             </div>
         </div>
     </div>

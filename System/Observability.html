@@ -70,12 +70,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li>The filter reads or generates a correlation id per incoming request.</li>
-                    <li><code>MDC.put</code> stores it so every log line within the request carries it.</li>
-                    <li>The same id can propagate downstream to link traces across services.</li>
-                    <li><code>MDC.clear()</code> prevents id leakage between pooled threads.</li>
-                </ul>
+                <p>The filter reads or generates a correlation id per incoming request.<br><br>
+                    <code>MDC.put</code> stores it so every log line within the request carries it.<br><br>
+                    The same id can propagate downstream to link traces across services.<br><br>
+                    <code>MDC.clear()</code> prevents id leakage between pooled threads.</p>
             </div>
         </div>
     </div>

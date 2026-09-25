@@ -70,13 +70,11 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li>Session 1 locks <code>AccountId</code> 1 then waits for 2; Session 2 locks 2 then waits for 1, forming a circular wait.</li>
-                    <li>SQL Server's lock monitor detects the cycle and kills one session with error 1205 to break the deadlock.</li>
-                    <li><code>SET DEADLOCK_PRIORITY LOW</code> tells the engine to prefer aborting this session over the other one when a deadlock is found.</li>
-                    <li>The fix is to always acquire locks on <code>AccountId</code> in the same order (e.g. lowest id first) in both sessions.</li>
-                    <li>The aborted transaction must catch the deadlock error and retry the whole unit of work.</li>
-                </ul>
+                <p>Session 1 locks <code>AccountId</code> 1 then waits for 2; Session 2 locks 2 then waits for 1, forming a circular wait.<br><br>
+                    SQL Server's lock monitor detects the cycle and kills one session with error 1205 to break the deadlock.<br><br>
+                    <code>SET DEADLOCK_PRIORITY LOW</code> tells the engine to prefer aborting this session over the other one when a deadlock is found.<br><br>
+                    The fix is to always acquire locks on <code>AccountId</code> in the same order (e.g. lowest id first) in both sessions.<br><br>
+                    The aborted transaction must catch the deadlock error and retry the whole unit of work.</p>
             </div>
         </div>
     </div>

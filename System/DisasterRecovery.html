@@ -70,12 +70,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>primary.isHealthy()</code> gates traffic to the main region when it is up.</li>
-                    <li>A failure or exception triggers failover to the DR region.</li>
-                    <li><code>secondary</code> is a warm standby kept in sync via cross-region replication.</li>
-                    <li>The replication lag between regions determines the achievable RPO.</li>
-                </ul>
+                <p><code>primary.isHealthy()</code> gates traffic to the main region when it is up.<br><br>
+                    A failure or exception triggers failover to the DR region.<br><br>
+                    <code>secondary</code> is a warm standby kept in sync via cross-region replication.<br><br>
+                    The replication lag between regions determines the achievable RPO.</p>
             </div>
         </div>
     </div>

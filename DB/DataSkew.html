@@ -74,12 +74,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li>The <code>GROUP BY</code> query exposes skew directly: a few <code>CustomerId</code> values own a disproportionate share of rows.</li>
-                    <li><code>ShardBucket</code> is a persisted computed column that hashes the hot key into one of 16 buckets.</li>
-                    <li>Writes for the same logical key now spread across 16 physical slots instead of piling onto one partition.</li>
-                    <li>Reads must query across all buckets and merge, trading read simplicity for write-side load balance.</li>
-                </ul>
+                <p>The <code>GROUP BY</code> query exposes skew directly: a few <code>CustomerId</code> values own a disproportionate share of rows.<br><br>
+                    <code>ShardBucket</code> is a persisted computed column that hashes the hot key into one of 16 buckets.<br><br>
+                    Writes for the same logical key now spread across 16 physical slots instead of piling onto one partition.<br><br>
+                    Reads must query across all buckets and merge, trading read simplicity for write-side load balance.</p>
             </div>
         </div>
     </div>

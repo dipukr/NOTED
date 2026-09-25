@@ -73,12 +73,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>Counter</code> records a monotonically increasing count of payment failures.</li>
-                    <li>Prometheus scrapes the metric; an alert rule watches its rate over time.</li>
-                    <li><code>failures.increment()</code> feeds real-time data the alerting engine evaluates.</li>
-                    <li>Alertmanager then groups, deduplicates, and routes the notification.</li>
-                </ul>
+                <p><code>Counter</code> records a monotonically increasing count of payment failures.<br><br>
+                    Prometheus scrapes the metric; an alert rule watches its rate over time.<br><br>
+                    <code>failures.increment()</code> feeds real-time data the alerting engine evaluates.<br><br>
+                    Alertmanager then groups, deduplicates, and routes the notification.</p>
             </div>
         </div>
     </div>

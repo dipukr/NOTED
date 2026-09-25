@@ -78,12 +78,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>ALLOW_SNAPSHOT_ISOLATION</code> and <code>READ_COMMITTED_SNAPSHOT</code> turn on row-versioning so readers use a consistent snapshot instead of locks.</li>
-                    <li>Session A's transaction fixes its snapshot at <code>BEGIN TRANSACTION</code>.</li>
-                    <li>Session B's concurrent committed update creates a new row version that is invisible to Session A's snapshot.</li>
-                    <li><code>FirstRead</code> and <code>SecondRead</code> return the same value, and Session B was never blocked by Session A's reads.</li>
-                </ul>
+                <p><code>ALLOW_SNAPSHOT_ISOLATION</code> and <code>READ_COMMITTED_SNAPSHOT</code> turn on row-versioning so readers use a consistent snapshot instead of locks.<br><br>
+                    Session A's transaction fixes its snapshot at <code>BEGIN TRANSACTION</code>.<br><br>
+                    Session B's concurrent committed update creates a new row version that is invisible to Session A's snapshot.<br><br>
+                    <code>FirstRead</code> and <code>SecondRead</code> return the same value, and Session B was never blocked by Session A's reads.</p>
             </div>
         </div>
     </div>

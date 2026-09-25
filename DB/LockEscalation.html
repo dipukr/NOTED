@@ -78,12 +78,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li>The single unbatched <code>UPDATE</code> can acquire enough row/page locks that SQL Server escalates to one table-level lock, blocking every other writer.</li>
-                    <li><code>LOCK_ESCALATION = DISABLE</code> stops that table from ever escalating straight to a full table lock (it can still escalate to partition level on a partitioned table).</li>
-                    <li><code>LOCK_ESCALATION = AUTO</code> lets a partitioned table escalate to a single partition instead of the whole table, keeping other partitions free.</li>
-                    <li>The batched <code>WHILE</code> loop is the more common real-world fix: each 2000-row batch commits and releases its locks before the next one starts, so the row-lock count never gets close to the escalation threshold.</li>
-                </ul>
+                <p>The single unbatched <code>UPDATE</code> can acquire enough row/page locks that SQL Server escalates to one table-level lock, blocking every other writer.<br><br>
+                    <code>LOCK_ESCALATION = DISABLE</code> stops that table from ever escalating straight to a full table lock (it can still escalate to partition level on a partitioned table).<br><br>
+                    <code>LOCK_ESCALATION = AUTO</code> lets a partitioned table escalate to a single partition instead of the whole table, keeping other partitions free.<br><br>
+                    The batched <code>WHILE</code> loop is the more common real-world fix: each 2000-row batch commits and releases its locks before the next one starts, so the row-lock count never gets close to the escalation threshold.</p>
             </div>
         </div>
     </div>

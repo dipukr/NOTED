@@ -71,12 +71,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>matchIndex</code> tracks the highest log entry each follower has stored.</li>
-                    <li><code>isCommitted</code> counts followers at or beyond an index, plus the leader.</li>
-                    <li><code>quorum</code> is a strict majority; only then is an entry safe to apply.</li>
-                    <li><code>onAppendAck</code> records replication progress from each follower's response.</li>
-                </ul>
+                <p><code>matchIndex</code> tracks the highest log entry each follower has stored.<br><br>
+                    <code>isCommitted</code> counts followers at or beyond an index, plus the leader.<br><br>
+                    <code>quorum</code> is a strict majority; only then is an entry safe to apply.<br><br>
+                    <code>onAppendAck</code> records replication progress from each follower's response.</p>
             </div>
         </div>
     </div>

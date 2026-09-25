@@ -90,12 +90,10 @@
 
             <div class="code-explanation">
                 <div class="code-explanation-title">How the Bridge works</div>
-                <ul>
-                    <li><code>Device</code> is the implementation hierarchy; <code>Remote</code> is the abstraction hierarchy.</li>
-                    <li><code>Remote</code> holds a <code>Device</code> reference by composition instead of extending it.</li>
-                    <li>New remotes and new devices can be added independently without cross-multiplying classes.</li>
-                    <li>The client combines any remote with any device at runtime.</li>
-                </ul>
+                <p><code>Device</code> is the implementation hierarchy; <code>Remote</code> is the abstraction hierarchy.<br><br>
+                    <code>Remote</code> holds a <code>Device</code> reference by composition instead of extending it.<br><br>
+                    New remotes and new devices can be added independently without cross-multiplying classes.<br><br>
+                    The client combines any remote with any device at runtime.</p>
             </div>
         </div>
     </div>

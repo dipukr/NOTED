@@ -72,11 +72,9 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li>Both saves commit or roll back together under <code>@Transactional</code>.</li>
-                    <li>A relay polls <code>OutboxEvent</code> rows and sends them to the broker.</li>
-                    <li>If the transaction fails, no event is ever emitted.</li>
-                </ul>
+                <p>Both saves commit or roll back together under <code>@Transactional</code>.<br><br>
+                    A relay polls <code>OutboxEvent</code> rows and sends them to the broker.<br><br>
+                    If the transaction fails, no event is ever emitted.</p>
             </div>
         </div>
     </div>

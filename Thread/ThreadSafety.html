@@ -68,11 +68,9 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>ConcurrentHashMap</code> allows concurrent reads and segmented writes safely.</li>
-                    <li><code>computeIfAbsent</code> atomically inserts the adder only once per key.</li>
-                    <li><code>LongAdder.increment()</code> scales better than a locked counter under contention.</li>
-                </ul>
+                <p><code>ConcurrentHashMap</code> allows concurrent reads and segmented writes safely.<br><br>
+                    <code>computeIfAbsent</code> atomically inserts the adder only once per key.<br><br>
+                    <code>LongAdder.increment()</code> scales better than a locked counter under contention.</p>
             </div>
         </div>
     </div>

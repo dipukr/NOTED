@@ -79,13 +79,11 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>SchemaVersion</code> is a versioning table, the SQL equivalent of Flyway/Liquibase's history table, ensuring each migration runs once.</li>
-                    <li><code>ALTER TABLE ... ADD ... DEFAULT</code> is additive and backward compatible, so old application code keeps working during rollout.</li>
-                    <li><code>UPDATE TOP (1000)</code> inside a loop backfills in small batches instead of one giant transaction, avoiding a long-held table lock.</li>
-                    <li><code>@@ROWCOUNT</code> tells the loop when there is no more data left to migrate.</li>
-                    <li>The final <code>INSERT</code> records the version so the migration is not re-applied on the next deploy.</li>
-                </ul>
+                <p><code>SchemaVersion</code> is a versioning table, the SQL equivalent of Flyway/Liquibase's history table, ensuring each migration runs once.<br><br>
+                    <code>ALTER TABLE ... ADD ... DEFAULT</code> is additive and backward compatible, so old application code keeps working during rollout.<br><br>
+                    <code>UPDATE TOP (1000)</code> inside a loop backfills in small batches instead of one giant transaction, avoiding a long-held table lock.<br><br>
+                    <code>@@ROWCOUNT</code> tells the loop when there is no more data left to migrate.<br><br>
+                    The final <code>INSERT</code> records the version so the migration is not re-applied on the next deploy.</p>
             </div>
         </div>
     </div>

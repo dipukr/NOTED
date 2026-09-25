@@ -69,12 +69,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>Timer</code> records call durations and computes p50/p95/p99 percentiles.</li>
-                    <li><code>MeterRegistry</code> is the Micrometer backend that Prometheus scrapes.</li>
-                    <li><code>record(...)</code> times the lambda and returns its value transparently.</li>
-                    <li>Grafana then charts <code>search.duration</code> from the Prometheus datasource.</li>
-                </ul>
+                <p><code>Timer</code> records call durations and computes p50/p95/p99 percentiles.<br><br>
+                    <code>MeterRegistry</code> is the Micrometer backend that Prometheus scrapes.<br><br>
+                    <code>record(...)</code> times the lambda and returns its value transparently.<br><br>
+                    Grafana then charts <code>search.duration</code> from the Prometheus datasource.</p>
             </div>
         </div>
     </div>

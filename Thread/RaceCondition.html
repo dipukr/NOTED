@@ -86,12 +86,10 @@
 
             <div class="code-explanation">
                 <div class="code-explanation-title">How the fix works</div>
-                <ul>
-                    <li>Plain <code>count++</code> lets two threads read the same value and overwrite each other.</li>
-                    <li><code>AtomicInteger</code> performs the update as one indivisible CAS operation.</li>
-                    <li>No lock is needed, so it scales well under contention.</li>
-                    <li>The final count is always correct regardless of interleaving.</li>
-                </ul>
+                <p>Plain <code>count++</code> lets two threads read the same value and overwrite each other.<br><br>
+                    <code>AtomicInteger</code> performs the update as one indivisible CAS operation.<br><br>
+                    No lock is needed, so it scales well under contention.<br><br>
+                    The final count is always correct regardless of interleaving.</p>
             </div>
         </div>
     </div>

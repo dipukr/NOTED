@@ -68,12 +68,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>@CircuitBreaker</code> tracks failures and opens the circuit when they exceed a threshold.</li>
-                    <li>While open, calls skip the failing dependency and go straight to the fallback.</li>
-                    <li><code>cachedPrice</code> degrades gracefully instead of propagating the error.</li>
-                    <li>The breaker periodically half-opens to test if the dependency recovered.</li>
-                </ul>
+                <p><code>@CircuitBreaker</code> tracks failures and opens the circuit when they exceed a threshold.<br><br>
+                    While open, calls skip the failing dependency and go straight to the fallback.<br><br>
+                    <code>cachedPrice</code> degrades gracefully instead of propagating the error.<br><br>
+                    The breaker periodically half-opens to test if the dependency recovered.</p>
             </div>
         </div>
     </div>

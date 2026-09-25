@@ -71,12 +71,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>AbstractRoutingDataSource</code> picks a datasource per transaction at runtime.</li>
-                    <li><code>isCurrentTransactionReadOnly()</code> distinguishes reads from writes.</li>
-                    <li><code>@Transactional(readOnly = true)</code> marks queries safe to serve from a replica.</li>
-                    <li>Writes fall through to <code>"primary"</code>, the single leader that streams to followers.</li>
-                </ul>
+                <p><code>AbstractRoutingDataSource</code> picks a datasource per transaction at runtime.<br><br>
+                    <code>isCurrentTransactionReadOnly()</code> distinguishes reads from writes.<br><br>
+                    <code>@Transactional(readOnly = true)</code> marks queries safe to serve from a replica.<br><br>
+                    Writes fall through to <code>"primary"</code>, the single leader that streams to followers.</p>
             </div>
         </div>
     </div>

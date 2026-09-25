@@ -11,49 +11,124 @@
     <div class="title">Circuit Breaker</div>
 
     <div class="intro">
-        <p>The Circuit Breaker pattern prevents an application from repeatedly calling a service that is likely to fail.</p>
-        <p>Like an electrical breaker, it trips open after too many failures and stops further calls for a while.</p>
-        <p>It has three states: closed (calls flow), open (calls fail fast), and half-open (a few trial calls).</p>
-        <p>It protects the system from cascading failures caused by a struggling dependency.</p>
+        <p>The Circuit Breaker is a resilience pattern that wraps a call to a remote or otherwise unreliable dependency and watches how it behaves. When the dependency starts failing or slowing down, the breaker stops sending it traffic for a while &mdash; giving it room to recover and shielding the caller from the cost of waiting on a service that cannot answer.</p>
+        <p>The name comes from an electrical breaker: instead of letting a fault burn through the whole circuit, it <i>trips</i> and cuts the connection. In software the fault is a failing dependency, and the damage it prevents is a pile-up of blocked threads, exhausted connection pools, and timeouts that cascade upstream to every service that depends on the caller.</p>
+        <p>The breaker is a small state machine with three states. In <i>closed</i> it lets calls through and counts failures. Once failures cross a threshold it flips to <i>open</i> and rejects calls immediately, usually returning a cached value or a default fallback. After a cooldown it moves to <i>half-open</i> and allows a small number of trial calls: if they succeed it closes again, and<br> if they fail it re-opens and waits longer.</p>
+        <p>Because it short-circuits instead of blocking, the caller gets an instant, predictable response even while the dependency is down &mdash; which is what keeps a single struggling service from dragging down the rest of the system.</p>
     </div>
 
-    <div class="section when-use">
-        <div class="section-title">When to use / Key points</div>
-        <div class="section-content"><ul>
-            <li>Use around remote calls that can fail or become slow.</li>
-            <li>Closed: normal; failures are counted.</li>
-            <li>Open: calls short-circuit immediately, often to a fallback.</li>
-            <li>Half-open: limited probes decide whether to close again.</li>
-        </ul></div>
+    <div class="section-diagram">
+        <img src="../static/circuitbreaker-flow.svg" alt="Circuit breaker state machine: CLOSED lets requests through and counts failures; once failures reach the threshold it moves to OPEN and fails fast with a fallback; after the retry period it becomes HALF-OPEN and allows one trial call; a successful trial returns to CLOSED, a failed trial returns to OPEN">
+    </div>
+
+    <div class="section cmp">
+        <div class="section-title centered">The Three States</div>
+        <div class="section-content">
+            <table class="cmp-table">
+                <tbody>
+                    <tr><td>Closed</td><td>Calls pass through normally while the breaker records each outcome; consecutive or windowed failures increment a counter.</td></tr>
+                    <tr><td>Open</td><td>Once the failure count crosses the threshold, calls short-circuit immediately without touching the dependency, returning a fallback.</td></tr>
+                    <tr><td>Half-Open</td><td>After the cooldown the breaker admits a few trial calls; success closes it again, any failure sends it back to open with a longer wait.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="section cmp">
+        <div class="section-title centered">Using it in practice</div>
+        <div class="section-content">
+            <table class="cmp-table">
+                <tbody>
+                    <tr><td>Where to Use</td><td>Wrap it around calls that cross a boundary you don't control: remote HTTP/RPC, database or cache access, message brokers, or any dependency that can fail or slow down.</td></tr>
+                    <tr><td>What to Tune</td><td>Match three knobs to your traffic: the failure threshold that trips it, the retry timeout it stays open for, and what the fallback returns.</td></tr>
+                    <tr><td>Watch Slowness</td><td>Trigger on latency, not just errors; a slow dependency is often more dangerous than a failing one, so count timeouts as failures.</td></tr>
+                    <tr><td>Combine Patterns</td><td>Pair it with timeouts, retries with backoff, and bulkheads; the breaker decides <em>whether</em> to call, those decide <em>how</em> each call behaves.</td></tr>
+                    <tr><td>Per-Dependency and Metrics</td><td>Keep breaker state per dependency (often per instance), and expose its state and trip events as metrics so you can alert on them.</td></tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <div class="section advantages">
         <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Stops cascading failures across services.</li>
-            <li>Fails fast instead of piling up blocked threads.</li>
-            <li>Gives the failing dependency time to recover.</li>
-        </ul></div>
+        <div class="section-content">
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-title">Stops Cascading Failures</div>
+                    <p>Cutting traffic to a sick dependency prevents the failure from spreading up the call chain and taking down healthy services with it.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Fails Fast</div>
+                    <p>Callers get an immediate response instead of blocking on timeouts, so threads and connection-pool slots are freed rather than piling up.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Protects the Dependency</div>
+                    <p>Removing load from a struggling service gives it the breathing room to recover instead of being hammered while it's already down.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Graceful Degradation</div>
+                    <p>The fallback path lets the app keep serving a reduced experience (cached data, defaults) rather than erroring out completely.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Better Latency</div>
+                    <p>Short-circuited calls return in microseconds, so a down dependency doesn't turn every request into a slow one.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Automatic Recovery</div>
+                    <p>Half-open probing means the system heals on its own once the dependency is back, with no manual intervention.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Observability</div>
+                    <p>Trip events and state changes are a clear, actionable signal of dependency health to feed dashboards and alerts.</p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Requires careful tuning of thresholds and timeouts.</li>
-            <li>An open breaker may reject calls that would have succeeded.</li>
-            <li>Adds a dependency and state to monitor.</li>
-        </ul></div>
+        <div class="section-title">Disadvantages</div>
+        <div class="section-content">
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-title">Hard to Tune</div>
+                    <p>Thresholds, windows, and timeouts that are too sensitive cause needless trips, while lax ones let failures through; getting them right takes real traffic data.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Can Reject Good Calls</div>
+                    <p>While open, the breaker rejects every request &mdash; including ones that would have succeeded &mdash; so partial outages can look like total ones.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Fallback Complexity</div>
+                    <p>A meaningful fallback (stale cache, default, degraded response) has to be designed, tested, and kept correct; a bad one can hide real problems.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Added Moving Parts</div>
+                    <p>It introduces extra state and a library/dependency that must be configured, monitored, and reasoned about during incidents.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Distributed State</div>
+                    <p>Per-instance breakers can disagree across a cluster; sharing state adds coordination cost and its own failure modes.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Masks Root Causes</div>
+                    <p>Fast fallbacks can make a degraded system feel healthy, delaying investigation if trips aren't surfaced loudly.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Testing Effort</div>
+                    <p>Exercising open/half-open transitions and recovery reliably requires fault injection, which many test suites lack.</p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="section code-section">
         <div class="section-title">Code</div>
         <div class="code-layout">
             <div class="code-wrapper">
-<pre><code><span class="code-comment"># Resilience4j circuit breaker with a fallback</span>
-<span class="code-class">@Service</span>
+<pre><code><span class="code-class">@Service</span>
 <span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">QuoteService</span> {
 
-    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">PricingClient</span> pricing;
+    <span class="code-keyword">private</span> <span class="code-class">PricingClient</span> pricing;
 
     <span class="code-keyword">public</span> <span class="code-class">QuoteService</span>(<span class="code-class">PricingClient</span> pricing) {
         <span class="code-keyword">this</span>.pricing = pricing;
@@ -72,11 +147,118 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>@CircuitBreaker</code> tracks failures on the <code>pricing</code> instance.</li>
-                    <li>When it trips open, calls jump straight to <code>cachedPrice</code>.</li>
-                    <li>Half-open probes later restore normal flow if the service recovers.</li>
-                </ul>
+                <p><code>@CircuitBreaker</code> tracks failures on the <code>pricing</code> instance.<br><br>
+                    When it trips open, calls jump straight to <code>cachedPrice</code>.<br><br>
+                    Half-open probes later restore normal flow if the service recovers.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Manual Implementation</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public class</span> <span class="code-class">CircuitBreaker</span> {
+    <span class="code-keyword">private</span> <span class="code-class">AtomicInteger</span> failureCount = <span class="code-keyword">new</span> <span class="code-class">AtomicInteger</span>(<span class="code-number">0</span>);
+    <span class="code-keyword">private</span> <span class="code-keyword">int</span> failureThreshold;
+    <span class="code-keyword">private</span> <span class="code-class">Instant</span> lastFailureTime;
+    <span class="code-keyword">private</span> <span class="code-class">Duration</span> retryTimePeriod;
+    <span class="code-keyword">private</span> <span class="code-class">State</span> state = <span class="code-class">State</span>.CLOSED;
+    
+    <span class="code-keyword">public</span> <span class="code-class">CircuitBreaker</span>(<span class="code-keyword">int</span> failureThreshold, <span class="code-class">Duration</span> retryTimePeriod) {
+        <span class="code-keyword">this</span>.failureThreshold = failureThreshold;
+        <span class="code-keyword">this</span>.retryTimePeriod = retryTimePeriod;
+    }
+
+    <span class="code-keyword">public synchronized boolean</span> allowRequest() {
+        <span class="code-keyword">if</span> (state == <span class="code-class">State</span>.OPEN) {
+            <span class="code-keyword">if</span> (<span class="code-class">Instant</span>.now().isAfter(lastFailureTime.plus(retryTimePeriod))) {
+                state = <span class="code-class">State</span>.HALF_OPEN;
+                <span class="code-keyword">return</span> <span class="code-keyword">true</span>;
+            } <span class="code-keyword">else</span> {
+                <span class="code-keyword">return</span> <span class="code-keyword">false</span>; <span class="code-comment"># Fail fast</span>
+            }
+        }
+        <span class="code-keyword">return</span> <span class="code-keyword">true</span>;
+    }
+
+    <span class="code-keyword">public synchronized void</span> recordSuccess() {
+        failureCount.set(<span class="code-number">0</span>);
+        state = <span class="code-class">State</span>.CLOSED;
+    }
+
+    <span class="code-keyword">public synchronized void</span> recordFailure() {
+        lastFailureTime = <span class="code-class">Instant</span>.now();
+        <span class="code-keyword">int</span> failures = failureCount.incrementAndGet();
+        <span class="code-keyword">if</span> (failures &gt;= failureThreshold) {
+            state = <span class="code-class">State</span>.OPEN;
+            <span class="code-class">System</span>.out.println(<span class="code-string">"Circuit opened!"</span>);
+        }
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">State</span> getState() {
+        <span class="code-keyword">return</span> state;
+    }
+
+    <span class="code-keyword">enum</span> <span class="code-class">State</span> {
+        CLOSED, OPEN, HALF_OPEN
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <p><code>allowRequest()</code> is the gate: it fails fast while <code>OPEN</code>, but flips to <code>HALF_OPEN</code> once <code>retryTimePeriod</code> has passed to let one probe through.<br><br>
+                <code>recordFailure()</code> counts failures and trips the breaker to <code>OPEN</code> once <code>failureThreshold</code> is reached.<br><br>
+                <code>recordSuccess()</code> resets the count and returns to <code>CLOSED</code> &mdash; a successful half-open probe closes the circuit.<br><br>
+                <code>synchronized</code> methods plus an <code>AtomicInteger</code> keep the state consistent under concurrent calls.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Using it in a Spring Boot Application</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-class">@Configuration</span>
+<span class="code-keyword">public class</span> <span class="code-class">BreakerConfig</span> {
+
+    <span class="code-class">@Bean</span>
+    <span class="code-keyword">public</span> <span class="code-class">CircuitBreaker</span> quoteBreaker() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">CircuitBreaker</span>(<span class="code-number">5</span>, <span class="code-class">Duration</span>.ofSeconds(<span class="code-number">30</span>));
+    }
+}
+
+<span class="code-class">@Service</span>
+<span class="code-keyword">public class</span> <span class="code-class">QuoteService</span> {
+
+    @Autowired
+    <span class="code-keyword">private</span> <span class="code-class">CircuitBreaker</span> breaker;
+    
+    @Autowired
+    <span class="code-keyword">private</span> <span class="code-class">RestTemplate</span> restTemplate;
+
+    <span class="code-keyword">public</span> <span class="code-keyword">int</span> getPrice(<span class="code-class">String</span> sku) {
+        <span class="code-keyword">if</span> (!breaker.allowRequest()) <span class="code-keyword">return</span> <span class="code-number">0</span>;
+        <span class="code-keyword">try</span> {
+            <span class="code-class">String</span> url = <span class="code-string">"http://pricing-service/price/"</span> + sku;
+            <span class="code-class">Integer</span> price = restTemplate.getForObject(url, <span class="code-class">Integer</span>.<span class="code-keyword">class</span>);
+            breaker.recordSuccess();
+            <span class="code-keyword">return</span> price != <span class="code-keyword">null</span> ? price : <span class="code-number">0</span>;
+        } <span class="code-keyword">catch</span> (<span class="code-class">Exception</span> e) {
+            breaker.recordFailure();
+            <span class="code-keyword">return</span> <span class="code-number">0</span>;   <span class="code-comment"># fallback: no quote available</span>
+        }
+    }
+}
+</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <p>Two <code>@Bean</code>s expose a shared <code>CircuitBreaker</code> (threshold 5, 30&nbsp;s retry) and a <code>RestTemplate</code>, so every caller sees the same breaker state.<br><br>
+                Spring injects the breaker into <code>QuoteService</code> by the parameter name <code>quoteBreaker</code>, matching the bean method.<br><br>
+                Before each remote call, <code>getPrice</code> asks <code>allowRequest</code> &mdash; if the breaker is open it returns <code>0</code> immediately instead of hitting the down service.<br><br>
+                Each attempt reports its outcome with <code>recordSuccess</code> or <code>recordFailure</code>, which drives the state transitions; a failure returns the same safe fallback.<br><br>
+                The <code>QuoteController</code> just calls the service &mdash; all the resilience logic stays behind <code>getPrice</code>.</p>
             </div>
         </div>
     </div>

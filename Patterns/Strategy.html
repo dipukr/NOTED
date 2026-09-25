@@ -86,12 +86,10 @@
 
             <div class="code-explanation">
                 <div class="code-explanation-title">How the Strategy works</div>
-                <ul>
-                    <li><code>PaymentStrategy</code> is the common algorithm interface.</li>
-                    <li><code>CardPayment</code> and <code>UpiPayment</code> are interchangeable strategies.</li>
-                    <li><code>Checkout</code> delegates to whichever strategy it holds.</li>
-                    <li>The behavior can be swapped at runtime with <code>setStrategy()</code>.</li>
-                </ul>
+                <p><code>PaymentStrategy</code> is the common algorithm interface.<br><br>
+                    <code>CardPayment</code> and <code>UpiPayment</code> are interchangeable strategies.<br><br>
+                    <code>Checkout</code> delegates to whichever strategy it holds.<br><br>
+                    The behavior can be swapped at runtime with <code>setStrategy()</code>.</p>
             </div>
         </div>
     </div>

@@ -66,12 +66,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>System.nanoTime()</code> brackets the call to measure per-request latency.</li>
-                    <li><code>timer.record()</code> lets the backend compute p95/p99, not just the mean.</li>
-                    <li><code>counter.increment()</code> divided by time gives QPS / throughput.</li>
-                    <li>The <code>finally</code> block guarantees metrics are recorded even on failure.</li>
-                </ul>
+                <p><code>System.nanoTime()</code> brackets the call to measure per-request latency.<br><br>
+                    <code>timer.record()</code> lets the backend compute p95/p99, not just the mean.<br><br>
+                    <code>counter.increment()</code> divided by time gives QPS / throughput.<br><br>
+                    The <code>finally</code> block guarantees metrics are recorded even on failure.</p>
             </div>
         </div>
     </div>

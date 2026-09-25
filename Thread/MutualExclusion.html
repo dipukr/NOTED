@@ -57,12 +57,10 @@
 
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>lock.lock()</code> lets only one thread enter the block.</li>
-                    <li>Other threads calling <code>increment()</code> block until unlock.</li>
-                    <li><code>try/finally</code> guarantees the lock is released even on exception.</li>
-                    <li>The single shared <code>lock</code> serializes all updates to <code>count</code>.</li>
-                </ul>
+                <p><code>lock.lock()</code> lets only one thread enter the block.<br><br>
+                    Other threads calling <code>increment()</code> block until unlock.<br><br>
+                    <code>try/finally</code> guarantees the lock is released even on exception.<br><br>
+                    The single shared <code>lock</code> serializes all updates to <code>count</code>.</p>
             </div>
         </div>
     </div>

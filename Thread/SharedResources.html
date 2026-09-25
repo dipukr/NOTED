@@ -66,12 +66,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>AtomicInteger</code> updates the counter without explicit locks.</li>
-                    <li><code>ConcurrentHashMap</code> synchronizes access internally per bucket.</li>
-                    <li><code>merge</code> performs an atomic read-modify-write per key.</li>
-                    <li>No shared field is mutated without a thread-safe primitive.</li>
-                </ul>
+                <p><code>AtomicInteger</code> updates the counter without explicit locks.<br><br>
+                    <code>ConcurrentHashMap</code> synchronizes access internally per bucket.<br><br>
+                    <code>merge</code> performs an atomic read-modify-write per key.<br><br>
+                    No shared field is mutated without a thread-safe primitive.</p>
             </div>
         </div>
     </div>

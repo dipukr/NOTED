@@ -89,12 +89,10 @@
 
             <div class="code-explanation">
                 <div class="code-explanation-title">How the Composite works</div>
-                <ul>
-                    <li><code>FileComponent</code> is the common interface for both leaves and composites.</li>
-                    <li><code>FileItem</code> is a leaf; <code>Folder</code> is a composite holding child components.</li>
-                    <li><code>Folder.size()</code> recurses over its children, so trees of any depth work uniformly.</li>
-                    <li>The client calls <code>size()</code> the same way on a single file or a whole folder tree.</li>
-                </ul>
+                <p><code>FileComponent</code> is the common interface for both leaves and composites.<br><br>
+                    <code>FileItem</code> is a leaf; <code>Folder</code> is a composite holding child components.<br><br>
+                    <code>Folder.size()</code> recurses over its children, so trees of any depth work uniformly.<br><br>
+                    The client calls <code>size()</code> the same way on a single file or a whole folder tree.</p>
             </div>
         </div>
     </div>

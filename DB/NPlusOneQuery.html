@@ -73,12 +73,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li>The naive approach issues one <code>SELECT</code> for authors, then loops and fires one more <code>SELECT</code> per author for their books.</li>
-                    <li>That produces N+1 total round trips as the author count grows.</li>
-                    <li>The fixed query uses a single <code>JOIN</code> so authors and books are returned together in one result set.</li>
-                    <li>The application groups the flat rows back into author/books objects in memory, cutting N+1 queries down to 1.</li>
-                </ul>
+                <p>The naive approach issues one <code>SELECT</code> for authors, then loops and fires one more <code>SELECT</code> per author for their books.<br><br>
+                    That produces N+1 total round trips as the author count grows.<br><br>
+                    The fixed query uses a single <code>JOIN</code> so authors and books are returned together in one result set.<br><br>
+                    The application groups the flat rows back into author/books objects in memory, cutting N+1 queries down to 1.</p>
             </div>
         </div>
     </div>

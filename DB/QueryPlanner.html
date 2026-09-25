@@ -85,13 +85,11 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><span class="code-keyword">SET STATISTICS IO ON</span> reports the logical page reads per table touched, revealing how much data the plan actually scanned.</li>
-                    <li><span class="code-keyword">SET STATISTICS TIME ON</span> reports parse/compile and execution CPU and elapsed time for the statement.</li>
-                    <li><span class="code-keyword">SHOWPLAN_XML</span> captures the planner's chosen plan &mdash; join order, operators and estimated costs &mdash; without executing the query for real.</li>
-                    <li>A <span class="code-class">Clustered Index Scan</span> or <span class="code-class">Table Scan</span> on a filtered column signals a missing or unused index, mirroring a high logical-reads count.</li>
-                    <li>An <span class="code-class">Index Seek</span> with low logical reads confirms the planner found and used an efficient access path.</li>
-                </ul>
+                <p><span class="code-keyword">SET STATISTICS IO ON</span> reports the logical page reads per table touched, revealing how much data the plan actually scanned.<br><br>
+                    <span class="code-keyword">SET STATISTICS TIME ON</span> reports parse/compile and execution CPU and elapsed time for the statement.<br><br>
+                    <span class="code-keyword">SHOWPLAN_XML</span> captures the planner's chosen plan &mdash; join order, operators and estimated costs &mdash; without executing the query for real.<br><br>
+                    A <span class="code-class">Clustered Index Scan</span> or <span class="code-class">Table Scan</span> on a filtered column signals a missing or unused index, mirroring a high logical-reads count.<br><br>
+                    An <span class="code-class">Index Seek</span> with low logical reads confirms the planner found and used an efficient access path.</p>
             </div>
         </div>
     </div>

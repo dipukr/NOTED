@@ -77,12 +77,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>ADD ... NULL</code> introduces <code>first_name</code>/<code>last_name</code> without breaking existing rows or old writers that don't set them.</li>
-                    <li>The <code>status</code> column uses a <code>DEFAULT</code> constraint so existing rows get a value automatically and old inserts remain valid.</li>
-                    <li>A backfill <code>UPDATE</code> migrates existing data into the new columns while both old and new code paths keep working.</li>
-                    <li>The contract phase (<code>ALTER COLUMN ... NOT NULL</code>, then <code>DROP COLUMN</code>) only runs once every consumer has moved off the old field.</li>
-                </ul>
+                <p><code>ADD ... NULL</code> introduces <code>first_name</code>/<code>last_name</code> without breaking existing rows or old writers that don't set them.<br><br>
+                    The <code>status</code> column uses a <code>DEFAULT</code> constraint so existing rows get a value automatically and old inserts remain valid.<br><br>
+                    A backfill <code>UPDATE</code> migrates existing data into the new columns while both old and new code paths keep working.<br><br>
+                    The contract phase (<code>ALTER COLUMN ... NOT NULL</code>, then <code>DROP COLUMN</code>) only runs once every consumer has moved off the old field.</p>
             </div>
         </div>
     </div>

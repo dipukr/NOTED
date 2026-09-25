@@ -74,11 +74,9 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li>The cache is checked first to cut latency and database load.</li>
-                    <li>On a miss the DB is queried once, then the result is cached.</li>
-                    <li><code>orElseThrow</code> handles the missing-record case safely.</li>
-                </ul>
+                <p>The cache is checked first to cut latency and database load.<br><br>
+                    On a miss the DB is queried once, then the result is cached.<br><br>
+                    <code>orElseThrow</code> handles the missing-record case safely.</p>
             </div>
         </div>
     </div>

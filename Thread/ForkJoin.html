@@ -46,11 +46,9 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>compute()</code> solves small ranges directly and splits large ones.</li>
-                    <li><code>fork()</code> queues the left half so another worker can steal it.</li>
-                    <li><code>join()</code> collects the forked result and combines it with the right half.</li>
-                </ul>
+                <p><code>compute()</code> solves small ranges directly and splits large ones.<br><br>
+                    <code>fork()</code> queues the left half so another worker can steal it.<br><br>
+                    <code>join()</code> collects the forked result and combines it with the right half.</p>
             </div>
         </div>
     </div>
@@ -78,12 +76,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>ForkJoinPool.commonPool()</code> reuses the JVM-wide shared pool (also used by parallel streams).</li>
-                    <li><code>pool.invoke(task)</code> submits the root task and blocks until the whole computation completes.</li>
-                    <li>Internally the pool's worker threads run <code>compute()</code>, forking and stealing subtasks as needed.</li>
-                    <li>Prefer a dedicated <code>new ForkJoinPool(n)</code> instead of the common pool when isolating from other code that also uses it.</li>
-                </ul>
+                <p><code>ForkJoinPool.commonPool()</code> reuses the JVM-wide shared pool (also used by parallel streams).<br><br>
+                    <code>pool.invoke(task)</code> submits the root task and blocks until the whole computation completes.<br><br>
+                    Internally the pool's worker threads run <code>compute()</code>, forking and stealing subtasks as needed.<br><br>
+                    Prefer a dedicated <code>new ForkJoinPool(n)</code> instead of the common pool when isolating from other code that also uses it.</p>
             </div>
         </div>
     </div>

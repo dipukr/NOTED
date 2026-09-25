@@ -71,12 +71,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>findByIdGreaterThanOrderByIdAsc</code> reads rows strictly after the cursor, using the primary-key index.</li>
-                    <li><code>PageRequest.of(0, size)</code> limits the fetch; page 0 because the cursor already positions us.</li>
-                    <li><code>cursor == null</code> handles the first request by starting from the lowest id.</li>
-                    <li><code>findAll</code> with a page number shows the classic offset approach that scans skipped rows.</li>
-                </ul>
+                <p><code>findByIdGreaterThanOrderByIdAsc</code> reads rows strictly after the cursor, using the primary-key index.<br><br>
+                    <code>PageRequest.of(0, size)</code> limits the fetch; page 0 because the cursor already positions us.<br><br>
+                    <code>cursor == null</code> handles the first request by starting from the lowest id.<br><br>
+                    <code>findAll</code> with a page number shows the classic offset approach that scans skipped rows.</p>
             </div>
         </div>
     </div>

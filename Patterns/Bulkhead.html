@@ -72,11 +72,9 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>@Bulkhead</code> limits concurrent calls to the <code>reports</code> pool.</li>
-                    <li>Overflow calls hit <code>busy</code> instead of consuming shared threads.</li>
-                    <li>A flood of report requests cannot starve other features.</li>
-                </ul>
+                <p><code>@Bulkhead</code> limits concurrent calls to the <code>reports</code> pool.<br><br>
+                    Overflow calls hit <code>busy</code> instead of consuming shared threads.<br><br>
+                    A flood of report requests cannot starve other features.</p>
             </div>
         </div>
     </div>

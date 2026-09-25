@@ -77,12 +77,10 @@
 
             <div class="code-explanation">
                 <div class="code-explanation-title">How the Flyweight works</div>
-                <ul>
-                    <li><code>TreeType</code> holds only intrinsic state (<code>name</code>, <code>color</code>) shared by many trees.</li>
-                    <li>Extrinsic state such as position is passed into <code>draw()</code> by the client.</li>
-                    <li><code>TreeFactory</code> caches flyweights and returns the same instance for equal keys.</li>
-                    <li>Thousands of trees can reuse a handful of <code>TreeType</code> objects, saving memory.</li>
-                </ul>
+                <p><code>TreeType</code> holds only intrinsic state (<code>name</code>, <code>color</code>) shared by many trees.<br><br>
+                    Extrinsic state such as position is passed into <code>draw()</code> by the client.<br><br>
+                    <code>TreeFactory</code> caches flyweights and returns the same instance for equal keys.<br><br>
+                    Thousands of trees can reuse a handful of <code>TreeType</code> objects, saving memory.</p>
             </div>
         </div>
     </div>

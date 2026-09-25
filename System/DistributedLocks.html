@@ -68,12 +68,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>setIfAbsent</code> with a TTL atomically acquires the lock and auto-expires it.</li>
-                    <li>The unique <code>token</code> identifies the owner of the lock.</li>
-                    <li>The Lua script deletes only if the token matches, avoiding releasing someone else's lock.</li>
-                    <li>Fencing tokens are still needed to guard against expired-then-resumed holders.</li>
-                </ul>
+                <p><code>setIfAbsent</code> with a TTL atomically acquires the lock and auto-expires it.<br><br>
+                    The unique <code>token</code> identifies the owner of the lock.<br><br>
+                    The Lua script deletes only if the token matches, avoiding releasing someone else's lock.<br><br>
+                    Fencing tokens are still needed to guard against expired-then-resumed holders.</p>
             </div>
         </div>
     </div>

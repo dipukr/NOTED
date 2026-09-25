@@ -68,12 +68,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>ReentrantLock(false)</code> is unfair and can starve waiting threads.</li>
-                    <li><code>ReentrantLock(true)</code> hands the lock to the longest waiter.</li>
-                    <li>Fairness trades throughput for progress guarantees.</li>
-                    <li>Switching to the fair lock removes chronic starvation.</li>
-                </ul>
+                <p><code>ReentrantLock(false)</code> is unfair and can starve waiting threads.<br><br>
+                    <code>ReentrantLock(true)</code> hands the lock to the longest waiter.<br><br>
+                    Fairness trades throughput for progress guarantees.<br><br>
+                    Switching to the fair lock removes chronic starvation.</p>
             </div>
         </div>
     </div>
@@ -135,12 +133,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>ReentrantLock(true)</code> enforces first-come-first-served ordering.</li>
-                    <li>No thread can be perpetually skipped over.</li>
-                    <li>A short critical section releases the lock promptly for the next waiter.</li>
-                    <li><code>unlock</code> in <code>finally</code> guarantees the queue keeps moving.</li>
-                </ul>
+                <p><code>ReentrantLock(true)</code> enforces first-come-first-served ordering.<br><br>
+                    No thread can be perpetually skipped over.<br><br>
+                    A short critical section releases the lock promptly for the next waiter.<br><br>
+                    <code>unlock</code> in <code>finally</code> guarantees the queue keeps moving.</p>
             </div>
         </div>
     </div>

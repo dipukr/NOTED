@@ -62,12 +62,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>parallelStream()</code> partitions the data and processes chunks concurrently.</li>
-                    <li><code>flatMap</code> is the map phase, splitting each line into words.</li>
-                    <li><code>groupingBy + counting</code> is the reduce phase that aggregates counts.</li>
-                    <li>The same map/reduce shape scales from cores to a Spark/MapReduce cluster.</li>
-                </ul>
+                <p><code>parallelStream()</code> partitions the data and processes chunks concurrently.<br><br>
+                    <code>flatMap</code> is the map phase, splitting each line into words.<br><br>
+                    <code>groupingBy + counting</code> is the reduce phase that aggregates counts.<br><br>
+                    The same map/reduce shape scales from cores to a Spark/MapReduce cluster.</p>
             </div>
         </div>
     </div>

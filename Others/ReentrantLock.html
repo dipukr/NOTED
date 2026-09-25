@@ -77,11 +77,9 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>lock()</code> blocks until the lock is acquired; the <code>finally</code> guarantees release.</li>
-                    <li><code>tryLock()</code> returns immediately with <code>false</code> if the lock is held elsewhere.</li>
-                    <li>Being reentrant, the same thread may re-enter another locked method safely.</li>
-                </ul>
+                <p><code>lock()</code> blocks until the lock is acquired; the <code>finally</code> guarantees release.<br><br>
+                    <code>tryLock()</code> returns immediately with <code>false</code> if the lock is held elsewhere.<br><br>
+                    Being reentrant, the same thread may re-enter another locked method safely.</p>
             </div>
         </div>
     </div>

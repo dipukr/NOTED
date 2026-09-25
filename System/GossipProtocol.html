@@ -64,12 +64,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>randomPeers(3)</code> picks a small random subset each round.</li>
-                    <li><code>exchange</code> swaps membership/heartbeat state between the two nodes.</li>
-                    <li><code>Heartbeat::newer</code> merges by keeping the most recent info per node.</li>
-                    <li>Over successive rounds every node's view converges cluster-wide.</li>
-                </ul>
+                <p><code>randomPeers(3)</code> picks a small random subset each round.<br><br>
+                    <code>exchange</code> swaps membership/heartbeat state between the two nodes.<br><br>
+                    <code>Heartbeat::newer</code> merges by keeping the most recent info per node.<br><br>
+                    Over successive rounds every node's view converges cluster-wide.</p>
             </div>
         </div>
     </div>

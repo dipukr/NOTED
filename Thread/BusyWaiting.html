@@ -74,12 +74,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>busyWait</code> spins on <code>ready</code>, consuming the CPU.</li>
-                    <li><code>volatile</code> forces each read to see the latest value.</li>
-                    <li><code>blockingWait</code> uses <code>wait()</code> to sleep and free the CPU.</li>
-                    <li><code>notifyAll()</code> wakes blocked waiters without any spinning.</li>
-                </ul>
+                <p><code>busyWait</code> spins on <code>ready</code>, consuming the CPU.<br><br>
+                    <code>volatile</code> forces each read to see the latest value.<br><br>
+                    <code>blockingWait</code> uses <code>wait()</code> to sleep and free the CPU.<br><br>
+                    <code>notifyAll()</code> wakes blocked waiters without any spinning.</p>
             </div>
         </div>
     </div>

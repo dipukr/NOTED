@@ -68,12 +68,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>CacheControl.maxAge(...).cachePublic()</code> tells edges and browsers to cache for 30 days.</li>
-                    <li><code>eTag(...)</code> enables conditional revalidation so unchanged assets return 304.</li>
-                    <li><code>contentType</code> ensures correct MIME handling at the edge and client.</li>
-                    <li>Versioned URLs (not shown) let you replace content without waiting for TTL expiry.</li>
-                </ul>
+                <p><code>CacheControl.maxAge(...).cachePublic()</code> tells edges and browsers to cache for 30 days.<br><br>
+                    <code>eTag(...)</code> enables conditional revalidation so unchanged assets return 304.<br><br>
+                    <code>contentType</code> ensures correct MIME handling at the edge and client.<br><br>
+                    Versioned URLs (not shown) let you replace content without waiting for TTL expiry.</p>
             </div>
         </div>
     </div>

@@ -66,12 +66,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>new Semaphore(3, true)</code> creates 3 fair permits.</li>
-                    <li><code>acquire()</code> blocks the 4th thread until a permit frees up.</li>
-                    <li><code>release()</code> in <code>finally</code> guarantees the slot is returned.</li>
-                    <li>Concurrency is capped at three without full exclusion.</li>
-                </ul>
+                <p><code>new Semaphore(3, true)</code> creates 3 fair permits.<br><br>
+                    <code>acquire()</code> blocks the 4th thread until a permit frees up.<br><br>
+                    <code>release()</code> in <code>finally</code> guarantees the slot is returned.<br><br>
+                    Concurrency is capped at three without full exclusion.</p>
             </div>
         </div>
     </div>
@@ -137,11 +135,9 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li>The semaphore starts with 3 permits, capping concurrency at three threads.</li>
-                    <li><code>acquire()</code> blocks a fourth thread until a permit is released.</li>
-                    <li><code>release()</code> in <code>finally</code> guarantees the permit returns even on error.</li>
-                </ul>
+                <p>The semaphore starts with 3 permits, capping concurrency at three threads.<br><br>
+                    <code>acquire()</code> blocks a fourth thread until a permit is released.<br><br>
+                    <code>release()</code> in <code>finally</code> guarantees the permit returns even on error.</p>
             </div>
         </div>
     </div>

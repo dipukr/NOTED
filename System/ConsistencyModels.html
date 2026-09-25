@@ -76,12 +76,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>@Version</code> tracks a row version so concurrent updates are detected.</li>
-                    <li>A stale version on save throws an <code>OptimisticLockException</code>, preventing lost updates.</li>
-                    <li><code>@Transactional</code> makes read-modify-write atomic for strong per-row consistency.</li>
-                    <li>Eventual stores instead accept the write and reconcile versions later.</li>
-                </ul>
+                <p><code>@Version</code> tracks a row version so concurrent updates are detected.<br><br>
+                    A stale version on save throws an <code>OptimisticLockException</code>, preventing lost updates.<br><br>
+                    <code>@Transactional</code> makes read-modify-write atomic for strong per-row consistency.<br><br>
+                    Eventual stores instead accept the write and reconcile versions later.</p>
             </div>
         </div>
     </div>

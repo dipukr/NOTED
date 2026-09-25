@@ -80,13 +80,11 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li>Comparing a <span class="code-keyword">VARCHAR</span> column to an <span class="code-keyword">NVARCHAR</span> literal forces SQL Server to convert every row's value, which disables an index seek and causes a full scan.</li>
-                    <li>Matching the literal's type to the column lets the optimizer seek directly on the index instead of scanning.</li>
-                    <li>The <span class="code-keyword">INCLUDE</span> columns turn the index into a covering index, so the engine never touches the base table for this query.</li>
-                    <li><span class="code-keyword">WITH (INDEX(...))</span> is a hint forcing the optimizer to use a specific index when it might otherwise choose a worse plan.</li>
-                    <li><span class="code-keyword">SET STATISTICS IO ON</span> reports logical reads, letting you measure the actual reduction in pages scanned before and after the change.</li>
-                </ul>
+                <p>Comparing a <span class="code-keyword">VARCHAR</span> column to an <span class="code-keyword">NVARCHAR</span> literal forces SQL Server to convert every row's value, which disables an index seek and causes a full scan.<br><br>
+                    Matching the literal's type to the column lets the optimizer seek directly on the index instead of scanning.<br><br>
+                    The <span class="code-keyword">INCLUDE</span> columns turn the index into a covering index, so the engine never touches the base table for this query.<br><br>
+                    <span class="code-keyword">WITH (INDEX(...))</span> is a hint forcing the optimizer to use a specific index when it might otherwise choose a worse plan.<br><br>
+                    <span class="code-keyword">SET STATISTICS IO ON</span> reports logical reads, letting you measure the actual reduction in pages scanned before and after the change.</p>
             </div>
         </div>
     </div>

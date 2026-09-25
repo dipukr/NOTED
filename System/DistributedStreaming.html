@@ -66,12 +66,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>groupId</code> lets consumers in a group split partitions for parallelism.</li>
-                    <li>The record <code>key</code> maps to a partition, preserving order per key.</li>
-                    <li><code>offset</code> records progress and allows replay from any point.</li>
-                    <li>Processing should be idempotent because delivery is at-least-once.</li>
-                </ul>
+                <p><code>groupId</code> lets consumers in a group split partitions for parallelism.<br><br>
+                    The record <code>key</code> maps to a partition, preserving order per key.<br><br>
+                    <code>offset</code> records progress and allows replay from any point.<br><br>
+                    Processing should be idempotent because delivery is at-least-once.</p>
             </div>
         </div>
     </div>

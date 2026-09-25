@@ -90,12 +90,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li>Both sessions run under <span class="code-keyword">SNAPSHOT</span> isolation and each reads <code>OnCallCount = 2</code> from its own consistent snapshot.</li>
-                    <li>Each transaction updates a different row (a different doctor), so no row-level write conflict is ever detected between them.</li>
-                    <li>Both commit successfully, leaving zero doctors on-call and silently violating the "at least one on-call" invariant.</li>
-                    <li>Under <span class="code-keyword">SERIALIZABLE</span> with <span class="code-keyword">HOLDLOCK</span>, the engine tracks the read-write dependency across the whole result set and forces one transaction to fail at commit, preserving the invariant.</li>
-                </ul>
+                <p>Both sessions run under <span class="code-keyword">SNAPSHOT</span> isolation and each reads <code>OnCallCount = 2</code> from its own consistent snapshot.<br><br>
+                    Each transaction updates a different row (a different doctor), so no row-level write conflict is ever detected between them.<br><br>
+                    Both commit successfully, leaving zero doctors on-call and silently violating the "at least one on-call" invariant.<br><br>
+                    Under <span class="code-keyword">SERIALIZABLE</span> with <span class="code-keyword">HOLDLOCK</span>, the engine tracks the read-write dependency across the whole result set and forces one transaction to fail at commit, preserving the invariant.</p>
             </div>
         </div>
     </div>

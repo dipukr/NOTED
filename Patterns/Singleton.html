@@ -88,12 +88,10 @@
 
             <div class="code-explanation">
                 <div class="code-explanation-title">How the Singleton works</div>
-                <ul>
-                    <li>The constructor is <code>private</code>, so no other class can create an instance.</li>
-                    <li>A single <code>static final</code> instance is created when the class loads.</li>
-                    <li><code>getInstance()</code> returns that same shared instance every time.</li>
-                    <li>Using a <code>static final</code> field makes this eager version inherently thread-safe.</li>
-                </ul>
+                <p>The constructor is <code>private</code>, so no other class can create an instance.<br><br>
+                    A single <code>static final</code> instance is created when the class loads.<br><br>
+                    <code>getInstance()</code> returns that same shared instance every time.<br><br>
+                    Using a <code>static final</code> field makes this eager version inherently thread-safe.</p>
             </div>
         </div>
     </div>

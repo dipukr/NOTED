@@ -11,10 +11,14 @@
     <div class="title">CQRS Pattern</div>
 
     <div class="intro">
-        <p>CQRS (Command Query Responsibility Segregation) separates data modification (commands) from data retrieval (queries) into distinct models.</p>
+        <p>CQRS separates data modification (commands) from data retrieval (queries) into distinct models.</p>
         <p>This allows independent scaling and optimization for read-heavy or write-heavy needs.</p>
         <p>Commands change state and may carry rich business logic; queries only read and return results.</p>
         <p>The write and read sides can use different models and even separate data stores.</p>
+    </div>
+
+    <div class="section-diagram">
+        <img src="../static/cqrs.svg" alt="CQRS architecture: the client sends commands down the write side (Command Handler applies business rules and persists to the normalized Write Store) and queries up the read side (Query Handler reads denormalized views from the Read Store and returns results); the Write Store syncs to the Read Store via events/projection, which is eventually consistent">
     </div>
 
     <div class="section when-use">
@@ -76,11 +80,9 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>OrderCommandService</code> owns writes and business rules.</li>
-                    <li><code>OrderQueryService</code> returns a denormalized <code>OrderSummary</code> for reads.</li>
-                    <li>Each side can use its own store, tuned for its workload.</li>
-                </ul>
+                <p><code>OrderCommandService</code> owns writes and business rules.<br><br>
+                    <code>OrderQueryService</code> returns a denormalized <code>OrderSummary</code> for reads.<br><br>
+                    Each side can use its own store, tuned for its workload.</p>
             </div>
         </div>
     </div>

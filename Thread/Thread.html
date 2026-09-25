@@ -33,12 +33,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li>A <code>Runnable</code> holds the code to run concurrently.</li>
-                    <li><code>start()</code> spawns a new thread that invokes <code>run()</code>.</li>
-                    <li>Calling <code>run()</code> directly would execute on the current thread.</li>
-                    <li><code>join()</code> blocks <code>main</code> until the worker completes.</li>
-                </ul>
+                <p>A <code>Runnable</code> holds the code to run concurrently.<br><br>
+                    <code>start()</code> spawns a new thread that invokes <code>run()</code>.<br><br>
+                    Calling <code>run()</code> directly would execute on the current thread.<br><br>
+                    <code>join()</code> blocks <code>main</code> until the worker completes.</p>
             </div>
         </div>
     </div>
@@ -69,12 +67,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li>A <code>Runnable</code> holds the task; <code>new Thread(task)</code> wraps it.</li>
-                    <li><code>start()</code> allocates a stack and runs <code>run()</code> on the new thread.</li>
-                    <li>Extending <code>Thread</code> overrides <code>run()</code> directly.</li>
-                    <li>Never call <code>run()</code> yourself; it executes on the current thread.</li>
-                </ul>
+                <p>A <code>Runnable</code> holds the task; <code>new Thread(task)</code> wraps it.<br><br>
+                    <code>start()</code> allocates a stack and runs <code>run()</code> on the new thread.<br><br>
+                    Extending <code>Thread</code> overrides <code>run()</code> directly.<br><br>
+                    Never call <code>run()</code> yourself; it executes on the current thread.</p>
             </div>
         </div>
     </div>
@@ -117,12 +113,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>setPriority()</code> hints to the scheduler how urgently a thread should run.</li>
-                    <li><code>Thread.MAX_PRIORITY</code>/<code>MIN_PRIORITY</code> bound the valid range (10 to 1).</li>
-                    <li>Priority is only a scheduling hint &mdash; the OS and JVM are free to interpret it differently across platforms.</li>
-                    <li>It does not guarantee execution order, only a statistical preference for higher-priority threads.</li>
-                </ul>
+                <p><code>setPriority()</code> hints to the scheduler how urgently a thread should run.<br><br>
+                    <code>Thread.MAX_PRIORITY</code>/<code>MIN_PRIORITY</code> bound the valid range (10 to 1).<br><br>
+                    Priority is only a scheduling hint &mdash; the OS and JVM are free to interpret it differently across platforms.<br><br>
+                    It does not guarantee execution order, only a statistical preference for higher-priority threads.</p>
             </div>
         </div>
     </div>
@@ -158,12 +152,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>getState()</code> reports the current <code>Thread.State</code>.</li>
-                    <li>Before <code>start()</code> the thread is NEW.</li>
-                    <li><code>sleep</code> puts it in TIMED_WAITING.</li>
-                    <li>After <code>run()</code> finishes and <code>join()</code> returns, it is TERMINATED.</li>
-                </ul>
+                <p><code>getState()</code> reports the current <code>Thread.State</code>.<br><br>
+                    Before <code>start()</code> the thread is NEW.<br><br>
+                    <code>sleep</code> puts it in TIMED_WAITING.<br><br>
+                    After <code>run()</code> finishes and <code>join()</code> returns, it is TERMINATED.</p>
             </div>
         </div>
     </div>
@@ -197,12 +189,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>setDaemon(true)</code> marks the thread as background before start.</li>
-                    <li>The daemon loops forever but does not block shutdown.</li>
-                    <li>When <code>main</code> ends, no user thread remains.</li>
-                    <li>The JVM exits and the daemon is terminated immediately.</li>
-                </ul>
+                <p><code>setDaemon(true)</code> marks the thread as background before start.<br><br>
+                    The daemon loops forever but does not block shutdown.<br><br>
+                    When <code>main</code> ends, no user thread remains.<br><br>
+                    The JVM exits and the daemon is terminated immediately.</p>
             </div>
         </div>
     </div>

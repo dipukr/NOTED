@@ -72,12 +72,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>convertAndSend</code> serializes the event and routes it via an exchange and routing key.</li>
-                    <li><code>@RabbitListener</code> binds a method to a queue and delivers messages to it.</li>
-                    <li>Returning normally acks the message; throwing triggers redelivery or dead-lettering.</li>
-                    <li>Producer and consumer share only the queue contract, never direct calls.</li>
-                </ul>
+                <p><code>convertAndSend</code> serializes the event and routes it via an exchange and routing key.<br><br>
+                    <code>@RabbitListener</code> binds a method to a queue and delivers messages to it.<br><br>
+                    Returning normally acks the message; throwing triggers redelivery or dead-lettering.<br><br>
+                    Producer and consumer share only the queue contract, never direct calls.</p>
             </div>
         </div>
     </div>

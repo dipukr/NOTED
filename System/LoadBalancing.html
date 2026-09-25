@@ -69,12 +69,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>AtomicInteger</code> makes the counter safe under concurrent requests.</li>
-                    <li><code>Math.floorMod</code> wraps the index around the server list cyclically.</li>
-                    <li>Each call returns the next backend, distributing load evenly.</li>
-                    <li>Real balancers add health checks and weighting on top of this idea.</li>
-                </ul>
+                <p><code>AtomicInteger</code> makes the counter safe under concurrent requests.<br><br>
+                    <code>Math.floorMod</code> wraps the index around the server list cyclically.<br><br>
+                    Each call returns the next backend, distributing load evenly.<br><br>
+                    Real balancers add health checks and weighting on top of this idea.</p>
             </div>
         </div>
     </div>

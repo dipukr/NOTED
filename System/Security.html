@@ -68,12 +68,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li>The <code>?</code> placeholder is bound as data, so input cannot alter the query.</li>
-                    <li><code>queryForObject</code> passes <code>email</code> separately from the SQL text.</li>
-                    <li>This defeats classic <code>' OR 1=1 --</code> injection attempts.</li>
-                    <li>Apply the same principle for output encoding, CSRF tokens, and secrets in a vault.</li>
-                </ul>
+                <p>The <code>?</code> placeholder is bound as data, so input cannot alter the query.<br><br>
+                    <code>queryForObject</code> passes <code>email</code> separately from the SQL text.<br><br>
+                    This defeats classic <code>' OR 1=1 --</code> injection attempts.<br><br>
+                    Apply the same principle for output encoding, CSRF tokens, and secrets in a vault.</p>
             </div>
         </div>
     </div>

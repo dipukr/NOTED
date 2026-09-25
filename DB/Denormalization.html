@@ -80,13 +80,11 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>OrderTotal</code> is redundant data: it can always be recomputed from <code>OrderItems</code>, but storing it avoids that join on every read.</li>
-                    <li>The <code>TRG_OrderItems_SyncTotal</code> trigger fires after any insert, update or delete on <code>OrderItems</code> and recalculates the affected orders' totals.</li>
-                    <li>The <code>inserted</code> and <code>deleted</code> pseudo-tables let the trigger only re-aggregate the orders that actually changed, not the whole table.</li>
-                    <li>Reporting queries now read <code>OrderTotal</code> directly instead of joining and summing <code>OrderItems</code> every time.</li>
-                    <li>The cost of this speed-up is that every write to <code>OrderItems</code> now also pays for the trigger's aggregation.</li>
-                </ul>
+                <p><code>OrderTotal</code> is redundant data: it can always be recomputed from <code>OrderItems</code>, but storing it avoids that join on every read.<br><br>
+                    The <code>TRG_OrderItems_SyncTotal</code> trigger fires after any insert, update or delete on <code>OrderItems</code> and recalculates the affected orders' totals.<br><br>
+                    The <code>inserted</code> and <code>deleted</code> pseudo-tables let the trigger only re-aggregate the orders that actually changed, not the whole table.<br><br>
+                    Reporting queries now read <code>OrderTotal</code> directly instead of joining and summing <code>OrderItems</code> every time.<br><br>
+                    The cost of this speed-up is that every write to <code>OrderItems</code> now also pays for the trigger's aggregation.</p>
             </div>
         </div>
     </div>

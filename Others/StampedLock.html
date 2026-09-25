@@ -80,11 +80,9 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>tryOptimisticRead()</code> returns a stamp without acquiring a lock.</li>
-                    <li><code>validate(stamp)</code> confirms no write occurred; otherwise fall back to a real read lock.</li>
-                    <li>Each acquired lock is released with the matching <code>unlock*</code> and its stamp.</li>
-                </ul>
+                <p><code>tryOptimisticRead()</code> returns a stamp without acquiring a lock.<br><br>
+                    <code>validate(stamp)</code> confirms no write occurred; otherwise fall back to a real read lock.<br><br>
+                    Each acquired lock is released with the matching <code>unlock*</code> and its stamp.</p>
             </div>
         </div>
     </div>

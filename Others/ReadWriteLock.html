@@ -75,11 +75,9 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>readLock()</code> can be held by many threads at once for concurrent reads.</li>
-                    <li><code>writeLock()</code> is exclusive and blocks all readers and writers.</li>
-                    <li>Each lock is released in <code>finally</code> to avoid leaking it on exceptions.</li>
-                </ul>
+                <p><code>readLock()</code> can be held by many threads at once for concurrent reads.<br><br>
+                    <code>writeLock()</code> is exclusive and blocks all readers and writers.<br><br>
+                    Each lock is released in <code>finally</code> to avoid leaking it on exceptions.</p>
             </div>
         </div>
     </div>

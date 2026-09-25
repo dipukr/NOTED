@@ -72,12 +72,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>JmsTemplate.convertAndSend</code> converts the object to a JMS message and sends it.</li>
-                    <li><code>@JmsListener</code> registers a method-driven consumer on a destination.</li>
-                    <li>The destination name maps to a queue (point-to-point) or topic (pub-sub).</li>
-                    <li>Acknowledgment/transaction settings on the container control redelivery.</li>
-                </ul>
+                <p><code>JmsTemplate.convertAndSend</code> converts the object to a JMS message and sends it.<br><br>
+                    <code>@JmsListener</code> registers a method-driven consumer on a destination.<br><br>
+                    The destination name maps to a queue (point-to-point) or topic (pub-sub).<br><br>
+                    Acknowledgment/transaction settings on the container control redelivery.</p>
             </div>
         </div>
     </div>

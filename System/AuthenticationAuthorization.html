@@ -71,12 +71,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>setSubject</code> and <code>claim("roles", ...)</code> embed identity and authorization data.</li>
-                    <li><code>signWith(key)</code> produces a signature so tampering is detectable.</li>
-                    <li>A 900-second expiration limits the damage window of a leaked token.</li>
-                    <li><code>parseClaimsJws</code> verifies the signature and rejects expired tokens.</li>
-                </ul>
+                <p><code>setSubject</code> and <code>claim("roles", ...)</code> embed identity and authorization data.<br><br>
+                    <code>signWith(key)</code> produces a signature so tampering is detectable.<br><br>
+                    A 900-second expiration limits the damage window of a leaked token.<br><br>
+                    <code>parseClaimsJws</code> verifies the signature and rejects expired tokens.</p>
             </div>
         </div>
     </div>

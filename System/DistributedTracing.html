@@ -68,12 +68,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>spanBuilder(...).startSpan()</code> opens a timed span for this operation.</li>
-                    <li><code>makeCurrent()</code> sets context so downstream calls become child spans.</li>
-                    <li>The trace ID is injected into outbound headers, linking services.</li>
-                    <li><code>recordException</code> and <code>end()</code> capture errors and close timing cleanly.</li>
-                </ul>
+                <p><code>spanBuilder(...).startSpan()</code> opens a timed span for this operation.<br><br>
+                    <code>makeCurrent()</code> sets context so downstream calls become child spans.<br><br>
+                    The trace ID is injected into outbound headers, linking services.<br><br>
+                    <code>recordException</code> and <code>end()</code> capture errors and close timing cleanly.</p>
             </div>
         </div>
     </div>

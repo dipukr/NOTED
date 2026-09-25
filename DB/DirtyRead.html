@@ -71,13 +71,11 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED</code> tells the engine to skip shared locks and read whatever is currently in the buffer, including uncommitted changes.</li>
-                    <li>Session B's <code>SELECT</code> sees Session A's debit before it commits, a dirty read.</li>
-                    <li>When Session A later rolls back, Session B has already acted on a value that never officially existed in the database.</li>
-                    <li><code>READ COMMITTED</code> (the SQL Server default) prevents this by only ever returning committed row versions, blocking or reading the pre-change value instead.</li>
-                    <li>Dirty reads are only possible at the lowest isolation level; every higher level rules them out.</li>
-                </ul>
+                <p><code>SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED</code> tells the engine to skip shared locks and read whatever is currently in the buffer, including uncommitted changes.<br><br>
+                    Session B's <code>SELECT</code> sees Session A's debit before it commits, a dirty read.<br><br>
+                    When Session A later rolls back, Session B has already acted on a value that never officially existed in the database.<br><br>
+                    <code>READ COMMITTED</code> (the SQL Server default) prevents this by only ever returning committed row versions, blocking or reading the pre-change value instead.<br><br>
+                    Dirty reads are only possible at the lowest isolation level; every higher level rules them out.</p>
             </div>
         </div>
     </div>

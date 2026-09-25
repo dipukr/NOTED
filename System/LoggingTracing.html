@@ -71,12 +71,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>log.info("...{}", orderId)</code> emits a structured, parameterized log line.</li>
-                    <li><code>tracer.nextSpan()</code> creates a child span for this operation.</li>
-                    <li><code>withSpan(span)</code> makes the span current so logs carry its trace id.</li>
-                    <li><code>span.end()</code> records the timing that Jaeger or Zipkin displays.</li>
-                </ul>
+                <p><code>log.info("...{}", orderId)</code> emits a structured, parameterized log line.<br><br>
+                    <code>tracer.nextSpan()</code> creates a child span for this operation.<br><br>
+                    <code>withSpan(span)</code> makes the span current so logs carry its trace id.<br><br>
+                    <code>span.end()</code> records the timing that Jaeger or Zipkin displays.</p>
             </div>
         </div>
     </div>

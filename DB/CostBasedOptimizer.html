@@ -75,13 +75,11 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>CREATE STATISTICS</code> / <code>UPDATE STATISTICS</code> give the CBO a histogram of <code>CustomerId</code> values to estimate selectivity from.</li>
-                    <li><code>DBCC SHOW_STATISTICS</code> exposes what the optimizer actually believes about the data distribution.</li>
-                    <li>The plain query lets the CBO pick freely between an index seek and a table/clustered scan based on estimated cost.</li>
-                    <li><code>WITH (INDEX(...), FORCESEEK)</code> overrides that choice, useful for comparing the forced plan's actual cost against the CBO's own pick.</li>
-                    <li>Stale or missing statistics are the most common reason a cost-based optimizer picks a scan when a seek would be far cheaper.</li>
-                </ul>
+                <p><code>CREATE STATISTICS</code> / <code>UPDATE STATISTICS</code> give the CBO a histogram of <code>CustomerId</code> values to estimate selectivity from.<br><br>
+                    <code>DBCC SHOW_STATISTICS</code> exposes what the optimizer actually believes about the data distribution.<br><br>
+                    The plain query lets the CBO pick freely between an index seek and a table/clustered scan based on estimated cost.<br><br>
+                    <code>WITH (INDEX(...), FORCESEEK)</code> overrides that choice, useful for comparing the forced plan's actual cost against the CBO's own pick.<br><br>
+                    Stale or missing statistics are the most common reason a cost-based optimizer picks a scan when a seek would be far cheaper.</p>
             </div>
         </div>
     </div>

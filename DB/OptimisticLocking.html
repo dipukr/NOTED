@@ -80,12 +80,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>RowVersion</code> is a database-maintained value that changes automatically on every write to the row.</li>
-                    <li>The <code>UPDATE</code> matches both <code>Id</code> and the <code>RowVersion</code> value read earlier, in the same statement.</li>
-                    <li>If another transaction updated the row in between, <code>RowVersion</code> no longer matches and <code>@@ROWCOUNT</code> is zero.</li>
-                    <li>The <code>TRY/CATCH</code> raises a conflict error so the caller can re-read the latest row and retry.</li>
-                </ul>
+                <p><code>RowVersion</code> is a database-maintained value that changes automatically on every write to the row.<br><br>
+                    The <code>UPDATE</code> matches both <code>Id</code> and the <code>RowVersion</code> value read earlier, in the same statement.<br><br>
+                    If another transaction updated the row in between, <code>RowVersion</code> no longer matches and <code>@@ROWCOUNT</code> is zero.<br><br>
+                    The <code>TRY/CATCH</code> raises a conflict error so the caller can re-read the latest row and retry.</p>
             </div>
         </div>
     </div>

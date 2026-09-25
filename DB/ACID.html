@@ -82,13 +82,11 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>BEGIN TRANSACTION</code> / <code>COMMIT</code> / <code>ROLLBACK</code> give atomicity: both balance updates apply together or not at all.</li>
-                    <li><code>SET TRANSACTION ISOLATION LEVEL SERIALIZABLE</code> stops a concurrent transaction from seeing a half-completed transfer.</li>
-                    <li>The <code>CK_Balance_NonNegative</code> check constraint enforces the consistency rule that no account goes negative.</li>
-                    <li><code>TRY/CATCH</code> rolls back cleanly if the constraint fails or any error occurs mid-transaction.</li>
-                    <li>Once <code>COMMIT</code> returns, the transfer is durable and survives a crash or restart.</li>
-                </ul>
+                <p><code>BEGIN TRANSACTION</code> / <code>COMMIT</code> / <code>ROLLBACK</code> give atomicity: both balance updates apply together or not at all.<br><br>
+                    <code>SET TRANSACTION ISOLATION LEVEL SERIALIZABLE</code> stops a concurrent transaction from seeing a half-completed transfer.<br><br>
+                    The <code>CK_Balance_NonNegative</code> check constraint enforces the consistency rule that no account goes negative.<br><br>
+                    <code>TRY/CATCH</code> rolls back cleanly if the constraint fails or any error occurs mid-transaction.<br><br>
+                    Once <code>COMMIT</code> returns, the transfer is durable and survives a crash or restart.</p>
             </div>
         </div>
     </div>

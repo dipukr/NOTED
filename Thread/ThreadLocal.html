@@ -75,11 +75,9 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>withInitial</code> supplies a default value the first time a thread reads it.</li>
-                    <li><code>get()</code>/<code>set()</code> operate only on the calling thread's slot.</li>
-                    <li><code>remove()</code> in <code>finally</code> clears the entry before the thread returns to the pool.</li>
-                </ul>
+                <p><code>withInitial</code> supplies a default value the first time a thread reads it.<br><br>
+                    <code>get()</code>/<code>set()</code> operate only on the calling thread's slot.<br><br>
+                    <code>remove()</code> in <code>finally</code> clears the entry before the thread returns to the pool.</p>
             </div>
         </div>
     </div>

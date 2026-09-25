@@ -65,12 +65,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>reg.gauge()</code> continuously publishes the current queue depth.</li>
-                    <li>The autoscaler reads <code>queue.depth</code> and adds workers when backlog grows.</li>
-                    <li>Scaling on backlog reacts faster than CPU for queue-driven workloads.</li>
-                    <li>As workers drain the queue, the metric falls and instances scale back in.</li>
-                </ul>
+                <p><code>reg.gauge()</code> continuously publishes the current queue depth.<br><br>
+                    The autoscaler reads <code>queue.depth</code> and adds workers when backlog grows.<br><br>
+                    Scaling on backlog reacts faster than CPU for queue-driven workloads.<br><br>
+                    As workers drain the queue, the metric falls and instances scale back in.</p>
             </div>
         </div>
     </div>

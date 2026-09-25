@@ -76,12 +76,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>publishEvent</code> broadcasts to every listener of that event type.</li>
-                    <li><code>@EventListener</code> subscribes a method without the publisher knowing it exists.</li>
-                    <li>Adding a new subscriber requires no change to <code>OrderService</code>.</li>
-                    <li>For cross-service pub/sub, swap this for Kafka or a cloud pub/sub broker.</li>
-                </ul>
+                <p><code>publishEvent</code> broadcasts to every listener of that event type.<br><br>
+                    <code>@EventListener</code> subscribes a method without the publisher knowing it exists.<br><br>
+                    Adding a new subscriber requires no change to <code>OrderService</code>.<br><br>
+                    For cross-service pub/sub, swap this for Kafka or a cloud pub/sub broker.</p>
             </div>
         </div>
     </div>

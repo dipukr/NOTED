@@ -97,12 +97,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>OrderFlat</code> mixes repeating product columns with customer facts, violating 1NF.</li>
-                    <li><code>OrderLine1NF</code> makes each product line its own row with atomic values, satisfying 1NF.</li>
-                    <li>Splitting <code>Customer</code>/<code>Orders</code>/<code>OrderLine</code> removes partial dependency on part of the composite key, satisfying 2NF.</li>
-                    <li>Moving city details into their own <code>City</code> table removes the transitive dependency through <code>CustomerId</code>, satisfying 3NF; each fact now lives in exactly one place, joined via foreign keys.</li>
-                </ul>
+                <p><code>OrderFlat</code> mixes repeating product columns with customer facts, violating 1NF.<br><br>
+                    <code>OrderLine1NF</code> makes each product line its own row with atomic values, satisfying 1NF.<br><br>
+                    Splitting <code>Customer</code>/<code>Orders</code>/<code>OrderLine</code> removes partial dependency on part of the composite key, satisfying 2NF.<br><br>
+                    Moving city details into their own <code>City</code> table removes the transitive dependency through <code>CustomerId</code>, satisfying 3NF; each fact now lives in exactly one place, joined via foreign keys.</p>
             </div>
         </div>
     </div>

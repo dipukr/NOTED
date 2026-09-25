@@ -72,12 +72,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>TopicExchange</code> routes by pattern-matching routing keys against bindings.</li>
-                    <li><code>QueueBuilder.durable(...)</code> persists the queue so it survives restarts.</li>
-                    <li><code>BindingBuilder...with("orders.*")</code> binds keys like <code>orders.created</code> to the queue.</li>
-                    <li>The exchange decouples publishers from the concrete queues receiving messages.</li>
-                </ul>
+                <p><code>TopicExchange</code> routes by pattern-matching routing keys against bindings.<br><br>
+                    <code>QueueBuilder.durable(...)</code> persists the queue so it survives restarts.<br><br>
+                    <code>BindingBuilder...with("orders.*")</code> binds keys like <code>orders.created</code> to the queue.<br><br>
+                    The exchange decouples publishers from the concrete queues receiving messages.</p>
             </div>
         </div>
     </div>

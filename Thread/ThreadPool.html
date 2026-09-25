@@ -73,12 +73,10 @@
 
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li>Three worker threads run the five queued tasks by reuse.</li>
-                    <li><code>submit()</code> queues a task and returns a <code>Future</code>.</li>
-                    <li><code>Callable</code> returns a value fetched with <code>f.get()</code>.</li>
-                    <li><code>shutdown()</code> lets running tasks finish, then stops the pool.</li>
-                </ul>
+                <p>Three worker threads run the five queued tasks by reuse.<br><br>
+                    <code>submit()</code> queues a task and returns a <code>Future</code>.<br><br>
+                    <code>Callable</code> returns a value fetched with <code>f.get()</code>.<br><br>
+                    <code>shutdown()</code> lets running tasks finish, then stops the pool.</p>
             </div>
         </div>
     </div>

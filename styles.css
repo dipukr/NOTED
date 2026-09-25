@@ -194,6 +194,16 @@ br {
     color: #374151;
 }
 
+/* ===== MVC role cards (reuse the SOLID card styling) ===== */
+.mvc-m .solid-badge { background: linear-gradient(135deg, #7c3aed, #5b21b6); }
+.mvc-m { border-left: 4px solid #7c3aed; }
+
+.mvc-v .solid-badge { background: linear-gradient(135deg, #2563eb, #1e40af); }
+.mvc-v { border-left: 4px solid #2563eb; }
+
+.mvc-c .solid-badge { background: linear-gradient(135deg, #16a34a, #166534); }
+.mvc-c { border-left: 4px solid #16a34a; }
+
 .advantages .card { border-color: #bbf7d0; }
 .advantages .card-title { color: #166534; }
 
@@ -216,12 +226,6 @@ br {
     border-radius: 10px;
     overflow: hidden;
     box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
-    transition: transform 0.12s ease, box-shadow 0.12s ease;
-}
-
-.solid-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.12);
 }
 
 .solid-badge {
@@ -285,6 +289,7 @@ br {
 
 .when-use .card { border-color: #bfdbfe; }
 .when-use .card-title { color: #1e40af; }
+
 
 .examples .card { border-color: #bae6fd; }
 .examples .card-title { color: #075985; }
@@ -474,15 +479,16 @@ br {
 }
 
 .cmp-table tr:last-child td { border-bottom: 0; }
-.cmp-table tbody tr:hover { background: #f8fafc; }
 
 .cmp-table td:first-child,
 .cmp-table th:first-child {
     font-weight: 700;
     color: #1f2937;
+    width: 1%;
+    white-space: nowrap;
+    min-width: 100px;
 }
 
-/* peer "X vs Y" comparison tables: first column is not a label, so keep it normal weight */
 .cmp-table.cmp-peer td:first-child {
     font-weight: 400;
 }
@@ -498,7 +504,7 @@ br {
     .cmp-table thead { display: none; }
     .cmp-table tr { border-bottom: 1px solid #e5e7eb; padding: 6px 0; }
     .cmp-table td { border-bottom: 0; border-right: 0; padding: 4px 18px; }
-    .cmp-table td:first-child { width: 100%; padding-top: 8px; }
+    .cmp-table td:first-child { width: 100%; min-width: 0; white-space: normal; padding-top: 8px; }
 }
 
 .section-diagram {
@@ -516,7 +522,6 @@ br {
     max-width: 360px;
 }
 
-/* ===== Callout boxes (note / success / warning) ===== */
 .callout {
     margin: 16px 0;
     padding: 12px 16px;
@@ -545,7 +550,6 @@ br {
     border-left-color: #d97706;
 }
 
-/* ===== Standalone code / ASCII diagram block (single column) ===== */
 .code-block {
     margin: 14px 0 18px;
     border: 1px solid #d1d5db;
@@ -632,16 +636,6 @@ br {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 }
 
-/* code on top, explanation stacked full-width below */
-.code-layout-stacked {
-    grid-template-columns: 1fr;
-}
-
-.code-layout-stacked .code-wrapper {
-    border-right: 0;
-    border-bottom: 1px solid #dbe2ea;
-}
-
 .code-layout .code-wrapper {
     margin: 0;
     padding: 16px 20px;
@@ -673,15 +667,8 @@ br {
     color: #1f2937;
 }
 
-.code-explanation ul {
+.code-explanation p {
     margin: 0;
-    padding-left: 20px;
-    list-style-type: square;
-}
-
-.code-explanation li {
-    margin: 6px 0;
-    padding-left: 2px;
 }
 
 .code-explanation code {
@@ -798,4 +785,8 @@ br {
         box-shadow: none;
         padding: 20px;
     }
+}
+
+.centered {
+	text-align: center;
 }

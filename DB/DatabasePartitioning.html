@@ -82,13 +82,11 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>CREATE PARTITION FUNCTION</code> defines the range boundaries that split rows by year.</li>
-                    <li><code>CREATE PARTITION SCHEME</code> maps each range to physical storage (here, all to the primary filegroup).</li>
-                    <li>The table's <code>ON PS_OrderYear(CreatedAt)</code> clause makes it a partitioned table while the application still sees one logical <code>Orders</code> table.</li>
-                    <li>A <code>WHERE</code> filter on <code>CreatedAt</code> lets the engine perform partition pruning, scanning only the matching year.</li>
-                    <li><code>$PARTITION.PF_OrderYear(...)</code> reports which partition each row lives in, useful for verifying pruning and planning archive/purge of old partitions.</li>
-                </ul>
+                <p><code>CREATE PARTITION FUNCTION</code> defines the range boundaries that split rows by year.<br><br>
+                    <code>CREATE PARTITION SCHEME</code> maps each range to physical storage (here, all to the primary filegroup).<br><br>
+                    The table's <code>ON PS_OrderYear(CreatedAt)</code> clause makes it a partitioned table while the application still sees one logical <code>Orders</code> table.<br><br>
+                    A <code>WHERE</code> filter on <code>CreatedAt</code> lets the engine perform partition pruning, scanning only the matching year.<br><br>
+                    <code>$PARTITION.PF_OrderYear(...)</code> reports which partition each row lives in, useful for verifying pruning and planning archive/purge of old partitions.</p>
             </div>
         </div>
     </div>

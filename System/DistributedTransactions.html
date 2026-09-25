@@ -71,12 +71,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li>Each step is a local transaction in its own service.</li>
-                    <li>After each success, its compensating action is pushed onto a stack.</li>
-                    <li>On failure, compensations run in reverse (LIFO) to undo prior steps.</li>
-                    <li>This achieves consistency without a blocking two-phase commit.</li>
-                </ul>
+                <p>Each step is a local transaction in its own service.<br><br>
+                    After each success, its compensating action is pushed onto a stack.<br><br>
+                    On failure, compensations run in reverse (LIFO) to undo prior steps.<br><br>
+                    This achieves consistency without a blocking two-phase commit.</p>
             </div>
         </div>
     </div>

@@ -66,12 +66,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li>The lambda implements <code>run()</code> as the task body.</li>
-                    <li><code>new Thread(job).start()</code> runs it on a new thread.</li>
-                    <li><code>execute(job)</code> hands the same task to a pool thread.</li>
-                    <li>The identical <code>Runnable</code> works with both mechanisms.</li>
-                </ul>
+                <p>The lambda implements <code>run()</code> as the task body.<br><br>
+                    <code>new Thread(job).start()</code> runs it on a new thread.<br><br>
+                    <code>execute(job)</code> hands the same task to a pool thread.<br><br>
+                    The identical <code>Runnable</code> works with both mechanisms.</p>
             </div>
         </div>
     </div>

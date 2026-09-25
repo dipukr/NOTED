@@ -79,12 +79,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>READ COMMITTED</code> only ever reads committed data, so dirty reads are blocked, but the same row read twice in one transaction can change (non-repeatable read).</li>
-                    <li><code>REPEATABLE READ</code> holds locks on rows it has read for the duration of the transaction, so re-reading the same row is guaranteed stable, but new rows can still appear in a range scan (phantom read).</li>
-                    <li><code>SERIALIZABLE</code> adds range locks, so even a repeated range query like <code>WHERE Balance &gt; 1000</code> cannot see new phantom rows inserted concurrently.</li>
-                    <li>Each step up trades concurrency for a stronger guarantee, which is why the lowest level that avoids the anomalies you actually care about is usually the right choice.</li>
-                </ul>
+                <p><code>READ COMMITTED</code> only ever reads committed data, so dirty reads are blocked, but the same row read twice in one transaction can change (non-repeatable read).<br><br>
+                    <code>REPEATABLE READ</code> holds locks on rows it has read for the duration of the transaction, so re-reading the same row is guaranteed stable, but new rows can still appear in a range scan (phantom read).<br><br>
+                    <code>SERIALIZABLE</code> adds range locks, so even a repeated range query like <code>WHERE Balance &gt; 1000</code> cannot see new phantom rows inserted concurrently.<br><br>
+                    Each step up trades concurrency for a stronger guarantee, which is why the lowest level that avoids the anomalies you actually care about is usually the right choice.</p>
             </div>
         </div>
     </div>

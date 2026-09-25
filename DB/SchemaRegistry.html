@@ -87,12 +87,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li>Each row is one immutable version of a subject's schema, keyed by <code>(subject_name, version)</code> with a unique <code>schema_id</code> for compact wire references.</li>
-                    <li>The <code>CHECK</code> constraint restricts <code>compatibility</code> to the recognized modes, mirroring how a real registry enforces a compatibility policy per subject.</li>
-                    <li>Registering a new version computes <code>MAX(version) + 1</code>, so versions increase monotonically per subject, just like a schema registry.</li>
-                    <li>Producers embed <code>schema_id</code> in messages; consumers do a cheap lookup by that ID to fetch the exact schema for deserialization.</li>
-                </ul>
+                <p>Each row is one immutable version of a subject's schema, keyed by <code>(subject_name, version)</code> with a unique <code>schema_id</code> for compact wire references.<br><br>
+                    The <code>CHECK</code> constraint restricts <code>compatibility</code> to the recognized modes, mirroring how a real registry enforces a compatibility policy per subject.<br><br>
+                    Registering a new version computes <code>MAX(version) + 1</code>, so versions increase monotonically per subject, just like a schema registry.<br><br>
+                    Producers embed <code>schema_id</code> in messages; consumers do a cheap lookup by that ID to fetch the exact schema for deserialization.</p>
             </div>
         </div>
     </div>

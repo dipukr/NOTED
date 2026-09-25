@@ -83,12 +83,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li>Under <code>READ COMMITTED</code>, each separate <code>SELECT</code> sees the latest committed data, so a transfer landing between the two reads produces an inconsistent combined total.</li>
-                    <li><code>SNAPSHOT</code> isolation fixes the visible data as of transaction start, so both reads see the pre-transfer state and the invariant holds.</li>
-                    <li>Enabling <code>ALLOW_SNAPSHOT_ISOLATION</code> is a one-time database setting required before using <code>SNAPSHOT</code> transactions.</li>
-                    <li>A single query summing both rows sidesteps the problem entirely by reading everything at one point in time.</li>
-                </ul>
+                <p>Under <code>READ COMMITTED</code>, each separate <code>SELECT</code> sees the latest committed data, so a transfer landing between the two reads produces an inconsistent combined total.<br><br>
+                    <code>SNAPSHOT</code> isolation fixes the visible data as of transaction start, so both reads see the pre-transfer state and the invariant holds.<br><br>
+                    Enabling <code>ALLOW_SNAPSHOT_ISOLATION</code> is a one-time database setting required before using <code>SNAPSHOT</code> transactions.<br><br>
+                    A single query summing both rows sidesteps the problem entirely by reading everything at one point in time.</p>
             </div>
         </div>
     </div>

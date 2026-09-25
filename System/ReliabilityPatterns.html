@@ -70,12 +70,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>@Retry</code> re-invokes the call on transient failures with configured backoff.</li>
-                    <li><code>@CircuitBreaker</code> trips open after too many failures, short-circuiting calls.</li>
-                    <li><code>fallbackMethod</code> supplies a degraded response instead of failing hard.</li>
-                    <li>The cached fallback keeps the feature usable while the dependency recovers.</li>
-                </ul>
+                <p><code>@Retry</code> re-invokes the call on transient failures with configured backoff.<br><br>
+                    <code>@CircuitBreaker</code> trips open after too many failures, short-circuiting calls.<br><br>
+                    <code>fallbackMethod</code> supplies a degraded response instead of failing hard.<br><br>
+                    The cached fallback keeps the feature usable while the dependency recovers.</p>
             </div>
         </div>
     </div>

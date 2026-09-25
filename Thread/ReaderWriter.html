@@ -68,12 +68,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>readLock()</code> can be held by many threads simultaneously.</li>
-                    <li><code>writeLock()</code> is exclusive and blocks all readers and writers.</li>
-                    <li>Unlocking in <code>finally</code> guarantees release even on exception.</li>
-                    <li>The pair enforces the read-read-safe, write-exclusive rule.</li>
-                </ul>
+                <p><code>readLock()</code> can be held by many threads simultaneously.<br><br>
+                    <code>writeLock()</code> is exclusive and blocks all readers and writers.<br><br>
+                    Unlocking in <code>finally</code> guarantees release even on exception.<br><br>
+                    The pair enforces the read-read-safe, write-exclusive rule.</p>
             </div>
         </div>
     </div>

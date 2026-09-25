@@ -89,12 +89,10 @@
 
             <div class="code-explanation">
                 <div class="code-explanation-title">How the Adapter works</div>
-                <ul>
-                    <li><code>MediaPlayer</code> is the target interface the client codes against.</li>
-                    <li><code>LegacyMp3Player</code> is the adaptee with an incompatible <code>playMp3()</code> method.</li>
-                    <li><code>Mp3Adapter</code> implements the target and delegates to the wrapped adaptee.</li>
-                    <li>The client calls <code>play()</code> and stays unaware of the legacy method underneath.</li>
-                </ul>
+                <p><code>MediaPlayer</code> is the target interface the client codes against.<br><br>
+                    <code>LegacyMp3Player</code> is the adaptee with an incompatible <code>playMp3()</code> method.<br><br>
+                    <code>Mp3Adapter</code> implements the target and delegates to the wrapped adaptee.<br><br>
+                    The client calls <code>play()</code> and stays unaware of the legacy method underneath.</p>
             </div>
         </div>
     </div>

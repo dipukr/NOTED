@@ -97,12 +97,10 @@
 
             <div class="code-explanation">
                 <div class="code-explanation-title">How the Factory Method works</div>
-                <ul>
-                    <li><code>Notification</code> is the abstract product; each concrete class implements it.</li>
-                    <li><code>NotificationCreator</code> declares the abstract factory method <code>create()</code>.</li>
-                    <li>Subclasses like <code>EmailCreator</code> decide which concrete product to return.</li>
-                    <li>The client works only with the creator and product interfaces, never with <code>new</code> on a concrete type.</li>
-                </ul>
+                <p><code>Notification</code> is the abstract product; each concrete class implements it.<br><br>
+                    <code>NotificationCreator</code> declares the abstract factory method <code>create()</code>.<br><br>
+                    Subclasses like <code>EmailCreator</code> decide which concrete product to return.<br><br>
+                    The client works only with the creator and product interfaces, never with <code>new</code> on a concrete type.</p>
             </div>
         </div>
     </div>

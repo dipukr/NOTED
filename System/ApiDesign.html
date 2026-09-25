@@ -74,12 +74,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>/v1/orders</code> versions the resource so clients are shielded from breaking changes.</li>
-                    <li>HTTP verbs map to actions; <code>@ResponseStatus(CREATED)</code> returns a correct 201.</li>
-                    <li><code>@Valid</code> enforces input validation and yields 400 on bad requests.</li>
-                    <li>DTOs form the stable contract, decoupling clients from internal entities.</li>
-                </ul>
+                <p><code>/v1/orders</code> versions the resource so clients are shielded from breaking changes.<br><br>
+                    HTTP verbs map to actions; <code>@ResponseStatus(CREATED)</code> returns a correct 201.<br><br>
+                    <code>@Valid</code> enforces input validation and yields 400 on bad requests.<br><br>
+                    DTOs form the stable contract, decoupling clients from internal entities.</p>
             </div>
         </div>
     </div>

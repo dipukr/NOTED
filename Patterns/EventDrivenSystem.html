@@ -75,11 +75,9 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>OrderPublisher</code> emits an event and returns without waiting.</li>
-                    <li><code>@KafkaListener</code> consumers subscribe independently by group.</li>
-                    <li>New reactions are added by adding listeners, not editing the producer.</li>
-                </ul>
+                <p><code>OrderPublisher</code> emits an event and returns without waiting.<br><br>
+                    <code>@KafkaListener</code> consumers subscribe independently by group.<br><br>
+                    New reactions are added by adding listeners, not editing the producer.</p>
             </div>
         </div>
     </div>

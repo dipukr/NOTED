@@ -76,11 +76,9 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>CyclicBarrier</code> releases all threads simultaneously to maximize contention.</li>
-                    <li><code>CountDownLatch</code> lets the test wait for every worker to finish.</li>
-                    <li>The final <code>assertEquals</code> verifies no increments were lost.</li>
-                </ul>
+                <p><code>CyclicBarrier</code> releases all threads simultaneously to maximize contention.<br><br>
+                    <code>CountDownLatch</code> lets the test wait for every worker to finish.<br><br>
+                    The final <code>assertEquals</code> verifies no increments were lost.</p>
             </div>
         </div>
     </div>

@@ -65,12 +65,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>QUORUM</code> requires a majority of replicas to agree, leaning consistent (CP).</li>
-                    <li><code>ONE</code> answers from a single replica, leaning available (AP) but possibly stale.</li>
-                    <li>The choice is per-request, showing CAP as a spectrum, not a binary.</li>
-                    <li>During a partition, <code>QUORUM</code> may fail while <code>ONE</code> still responds.</li>
-                </ul>
+                <p><code>QUORUM</code> requires a majority of replicas to agree, leaning consistent (CP).<br><br>
+                    <code>ONE</code> answers from a single replica, leaning available (AP) but possibly stale.<br><br>
+                    The choice is per-request, showing CAP as a spectrum, not a binary.<br><br>
+                    During a partition, <code>QUORUM</code> may fail while <code>ONE</code> still responds.</p>
             </div>
         </div>
     </div>

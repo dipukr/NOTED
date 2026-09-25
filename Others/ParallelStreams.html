@@ -68,12 +68,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>parallel()</code> marks the stream for concurrent processing.</li>
-                    <li>The range is split into sub-ranges filtered on separate workers.</li>
-                    <li><code>count</code> is associative, so partial counts sum correctly.</li>
-                    <li>The Fork-Join common pool schedules the chunks.</li>
-                </ul>
+                <p><code>parallel()</code> marks the stream for concurrent processing.<br><br>
+                    The range is split into sub-ranges filtered on separate workers.<br><br>
+                    <code>count</code> is associative, so partial counts sum correctly.<br><br>
+                    The Fork-Join common pool schedules the chunks.</p>
             </div>
         </div>
     </div>

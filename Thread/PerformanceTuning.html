@@ -68,11 +68,9 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>availableProcessors()</code> anchors CPU pool size to real core count.</li>
-                    <li>The I/O formula adds threads proportional to wait time so cores stay busy.</li>
-                    <li>Bounding the pool prevents excessive context switching.</li>
-                </ul>
+                <p><code>availableProcessors()</code> anchors CPU pool size to real core count.<br><br>
+                    The I/O formula adds threads proportional to wait time so cores stay busy.<br><br>
+                    Bounding the pool prevents excessive context switching.</p>
             </div>
         </div>
     </div>

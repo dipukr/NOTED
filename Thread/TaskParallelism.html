@@ -66,12 +66,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li>Two <code>supplyAsync</code> calls start distinct tasks in parallel.</li>
-                    <li><code>thenCombine</code> merges the two results once both complete.</li>
-                    <li><code>join</code> waits for the combined outcome.</li>
-                    <li>The unrelated tasks overlap instead of running one after another.</li>
-                </ul>
+                <p>Two <code>supplyAsync</code> calls start distinct tasks in parallel.<br><br>
+                    <code>thenCombine</code> merges the two results once both complete.<br><br>
+                    <code>join</code> waits for the combined outcome.<br><br>
+                    The unrelated tasks overlap instead of running one after another.</p>
             </div>
         </div>
     </div>

@@ -83,13 +83,11 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li>Each <span class="code-keyword">UPDATE</span> generates log records that are appended to the sequential transaction log before the data pages are touched.</li>
-                    <li><span class="code-keyword">COMMIT TRANSACTION</span> cannot return success until its log records are durably flushed to disk, guaranteeing the change survives a crash.</li>
-                    <li><span class="code-keyword">CHECKPOINT</span> flushes dirty data pages to disk and marks how far the log has already been applied, bounding recovery time.</li>
-                    <li><span class="code-keyword">BACKUP LOG</span> archives and truncates the log, reclaiming space for records that are both committed and checkpointed.</li>
-                    <li>On restart after a crash, the engine replays (redoes) committed log records not yet applied, then rolls back (undoes) any uncommitted ones.</li>
-                </ul>
+                <p>Each <span class="code-keyword">UPDATE</span> generates log records that are appended to the sequential transaction log before the data pages are touched.<br><br>
+                    <span class="code-keyword">COMMIT TRANSACTION</span> cannot return success until its log records are durably flushed to disk, guaranteeing the change survives a crash.<br><br>
+                    <span class="code-keyword">CHECKPOINT</span> flushes dirty data pages to disk and marks how far the log has already been applied, bounding recovery time.<br><br>
+                    <span class="code-keyword">BACKUP LOG</span> archives and truncates the log, reclaiming space for records that are both committed and checkpointed.<br><br>
+                    On restart after a crash, the engine replays (redoes) committed log records not yet applied, then rolls back (undoes) any uncommitted ones.</p>
             </div>
         </div>
     </div>

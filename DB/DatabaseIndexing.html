@@ -84,13 +84,11 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li>The <code>PRIMARY KEY</code> creates a clustered index, so <code>Employee</code> rows are physically stored in <code>EmployeeId</code> order.</li>
-                    <li><code>IX_Employee_Email</code> is a unique non-clustered index: a separate structure of keys and pointers that also enforces uniqueness.</li>
-                    <li><code>IX_Employee_Dept_Covering</code> uses <code>INCLUDE</code> to add non-key columns, making it a covering index for the department lookup query.</li>
-                    <li>Because every column the query needs is in the index, the engine never has to visit the base table (a "key lookup" is avoided).</li>
-                    <li><code>SET SHOWPLAN_XML ON</code> reveals the execution plan so you can confirm an index seek is chosen instead of a full scan.</li>
-                </ul>
+                <p>The <code>PRIMARY KEY</code> creates a clustered index, so <code>Employee</code> rows are physically stored in <code>EmployeeId</code> order.<br><br>
+                    <code>IX_Employee_Email</code> is a unique non-clustered index: a separate structure of keys and pointers that also enforces uniqueness.<br><br>
+                    <code>IX_Employee_Dept_Covering</code> uses <code>INCLUDE</code> to add non-key columns, making it a covering index for the department lookup query.<br><br>
+                    Because every column the query needs is in the index, the engine never has to visit the base table (a "key lookup" is avoided).<br><br>
+                    <code>SET SHOWPLAN_XML ON</code> reveals the execution plan so you can confirm an index seek is chosen instead of a full scan.</p>
             </div>
         </div>
     </div>

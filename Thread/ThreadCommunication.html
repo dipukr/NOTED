@@ -67,12 +67,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>wait()</code> releases the monitor and parks the thread in the wait-set.</li>
-                    <li>The <code>while</code> loop re-checks <code>dataReady</code> after each wakeup.</li>
-                    <li><code>notifyAll()</code> moves waiters back to the entry-set to reacquire the lock.</li>
-                    <li>Both methods are <code>synchronized</code> so the monitor is always owned.</li>
-                </ul>
+                <p><code>wait()</code> releases the monitor and parks the thread in the wait-set.<br><br>
+                    The <code>while</code> loop re-checks <code>dataReady</code> after each wakeup.<br><br>
+                    <code>notifyAll()</code> moves waiters back to the entry-set to reacquire the lock.<br><br>
+                    Both methods are <code>synchronized</code> so the monitor is always owned.</p>
             </div>
         </div>
     </div>

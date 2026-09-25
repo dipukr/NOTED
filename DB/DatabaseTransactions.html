@@ -74,13 +74,11 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>BEGIN TRANSACTION</code> starts one indivisible unit of work spanning both balance updates.</li>
-                    <li><code>SAVE TRANSACTION AfterWithdraw</code> marks a checkpoint inside the transaction without committing anything yet.</li>
-                    <li><code>ROLLBACK TRANSACTION AfterWithdraw</code> undoes only the work done since that savepoint (the failed deposit), while keeping the earlier withdrawal intact and the outer transaction open.</li>
-                    <li>This lets the code retry with a different account rather than discarding the whole transaction.</li>
-                    <li><code>COMMIT TRANSACTION</code> makes every surviving change durable at once; a full <code>ROLLBACK</code> without a savepoint name would have undone everything.</li>
-                </ul>
+                <p><code>BEGIN TRANSACTION</code> starts one indivisible unit of work spanning both balance updates.<br><br>
+                    <code>SAVE TRANSACTION AfterWithdraw</code> marks a checkpoint inside the transaction without committing anything yet.<br><br>
+                    <code>ROLLBACK TRANSACTION AfterWithdraw</code> undoes only the work done since that savepoint (the failed deposit), while keeping the earlier withdrawal intact and the outer transaction open.<br><br>
+                    This lets the code retry with a different account rather than discarding the whole transaction.<br><br>
+                    <code>COMMIT TRANSACTION</code> makes every surviving change durable at once; a full <code>ROLLBACK</code> without a savepoint name would have undone everything.</p>
             </div>
         </div>
     </div>

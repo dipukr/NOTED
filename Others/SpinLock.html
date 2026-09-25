@@ -76,11 +76,9 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>compareAndSet(false, true)</code> atomically grabs the lock only if it was free.</li>
-                    <li>The <code>while</code> loop keeps retrying (spinning) until acquisition succeeds.</li>
-                    <li><code>Thread.onSpinWait()</code> tells the CPU this is a busy-wait, improving efficiency.</li>
-                </ul>
+                <p><code>compareAndSet(false, true)</code> atomically grabs the lock only if it was free.<br><br>
+                    The <code>while</code> loop keeps retrying (spinning) until acquisition succeeds.<br><br>
+                    <code>Thread.onSpinWait()</code> tells the CPU this is a busy-wait, improving efficiency.</p>
             </div>
         </div>
     </div>

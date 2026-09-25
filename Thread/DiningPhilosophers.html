@@ -75,12 +75,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>synchronized</code> acquires each fork's intrinsic monitor lock.</li>
-                    <li>Ordering by <code>identityHashCode</code> gives a global lock order for every philosopher.</li>
-                    <li>Because no one ever waits while holding a higher-ordered lock, circular wait cannot form.</li>
-                    <li>This eliminates deadlock without a central arbitrator.</li>
-                </ul>
+                <p><code>synchronized</code> acquires each fork's intrinsic monitor lock.<br><br>
+                    Ordering by <code>identityHashCode</code> gives a global lock order for every philosopher.<br><br>
+                    Because no one ever waits while holding a higher-ordered lock, circular wait cannot form.<br><br>
+                    This eliminates deadlock without a central arbitrator.</p>
             </div>
         </div>
     </div>

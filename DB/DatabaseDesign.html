@@ -83,13 +83,11 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li>Each table has a single-column <code>IDENTITY PRIMARY KEY</code> that uniquely identifies its rows.</li>
-                    <li><code>UNIQUE</code> on <code>Email</code> and <code>Country.Name</code> prevents duplicate values at the schema level.</li>
-                    <li><code>FK_Customer_Country</code> and <code>FK_Order_Customer</code> enforce referential integrity between parent and child tables.</li>
-                    <li>The <code>CHECK</code> constraint on <code>Total</code> stops invalid data from ever being stored.</li>
-                    <li>The final query walks the one-to-many relationships (<code>Country</code> to <code>Customer</code> to <code>Orders</code>) via ordinary joins.</li>
-                </ul>
+                <p>Each table has a single-column <code>IDENTITY PRIMARY KEY</code> that uniquely identifies its rows.<br><br>
+                    <code>UNIQUE</code> on <code>Email</code> and <code>Country.Name</code> prevents duplicate values at the schema level.<br><br>
+                    <code>FK_Customer_Country</code> and <code>FK_Order_Customer</code> enforce referential integrity between parent and child tables.<br><br>
+                    The <code>CHECK</code> constraint on <code>Total</code> stops invalid data from ever being stored.<br><br>
+                    The final query walks the one-to-many relationships (<code>Country</code> to <code>Customer</code> to <code>Orders</code>) via ordinary joins.</p>
             </div>
         </div>
     </div>

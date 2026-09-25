@@ -197,11 +197,9 @@ applyConfig(cf.join());</code></pre></div></td></tr>
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>supplyAsync(..., pool)</code> runs each task on the provided executor in parallel.</li>
-                    <li><code>thenCombine</code> merges the two results once both complete.</li>
-                    <li><code>exceptionally</code> converts any failure into a fallback value without throwing.</li>
-                </ul>
+                <p><code>supplyAsync(..., pool)</code> runs each task on the provided executor in parallel.<br><br>
+                    <code>thenCombine</code> merges the two results once both complete.<br><br>
+                    <code>exceptionally</code> converts any failure into a fallback value without throwing.</p>
             </div>
         </div>
     </div>

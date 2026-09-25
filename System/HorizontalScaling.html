@@ -68,12 +68,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li>The controller holds no per-user state, so replicas are interchangeable.</li>
-                    <li>State lives in a shared <code>OrderService</code>/DB, letting any node answer.</li>
-                    <li>A load balancer can add or remove replicas without sticky sessions.</li>
-                    <li>This statelessness is what makes scaling out linear and safe.</li>
-                </ul>
+                <p>The controller holds no per-user state, so replicas are interchangeable.<br><br>
+                    State lives in a shared <code>OrderService</code>/DB, letting any node answer.<br><br>
+                    A load balancer can add or remove replicas without sticky sessions.<br><br>
+                    This statelessness is what makes scaling out linear and safe.</p>
             </div>
         </div>
     </div>

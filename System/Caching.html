@@ -68,12 +68,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>@Cacheable</code> checks the cache first and only hits the DB on a miss.</li>
-                    <li>The <code>key = "#id"</code> expression derives the cache key from the argument.</li>
-                    <li><code>@CacheEvict</code> removes the stale entry on update for correct invalidation.</li>
-                    <li>Configuring TTL and a max size on the backing cache handles eviction and stampede control.</li>
-                </ul>
+                <p><code>@Cacheable</code> checks the cache first and only hits the DB on a miss.<br><br>
+                    The <code>key = "#id"</code> expression derives the cache key from the argument.<br><br>
+                    <code>@CacheEvict</code> removes the stale entry on update for correct invalidation.<br><br>
+                    Configuring TTL and a max size on the backing cache handles eviction and stampede control.</p>
             </div>
         </div>
     </div>

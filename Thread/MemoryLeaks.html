@@ -67,11 +67,9 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li>Pool threads live long, so a <code>ThreadLocal</code> value survives every request.</li>
-                    <li>Without <code>remove()</code>, each thread permanently retains its 1 MB buffer.</li>
-                    <li>Clearing it in <code>finally</code> lets the GC reclaim the buffer between requests.</li>
-                </ul>
+                <p>Pool threads live long, so a <code>ThreadLocal</code> value survives every request.<br><br>
+                    Without <code>remove()</code>, each thread permanently retains its 1 MB buffer.<br><br>
+                    Clearing it in <code>finally</code> lets the GC reclaim the buffer between requests.</p>
             </div>
         </div>
     </div>

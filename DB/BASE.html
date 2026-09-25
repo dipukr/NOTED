@@ -75,12 +75,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li>Every row carries a <code>Version</code> and <code>UpdatedAt</code> so conflicting writes from different replicas can be reconciled.</li>
-                    <li><code>WITH (NOLOCK)</code> reads whatever the replica currently has, illustrating basic availability even if the value is momentarily stale.</li>
-                    <li>The reconciliation <code>UPDATE</code> only applies when its timestamp is newer, a simple last-writer-wins merge rule.</li>
-                    <li>Given no further writes, all replicas eventually converge on the highest <code>Version</code>/<code>UpdatedAt</code> row.</li>
-                </ul>
+                <p>Every row carries a <code>Version</code> and <code>UpdatedAt</code> so conflicting writes from different replicas can be reconciled.<br><br>
+                    <code>WITH (NOLOCK)</code> reads whatever the replica currently has, illustrating basic availability even if the value is momentarily stale.<br><br>
+                    The reconciliation <code>UPDATE</code> only applies when its timestamp is newer, a simple last-writer-wins merge rule.<br><br>
+                    Given no further writes, all replicas eventually converge on the highest <code>Version</code>/<code>UpdatedAt</code> row.</p>
             </div>
         </div>
     </div>

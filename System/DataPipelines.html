@@ -70,12 +70,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>@KafkaListener</code> consumes the raw source topic as one pipeline stage.</li>
-                    <li>The null-IP guard performs data-quality filtering before transformation.</li>
-                    <li><code>geoLookup.country(...)</code> enriches each record with derived fields.</li>
-                    <li><code>out.send</code> publishes to the next topic, chaining stages together.</li>
-                </ul>
+                <p><code>@KafkaListener</code> consumes the raw source topic as one pipeline stage.<br><br>
+                    The null-IP guard performs data-quality filtering before transformation.<br><br>
+                    <code>geoLookup.country(...)</code> enriches each record with derived fields.<br><br>
+                    <code>out.send</code> publishes to the next topic, chaining stages together.</p>
             </div>
         </div>
     </div>

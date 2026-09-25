@@ -91,12 +91,10 @@
 
             <div class="code-explanation">
                 <div class="code-explanation-title">How the Proxy works</div>
-                <ul>
-                    <li><code>Image</code> is the shared interface implemented by both the real object and the proxy.</li>
-                    <li><code>ImageProxy</code> stands in for <code>RealImage</code> and holds a reference to it.</li>
-                    <li>The costly <code>RealImage</code> is created lazily, only on the first <code>display()</code> call.</li>
-                    <li>The client uses <code>Image</code> and never needs to know a proxy is involved.</li>
-                </ul>
+                <p><code>Image</code> is the shared interface implemented by both the real object and the proxy.<br><br>
+                    <code>ImageProxy</code> stands in for <code>RealImage</code> and holds a reference to it.<br><br>
+                    The costly <code>RealImage</code> is created lazily, only on the first <code>display()</code> call.<br><br>
+                    The client uses <code>Image</code> and never needs to know a proxy is involved.</p>
             </div>
         </div>
     </div>

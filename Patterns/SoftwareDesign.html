@@ -74,11 +74,9 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>PaymentStrategy</code> abstracts the varying behaviour behind one interface.</li>
-                    <li><code>Checkout</code> depends on the abstraction, not a concrete class (Dependency Inversion).</li>
-                    <li>New payment types are added without editing <code>Checkout</code> (Open/Closed).</li>
-                </ul>
+                <p><code>PaymentStrategy</code> abstracts the varying behaviour behind one interface.<br><br>
+                    <code>Checkout</code> depends on the abstraction, not a concrete class (Dependency Inversion).<br><br>
+                    New payment types are added without editing <code>Checkout</code> (Open/Closed).</p>
             </div>
         </div>
     </div>

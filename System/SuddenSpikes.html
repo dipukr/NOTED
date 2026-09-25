@@ -70,12 +70,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>Semaphore</code> caps concurrent work so a spike cannot exhaust threads.</li>
-                    <li><code>tryAcquire()</code> returns immediately, enabling fast load shedding.</li>
-                    <li>Rejected requests get a 429 instead of dragging down the whole service.</li>
-                    <li><code>finally</code> release guarantees permits return even when work throws.</li>
-                </ul>
+                <p><code>Semaphore</code> caps concurrent work so a spike cannot exhaust threads.<br><br>
+                    <code>tryAcquire()</code> returns immediately, enabling fast load shedding.<br><br>
+                    Rejected requests get a 429 instead of dragging down the whole service.<br><br>
+                    <code>finally</code> release guarantees permits return even when work throws.</p>
             </div>
         </div>
     </div>

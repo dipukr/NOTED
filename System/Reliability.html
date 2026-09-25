@@ -67,12 +67,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>TransientException</code> is retried; permanent errors propagate immediately.</li>
-                    <li><code>Math.pow(2, i)</code> spaces retries out to avoid hammering a struggling service.</li>
-                    <li>The request must be <strong>idempotent</strong> so retries do not double-apply effects.</li>
-                    <li>The final attempt rethrows so the caller learns of true failure.</li>
-                </ul>
+                <p><code>TransientException</code> is retried; permanent errors propagate immediately.<br><br>
+                    <code>Math.pow(2, i)</code> spaces retries out to avoid hammering a struggling service.<br><br>
+                    The request must be <strong>idempotent</strong> so retries do not double-apply effects.<br><br>
+                    The final attempt rethrows so the caller learns of true failure.</p>
             </div>
         </div>
     </div>

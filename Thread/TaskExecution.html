@@ -66,12 +66,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>submit</code> hands the <code>Callable</code> to the executor and returns a <code>Future</code>.</li>
-                    <li>A pooled thread runs the task off the main thread.</li>
-                    <li><code>future.get()</code> waits for and returns the computed value.</li>
-                    <li><code>shutdown</code> stops accepting new tasks and lets running ones finish.</li>
-                </ul>
+                <p><code>submit</code> hands the <code>Callable</code> to the executor and returns a <code>Future</code>.<br><br>
+                    A pooled thread runs the task off the main thread.<br><br>
+                    <code>future.get()</code> waits for and returns the computed value.<br><br>
+                    <code>shutdown</code> stops accepting new tasks and lets running ones finish.</p>
             </div>
         </div>
     </div>

@@ -63,12 +63,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>quorum</code> is a strict majority, so only one side can ever reach it.</li>
-                    <li>The minority side returns false and stops accepting writes.</li>
-                    <li>This prevents both partitions from diverging (split brain).</li>
-                    <li>When the partition heals, the minority catches up from the majority.</li>
-                </ul>
+                <p><code>quorum</code> is a strict majority, so only one side can ever reach it.<br><br>
+                    The minority side returns false and stops accepting writes.<br><br>
+                    This prevents both partitions from diverging (split brain).<br><br>
+                    When the partition heals, the minority catches up from the majority.</p>
             </div>
         </div>
     </div>

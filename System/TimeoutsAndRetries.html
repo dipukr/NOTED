@@ -69,12 +69,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li>Each call carries a 2-second timeout so it never hangs indefinitely.</li>
-                    <li>Only timeouts and transient errors are retried, up to a fixed cap.</li>
-                    <li><code>Math.pow(2, i)</code> backoff spaces attempts out exponentially.</li>
-                    <li>Random <code>jitter</code> desynchronizes clients to prevent retry storms.</li>
-                </ul>
+                <p>Each call carries a 2-second timeout so it never hangs indefinitely.<br><br>
+                    Only timeouts and transient errors are retried, up to a fixed cap.<br><br>
+                    <code>Math.pow(2, i)</code> backoff spaces attempts out exponentially.<br><br>
+                    Random <code>jitter</code> desynchronizes clients to prevent retry storms.</p>
             </div>
         </div>
     </div>

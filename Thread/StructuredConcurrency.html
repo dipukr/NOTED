@@ -69,12 +69,10 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>fork</code> starts each subtask concurrently within the scope.</li>
-                    <li><code>join</code> blocks until every forked subtask completes.</li>
-                    <li><code>throwIfFailed</code> cancels siblings and rethrows on any failure.</li>
-                    <li>The try-with-resources scope guarantees no thread outlives the block.</li>
-                </ul>
+                <p><code>fork</code> starts each subtask concurrently within the scope.<br><br>
+                    <code>join</code> blocks until every forked subtask completes.<br><br>
+                    <code>throwIfFailed</code> cancels siblings and rethrows on any failure.<br><br>
+                    The try-with-resources scope guarantees no thread outlives the block.</p>
             </div>
         </div>
     </div>

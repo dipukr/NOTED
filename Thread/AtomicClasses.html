@@ -72,11 +72,9 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li><code>incrementAndGet()</code> performs the increment atomically via CAS.</li>
-                    <li><code>compareAndSet(expected, new)</code> only updates if the value is still <code>expected</code>.</li>
-                    <li>The retry loop handles the case where another thread changed the value first.</li>
-                </ul>
+                <p><code>incrementAndGet()</code> performs the increment atomically via CAS.<br><br>
+                    <code>compareAndSet(expected, new)</code> only updates if the value is still <code>expected</code>.<br><br>
+                    The retry loop handles the case where another thread changed the value first.</p>
             </div>
         </div>
     </div>

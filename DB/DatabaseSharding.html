@@ -75,13 +75,11 @@
             </div>
             <div class="code-explanation">
                 <div class="code-explanation-title">How it works</div>
-                <ul>
-                    <li>Every shard database hosts the identical <code>Customer</code> table definition; only the data differs.</li>
-                    <li><code>CustomerId</code> is the shard key; a hash of it (<code>CustomerId % 4</code>) decides which shard database owns a given row.</li>
-                    <li>A single-customer lookup goes directly to the one shard that owns that key, an O(1) routing decision.</li>
-                    <li>A query that needs data across all customers, like the <code>Region</code> filter here, must fan out to every shard via four-part names and combine results with <code>UNION ALL</code>.</li>
-                    <li>This fan-out cost is exactly why cross-shard queries and joins are more expensive than single-shard lookups.</li>
-                </ul>
+                <p>Every shard database hosts the identical <code>Customer</code> table definition; only the data differs.<br><br>
+                    <code>CustomerId</code> is the shard key; a hash of it (<code>CustomerId % 4</code>) decides which shard database owns a given row.<br><br>
+                    A single-customer lookup goes directly to the one shard that owns that key, an O(1) routing decision.<br><br>
+                    A query that needs data across all customers, like the <code>Region</code> filter here, must fan out to every shard via four-part names and combine results with <code>UNION ALL</code>.<br><br>
+                    This fan-out cost is exactly why cross-shard queries and joins are more expensive than single-shard lookups.</p>
             </div>
         </div>
     </div>

@@ -124,12 +124,10 @@
 
             <div class="code-explanation">
                 <div class="code-explanation-title">How the Prototype works</div>
-                <ul>
-                    <li><code>Document</code> implements <code>Cloneable</code> and overrides <code>clone()</code>.</li>
-                    <li>The overridden <code>clone()</code> copies the mutable <code>pages</code> list to give a true deep copy.</li>
-                    <li>New objects are produced by copying an existing prototype, not via <code>new</code> with full setup.</li>
-                    <li>Changing the copy leaves the original untouched because its data was duplicated.</li>
-                </ul>
+                <p><code>Document</code> implements <code>Cloneable</code> and overrides <code>clone()</code>.<br><br>
+                    The overridden <code>clone()</code> copies the mutable <code>pages</code> list to give a true deep copy.<br><br>
+                    New objects are produced by copying an existing prototype, not via <code>new</code> with full setup.<br><br>
+                    Changing the copy leaves the original untouched because its data was duplicated.</p>
             </div>
         </div>
     </div>
