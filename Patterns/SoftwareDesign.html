@@ -11,73 +11,61 @@
     <div class="title">Software Design</div>
 
     <div class="intro">
-        <p>Software design is the tactical, low-level process of detailing how individual components will be built and work together.</p>
-        <p>Where architecture answers the what and why, design answers the how of a specific implementation.</p>
-        <p>It translates high-level requirements into concrete classes, interfaces, methods, and their collaborations.</p>
-        <p>It relies on design patterns and principles such as SOLID to keep code modular, reusable, and maintainable.</p>
+        <p>Software design is the tactical, low-level process of deciding <em>how</em> a piece of software will actually be built. It takes the high-level requirements and the architectural decisions and turns them into concrete classes, interfaces, methods, and the collaborations between them.</p>
+        <p>Where <strong>architecture</strong> answers the big questions &mdash; the <em>what</em> and <em>why</em> of major structural choices &mdash; <strong>design</strong> answers the <em>how</em> of a specific implementation, working within one component or service after its architecture is fixed.</p>
+        <p>Good design assigns each class a clear responsibility, keeps modules loosely coupled and highly cohesive, and hides detail behind well-chosen abstractions. It leans on established <strong>design patterns</strong> and principles such as <strong>SOLID, DRY, KISS, and YAGNI</strong> to keep code modular, reusable, testable, and easy to change.</p>
+        <p>The goal is not cleverness but <strong>maintainability</strong>: code that a future reader (often you) can understand, extend, and safely modify as requirements evolve.</p>
     </div>
 
     <div class="section when-use">
-        <div class="section-title">When to use / Key points</div>
+        <div class="section-title">Key points</div>
         <div class="section-content"><ul>
-            <li>Applies within a single component or service, after the architecture is set.</li>
-            <li>Chooses concrete patterns (Strategy, Factory, Observer) to solve local problems.</li>
-            <li>Defines class responsibilities, boundaries, and interactions.</li>
-            <li>Guided by SOLID, DRY, KISS, and separation of concerns.</li>
+            <li>Applies <strong>within a single component or service</strong>, after the architecture is set.</li>
+            <li>Chooses concrete <strong>design patterns</strong> (Strategy, Factory, Observer, ...) to solve local problems.</li>
+            <li>Defines class <strong>responsibilities, boundaries, and interactions</strong>.</li>
+            <li>Aims for <strong>high cohesion and low coupling</strong> so parts can change independently.</li>
+            <li>Guided by <strong>SOLID, DRY, KISS, YAGNI</strong>, and separation of concerns.</li>
+            <li>Favors <strong>programming to interfaces</strong> over concrete implementations.</li>
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Produces modular, testable, and readable code.</li>
-            <li>Localizes change so edits do not ripple across the system.</li>
-            <li>Encourages reuse through well-defined abstractions.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Modular and Testable</div>
+            <p>Small, focused units with clear boundaries are easy to reason about and test in isolation.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Localized Change</div>
+            <p>Well-placed abstractions keep an edit in one place from rippling across the whole system.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Reusability</div>
+            <p>Clean interfaces let components be reused in new contexts instead of copy-pasted.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Readability</div>
+            <p>Intention-revealing structure makes the code easier to understand and onboard new developers.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Adaptability</div>
+            <p>Loose coupling lets the system absorb new requirements with minimal rework.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Over-engineering with too many abstractions adds needless complexity.</li>
-            <li>Good design takes time and experience to get right.</li>
-            <li>Premature patterns can lock in the wrong structure.</li>
-        </ul></div>
-    </div>
-
-    <div class="section code-section">
-        <div class="section-title">Code</div>
-        <div class="code-layout">
-            <div class="code-wrapper">
-<pre><code><span class="code-comment"># Strategy pattern: swap payment behaviour without touching callers</span>
-<span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">PaymentStrategy</span> {
-    <span class="code-keyword">void</span> pay(<span class="code-keyword">int</span> amount);
-}
-
-<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">UpiPayment</span> <span class="code-keyword">implements</span> <span class="code-class">PaymentStrategy</span> {
-    <span class="code-keyword">public</span> <span class="code-keyword">void</span> pay(<span class="code-keyword">int</span> amount) {
-        <span class="code-class">System</span>.out.println(<span class="code-string">"Paid via UPI: "</span> + amount);
-    }
-}
-
-<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Checkout</span> {
-    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">PaymentStrategy</span> strategy;
-
-    <span class="code-keyword">public</span> <span class="code-class">Checkout</span>(<span class="code-class">PaymentStrategy</span> strategy) {
-        <span class="code-keyword">this</span>.strategy = strategy; <span class="code-comment"># injected dependency</span>
-    }
-
-    <span class="code-keyword">public</span> <span class="code-keyword">void</span> complete(<span class="code-keyword">int</span> amount) {
-        strategy.pay(amount);
-    }
-}</code></pre>
-            </div>
-            <div class="code-explanation">
-                <div class="code-explanation-title">How it works</div>
-                <p><code>PaymentStrategy</code> abstracts the varying behaviour behind one interface.<br><br>
-                    <code>Checkout</code> depends on the abstraction, not a concrete class (Dependency Inversion).<br><br>
-                    New payment types are added without editing <code>Checkout</code> (Open/Closed).</p>
-            </div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Over-Engineering</div>
+            <p>Too many abstractions add indirection and complexity that outweigh their benefit.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Premature Abstraction</div>
+            <p>Designing for imagined future needs can lock in the wrong structure and slow you down.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Analysis Paralysis</div>
+            <p>Chasing the <strong>perfect</strong> design can stall delivery and hide the real requirements.</p>
         </div>
     </div>
 </div>

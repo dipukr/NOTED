@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Circuit Breaker - Notes</title>
+<title>Circuit Breaker</title>
 <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
@@ -35,7 +35,7 @@
     </div>
 
     <div class="section cmp">
-        <div class="section-title centered">Using it in practice</div>
+        <div class="section-title centered">Using it in Practice</div>
         <div class="section-content">
             <table class="cmp-table">
                 <tbody>
@@ -259,6 +259,54 @@
                 Before each remote call, <code>getPrice</code> asks <code>allowRequest</code> &mdash; if the breaker is open it returns <code>0</code> immediately instead of hitting the down service.<br><br>
                 Each attempt reports its outcome with <code>recordSuccess</code> or <code>recordFailure</code>, which drives the state transitions; a failure returns the same safe fallback.<br><br>
                 The <code>QuoteController</code> just calls the service &mdash; all the resilience logic stays behind <code>getPrice</code>.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Timeouts, Retries and Bulkheads</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-class">@Service</span>
+<span class="code-keyword">public class</span> <span class="code-class">QuoteService</span> {
+
+    <span class="code-keyword">private</span> <span class="code-class">PricingClient</span> pricing;
+
+    <span class="code-keyword">public</span> <span class="code-class">QuoteService</span>(<span class="code-class">PricingClient</span> pricing) {
+        <span class="code-keyword">this</span>.pricing = pricing;
+    }
+
+    <span class="code-class">@Retry</span>(name = <span class="code-string">"pricing"</span>)
+    <span class="code-class">@TimeLimiter</span>(name = <span class="code-string">"pricing"</span>)
+    <span class="code-class">@Bulkhead</span>(name = <span class="code-string">"pricing"</span>, type = <span class="code-class">Bulkhead</span>.<span class="code-class">Type</span>.THREADPOOL)
+    <span class="code-class">@CircuitBreaker</span>(name = <span class="code-string">"pricing"</span>, fallbackMethod = <span class="code-string">"cachedPrice"</span>)
+    <span class="code-keyword">public</span> <span class="code-class">CompletableFuture</span>&lt;<span class="code-class">Price</span>&gt; getPrice(<span class="code-class">String</span> sku) {
+        <span class="code-keyword">return</span> <span class="code-class">CompletableFuture</span>.supplyAsync(() -&gt; pricing.fetch(sku));
+    }
+
+    <span class="code-comment"># runs when retries are exhausted or the breaker is open</span>
+    <span class="code-keyword">public</span> <span class="code-class">CompletableFuture</span>&lt;<span class="code-class">Price</span>&gt; cachedPrice(<span class="code-class">String</span> sku, <span class="code-class">Throwable</span> t) {
+        <span class="code-keyword">return</span> <span class="code-class">CompletableFuture</span>.completedFuture(<span class="code-class">Price</span>.lastKnown(sku));
+    }
+}
+
+<span class="code-comment"># application.properties</span>
+resilience4j.timelimiter.instances.pricing.timeout-duration=<span class="code-number">2s</span>
+resilience4j.retry.instances.pricing.max-attempts=<span class="code-number">3</span>
+resilience4j.retry.instances.pricing.wait-duration=<span class="code-number">200ms</span>
+resilience4j.retry.instances.pricing.enable-exponential-backoff=<span class="code-keyword">true</span>
+resilience4j.retry.instances.pricing.exponential-backoff-multiplier=<span class="code-number">2</span>
+resilience4j.bulkhead.instances.pricing.max-concurrent-calls=<span class="code-number">20</span>
+resilience4j.circuitbreaker.instances.pricing.failure-rate-threshold=<span class="code-number">50</span>
+resilience4j.circuitbreaker.instances.pricing.wait-duration-in-open-state=<span class="code-number">30s</span></code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <p><code>@Bulkhead</code> caps how many calls run at once, so a slow dependency can't exhaust the whole thread pool &mdash; the failure stays isolated to its own pool.<br><br>
+                <code>@TimeLimiter</code> aborts any call that exceeds 2s, turning a silent hang into a fast, countable failure.<br><br>
+                <code>@Retry</code> re-attempts transient failures with exponential backoff (200ms, 400ms, 800ms) before giving up, so brief blips self-heal.<br><br>
+                <code>@CircuitBreaker</code> watches the outcomes; once the failure rate crosses 50% it trips open and short-circuits to <code>cachedPrice</code>.<br><br>
+                Order matters: the breaker sees the result of the retries, and <code>cachedPrice</code> runs when retries are exhausted or the breaker is open &mdash; the breaker decides <em>whether</em> to call, the others decide <em>how</em> each call behaves.</p>
             </div>
         </div>
     </div>

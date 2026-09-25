@@ -1,3 +1,11 @@
 Replication, Fault-tolerance, Availability
 Partitioning = Scalability
 Replication = Fault-tolerance
+
+The Outbox pattern reliably publishes events by writing them to a database table in the same transaction as the business data.
+
+It solves the dual-write problem: updating a database and a message broker cannot be atomic on their own.
+
+A separate relay process reads the outbox table and publishes the events to the broker.
+
+This guarantees an event is published if and only if the business change was committed.

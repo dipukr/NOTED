@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design Patterns - Notes</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Design Patterns</div>
+
+    <div class="intro">
+        <p>Design patterns are reusable solutions to commonly occurring problems in software design.</p> 
+        <p>Design patterns are solutions or techniques to avoid code design problems.</p>
+        <p>Design patterns help us write robust, clean, modular and extensible code.</p> 
+        <p>They provide a template for solving design issues in various contexts, helping developers write code that is more maintainable, scalable and understandable. Design patterns are divided into three categories.</p>
+    </div> <br>
+
+    <div class="cat-grid">
+        <div class="cat-card cat-creational">
+            <div class="cat-badge">C</div>
+            <div class="cat-body">
+                <div class="cat-title">Creational</div>
+                <p>Deals with <strong>object creation</strong> &mdash; how objects are instantiated, hiding the construction details.</p>
+            </div>
+        </div>
+        <div class="cat-card cat-structural">
+            <div class="cat-badge">S</div>
+            <div class="cat-body">
+                <div class="cat-title">Structural</div>
+                <p>Deals with <strong>object composition</strong> &mdash; how classes and objects assemble into larger structures.</p>
+            </div>
+        </div>
+        <div class="cat-card cat-behavioral">
+            <div class="cat-badge">B</div>
+            <div class="cat-body">
+                <div class="cat-title">Behavioral</div>
+                <p>Deals with <strong>object interaction and responsibility</strong> &mdash; how objects communicate and share work.</p>
+            </div>
+        </div>
+    </div>
+    <br>
+    <div class="benefit-grid">
+        <div class="benefit-card">
+            <div class="benefit-title">Reusability</div>
+            <p>Provide a reusable solution to common software design problems, saving developers from reinventing the wheel whenever they hit a new problem &mdash; they reach for a tried and tested pattern instead.</p>
+        </div>
+        <div class="benefit-card">
+            <div class="benefit-title">Maintainability</div>
+            <p>Promote clean, organized, maintainable code, making it easier to maintain and modify as the software evolves.</p>
+        </div>
+        <div class="benefit-card">
+            <div class="benefit-title">Rapid Development</div>
+            <p>Provide a standard way to solve common design problems, saving time and effort so developers can focus on other aspects of the software.</p>
+        </div>
+        <div class="benefit-card">
+            <div class="benefit-title">Common Vocabulary</div>
+            <p>Give teams a shared language &mdash; saying &ldquo;use a Strategy here&rdquo; conveys an entire design in two words, making discussion and reviews faster.</p>
+        </div>
+        <div class="benefit-card">
+            <div class="benefit-title">Flexibility and Extensibility</div>
+            <p>Favor loose coupling and programming to interfaces, so new behavior can be added with little or no change to existing, tested code.</p>
+        </div>
+        <div class="benefit-card">
+            <div class="benefit-title">Testability</div>
+            <p>Well-separated responsibilities and injected dependencies make components easy to isolate and unit test.</p>
+        </div>
+    </div>
+
+    <div class="section cmp">
+        <div class="section-content">
+            <table class="cmp-table">
+                <thead><tr><th>Pattern</th><th>Category</th><th>What it does</th></tr></thead>
+                <tbody>
+                    <tr><td>Singleton</td><td>Creational</td><td>Ensures a class has only one instance and gives a global point of access to it.</td></tr>
+                    <tr><td>Builder</td><td>Creational</td><td>Builds a complex object step by step, separating construction from its representation.</td></tr>
+                    <tr><td>Factory Method</td><td>Creational</td><td>Defines an interface for creating an object but lets subclasses decide which class to instantiate.</td></tr>
+                    <tr><td>Abstract Factory</td><td>Creational</td><td>Creates families of related objects without specifying their concrete classes.</td></tr>
+                    <tr><td>Prototype</td><td>Creational</td><td>Creates new objects by cloning an existing instance instead of building from scratch.</td></tr>
+                    <tr><td>Adapter</td><td>Structural</td><td>Converts one interface into another that the client expects.</td></tr>
+                    <tr><td>Bridge</td><td>Structural</td><td>Decouples an abstraction from its implementation so the two can vary independently.</td></tr>
+                    <tr><td>Composite</td><td>Structural</td><td>Treats individual objects and groups of objects uniformly as a tree.</td></tr>
+                    <tr><td>Decorator</td><td>Structural</td><td>Adds responsibilities to an object dynamically by wrapping it.</td></tr>
+                    <tr><td>Facade</td><td>Structural</td><td>Provides a simplified, unified interface to a complex subsystem.</td></tr>
+                    <tr><td>Flyweight</td><td>Structural</td><td>Shares common state across many objects to save memory.</td></tr>
+                    <tr><td>Proxy</td><td>Structural</td><td>Provides a placeholder that controls access to another object.</td></tr>
+                    <tr><td>Chain of Responsibility</td><td>Behavioral</td><td>Passes a request along a chain of handlers until one of them handles it.</td></tr>
+                    <tr><td>Command</td><td>Behavioral</td><td>Encapsulates a request as an object so it can be queued, logged, or undone.</td></tr>
+                    <tr><td>Iterator</td><td>Behavioral</td><td>Accesses elements of a collection in sequence without exposing its structure.</td></tr>
+                    <tr><td>Mediator</td><td>Behavioral</td><td>Centralizes communication between objects to reduce direct coupling.</td></tr>
+                    <tr><td>Memento</td><td>Behavioral</td><td>Captures and restores an object's state without breaking encapsulation.</td></tr>
+                    <tr><td>Observer</td><td>Behavioral</td><td>Notifies dependent objects automatically when a subject's state changes.</td></tr>
+                    <tr><td>State</td><td>Behavioral</td><td>Lets an object change its behavior when its internal state changes.</td></tr>
+                    <tr><td>Strategy</td><td>Behavioral</td><td>Defines a family of interchangeable algorithms and swaps them at runtime.</td></tr>
+                    <tr><td>Template Method</td><td>Behavioral</td><td>Defines the skeleton of an algorithm, letting subclasses fill in specific steps.</td></tr>
+                    <tr><td>Visitor</td><td>Behavioral</td><td>Adds new operations to an object structure without changing its classes.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

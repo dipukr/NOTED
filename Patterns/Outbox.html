@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Outbox Pattern - Notes</title>
+<title>Outbox Pattern</title>
 <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
@@ -11,73 +11,241 @@
     <div class="title">Outbox Pattern</div>
 
     <div class="intro">
-        <p>The Outbox pattern reliably publishes events by writing them to a database table in the same transaction as the business data.</p>
-        <p>It solves the dual-write problem: updating a database and a message broker cannot be atomic on their own.</p>
+        <p>Outbox Pattern reliably publishes events by writing them to a DB table in the same transaction as the business data.</p>
+        <p>Outbox solves the dual-write problem: updating a database and a message broker cannot be atomic on their own.</p>
+        <p>Outbox is one of the most important patterns for building reliable, event-driven microservices with Spring Boot.</p>
         <p>A separate relay process reads the outbox table and publishes the events to the broker.</p>
         <p>This guarantees an event is published if and only if the business change was committed.</p>
-    </div>
-
-    <div class="section when-use">
-        <div class="section-title">When to use / Key points</div>
-        <div class="section-content"><ul>
-            <li>Use whenever a state change must reliably produce an event.</li>
-            <li>Business row and outbox row are saved in one local transaction.</li>
-            <li>A poller or CDC tool ships outbox rows to the broker.</li>
-            <li>Consumers must be idempotent since delivery is at-least-once.</li>
-        </ul></div>
+        <p>Consumers must be idempotent since delivery is at-least-once.</p>
     </div>
 
     <div class="section advantages">
         <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>No lost events: publishing is atomic with the data change.</li>
-            <li>Works with any broker, no distributed transaction needed.</li>
-            <li>Survives crashes; unsent rows are retried later.</li>
-        </ul></div>
-    </div>
-
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Adds an outbox table and a relay process to operate.</li>
-            <li>At-least-once delivery requires idempotent consumers.</li>
-            <li>Slight publishing latency from the polling interval.</li>
-        </ul></div>
-    </div>
-
-    <div class="section code-section">
-        <div class="section-title">Code</div>
-        <div class="code-layout">
-            <div class="code-wrapper">
-<pre><code><span class="code-comment"># Business change and event saved in ONE transaction</span>
-<span class="code-class">@Service</span>
-<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderService</span> {
-
-    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">OrderRepository</span> orders;
-    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">OutboxRepository</span> outbox;
-
-    <span class="code-keyword">public</span> <span class="code-class">OrderService</span>(<span class="code-class">OrderRepository</span> orders, <span class="code-class">OutboxRepository</span> outbox) {
-        <span class="code-keyword">this</span>.orders = orders;
-        <span class="code-keyword">this</span>.outbox = outbox;
-    }
-
-    <span class="code-class">@Transactional</span>
-    <span class="code-keyword">public</span> <span class="code-keyword">void</span> placeOrder(<span class="code-class">Order</span> order) {
-        orders.save(order);            <span class="code-comment"># business row</span>
-        outbox.save(<span class="code-keyword">new</span> <span class="code-class">OutboxEvent</span>(   <span class="code-comment"># event row, same txn</span>
-            <span class="code-string">"OrderPlaced"</span>, order.getId()));
-    }
-}
-<span class="code-comment"># A scheduled relay later reads OutboxEvent rows and publishes them.</span></code></pre>
-            </div>
-            <div class="code-explanation">
-                <div class="code-explanation-title">How it works</div>
-                <p>Both saves commit or roll back together under <code>@Transactional</code>.<br><br>
-                    A relay polls <code>OutboxEvent</code> rows and sends them to the broker.<br><br>
-                    If the transaction fails, no event is ever emitted.</p>
+        <div class="section-content">
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-title">No Lost Events</div>
+                    <p>The event row commits in the same transaction as the data, so an event exists exactly when the business change did.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">No Distributed Transaction</div>
+                    <p>Only a local DB transaction is needed; it avoids two-phase commit (XA) across the database and the broker.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Crash-Safe and Retryable</div>
+                    <p>Unsent rows survive restarts and are retried until delivered, giving at-least-once guarantees.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Decoupled from the Broker</div>
+                    <p>The write succeeds even if Kafka is down; the relay catches up once it recovers.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Broker-Agnostic</div>
+                    <p>Works with Kafka, RabbitMQ, or any transport, since the source of truth is a table.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">CDC-Friendly</div>
+                    <p>The same table can be streamed by Debezium for near real-time publishing with no polling overhead.</p>
+                </div>
             </div>
         </div>
     </div>
-</div>
+
+    <div class="section disadvantages">
+        <div class="section-title">Disadvantages</div>
+        <div class="section-content">
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-title">More Moving Parts</div>
+                    <p>An outbox table plus a relay (poller or CDC connector) to build, deploy, and monitor.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">At-Least-Once, Not Exactly-Once</div>
+                    <p>The same event can be delivered twice, so consumers must be idempotent.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Publishing Latency</div>
+                    <p>A polling relay adds delay up to one poll interval; CDC shrinks this but never fully removes it.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Table Growth</div>
+                    <p>Sent rows must be purged or archived, or the outbox table bloats over time.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Concurrency Care</div>
+                    <p>Scaling to multiple relay instances needs row locking (for example <code>SKIP LOCKED</code>) to avoid double-sends and reordering.</p>
+                </div>
+                <div class="card">
+                    <div class="card-title">Schema Coupling</div>
+                    <p>The event payload stored in the table has to evolve carefully alongside the data model.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-diagram">
+        <img src="../static/outbox.svg" alt="Outbox pattern flow: a service writes the business row and an outbox_event row in one local transaction; a relay (scheduled poller or Debezium CDC) reads unpublished outbox rows and publishes them to the broker, then marks them sent">
+    </div>
+
+    <div class="subheading">Problem the Outbox pattern solves</div>
+
+    <div class="intro">
+        <p>When you have a transactional database and you want to publish events (Kafka, RabbitMQ) reliably, a problem arises:</p>
+        <ul>
+            <li>You update your database (say, create an order).</li>
+            <li>You need to publish an event (<code>OrderCreated</code>) to Kafka so other services (like Inventory, Payment) know about it.</li>
+            <li>If you update the DB successfully but fail to publish the Kafka message (network down, broker crash, app crash), your system becomes inconsistent.</li>
+        </ul>
+        <p>This is called the <strong>Dual-write Problem</strong> the DB and Kafka are updated independently, and one might fail.</p>
+    </div>
+
+    <div class="subheading">Outbox pattern: solution</div>
+
+    <div class="intro">
+        <p>The Outbox pattern avoids the dual-write problem by:</p>
+        <ol>
+            <li>Writing the event into a local outbox table in the same transaction as the business operation.</li>
+            <li>A background process (Debezium CDC, Scheduled job) reads from the outbox table and publishes events to Kafka.</li>
+            <li>Once published, the outbox record is marked as sent (or deleted).</li>
+        </ol>
+        <p>This ensures that either both the DB change and the event are recorded, or neither is &mdash; giving guaranteed at-least-once delivery of events.</p>
+    </div>
+
+    <div class="subheading">Outbox table</div>
+
+    <div class="intro">
+        <p>Event is stored as a row alongside the business data. A <code>published</code> flag lets a poller find rows that still need to be sent.</p>
+    </div>
+
+    <div class="code-block"><pre><code><span class="code-keyword">CREATE TABLE</span> outbox_event (
+    id             <span class="code-class">BIGINT</span> <span class="code-keyword">AUTO_INCREMENT PRIMARY KEY</span>,
+    aggregate_type <span class="code-class">VARCHAR</span>(<span class="code-number">255</span>),        <span class="code-comment"># e.g. "Order"</span>
+    aggregate_id   <span class="code-class">VARCHAR</span>(<span class="code-number">255</span>),        <span class="code-comment"># e.g. "order-101"</span>
+    event_type     <span class="code-class">VARCHAR</span>(<span class="code-number">255</span>),        <span class="code-comment"># e.g. "OrderCreated"</span>
+    payload        <span class="code-class">JSON</span>,                <span class="code-comment"># event body</span>
+    created_at     <span class="code-class">TIMESTAMP</span>,
+    published      <span class="code-class">BOOLEAN</span> <span class="code-keyword">DEFAULT</span> <span class="code-keyword">FALSE</span>
+);</code></pre></div>
+
+    <div class="subheading">Entities</div>
+
+    <div class="intro">
+        <p>The business entity (<code>Order</code>) and the <code>OutboxEvent</code> that records what happened.</p>
+    </div>
+
+    <div class="code-block"><pre><code><span class="code-class">@Entity</span>
+<span class="code-class">@Table</span>(name = <span class="code-string">"orders"</span>)
+<span class="code-keyword">public class</span> <span class="code-class">Order</span> {
+    <span class="code-class">@Id</span>
+    <span class="code-keyword">private</span> <span class="code-class">String</span> id;
+    <span class="code-keyword">private</span> <span class="code-class">String</span> status;
+    <span class="code-keyword">private</span> <span class="code-class">Double</span> amount;
+}
+
+<span class="code-class">@Entity</span>
+<span class="code-class">@Table</span>(name = <span class="code-string">"outbox_event"</span>)
+<span class="code-keyword">public class</span> <span class="code-class">OutboxEvent</span> {
+    <span class="code-class">@Id</span>
+    <span class="code-class">@GeneratedValue</span>(strategy = <span class="code-class">GenerationType</span>.IDENTITY)
+    <span class="code-keyword">private</span> <span class="code-class">Long</span> id;
+
+    <span class="code-keyword">private</span> <span class="code-class">String</span> aggregateType;   <span class="code-comment"># e.g. "Order"</span>
+    <span class="code-keyword">private</span> <span class="code-class">String</span> aggregateId;
+    <span class="code-keyword">private</span> <span class="code-class">String</span> eventType;
+
+    <span class="code-class">@Column</span>(columnDefinition = <span class="code-string">"TEXT"</span>)
+    <span class="code-keyword">private</span> <span class="code-class">String</span> payload;
+
+    <span class="code-keyword">private</span> <span class="code-class">LocalDateTime</span> createdAt = <span class="code-class">LocalDateTime</span>.now();
+    <span class="code-keyword">private</span> <span class="code-class">Boolean</span> published = <span class="code-keyword">false</span>;
+}</code></pre></div>
+
+    <div class="subheading">Repositories</div>
+
+    <div class="code-block"><pre><code><span class="code-keyword">public interface</span> <span class="code-class">OrderRepository</span> <span class="code-keyword">extends</span> <span class="code-class">JpaRepository</span>&lt;<span class="code-class">Order</span>, <span class="code-class">String</span>&gt; {}
+
+<span class="code-keyword">public interface</span> <span class="code-class">OutboxRepository</span> <span class="code-keyword">extends</span> <span class="code-class">JpaRepository</span>&lt;<span class="code-class">OutboxEvent</span>, <span class="code-class">Long</span>&gt; {
+    <span class="code-class">List</span>&lt;<span class="code-class">OutboxEvent</span>&gt; findTop50ByPublishedFalseOrderByCreatedAtAsc();
+}</code></pre></div>
+
+    <div class="subheading">Service layer (transactional save)</div>
+
+    <div class="intro">
+        <p>The order and its outbox event are saved together under one <code>@Transactional</code> boundary &mdash; the heart of the pattern:</p>
+    </div>
+
+    <div class="code-block"><pre><code><span class="code-class">@Service</span>
+<span class="code-keyword">public class</span> <span class="code-class">OrderService</span> {
+    <span class="code-keyword">private</span> <span class="code-class">OrderRepository</span> orderRepository;
+    <span class="code-keyword">private</span> <span class="code-class">OutboxRepository</span> outboxRepository;
+
+    <span class="code-keyword">public</span> <span class="code-class">OrderService</span>(<span class="code-class">OrderRepository</span> orderRepository, <span class="code-class">OutboxRepository</span> outboxRepository) {
+        <span class="code-keyword">this</span>.orderRepository = orderRepository;
+        <span class="code-keyword">this</span>.outboxRepository = outboxRepository;
+    }
+
+    <span class="code-class">@Transactional</span>
+    <span class="code-keyword">public</span> <span class="code-class">Order</span> createOrder(<span class="code-class">Order</span> order) {
+        order.setStatus(<span class="code-string">"CREATED"</span>);
+        orderRepository.save(order);
+
+        <span class="code-comment"># create outbox event in the SAME transaction</span>
+        <span class="code-class">OutboxEvent</span> event = <span class="code-keyword">new</span> <span class="code-class">OutboxEvent</span>();
+        event.setAggregateType(<span class="code-string">"Order"</span>);
+        event.setAggregateId(order.getId());
+        event.setEventType(<span class="code-string">"OrderCreated"</span>);
+        event.setPayload(toJson(order));
+
+        outboxRepository.save(event);
+        <span class="code-keyword">return</span> order;
+    }
+}</code></pre></div>
+
+    <div class="subheading">Scheduled relay publisher</div>
+
+    <div class="intro">
+        <p>A background job polls unpublished rows, sends them to Kafka, and marks each as sent. A failed send simply stays unpublished and is retried next tick:</p>
+    </div>
+
+    <div class="code-block"><pre><code><span class="code-class">@Service</span>
+<span class="code-keyword">public class</span> <span class="code-class">OutboxPublisher</span> {
+    <span class="code-keyword">private</span> <span class="code-class">OutboxRepository</span> outboxRepository;
+    <span class="code-keyword">private</span> <span class="code-class">KafkaTemplate</span>&lt;<span class="code-class">String</span>, <span class="code-class">String</span>&gt; kafkaTemplate;
+
+    <span class="code-keyword">public</span> <span class="code-class">OutboxPublisher</span>(<span class="code-class">OutboxRepository</span> outboxRepository, <span class="code-class">KafkaTemplate</span>&lt;<span class="code-class">String</span>, <span class="code-class">String</span>&gt; kafkaTemplate) {
+        <span class="code-keyword">this</span>.outboxRepository = outboxRepository;
+        <span class="code-keyword">this</span>.kafkaTemplate = kafkaTemplate;
+    }
+
+    <span class="code-class">@Scheduled</span>(fixedDelay = <span class="code-number">5000</span>)   <span class="code-comment"># every 5 seconds</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> publishEvents() {
+        <span class="code-class">List</span>&lt;<span class="code-class">OutboxEvent</span>&gt; events = outboxRepository.findTop50ByPublishedFalseOrderByCreatedAtAsc();
+        <span class="code-keyword">for</span> (<span class="code-class">OutboxEvent</span> event: events) {
+            <span class="code-keyword">try</span> {
+                kafkaTemplate.send(<span class="code-string">"order-events"</span>, event.getAggregateId(), event.getPayload());
+                event.setPublished(<span class="code-keyword">true</span>);
+                outboxRepository.save(event);
+            } <span class="code-keyword">catch</span> (<span class="code-class">Exception</span> e) {
+                <span class="code-comment"># log and retry on the next run</span>
+            }
+        }
+    }
+}</code></pre></div>
+
+    <div class="subheading">Kafka config (application.properties)</div>
+
+    <div class="code-block"><pre><code>spring.kafka.bootstrap-servers=localhost:9092
+spring.kafka.producer.key-serializer=org.apache.kafka.common.serialization.StringSerializer
+spring.kafka.producer.value-serializer=org.apache.kafka.common.serialization.StringSerializer</code></pre></div>
+
+    <div class="subheading">Production hardening</div>
+
+    <div class="intro"><ul>
+        <li><strong>Idempotency</strong> &mdash; delivery is at-least-once, so consumers must tolerate duplicate events (dedupe on event id).</li>
+        <li><strong>Retries and DLQ</strong> &mdash; route repeatedly failing publishes to a dead-letter queue instead of blocking the relay.</li>
+        <li><strong>CDC alternative</strong> &mdash; replace the polling job with a Change Data Capture tool like Debezium that streams outbox rows straight from the transaction log.</li>
+        <li><strong>Ordering</strong> &mdash; use <code>aggregateId</code> as the Kafka message key so events for one aggregate keep their order (same partition).</li>
+        <li><strong>Monitoring</strong> &mdash; alert on the count of unsent rows (<code>published = false</code>) and on relay lag.</li>
+    </ul></div>
 </body>
 </html>
