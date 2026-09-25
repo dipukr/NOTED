@@ -277,12 +277,26 @@ br {
 }
 
 .when-use {
-    background: #eff6ff;
+    background: #effcfb;
 }
 
 .when-use .section-title {
-    background: #dbeafe;
-    color: #1e40af;
+    background: #cff3f1;
+    color: #155e63;
+}
+
+/* Real-world example: same look as When to use, slightly smaller text */
+.realworld {
+    background: #effcfb;
+}
+
+.realworld .section-title {
+    background: #cff3f1;
+    color: #155e63;
+}
+
+.realworld .section-content {
+    font-size: 16px;
 }
 
 .advantages {
@@ -743,6 +757,13 @@ br {
 .code-section .section-title {
     background: #e5e7eb;
     color: #1f2937;
+}
+
+/* no title -> avoid a doubled top border on the first code block */
+.code-section > .code-layout:first-child,
+.code-section > .code-wrapper:first-child,
+.code-section > .code-block:first-child {
+    border-top: 0;
 }
 
 .code-wrapper {

@@ -19,7 +19,7 @@
         <p>Consumers must be idempotent since delivery is at-least-once.</p>
     </div>
 
-    <div class="subheading">Advantages</div>
+    <div class="subheading">Pros and Cons</div>
     <div class="pc-grid">
         <div class="pc-card pro">
             <div class="pc-title">No Lost Events</div>
@@ -45,10 +45,8 @@
             <div class="pc-title">CDC-Friendly</div>
             <p>The same table can be streamed by Debezium for near real-time publishing with no polling overhead.</p>
         </div>
-    </div>
+    
 
-    <div class="subheading">Disadvantages</div>
-    <div class="pc-grid">
         <div class="pc-card con">
             <div class="pc-title">More Moving Parts</div>
             <p>An outbox table plus a relay (poller or CDC connector) to build, deploy, and monitor.</p>

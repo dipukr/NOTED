@@ -28,7 +28,7 @@
         </div>
     </div>
 
-    <div class="subheading">Advantages</div>
+    <div class="subheading">Pros and Cons</div>
     <div class="pc-grid">
         <div class="pc-card pro">
             <div class="pc-title">Readable Creation</div>
@@ -50,10 +50,8 @@
             <div class="pc-title">Pre-build Validation</div>
             <p>Enables validation of the object state before it is built.</p>
         </div>
-    </div>
+    
 
-    <div class="subheading">Disadvantages</div>
-    <div class="pc-grid">
         <div class="pc-card con">
             <div class="pc-title">Extra Boilerplate</div>
             <p>Requires writing extra boilerplate for the builder class.</p>
@@ -68,16 +66,16 @@
         </div>
     </div>
 
-    <div class="section when-use">
+    <div class="section realworld">
         <div class="section-title">Real-world example</div>
         <div class="section-content"><ul>
-            <li>StringBuilder &ndash; appends characters step by step through chained calls before producing the final string.</li>
-            <li>Stream.Builder in Java &ndash; adds elements one at a time and then calls build to create a stream.</li>
-            <li>Lombok @Builder &ndash; generates a fluent builder class for any annotated POJO at compile time.</li>
-            <li>HttpRequest.newBuilder (Java 11 HttpClient) &ndash; sets URI, headers, and method fluently before building an immutable request.</li>
-            <li>Spring SpringApplicationBuilder &ndash; configures sources, profiles, and properties step by step to bootstrap an application.</li>
-            <li>OkHttp Request.Builder and Retrofit.Builder &ndash; assemble HTTP requests and client instances through chained configuration.</li>
-            <li>Ordering a custom meal &ndash; you choose bun, patty, and toppings one by one, and the burger is assembled at the end.</li>
+            <li><strong>StringBuilder</strong> &mdash; appends characters step by step through chained calls before producing the final string.</li>
+            <li><strong>Stream.Builder in Java</strong> &mdash; adds elements one at a time and then calls build to create a stream.</li>
+            <li><strong>Lombok @Builder</strong> &mdash; generates a fluent builder class for any annotated POJO at compile time.</li>
+            <li><strong>HttpRequest.newBuilder (Java 11 HttpClient)</strong> &mdash; sets URI, headers, and method fluently before building an immutable request.</li>
+            <li><strong>Spring SpringApplicationBuilder</strong> &mdash; configures sources, profiles, and properties step by step to bootstrap an application.</li>
+            <li><strong>OkHttp Request.Builder and Retrofit.Builder</strong> &mdash; assemble HTTP requests and client instances through chained configuration.</li>
+            <li><strong>Ordering a custom meal</strong> &mdash; you choose bun, patty, and toppings one by one, and the burger is assembled at the end.</li>
         </ul></div>
     </div>
 

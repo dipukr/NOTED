@@ -29,7 +29,7 @@
         </div>
     </div>
 
-    <div class="subheading">Advantages</div>
+    <div class="subheading">Pros and Cons</div>
     <div class="pc-grid">
         <div class="pc-card pro">
             <div class="pc-title">Single Instance</div>
@@ -51,10 +51,8 @@
             <div class="pc-title">Coordinates Actions</div>
             <p>Useful for coordinating actions across a system.</p>
         </div>
-    </div>
+    
 
-    <div class="subheading">Disadvantages</div>
-    <div class="pc-grid">
         <div class="pc-card con">
             <div class="pc-title">Global State</div>
             <p>Introduces global state, which can make code harder to test and reason about.</p>
@@ -76,16 +74,16 @@
     <div class="subheading">
         
     </div>
-    <div class="section when-use">
+    <div class="section realworld">
         <div class="section-title">Real-world example</div>
         <div class="section-content"><ul>
-            <li>java.lang.Runtime &ndash; Runtime.getRuntime() always returns the one JVM runtime instance per application.</li>
-            <li>Spring beans &ndash; the default bean scope is singleton, so the container manages a single shared instance per context.</li>
-            <li>Java Logging &ndash; java.util.logging.LogManager and loggers are accessed through a single shared manager.</li>
-            <li>SLF4J and Log4j &ndash; the LoggerFactory hands out loggers backed by a single logging context.</li>
-            <li>java.awt.Desktop &ndash; Desktop.getDesktop() exposes one instance representing the current desktop environment.</li>
-            <li>Database connection pools &ndash; a single pool manager (such as HikariCP's data source) is shared to reuse connections.</li>
-            <li>Government registry &ndash; a country has one central authority issuing passports, an everyday single-instance analogy.</li>
+            <li><strong>java.lang.Runtime</strong> &mdash; Runtime.getRuntime() always returns the one JVM runtime instance per application.</li>
+            <li><strong>Spring beans</strong> &mdash; the default bean scope is singleton, so the container manages a single shared instance per context.</li>
+            <li><strong>Java Logging</strong> &mdash; java.util.logging.LogManager and loggers are accessed through a single shared manager.</li>
+            <li><strong>SLF4J and Log4j</strong> &mdash; the LoggerFactory hands out loggers backed by a single logging context.</li>
+            <li><strong>java.awt.Desktop</strong> &mdash; Desktop.getDesktop() exposes one instance representing the current desktop environment.</li>
+            <li><strong>Database connection pools</strong> &mdash; a single pool manager (such as HikariCP's data source) is shared to reuse connections.</li>
+            <li><strong>Government registry</strong> &mdash; a country has one central authority issuing passports, an everyday single-instance analogy.</li>
         </ul></div>
     </div>
 

@@ -40,16 +40,16 @@
         </div>
     </div>
 
-    <div class="section when-use">
+    <div class="section realworld">
         <div class="section-title">Real-world example</div>
         <div class="section-content"><ul>
-            <li>java.lang.Integer.valueOf() &ndash; caches Integer objects for values between -128 and 127 and returns the same instance.</li>
-            <li>String pool in Java &ndash; string literals are interned and shared so identical strings reuse one object.</li>
-            <li>Character and Boolean caches &ndash; Character.valueOf() and Boolean.valueOf() return shared cached instances.</li>
-            <li>Text editors and word processors &ndash; each character glyph is a shared flyweight while position and font style are passed as extrinsic state.</li>
-            <li>Game rendering &ndash; trees, bullets, or tiles share intrinsic textures and models while coordinates are stored per instance.</li>
-            <li>Web browsers &ndash; repeated images and icons on a page are loaded once and reused wherever they appear.</li>
-            <li>java.awt.Font and font glyph caches &ndash; glyph shapes are shared across all text drawn with the same font.</li>
+            <li><strong>java.lang.Integer.valueOf()</strong> &mdash; caches Integer objects for values between -128 and 127 and returns the same instance.</li>
+            <li><strong>String pool in Java</strong> &mdash; string literals are interned and shared so identical strings reuse one object.</li>
+            <li><strong>Character and Boolean caches</strong> &mdash; Character.valueOf() and Boolean.valueOf() return shared cached instances.</li>
+            <li><strong>Text editors and word processors</strong> &mdash; each character glyph is a shared flyweight while position and font style are passed as extrinsic state.</li>
+            <li><strong>Game rendering</strong> &mdash; trees, bullets, or tiles share intrinsic textures and models while coordinates are stored per instance.</li>
+            <li><strong>Web browsers</strong> &mdash; repeated images and icons on a page are loaded once and reused wherever they appear.</li>
+            <li><strong>java.awt.Font and font glyph caches</strong> &mdash; glyph shapes are shared across all text drawn with the same font.</li>
         </ul></div>
     </div>
 

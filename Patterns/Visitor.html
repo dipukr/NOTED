@@ -30,19 +30,7 @@
         </div>
     </div>
 
-    <div class="section when-use">
-        <div class="section-title">Real-world examples</div>
-        <div class="section-content">
-            <ul>
-                <li>Filesystem utilities &ndash; Backup, search, indexing tools can visit folders and files.</li>
-                <li>Game engines &ndash; Collision detection or rendering can be implemented as visitors over game entities.</li>
-                <li>AST traversal&ndash; Different visitors (semantic analyzer, code generator) operate on the same tree nodes.</li>
-                <li>Document converters &ndash; HTML, PDF, MD converters can visit document elements (paragraphs, images, links).</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="subheading">Advantages</div>
+    <div class="subheading">Pros and Cons</div>
     <div class="pc-grid">
         <div class="pc-card pro">
             <div class="pc-title">New Operations Easily</div>
@@ -56,10 +44,8 @@
             <div class="pc-title">Extensible Operations</div>
             <p>It makes operations extensible and easy to manage over time.</p>
         </div>
-    </div>
+    
 
-    <div class="subheading">Disadvantages</div>
-    <div class="pc-grid">
         <div class="pc-card con">
             <div class="pc-title">Hard To Add Elements</div>
             <p>Adding a new element type requires updating all existing visitors.</p>
@@ -70,16 +56,16 @@
         </div>
     </div>
 
-    <div class="section when-use">
+    <div class="section realworld">
         <div class="section-title">Real-world example</div>
         <div class="section-content"><ul>
-            <li>Java NIO FileVisitor &ndash; Files.walkFileTree traverses a directory tree and calls visitFile and visitDirectory callbacks on each node.</li>
-            <li>javax.lang.model.element.ElementVisitor &ndash; annotation processors visit program elements (classes, methods, fields) during compilation.</li>
-            <li>Java compiler AST &ndash; the com.sun.source.util.TreeVisitor walks syntax tree nodes for analysis and code generation.</li>
-            <li>ASM bytecode library &ndash; ClassVisitor and MethodVisitor let tools inspect and transform bytecode without changing the class model.</li>
-            <li>Spring BeanDefinitionVisitor &ndash; visits bean definitions to resolve and rewrite property placeholder values.</li>
-            <li>ANTLR and XML parsers &ndash; generated visitors walk parse trees so each operation (evaluation, pretty-printing) stays separate from the grammar.</li>
-            <li>Tax auditor analogy &ndash; an auditor visits different account types (savings, business, trust) applying rules per type without the accounts changing.</li>
+            <li><strong>Java NIO FileVisitor</strong> &mdash; Files.walkFileTree traverses a directory tree and calls visitFile and visitDirectory callbacks on each node.</li>
+            <li><strong>javax.lang.model.element.ElementVisitor</strong> &mdash; annotation processors visit program elements (classes, methods, fields) during compilation.</li>
+            <li><strong>Java compiler AST</strong> &mdash; the com.sun.source.util.TreeVisitor walks syntax tree nodes for analysis and code generation.</li>
+            <li><strong>ASM bytecode library</strong> &mdash; ClassVisitor and MethodVisitor let tools inspect and transform bytecode without changing the class model.</li>
+            <li><strong>Spring BeanDefinitionVisitor</strong> &mdash; visits bean definitions to resolve and rewrite property placeholder values.</li>
+            <li><strong>ANTLR and XML parsers</strong> &mdash; generated visitors walk parse trees so each operation (evaluation, pretty-printing) stays separate from the grammar.</li>
+            <li><strong>Tax auditor analogy</strong> &mdash; an auditor visits different account types (savings, business, trust) applying rules per type without the accounts changing.</li>
         </ul></div>
     </div>
 

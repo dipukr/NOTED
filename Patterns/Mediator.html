@@ -29,7 +29,7 @@
         </div>
     </div>
 
-    <div class="subheading">Advantages</div>
+    <div class="subheading">Pros and Cons</div>
     <div class="pc-grid">
         <div class="pc-card pro">
             <div class="pc-title">Low Coupling</div>
@@ -43,10 +43,8 @@
             <div class="pc-title">Centralized Communication</div>
             <p>Centralizes complex communications in one place, making the interactions easier to follow and manage.</p>
         </div>
-    </div>
+    
 
-    <div class="subheading">Disadvantages</div>
-    <div class="pc-grid">
         <div class="pc-card con">
             <div class="pc-title">God Object Risk</div>
             <p>The mediator can become a God object if it accumulates too much responsibility and grows too complex.</p>
@@ -57,16 +55,16 @@
         </div>
     </div>
 
-    <div class="section when-use">
+    <div class="section realworld">
         <div class="section-title">Real-world example</div>
         <div class="section-content"><ul>
-            <li>java.util.Timer &ndash; coordinates scheduling and execution of TimerTask objects without them knowing each other.</li>
-            <li>Spring ApplicationEventPublisher &ndash; publishers and listeners communicate through the central event multicaster, not directly.</li>
-            <li>JMS message broker &ndash; producers and consumers exchange messages via the broker rather than point-to-point links.</li>
-            <li>Air traffic control tower &ndash; pilots coordinate takeoffs and landings through the tower instead of talking to each other.</li>
-            <li>Chat room server &ndash; users send messages to the server, which relays them to the other participants.</li>
-            <li>GUI dialog controller &ndash; a form controller mediates between buttons, text fields, and checkboxes to enable or disable them.</li>
-            <li>Enterprise Service Bus &ndash; services integrate through the bus, which routes and transforms messages between them.</li>
+            <li><strong>java.util.Timer</strong> &mdash; coordinates scheduling and execution of TimerTask objects without them knowing each other.</li>
+            <li><strong>Spring ApplicationEventPublisher</strong> &mdash; publishers and listeners communicate through the central event multicaster, not directly.</li>
+            <li><strong>JMS message broker</strong> &mdash; producers and consumers exchange messages via the broker rather than point-to-point links.</li>
+            <li><strong>Air traffic control tower</strong> &mdash; pilots coordinate takeoffs and landings through the tower instead of talking to each other.</li>
+            <li><strong>Chat room server</strong> &mdash; users send messages to the server, which relays them to the other participants.</li>
+            <li><strong>GUI dialog controller</strong> &mdash; a form controller mediates between buttons, text fields, and checkboxes to enable or disable them.</li>
+            <li><strong>Enterprise Service Bus</strong> &mdash; services integrate through the bus, which routes and transforms messages between them.</li>
         </ul></div>
     </div>
 

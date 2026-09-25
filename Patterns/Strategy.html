@@ -28,7 +28,7 @@
         </div>
     </div>
 
-    <div class="subheading">Advantages</div>
+    <div class="subheading">Pros and Cons</div>
     <div class="pc-grid">
         <div class="pc-card pro">
             <div class="pc-title">Runtime Swapping</div>
@@ -46,10 +46,8 @@
             <div class="pc-title">Open/Closed Principle</div>
             <p>Follows the Open/Closed Principle, so new strategies add cleanly.</p>
         </div>
-    </div>
+    
 
-    <div class="subheading">Disadvantages</div>
-    <div class="pc-grid">
         <div class="pc-card con">
             <div class="pc-title">More Classes</div>
             <p>Increases the number of objects and classes in the application.</p>
@@ -64,16 +62,16 @@
         </div>
     </div>
 
-    <div class="section when-use">
+    <div class="section realworld">
         <div class="section-title">Real-world example</div>
         <div class="section-content"><ul>
-            <li>java.util.Comparator &ndash; passing different Comparator objects to Collections.sort or List.sort swaps the ordering algorithm.</li>
-            <li>Java layout managers &ndash; Swing containers delegate positioning to interchangeable LayoutManager strategies like BorderLayout and GridLayout.</li>
-            <li>Spring Resource loading &ndash; ResourceLoader picks different Resource strategies (classpath, file, URL) based on the location prefix.</li>
-            <li>Spring PlatformTransactionManager &ndash; the transaction behavior varies by implementation (JPA, JDBC, JTA) behind one interface.</li>
-            <li>Payment checkout &ndash; an online store applies card, UPI, or wallet payment strategies chosen at runtime.</li>
-            <li>Compression tools &ndash; an archiver selects ZIP, GZIP, or RAR compression strategies for the same file operation.</li>
-            <li>Navigation apps &ndash; a maps app switches between driving, walking, and transit route-calculation strategies.</li>
+            <li><strong>java.util.Comparator</strong> &mdash; passing different Comparator objects to Collections.sort or List.sort swaps the ordering algorithm.</li>
+            <li><strong>Java layout managers</strong> &mdash; Swing containers delegate positioning to interchangeable LayoutManager strategies like BorderLayout and GridLayout.</li>
+            <li><strong>Spring Resource loading</strong> &mdash; ResourceLoader picks different Resource strategies (classpath, file, URL) based on the location prefix.</li>
+            <li><strong>Spring PlatformTransactionManager</strong> &mdash; the transaction behavior varies by implementation (JPA, JDBC, JTA) behind one interface.</li>
+            <li><strong>Payment checkout</strong> &mdash; an online store applies card, UPI, or wallet payment strategies chosen at runtime.</li>
+            <li><strong>Compression tools</strong> &mdash; an archiver selects ZIP, GZIP, or RAR compression strategies for the same file operation.</li>
+            <li><strong>Navigation apps</strong> &mdash; a maps app switches between driving, walking, and transit route-calculation strategies.</li>
         </ul></div>
     </div>
 

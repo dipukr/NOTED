@@ -52,16 +52,16 @@
         </div>
     </div>
 
-    <div class="section when-use">
+    <div class="section realworld">
         <div class="section-title">Real-world example</div>
         <div class="section-content"><ul>
-            <li>java.util.Arrays.asList &ndash; adapts a plain array into a fixed-size List interface expected by collection clients.</li>
-            <li>InputStreamReader &ndash; adapts a byte-based InputStream into a character-based Reader in the Java IO library.</li>
-            <li>Spring HandlerAdapter &ndash; lets DispatcherServlet invoke many kinds of controllers through one uniform interface.</li>
-            <li>SLF4J logging facade &ndash; adapts different logging frameworks like Log4j and java.util.logging to a common API.</li>
-            <li>Arrays and collection views &ndash; java.util.Collections wrappers adapt collections into synchronized or unmodifiable forms.</li>
-            <li>JDBC drivers &ndash; each vendor driver adapts a database-specific protocol to the standard JDBC interface.</li>
-            <li>Power plug adapter &ndash; a real-life travel adapter lets a device plug into a foreign socket without changing either one.</li>
+            <li><strong>java.util.Arrays.asList</strong> &mdash; adapts a plain array into a fixed-size List interface expected by collection clients.</li>
+            <li><strong>InputStreamReader</strong> &mdash; adapts a byte-based InputStream into a character-based Reader in the Java IO library.</li>
+            <li><strong>Spring HandlerAdapter</strong> &mdash; lets DispatcherServlet invoke many kinds of controllers through one uniform interface.</li>
+            <li><strong>SLF4J logging facade</strong> &mdash; adapts different logging frameworks like Log4j and java.util.logging to a common API.</li>
+            <li><strong>Arrays and collection views</strong> &mdash; java.util.Collections wrappers adapt collections into synchronized or unmodifiable forms.</li>
+            <li><strong>JDBC drivers</strong> &mdash; each vendor driver adapts a database-specific protocol to the standard JDBC interface.</li>
+            <li><strong>Power plug adapter</strong> &mdash; a real-life travel adapter lets a device plug into a foreign socket without changing either one.</li>
         </ul></div>
     </div>
 
@@ -592,7 +592,7 @@ processor = <span class="code-keyword">new</span> <span class="code-class">Razor
         </div>
     </div>
 
-    <div class="subheading">Advantages</div>
+    <div class="subheading">Pros and Cons</div>
     <div class="pc-grid">
         <div class="pc-card pro">
             <div class="pc-title">Loose Coupling</div>
@@ -614,10 +614,8 @@ processor = <span class="code-keyword">new</span> <span class="code-class">Razor
             <div class="pc-title">Easier Testing</div>
             <p>Business services can be tested against the application interface without requiring the real external provider.</p>
         </div>
-    </div>
+    
 
-    <div class="subheading">Disadvantages</div>
-    <div class="pc-grid">
         <div class="pc-card con">
             <div class="pc-title">Extra Abstraction</div>
             <p>It adds another layer of abstraction between the client and the existing class.</p>

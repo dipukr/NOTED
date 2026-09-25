@@ -28,7 +28,7 @@
         </div>
     </div>
 
-    <div class="subheading">Advantages</div>
+    <div class="subheading">Pros and Cons</div>
     <div class="pc-grid">
         <div class="pc-card pro">
             <div class="pc-title">Loose Coupling</div>
@@ -50,10 +50,8 @@
             <div class="pc-title">Easier To Maintain</div>
             <p>Makes the code easier to extend and maintain over time.</p>
         </div>
-    </div>
+    
 
-    <div class="subheading">Disadvantages</div>
-    <div class="pc-grid">
         <div class="pc-card con">
             <div class="pc-title">More Subclasses</div>
             <p>Introduces many new subclasses, increasing overall code complexity.</p>
@@ -68,16 +66,16 @@
         </div>
     </div>
 
-    <div class="section when-use">
+    <div class="section realworld">
         <div class="section-title">Real-world example</div>
         <div class="section-content"><ul>
-            <li>java.util.Calendar.getInstance() &ndash; returns a locale and time-zone specific Calendar subclass chosen at runtime.</li>
-            <li>java.text.NumberFormat.getInstance() &ndash; hands back the right formatter subclass for the current locale.</li>
-            <li>Collection.iterator() &ndash; each collection returns its own Iterator implementation without exposing the class.</li>
-            <li>Spring BeanFactory.getBean() &ndash; produces configured bean instances so callers never call new on concrete types.</li>
-            <li>JDBC DriverManager.getConnection() &ndash; yields a driver-specific Connection based on the connection URL.</li>
-            <li>javax.xml.parsers.DocumentBuilderFactory.newDocumentBuilder() &ndash; creates a parser implementation decided by configuration.</li>
-            <li>Logistics app &ndash; a Transport creator whose subclasses build a Truck or a Ship depending on the delivery type.</li>
+            <li><strong>java.util.Calendar.getInstance()</strong> &mdash; returns a locale and time-zone specific Calendar subclass chosen at runtime.</li>
+            <li><strong>java.text.NumberFormat.getInstance()</strong> &mdash; hands back the right formatter subclass for the current locale.</li>
+            <li><strong>Collection.iterator()</strong> &mdash; each collection returns its own Iterator implementation without exposing the class.</li>
+            <li><strong>Spring BeanFactory.getBean()</strong> &mdash; produces configured bean instances so callers never call new on concrete types.</li>
+            <li><strong>JDBC DriverManager.getConnection()</strong> &mdash; yields a driver-specific Connection based on the connection URL.</li>
+            <li><strong>javax.xml.parsers.DocumentBuilderFactory.newDocumentBuilder()</strong> &mdash; creates a parser implementation decided by configuration.</li>
+            <li><strong>Logistics app</strong> &mdash; a Transport creator whose subclasses build a Truck or a Ship depending on the delivery type.</li>
         </ul></div>
     </div>
 

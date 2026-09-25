@@ -27,7 +27,7 @@
         </ul></div>
     </div>
 
-    <div class="subheading">Advantages</div>
+    <div class="subheading">Pros and Cons</div>
     <div class="pc-grid">
         <div class="pc-card pro">
             <div class="pc-title">Bounded Concurrency</div>
@@ -41,10 +41,8 @@
             <div class="pc-title">Fairness And Timed Acquisition</div>
             <p>It supports fair ordering and timed or try-based acquisition of permits.</p>
         </div>
-    </div>
+    
 
-    <div class="subheading">Disadvantages</div>
-    <div class="pc-grid">
         <div class="pc-card con">
             <div class="pc-title">Permit Leaks</div>
             <p>Forgetting to release a permit leaks it and can eventually deadlock the system.</p>
@@ -106,7 +104,7 @@
         </ul></div>
     </div>
 
-    <div class="subheading">Advantages</div>
+    <div class="subheading">Pros and Cons</div>
     <div class="pc-grid">
         <div class="pc-card pro">
             <div class="pc-title">Simple Concurrency Cap</div>
@@ -120,10 +118,8 @@
             <div class="pc-title">Fairness And Timed Acquisition</div>
             <p>It supports fair ordering and timed acquisition of permits.</p>
         </div>
-    </div>
+    
 
-    <div class="subheading">Disadvantages</div>
-    <div class="pc-grid">
         <div class="pc-card con">
             <div class="pc-title">No Ownership Tracking</div>
             <p>There is no ownership tracking, so a forgotten <code>release()</code> leaks permits.</p>

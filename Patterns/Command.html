@@ -28,7 +28,7 @@
         </div>
     </div>
 
-    <div class="subheading">Advantages</div>
+    <div class="subheading">Pros and Cons</div>
     <div class="pc-grid">
         <div class="pc-card pro">
             <div class="pc-title">Decouples Invoker and Receiver</div>
@@ -46,10 +46,8 @@
             <div class="pc-title">Supports Undo and Logging</div>
             <p>It naturally supports undo/redo and logging of operations.</p>
         </div>
-    </div>
+    
 
-    <div class="subheading">Disadvantages</div>
-    <div class="pc-grid">
         <div class="pc-card con">
             <div class="pc-title">More Classes</div>
             <p>It increases the number of classes, since each command usually needs its own class.</p>
@@ -64,16 +62,16 @@
         </div>
     </div>
 
-    <div class="section when-use">
+    <div class="section realworld">
         <div class="section-title">Real-world example</div>
         <div class="section-content"><ul>
-            <li>java.lang.Runnable &ndash; each Runnable wraps an action as an object that an executor invokes later without knowing its details.</li>
-            <li>javax.swing.Action &ndash; Swing binds an Action command to buttons, menu items, and key strokes as the invokers.</li>
-            <li>Spring JdbcTemplate &ndash; StatementCallback and PreparedStatementCallback encapsulate a database operation passed to the template.</li>
-            <li>java.util.concurrent Callable and Future &ndash; a Callable is a queued command whose result is retrieved through its Future.</li>
-            <li>Undo and redo in editors &ndash; each edit is stored as a command object so it can be reversed or replayed.</li>
-            <li>Restaurant orders &ndash; a waiter writes an order (command) that the kitchen (receiver) later executes, decoupling the two.</li>
-            <li>Task queues and job schedulers &ndash; jobs are captured as command objects that workers pull and execute asynchronously.</li>
+            <li><strong>java.lang.Runnable</strong> &mdash; each Runnable wraps an action as an object that an executor invokes later without knowing its details.</li>
+            <li><strong>javax.swing.Action</strong> &mdash; Swing binds an Action command to buttons, menu items, and key strokes as the invokers.</li>
+            <li><strong>Spring JdbcTemplate</strong> &mdash; StatementCallback and PreparedStatementCallback encapsulate a database operation passed to the template.</li>
+            <li><strong>java.util.concurrent Callable and Future</strong> &mdash; a Callable is a queued command whose result is retrieved through its Future.</li>
+            <li><strong>Undo and redo in editors</strong> &mdash; each edit is stored as a command object so it can be reversed or replayed.</li>
+            <li><strong>Restaurant orders</strong> &mdash; a waiter writes an order (command) that the kitchen (receiver) later executes, decoupling the two.</li>
+            <li><strong>Task queues and job schedulers</strong> &mdash; jobs are captured as command objects that workers pull and execute asynchronously.</li>
         </ul></div>
     </div>
 

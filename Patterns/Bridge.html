@@ -29,7 +29,7 @@
         </div>
     </div>
 
-    <div class="subheading">Advantages</div>
+    <div class="subheading">Pros and Cons</div>
     <div class="pc-grid">
         <div class="pc-card pro">
             <div class="pc-title">Independent Evolution</div>
@@ -51,10 +51,8 @@
             <div class="pc-title">Runtime Swapping</div>
             <p>It allows implementations to be swapped at runtime.</p>
         </div>
-    </div>
+    
 
-    <div class="subheading">Disadvantages</div>
-    <div class="pc-grid">
         <div class="pc-card con">
             <div class="pc-title">Added Complexity</div>
             <p>It increases complexity by introducing extra layers and interfaces.</p>
@@ -69,16 +67,16 @@
         </div>
     </div>
 
-    <div class="section when-use">
+    <div class="section realworld">
         <div class="section-title">Real-world example</div>
         <div class="section-content"><ul>
-            <li>JDBC &ndash; the java.sql API is the abstraction while each vendor Driver is the implementation, so the same code runs against any database.</li>
-            <li>SLF4J &ndash; the logging facade is the abstraction bridged to concrete backends like Logback or Log4j chosen at deployment.</li>
-            <li>Java AWT &ndash; Component classes delegate to peer objects (ComponentPeer) so widgets stay independent of the native windowing toolkit.</li>
-            <li>Spring Resource &ndash; the Resource abstraction is bridged to implementations such as ClassPathResource, FileSystemResource and UrlResource.</li>
-            <li>JCA / Java Cryptography &ndash; engine classes like MessageDigest and Cipher are bridged to pluggable provider implementations.</li>
-            <li>Device drivers &ndash; the operating system exposes one device abstraction while each hardware vendor supplies its own driver implementation.</li>
-            <li>TV and remote &ndash; a remote control (abstraction) works with many TV brands (implementations) that can be paired independently.</li>
+            <li><strong>JDBC</strong> &mdash; the java.sql API is the abstraction while each vendor Driver is the implementation, so the same code runs against any database.</li>
+            <li><strong>SLF4J</strong> &mdash; the logging facade is the abstraction bridged to concrete backends like Logback or Log4j chosen at deployment.</li>
+            <li><strong>Java AWT</strong> &mdash; Component classes delegate to peer objects (ComponentPeer) so widgets stay independent of the native windowing toolkit.</li>
+            <li><strong>Spring Resource</strong> &mdash; the Resource abstraction is bridged to implementations such as ClassPathResource, FileSystemResource and UrlResource.</li>
+            <li><strong>JCA / Java Cryptography</strong> &mdash; engine classes like MessageDigest and Cipher are bridged to pluggable provider implementations.</li>
+            <li><strong>Device drivers</strong> &mdash; the operating system exposes one device abstraction while each hardware vendor supplies its own driver implementation.</li>
+            <li><strong>TV and remote</strong> &mdash; a remote control (abstraction) works with many TV brands (implementations) that can be paired independently.</li>
         </ul></div>
     </div>
 

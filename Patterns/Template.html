@@ -28,7 +28,7 @@
         </div>
     </div>
 
-    <div class="subheading">Advantages</div>
+    <div class="subheading">Pros and Cons</div>
     <div class="pc-grid">
         <div class="pc-card pro">
             <div class="pc-title">Removes Duplication</div>
@@ -46,10 +46,8 @@
             <div class="pc-title">Hollywood Principle</div>
             <p>Follows the "Hollywood Principle": the base class calls the subclass steps.</p>
         </div>
-    </div>
+    
 
-    <div class="subheading">Disadvantages</div>
-    <div class="pc-grid">
         <div class="pc-card con">
             <div class="pc-title">Inheritance Bound</div>
             <p>Relies on inheritance, which is less flexible than composition.</p>
@@ -64,16 +62,16 @@
         </div>
     </div>
 
-    <div class="section when-use">
+    <div class="section realworld">
         <div class="section-title">Real-world example</div>
         <div class="section-content"><ul>
-            <li>Java InputStream/OutputStream &ndash; the abstract stream classes define read/write skeletons while concrete streams supply the varying byte operations.</li>
-            <li>Java AbstractList &ndash; provides skeletal list behavior and leaves get() and size() for subclasses to implement.</li>
-            <li>Spring JdbcTemplate &ndash; fixes the connect, execute, and cleanup sequence while callbacks supply the query and row-mapping steps.</li>
-            <li>Servlet HttpServlet.service() &ndash; the fixed service method dispatches to doGet, doPost, and other steps that subclasses override.</li>
-            <li>JUnit test lifecycle &ndash; the runner invokes setUp, the test, and tearDown in a fixed order while you fill in each step.</li>
-            <li>Spring AbstractApplicationContext.refresh() &ndash; runs a fixed container startup sequence with hooks that subclasses can override.</li>
-            <li>Baking a recipe &ndash; the overall steps stay the same while the specific ingredients and flavors change per dish.</li>
+            <li><strong>Java InputStream/OutputStream</strong> &mdash; the abstract stream classes define read/write skeletons while concrete streams supply the varying byte operations.</li>
+            <li><strong>Java AbstractList</strong> &mdash; provides skeletal list behavior and leaves get() and size() for subclasses to implement.</li>
+            <li><strong>Spring JdbcTemplate</strong> &mdash; fixes the connect, execute, and cleanup sequence while callbacks supply the query and row-mapping steps.</li>
+            <li><strong>Servlet HttpServlet.service()</strong> &mdash; the fixed service method dispatches to doGet, doPost, and other steps that subclasses override.</li>
+            <li><strong>JUnit test lifecycle</strong> &mdash; the runner invokes setUp, the test, and tearDown in a fixed order while you fill in each step.</li>
+            <li><strong>Spring AbstractApplicationContext.refresh()</strong> &mdash; runs a fixed container startup sequence with hooks that subclasses can override.</li>
+            <li><strong>Baking a recipe</strong> &mdash; the overall steps stay the same while the specific ingredients and flavors change per dish.</li>
         </ul></div>
     </div>
 

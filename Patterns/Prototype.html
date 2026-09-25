@@ -40,7 +40,7 @@
         </div>
     </div>
 
-    <div class="subheading">Advantages</div>
+    <div class="subheading">Pros and Cons</div>
     <div class="pc-grid">
         <div class="pc-card pro">
             <div class="pc-title">Reduced Creation Cost</div>
@@ -62,10 +62,8 @@
             <div class="pc-title">Runtime Configuration</div>
             <p>Different prototypes can represent different predefined configurations chosen at runtime.</p>
         </div>
-    </div>
+    
 
-    <div class="subheading">Disadvantages</div>
-    <div class="pc-grid">
         <div class="pc-card con">
             <div class="pc-title">Cloning Can Be Complicated</div>
             <p>Complex object graphs require careful, correct copying.</p>
@@ -84,16 +82,16 @@
         </div>
     </div>
 
-    <div class="section when-use">
+    <div class="section realworld">
         <div class="section-title">Real-world example</div>
         <div class="section-content"><ul>
-            <li>Java Object.clone() &ndash; the language-level prototype mechanism where a Cloneable object copies itself field by field.</li>
-            <li>Java ArrayList and HashMap copy constructors &ndash; new ArrayList&lt;&gt;(list) produces an independent copy of a configured collection.</li>
-            <li>Spring bean scope "prototype" &ndash; the container hands out a fresh instance on each request instead of a shared singleton.</li>
-            <li>Object copying libraries &ndash; Apache Commons SerializationUtils.clone() and deep-copy utilities duplicate whole object graphs.</li>
-            <li>Game and graphics engines &ndash; spawning many enemies, bullets, or shapes by cloning a preconfigured template object.</li>
-            <li>Document and design tools &ndash; "Duplicate" on a slide, shape, or layer creates a new item copied from the selected one.</li>
-            <li>Cell division analogy &ndash; a cell reproduces by copying itself, producing a new cell that starts from the parent's state.</li>
+            <li><strong>Java Object.clone()</strong> &mdash; the language-level prototype mechanism where a Cloneable object copies itself field by field.</li>
+            <li><strong>Java ArrayList and HashMap copy constructors</strong> &mdash; new ArrayList&lt;&gt;(list) produces an independent copy of a configured collection.</li>
+            <li><strong>Spring bean scope "prototype"</strong> &mdash; the container hands out a fresh instance on each request instead of a shared singleton.</li>
+            <li><strong>Object copying libraries</strong> &mdash; Apache Commons SerializationUtils.clone() and deep-copy utilities duplicate whole object graphs.</li>
+            <li><strong>Game and graphics engines</strong> &mdash; spawning many enemies, bullets, or shapes by cloning a preconfigured template object.</li>
+            <li><strong>Document and design tools</strong> &mdash; "Duplicate" on a slide, shape, or layer creates a new item copied from the selected one.</li>
+            <li><strong>Cell division analogy</strong> &mdash; a cell reproduces by copying itself, producing a new cell that starts from the parent's state.</li>
         </ul></div>
     </div>
 
