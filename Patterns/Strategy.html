@@ -28,27 +28,53 @@
         </div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content">
-            <ul>
-                <li>Algorithms can be swapped at runtime without changing the context.</li>
-                <li>Isolates algorithm implementation details from the code that uses it.</li>
-                <li>Replaces conditional logic for selecting behavior with polymorphism.</li>
-                <li>Follows the Open/Closed Principle; new strategies add cleanly.</li>
-            </ul>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Runtime Swapping</div>
+            <p>Algorithms can be swapped at runtime without changing the context.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Encapsulated Details</div>
+            <p>Isolates algorithm implementation details from the code that uses it.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Removes Conditionals</div>
+            <p>Replaces conditional logic for selecting behavior with polymorphism.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Open/Closed Principle</div>
+            <p>Follows the Open/Closed Principle, so new strategies add cleanly.</p>
         </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages</div>
-        <div class="section-content">
-            <ul>
-                <li>Increases the number of objects and classes in the application.</li>
-                <li>Clients must be aware of the differences to choose the right strategy.</li>
-                <li>Overkill if the algorithm rarely changes or has only one variant.</li>
-            </ul>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">More Classes</div>
+            <p>Increases the number of objects and classes in the application.</p>
         </div>
+        <div class="pc-card con">
+            <div class="pc-title">Client Awareness</div>
+            <p>Clients must be aware of the differences to choose the right strategy.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Possible Overkill</div>
+            <p>Overkill if the algorithm rarely changes or has only one variant.</p>
+        </div>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">Real-world example</div>
+        <div class="section-content"><ul>
+            <li>java.util.Comparator &ndash; passing different Comparator objects to Collections.sort or List.sort swaps the ordering algorithm.</li>
+            <li>Java layout managers &ndash; Swing containers delegate positioning to interchangeable LayoutManager strategies like BorderLayout and GridLayout.</li>
+            <li>Spring Resource loading &ndash; ResourceLoader picks different Resource strategies (classpath, file, URL) based on the location prefix.</li>
+            <li>Spring PlatformTransactionManager &ndash; the transaction behavior varies by implementation (JPA, JDBC, JTA) behind one interface.</li>
+            <li>Payment checkout &ndash; an online store applies card, UPI, or wallet payment strategies chosen at runtime.</li>
+            <li>Compression tools &ndash; an archiver selects ZIP, GZIP, or RAR compression strategies for the same file operation.</li>
+            <li>Navigation apps &ndash; a maps app switches between driving, walking, and transit route-calculation strategies.</li>
+        </ul></div>
     </div>
 
     <div class="section code-section">

@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Understanding it drives fairer lock and scheduler design.</li>
-            <li>Highlights why priority alone is not a correctness tool.</li>
-            <li>Motivates timed acquisition and back-off strategies.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Fairer Designs</div>
+            <p>Understanding starvation drives fairer lock and scheduler design.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Priority Limits</div>
+            <p>It highlights why priority alone is not a correctness tool.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Better Strategies</div>
+            <p>It motivates timed acquisition and back-off strategies.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Hard to reproduce; appears only under specific load.</li>
-            <li>Fairness fixes lower overall throughput.</li>
-            <li>Symptoms mimic performance bugs, delaying diagnosis.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Hard To Reproduce</div>
+            <p>It is hard to reproduce because it appears only under specific load.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Lower Throughput</div>
+            <p>Fairness fixes lower overall throughput.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Misleading Symptoms</div>
+            <p>Symptoms mimic performance bugs, which delays diagnosis.</p>
+        </div>
     </div>
 
     <div class="section code-section">
@@ -94,22 +108,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Guarantees progress for every waiting thread.</li>
-            <li>Predictable, fair acquisition order.</li>
-            <li>Reduces tail latency for unlucky threads.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Guaranteed Progress</div>
+            <p>It guarantees progress for every waiting thread.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Predictable Ordering</div>
+            <p>It provides a predictable and fair acquisition order.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Lower Tail Latency</div>
+            <p>It reduces tail latency for unlucky threads.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Fairness lowers overall throughput.</li>
-            <li>FIFO ordering adds bookkeeping overhead.</li>
-            <li>Not needed for uncontended locks.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Lower Throughput</div>
+            <p>Fairness lowers overall throughput.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Bookkeeping Overhead</div>
+            <p>FIFO ordering adds bookkeeping overhead.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Unneeded When Uncontended</div>
+            <p>It is not needed for uncontended locks.</p>
+        </div>
     </div>
 
     <div class="section code-section">

@@ -28,22 +28,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Decouples producers and consumers, improving resilience and flexibility.</li>
-            <li>High throughput with horizontal scaling via partitions.</li>
-            <li>Durable, replayable log enables reprocessing and multiple consumers.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Decoupled Producers and Consumers</div>
+            <p>Separating producers from consumers improves resilience and flexibility.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">High Throughput</div>
+            <p>Partitions allow horizontal scaling to sustain high throughput.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Durable Replayable Log</div>
+            <p>A durable, replayable log enables reprocessing and multiple consumers.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Operationally complex to run and tune (brokers, partitions, retention).</li>
-            <li>Only per-partition ordering, not global ordering.</li>
-            <li>At-least-once delivery often requires idempotent consumers.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Operational Complexity</div>
+            <p>Running and tuning brokers, partitions, and retention is operationally complex.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Per-Partition Ordering Only</div>
+            <p>Ordering is guaranteed only within a partition, not globally.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">At-Least-Once Delivery</div>
+            <p>At-least-once delivery often requires consumers to be idempotent.</p>
+        </div>
     </div>
 
     <div class="section code-section">

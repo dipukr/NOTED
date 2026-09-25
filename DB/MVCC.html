@@ -29,24 +29,44 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>High concurrency: readers and writers do not block each other.</li>
-            <li>Consistent point-in-time snapshots per transaction.</li>
-            <li>Avoids read locks entirely.</li>
-            <li>Scales well for read-heavy workloads.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">High Concurrency</div>
+            <p>Readers and writers do not block each other, allowing many transactions to proceed in parallel.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Consistent Snapshots</div>
+            <p>Each transaction sees a consistent point-in-time snapshot of the data as of its start.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">No Read Locks</div>
+            <p>It avoids read locks entirely, so reads never wait on other transactions.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Scales For Reads</div>
+            <p>It scales well for read-heavy workloads because reads are lock-free.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Old versions consume storage until cleaned up.</li>
-            <li>Vacuum/cleanup adds background overhead.</li>
-            <li>Long-running transactions can bloat version chains.</li>
-            <li>Does not by itself prevent write skew.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Storage Overhead</div>
+            <p>Old row versions consume storage until they are cleaned up.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Cleanup Overhead</div>
+            <p>Vacuum and cleanup processes add background overhead to the system.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Version Chain Bloat</div>
+            <p>Long-running transactions can bloat version chains by keeping old versions alive.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Write Skew Remains</div>
+            <p>It does not by itself prevent write skew anomalies.</p>
+        </div>
     </div>
 
     <div class="section code-section">

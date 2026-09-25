@@ -28,22 +28,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Planning for partitions yields more robust, fault-tolerant systems.</li>
-            <li>Quorum-based designs avoid conflicting writes automatically.</li>
-            <li>Explicit partition handling makes recovery behaviour predictable.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">More Robust Systems</div>
+            <p>Planning for partitions yields more robust, fault-tolerant systems.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Avoids Conflicting Writes</div>
+            <p>Quorum-based designs avoid conflicting writes automatically.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Predictable Recovery</div>
+            <p>Explicit partition handling makes recovery behaviour predictable.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Forces a hard choice between consistency and availability.</li>
-            <li>Split brain can corrupt data if not guarded against.</li>
-            <li>Post-partition reconciliation adds significant complexity.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Consistency vs Availability</div>
+            <p>Forces a hard choice between consistency and availability.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Split Brain Risk</div>
+            <p>Split brain can corrupt data if not guarded against.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Reconciliation Complexity</div>
+            <p>Post-partition reconciliation adds significant complexity.</p>
+        </div>
     </div>
 
     <div class="section code-section">

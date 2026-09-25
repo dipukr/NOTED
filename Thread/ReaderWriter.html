@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Higher read throughput than a plain mutex.</li>
-            <li>Preserves correctness by serialising writes.</li>
-            <li>Built-in lock avoids hand-rolled synchronization.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Higher Read Throughput</div>
+            <p>It allows many readers to proceed concurrently, giving higher read throughput than a plain mutex.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Preserves Correctness</div>
+            <p>It preserves correctness by serialising writes so they never overlap with reads or other writes.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Built-in Lock</div>
+            <p>The built-in lock avoids hand-rolled synchronization and its associated bugs.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Reader preference can starve writers (and vice versa).</li>
-            <li>More overhead than a simple lock for write-heavy loads.</li>
-            <li>Lock upgrade from read to write is not supported directly.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Starvation Risk</div>
+            <p>Reader preference can starve writers, and writer preference can starve readers.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Extra Overhead</div>
+            <p>It carries more overhead than a simple lock for write-heavy workloads.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">No Lock Upgrade</div>
+            <p>Upgrading a lock from read to write is not supported directly.</p>
+        </div>
     </div>
 
     <div class="section code-section">

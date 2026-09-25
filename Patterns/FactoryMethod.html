@@ -3,17 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Factory Method Pattern - Notes</title>
+<title>Factory Method</title>
 <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
 <div class="note">
-    <div class="title">Factory Method Pattern</div>
+    <div class="title">Factory Method</div>
 
     <div class="intro">
-        <p>Factory Method is a creational design pattern that defines an interface for creating an object but lets subclasses decide which concrete class to instantiate.</p>
-        <p>It defers instantiation to subclasses, so the client code depends only on an abstract product type rather than on concrete implementations.</p>
-        <p>This promotes loose coupling by removing the need for the client to use the <code>new</code> operator on specific classes.</p>
+        <p>Factory Method is a creational design pattern that defines an interface for creating an object but lets subclasses decide which concrete class to instantiate. It defers instantiation to subclasses, so the client code depends only on an abstract product type rather than on concrete implementations.
+            This promotes loose coupling by removing the need for the client to use the <code>new</code> operator on specific classes.</p>
     </div>
 
     <div class="section when-use">
@@ -29,28 +28,57 @@
         </div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content">
-            <ul>
-                <li>Removes tight coupling between the creator and concrete products.</li>
-                <li>Follows the single responsibility principle by isolating creation code.</li>
-                <li>Follows the open/closed principle: new products can be added easily.</li>
-                <li>Provides a single place to control how objects are created.</li>
-                <li>Makes the code easier to extend and maintain.</li>
-            </ul>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Loose Coupling</div>
+            <p>Removes tight coupling between the creator and the concrete products it uses.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Single Responsibility</div>
+            <p>Follows the single responsibility principle by isolating object creation code in one place.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Open/Closed Principle</div>
+            <p>Follows the open/closed principle so new products can be added easily without changing existing code.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Centralized Creation</div>
+            <p>Provides a single place to control how objects are created.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Easier To Maintain</div>
+            <p>Makes the code easier to extend and maintain over time.</p>
         </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages</div>
-        <div class="section-content">
-            <ul>
-                <li>Introduces many new subclasses, increasing code complexity.</li>
-                <li>Can be excessive for simple creation scenarios.</li>
-                <li>Requires a parallel class hierarchy for creators and products.</li>
-            </ul>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">More Subclasses</div>
+            <p>Introduces many new subclasses, increasing overall code complexity.</p>
         </div>
+        <div class="pc-card con">
+            <div class="pc-title">Overkill For Simple Cases</div>
+            <p>Can be excessive for simple creation scenarios that do not need the abstraction.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Parallel Hierarchy</div>
+            <p>Requires a parallel class hierarchy for creators and products.</p>
+        </div>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">Real-world example</div>
+        <div class="section-content"><ul>
+            <li>java.util.Calendar.getInstance() &ndash; returns a locale and time-zone specific Calendar subclass chosen at runtime.</li>
+            <li>java.text.NumberFormat.getInstance() &ndash; hands back the right formatter subclass for the current locale.</li>
+            <li>Collection.iterator() &ndash; each collection returns its own Iterator implementation without exposing the class.</li>
+            <li>Spring BeanFactory.getBean() &ndash; produces configured bean instances so callers never call new on concrete types.</li>
+            <li>JDBC DriverManager.getConnection() &ndash; yields a driver-specific Connection based on the connection URL.</li>
+            <li>javax.xml.parsers.DocumentBuilderFactory.newDocumentBuilder() &ndash; creates a parser implementation decided by configuration.</li>
+            <li>Logistics app &ndash; a Transport creator whose subclasses build a Truck or a Ship depending on the delivery type.</li>
+        </ul></div>
     </div>
 
     <div class="section code-section">

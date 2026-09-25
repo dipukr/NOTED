@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Higher throughput than a plain lock when reads dominate.</li>
-            <li>Readers do not block each other.</li>
-            <li>Supports fairness and reentrancy.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Higher Read Throughput</div>
+            <p>It offers higher throughput than a plain lock when reads dominate the workload.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Concurrent Readers</div>
+            <p>Readers do not block each other, allowing many threads to read at the same time.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Fairness and Reentrancy</div>
+            <p>It supports both fairness policies and reentrant lock acquisition.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Overhead is higher than a simple lock for write-heavy workloads.</li>
-            <li>Risk of writer starvation without fairness.</li>
-            <li>No lock upgrade from read to write.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Write-Heavy Overhead</div>
+            <p>Its overhead is higher than a simple lock for write-heavy workloads.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Writer Starvation Risk</div>
+            <p>There is a risk of writer starvation without a fairness policy in place.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">No Lock Upgrade</div>
+            <p>It provides no lock upgrade path from a read lock to a write lock.</p>
+        </div>
     </div>
 
     <div class="section code-section">

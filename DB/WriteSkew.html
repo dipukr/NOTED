@@ -29,22 +29,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Awareness prevents subtle invariant violations.</li>
-            <li>Serializable gives a clean guarantee.</li>
-            <li>Explicit locking offers a targeted fix without full serialization.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Prevents Invariant Violations</div>
+            <p>Awareness of the anomaly helps developers avoid subtle cross-row invariant violations.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Clean Serializable Guarantee</div>
+            <p>Serializable isolation gives a clean and reliable guarantee against write skew.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Targeted Locking Fix</div>
+            <p>Explicit locking offers a targeted fix without requiring full serialization.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Invisible under common snapshot isolation.</li>
-            <li>Hard to detect in testing.</li>
-            <li>Fixes cost concurrency (serialization or locks).</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Invisible Under Snapshot</div>
+            <p>The anomaly stays invisible under common snapshot isolation.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Hard to Detect</div>
+            <p>Write skew is hard to detect during testing.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Concurrency Cost</div>
+            <p>Fixes cost concurrency through serialization or locks.</p>
+        </div>
     </div>
 
     <div class="section code-section">

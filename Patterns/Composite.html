@@ -49,6 +49,19 @@
         </div>
     </div>
 
+    <div class="section when-use">
+        <div class="section-title">Real-world example</div>
+        <div class="section-content"><ul>
+            <li>Java Swing &ndash; a JPanel (composite) holds buttons and other panels, and paint or layout calls recurse through the whole component tree uniformly.</li>
+            <li>HTML DOM and the browser &ndash; every Node has children, so an element and a whole subtree are treated the same when rendering or removing.</li>
+            <li>File systems &ndash; directories contain files and other directories, and operations like size or delete apply uniformly to either.</li>
+            <li>Java AWT Container &ndash; Component is the leaf base and Container is the composite that nests further components.</li>
+            <li>JSF and Android View hierarchies &ndash; a ViewGroup or UIComponent tree lets a container and a single widget be drawn and traversed the same way.</li>
+            <li>XML and JSON documents &ndash; nested elements and objects form part-whole trees that parsers walk recursively.</li>
+            <li>Organization charts &ndash; a manager and an individual employee are both handled as the same unit when totalling headcount or cost.</li>
+        </ul></div>
+    </div>
+
     <div class="section code-section">
         <div class="section-title">Code</div>
         <div class="code-layout">

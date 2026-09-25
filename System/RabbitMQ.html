@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Rich, flexible routing through multiple exchange types.</li>
-            <li>Strong per-message delivery guarantees with acks and persistence.</li>
-            <li>Mature tooling, management UI, and broad client support.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Flexible Routing</div>
+            <p>Rich, flexible routing is possible through multiple exchange types.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Delivery Guarantees</div>
+            <p>Strong per-message delivery guarantees come from acks and persistence.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Mature Tooling</div>
+            <p>Mature tooling, a management UI, and broad client support are available.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Lower throughput than log-based brokers like Kafka for huge streams.</li>
-            <li>Messages are removed after consumption, so no long-term replay by default.</li>
-            <li>Deep queues under load can strain broker memory and performance.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Lower Throughput</div>
+            <p>Throughput is lower than log-based brokers like Kafka for huge streams.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">No Default Replay</div>
+            <p>Messages are removed after consumption, so there is no long-term replay by default.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Memory Strain</div>
+            <p>Deep queues under load can strain broker memory and performance.</p>
+        </div>
     </div>
 
     <div class="section code-section">

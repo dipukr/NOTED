@@ -29,24 +29,44 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Guarantees atomicity across multiple resources.</li>
-            <li>All participants reach the same commit/abort decision.</li>
-            <li>Standardized through the XA protocol.</li>
-            <li>Strong consistency for distributed writes.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Atomicity Across Resources</div>
+            <p>It guarantees atomicity across multiple resources so all of them commit or all of them abort.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Unified Decision</div>
+            <p>All participants reach the same commit or abort decision.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Standardized Protocol</div>
+            <p>It is standardized through the XA protocol.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Strong Consistency</div>
+            <p>It provides strong consistency for distributed writes.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Blocking: participants hold locks until the coordinator decides.</li>
-            <li>A coordinator crash can leave participants stuck (in-doubt).</li>
-            <li>Poor availability and latency at scale.</li>
-            <li>Not suited to loosely coupled microservices.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Blocking Locks</div>
+            <p>It is blocking because participants hold locks until the coordinator decides.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Coordinator Crash</div>
+            <p>A coordinator crash can leave participants stuck in an in-doubt state.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Poor Availability</div>
+            <p>It suffers from poor availability and latency at scale.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Not For Microservices</div>
+            <p>It is not suited to loosely coupled microservices.</p>
+        </div>
     </div>
 
     <div class="section code-section">

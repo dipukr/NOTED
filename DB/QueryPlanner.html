@@ -29,23 +29,40 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Frees developers from hand-optimizing execution.</li>
-            <li>Adapts plans as data and statistics change.</li>
-            <li>Exposes plans for debugging via EXPLAIN.</li>
-            <li>Chooses among many strategies automatically.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">No Manual Tuning</div>
+            <p>It frees developers from hand-optimizing execution by deciding the strategy automatically.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Adapts To Data</div>
+            <p>It adapts plans as the underlying data and statistics change over time.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Debuggable Plans</div>
+            <p>It exposes the chosen plans for debugging via EXPLAIN.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Many Strategies</div>
+            <p>It chooses among many execution strategies automatically to find the cheapest one.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Stale statistics lead to poor plans.</li>
-            <li>Can pick a bad plan for skewed or complex queries.</li>
-            <li>Plan changes can cause sudden performance regressions.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Stale Statistics</div>
+            <p>Stale statistics lead the planner to poor and inefficient plans.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Bad Plan Choices</div>
+            <p>It can pick a bad plan for skewed data or complex queries.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Sudden Regressions</div>
+            <p>Plan changes can cause sudden performance regressions in production.</p>
+        </div>
     </div>
 
     <div class="section code-section">

@@ -28,22 +28,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Shields services from overload and abusive traffic.</li>
-            <li>Enables usage-based billing and fair sharing.</li>
-            <li>Improves stability and predictable capacity planning.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Overload Protection</div>
+            <p>Shields services from overload and abusive traffic.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Usage-Based Billing</div>
+            <p>Enables usage-based billing and fair sharing among clients.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Predictable Capacity</div>
+            <p>Improves stability and predictable capacity planning.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Legitimate bursts may be rejected if limits are too tight.</li>
-            <li>Distributed limiting needs a shared, low-latency counter store.</li>
-            <li>Fixed windows suffer boundary bursts; sliding windows cost more to compute.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Rejected Bursts</div>
+            <p>Legitimate bursts may be rejected if limits are too tight.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Shared Counter Store</div>
+            <p>Distributed limiting needs a shared, low-latency counter store.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Algorithm Trade-offs</div>
+            <p>Fixed windows suffer boundary bursts, while sliding windows cost more to compute.</p>
+        </div>
     </div>
 
     <div class="section code-section">

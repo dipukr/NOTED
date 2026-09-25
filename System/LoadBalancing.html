@@ -28,22 +28,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Higher availability - traffic avoids failed nodes automatically.</li>
-            <li>Better performance and even resource utilization across the farm.</li>
-            <li>Supports zero-downtime software updates and maintenance.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Higher Availability</div>
+            <p>Traffic avoids failed nodes automatically, keeping the application reachable.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Better Performance</div>
+            <p>Even resource utilization across the farm improves throughput and response times.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Zero-Downtime Updates</div>
+            <p>Supports rolling software updates and maintenance without application downtime.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>The balancer itself can become a single point of failure if not made redundant.</li>
-            <li>Sticky sessions complicate even distribution.</li>
-            <li>Adds a network hop and configuration/operational overhead.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Single Point Of Failure</div>
+            <p>The balancer itself can become a single point of failure if it is not made redundant.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Sticky Session Complexity</div>
+            <p>Sticky sessions complicate even distribution of requests across servers.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Added Overhead</div>
+            <p>Adds a network hop along with configuration and operational overhead.</p>
+        </div>
     </div>
 
     <div class="section code-section">

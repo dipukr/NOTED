@@ -28,22 +28,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>No hardcoded addresses - services scale and move freely.</li>
-            <li>Health-aware routing sends traffic only to live instances.</li>
-            <li>Supports elasticity and automated deployments.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">No Hardcoded Addresses</div>
+            <p>Services can scale and move freely because addresses are resolved dynamically rather than hardcoded.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Health-Aware Routing</div>
+            <p>Traffic is sent only to live instances, avoiding unhealthy or dead nodes.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Supports Elasticity</div>
+            <p>It enables elasticity and automated deployments as instances come and go.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>The registry is critical infrastructure that must be highly available.</li>
-            <li>Stale entries can route traffic to dead instances.</li>
-            <li>Adds moving parts and consistency concerns.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Critical Infrastructure</div>
+            <p>The registry is critical infrastructure that must be kept highly available.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Stale Entries</div>
+            <p>Stale entries can route traffic to dead instances.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Added Complexity</div>
+            <p>It adds moving parts and consistency concerns to the system.</p>
+        </div>
     </div>
 
     <div class="section code-section">

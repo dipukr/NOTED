@@ -32,22 +32,36 @@
         <img src="../static/api-gateway.svg" alt="API Gateway architecture diagram">
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Single entry point simplifies clients and hides internal topology.</li>
-            <li>Removes duplicated cross-cutting logic from every service.</li>
-            <li>Central place for security, throttling, and observability.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Single Entry Point</div>
+            <p>A single entry point simplifies clients and hides the internal service topology.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Removes Duplicated Logic</div>
+            <p>It removes duplicated cross-cutting logic from every backend service.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Central Policy Enforcement</div>
+            <p>It provides a central place for security, throttling, and observability.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Can become a single point of failure and a performance bottleneck.</li>
-            <li>Adds an extra network hop and latency.</li>
-            <li>Risks becoming a bloated component if too much logic accumulates in it.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Single Point Of Failure</div>
+            <p>It can become a single point of failure and a performance bottleneck.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Added Latency</div>
+            <p>It adds an extra network hop and latency to every request.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Risk Of Bloat</div>
+            <p>It risks becoming a bloated component if too much logic accumulates in it.</p>
+        </div>
     </div>
 
     <div class="section code-section">

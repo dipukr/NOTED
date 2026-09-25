@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Dramatically lower latency for cache hits.</li>
-            <li>Reduced load on databases and downstream services.</li>
-            <li>Better throughput and cost efficiency at scale.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Lower Latency</div>
+            <p>Cache hits are served dramatically faster than recomputing or refetching the result.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Reduced Load</div>
+            <p>Serving from cache reduces load on databases and downstream services.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Better Throughput</div>
+            <p>Caching improves throughput and cost efficiency at scale.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Stale data if invalidation is wrong or missing.</li>
-            <li>Cache stampede on expiry can overwhelm the origin.</li>
-            <li>Added complexity: consistency, eviction tuning, and warm-up.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Stale Data</div>
+            <p>Data can become stale if invalidation is wrong or missing.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Cache Stampede</div>
+            <p>A stampede on expiry can overwhelm the origin with simultaneous misses.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Added Complexity</div>
+            <p>Consistency, eviction tuning, and warm-up add operational complexity.</p>
+        </div>
     </div>
 
     <div class="section code-section">

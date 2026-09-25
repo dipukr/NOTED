@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Micrometer decouples code from any specific monitoring backend.</li>
-            <li>Prometheus is powerful, open source, and query-rich via PromQL.</li>
-            <li>Grafana gives flexible, shareable visualization.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Backend Agnostic</div>
+            <p>Micrometer decouples code from any specific monitoring backend.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Powerful Querying</div>
+            <p>Prometheus is powerful, open source, and query-rich via PromQL.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Flexible Visualization</div>
+            <p>Grafana gives flexible, shareable visualization.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>High-cardinality labels can explode storage and slow queries.</li>
-            <li>Pull model needs service discovery and reachable endpoints.</li>
-            <li>Long-term storage requires extra components like Thanos or Cortex.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">High Cardinality Cost</div>
+            <p>High-cardinality labels can explode storage and slow queries.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Pull Model Overhead</div>
+            <p>The pull model needs service discovery and reachable endpoints.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Extra Long-Term Storage</div>
+            <p>Long-term storage requires extra components like Thanos or Cortex.</p>
+        </div>
     </div>
 
     <div class="section code-section">

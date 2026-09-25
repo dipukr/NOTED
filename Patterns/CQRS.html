@@ -31,23 +31,40 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Performance and scalability: scale read and write sides independently.</li>
-            <li>Simpler models: no single model handling all CRUD.</li>
-            <li>Security: granular access control for reads vs. writes.</li>
-            <li>Clearer boundaries closer to business logic.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Independent Scalability</div>
+            <p>The read and write sides can be scaled and optimized independently for performance.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Simpler Models</div>
+            <p>No single model has to handle all CRUD operations, keeping each side focused.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Granular Security</div>
+            <p>Access control can be applied separately for reads and writes.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Clearer Boundaries</div>
+            <p>The separation keeps boundaries closer to the underlying business logic.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Added complexity from maintaining two models.</li>
-            <li>Read side is often eventually consistent with the write side.</li>
-            <li>Overkill for simple CRUD applications.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Added Complexity</div>
+            <p>Maintaining two separate models adds overhead to the system.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Eventual Consistency</div>
+            <p>The read side is often only eventually consistent with the write side.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Overkill For Simple CRUD</div>
+            <p>The pattern is excessive for simple CRUD applications.</p>
+        </div>
     </div>
 
     <div class="section code-section">

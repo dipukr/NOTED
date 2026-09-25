@@ -94,23 +94,40 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Automatic load balancing via work-stealing, with minimal idle time.</li>
-            <li>Excellent throughput for recursive, divide-and-conquer CPU-bound work.</li>
-            <li>Powers parallel streams and the common pool for free.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Automatic Load Balancing</div>
+            <p>Work-stealing lets idle workers pull tasks from busy ones, keeping all cores busy with minimal idle time.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">High CPU Throughput</div>
+            <p>It delivers excellent throughput for recursive, divide-and-conquer CPU-bound work.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Powers Parallel Streams</div>
+            <p>It backs parallel streams and the shared common pool for free.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Wrong split threshold hurts performance either way.</li>
-            <li>Not suited to blocking or I/O-bound tasks; a blocked worker hurts the whole pool.</li>
-            <li>Recursion/splitting overhead can outweigh gains for small inputs.</li>
-            <li>Sharing the common pool across unrelated code can cause cross-task interference.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Threshold Sensitivity</div>
+            <p>Choosing the wrong split threshold hurts performance whether it is too high or too low.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Poor For Blocking Work</div>
+            <p>It is not suited to blocking or I/O-bound tasks, since a blocked worker hurts the whole pool.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Splitting Overhead</div>
+            <p>Recursion and splitting overhead can outweigh the gains for small inputs.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Shared Pool Interference</div>
+            <p>Sharing the common pool across unrelated code can cause cross-task interference.</p>
+        </div>
     </div>
 </div>
 </body>

@@ -28,22 +28,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Matches capacity to demand, cutting idle-resource cost.</li>
-            <li>Absorbs traffic spikes without human intervention.</li>
-            <li>Improves availability by replacing unhealthy instances.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Cost Efficiency</div>
+            <p>Matches capacity to demand, cutting idle-resource cost.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Absorbs Spikes</div>
+            <p>Absorbs traffic spikes without human intervention.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Improved Availability</div>
+            <p>Improves availability by replacing unhealthy instances.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Scaling lag - new instances take time to boot and warm up.</li>
-            <li>Misconfigured thresholds cause flapping or runaway cost.</li>
-            <li>Only helps stateless tiers; stateful stores need separate strategies.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Scaling Lag</div>
+            <p>New instances take time to boot and warm up before serving traffic.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Misconfiguration Risk</div>
+            <p>Misconfigured thresholds cause flapping or runaway cost.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Stateless Only</div>
+            <p>Only helps stateless tiers; stateful stores need separate strategies.</p>
+        </div>
     </div>
 
     <div class="section code-section">

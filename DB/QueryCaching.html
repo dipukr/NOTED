@@ -29,24 +29,44 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Dramatically faster reads for repeated queries.</li>
-            <li>Reduces database load and cost.</li>
-            <li>Improves overall application response times.</li>
-            <li>Smooths traffic spikes.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Faster Repeated Reads</div>
+            <p>Repeated identical queries are served from memory, making reads dramatically faster.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Reduced Database Load</div>
+            <p>Serving results from cache reduces load on the database and lowers cost.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Better Response Times</div>
+            <p>Overall application response times improve as expensive queries are avoided.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Smooths Traffic Spikes</div>
+            <p>Cached results absorb bursts of traffic and smooth out sudden spikes.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Risk of serving stale data if invalidation is wrong.</li>
-            <li>Cache invalidation is notoriously hard.</li>
-            <li>Extra infrastructure and memory cost.</li>
-            <li>Low hit rates provide little benefit.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Stale Data Risk</div>
+            <p>There is a risk of serving stale data if invalidation is done incorrectly.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Hard Invalidation</div>
+            <p>Cache invalidation is notoriously hard to get right.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Added Cost</div>
+            <p>Caching adds extra infrastructure and memory cost.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Low Hit Rates</div>
+            <p>When hit rates are low, the cache provides little benefit.</p>
+        </div>
     </div>
 
     <div class="section code-section">

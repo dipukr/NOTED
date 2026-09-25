@@ -29,24 +29,44 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Near real-time propagation of changes.</li>
-            <li>Low overhead when reading the WAL.</li>
-            <li>Decouples producers from consumers.</li>
-            <li>Captures every change, including deletes.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Near Real-Time Propagation</div>
+            <p>Changes are captured and streamed to other systems almost as soon as they happen.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Low Overhead</div>
+            <p>Reading the write-ahead log adds little load compared to polling the database.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Decouples Producers and Consumers</div>
+            <p>Producers and consumers are separated, so each can evolve independently.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Captures Every Change</div>
+            <p>It records all changes, including deletes, so nothing is missed.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Adds pipeline infrastructure (connector, broker) to operate.</li>
-            <li>Consumers must handle eventual consistency and ordering.</li>
-            <li>Schema changes in the source can break consumers.</li>
-            <li>Initial snapshot of large tables can be heavy.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Added Infrastructure</div>
+            <p>It adds pipeline infrastructure such as a connector and broker that must be operated.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Eventual Consistency</div>
+            <p>Consumers must handle eventual consistency and message ordering.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Schema Change Fragility</div>
+            <p>Schema changes in the source can break downstream consumers.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Heavy Initial Snapshot</div>
+            <p>The initial snapshot of large tables can be heavy and resource-intensive.</p>
+        </div>
     </div>
 
     <div class="section code-section">

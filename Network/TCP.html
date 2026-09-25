@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Reliable, guaranteed delivery of data.</li>
-            <li>Data arrives in order, with duplicates removed.</li>
-            <li>Built-in flow and congestion control.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Guaranteed Delivery</div>
+            <p>TCP reliably delivers data and ensures nothing is lost in transit.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Ordered Data</div>
+            <p>Data arrives in the correct order, with duplicate packets removed.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Flow And Congestion Control</div>
+            <p>Built-in flow and congestion control prevent senders and networks from being overwhelmed.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Higher latency from handshake and acknowledgements.</li>
-            <li>More overhead per packet than UDP.</li>
-            <li>Head-of-line blocking can stall a stream.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Higher Latency</div>
+            <p>The handshake and acknowledgements add latency before and during data transfer.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">More Overhead</div>
+            <p>TCP carries more overhead per packet than UDP.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Head-Of-Line Blocking</div>
+            <p>Head-of-line blocking can stall the entire stream when one packet is delayed.</p>
+        </div>
     </div>
 
     <div class="section code-section">

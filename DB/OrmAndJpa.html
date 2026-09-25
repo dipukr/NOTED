@@ -29,24 +29,44 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Database independence across vendors.</li>
-            <li>Performance enhancements through caching.</li>
-            <li>Simplified development by abstracting SQL and automating table creation.</li>
-            <li>Less boilerplate JDBC code.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Database Independence</div>
+            <p>Application code stays portable across different database vendors.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Caching Performance</div>
+            <p>Performance is enhanced through built-in caching mechanisms.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Simplified Development</div>
+            <p>Development is simplified by abstracting SQL and automating table creation.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Less Boilerplate</div>
+            <p>It eliminates much of the boilerplate JDBC code you would otherwise write.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Hidden queries can cause the N+1 select problem.</li>
-            <li>Complex reporting queries are awkward to express.</li>
-            <li>A learning curve around the persistence context and lazy loading.</li>
-            <li>Can generate suboptimal SQL if used carelessly.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">N+1 Select Problem</div>
+            <p>Hidden queries can trigger the N+1 select problem and hurt performance.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Awkward Reporting Queries</div>
+            <p>Complex reporting queries are awkward to express through the ORM.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Learning Curve</div>
+            <p>There is a learning curve around the persistence context and lazy loading.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Suboptimal SQL</div>
+            <p>It can generate suboptimal SQL if used carelessly.</p>
+        </div>
     </div>
 
     <div class="section code-section">

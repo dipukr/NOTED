@@ -28,22 +28,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Gives a clear framework for reasoning about distributed trade-offs.</li>
-            <li>Guides datastore selection based on business needs.</li>
-            <li>Makes the consequences of network faults explicit up front.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Clear Reasoning Framework</div>
+            <p>It gives a clear framework for reasoning about distributed trade-offs.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Guides Datastore Choice</div>
+            <p>It guides datastore selection based on business needs.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Explicit Fault Consequences</div>
+            <p>It makes the consequences of network faults explicit up front.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>It is a simplification; real systems offer tunable consistency levels.</li>
-            <li>Ignores latency, which PACELC extends to address.</li>
-            <li>"Two of three" is often misread - partition tolerance is not really optional.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Oversimplified Model</div>
+            <p>It is a simplification, since real systems offer tunable consistency levels.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Ignores Latency</div>
+            <p>It ignores latency, which PACELC extends to address.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Commonly Misread</div>
+            <p>"Two of three" is often misread, as partition tolerance is not really optional.</p>
+        </div>
     </div>
 
     <div class="section code-section">

@@ -28,22 +28,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Guarantees a single coordinator, avoiding conflicting decisions.</li>
-            <li>Automatic failover keeps the system running when a leader dies.</li>
-            <li>Simplifies logic that would be hard to coordinate among equals.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Single Coordinator</div>
+            <p>Guarantees exactly one coordinator, avoiding conflicting decisions across nodes.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Automatic Failover</div>
+            <p>Keeps the system running by electing a new leader when the current one dies.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Simplified Logic</div>
+            <p>Simplifies logic that would otherwise be hard to coordinate among equal peers.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>The leader can be a bottleneck and a single point of contention.</li>
-            <li>Election storms and split brain must be carefully prevented.</li>
-            <li>Adds latency and complexity from the consensus protocol.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Potential Bottleneck</div>
+            <p>The leader can become a bottleneck and a single point of contention.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Election Storms</div>
+            <p>Election storms and split brain must be carefully prevented.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Added Complexity</div>
+            <p>Adds latency and complexity from the underlying consensus protocol.</p>
+        </div>
     </div>
 
     <div class="section code-section">

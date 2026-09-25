@@ -9,3 +9,4 @@ It solves the dual-write problem: updating a database and a message broker canno
 A separate relay process reads the outbox table and publishes the events to the broker.
 
 This guarantees an event is published if and only if the business change was committed.
+

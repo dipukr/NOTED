@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Higher throughput and lower response times.</li>
-            <li>Better hardware utilization across cores.</li>
-            <li>Fewer thread stalls and context switches.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Higher Throughput</div>
+            <p>Well-tuned concurrency raises throughput and lowers response times.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Better Hardware Utilization</div>
+            <p>Work spreads across cores so hardware is used more fully.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Fewer Stalls</div>
+            <p>Reduced contention means fewer thread stalls and context switches.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Premature tuning adds complexity for little gain.</li>
-            <li>Over-threading causes context-switch thrashing.</li>
-            <li>Micro-optimizations can hurt readability and correctness.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Premature Tuning</div>
+            <p>Tuning too early adds complexity for little real gain.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Over-Threading</div>
+            <p>Too many threads cause context-switch thrashing that degrades performance.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Hurts Readability</div>
+            <p>Micro-optimizations can hurt readability and correctness.</p>
+        </div>
     </div>
 
     <div class="section code-section">

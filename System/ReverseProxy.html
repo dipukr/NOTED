@@ -32,22 +32,36 @@
         <img src="../static/reverse-proxy.svg" alt="Reverse proxy routing client requests to backend servers">
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Hides backend topology and shrinks the attack surface.</li>
-            <li>Centralizes TLS, caching, and load balancing.</li>
-            <li>Enables zero-downtime deploys by shifting traffic between backends.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Hides Backend Topology</div>
+            <p>It conceals the backend server layout and shrinks the attack surface exposed to clients.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Centralizes Cross-Cutting Concerns</div>
+            <p>TLS termination, caching, and load balancing are all handled in one central place.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Zero-Downtime Deploys</div>
+            <p>It enables zero-downtime deploys by shifting traffic between backend instances.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Potential single point of failure unless made redundant.</li>
-            <li>Adds an extra hop and some latency.</li>
-            <li>Another component to configure, secure, and monitor.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Single Point of Failure</div>
+            <p>It becomes a potential single point of failure unless it is made redundant.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Added Latency</div>
+            <p>It adds an extra network hop and some latency to every request.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Operational Overhead</div>
+            <p>It is another component that must be configured, secured, and monitored.</p>
+        </div>
     </div>
 
     <div class="section code-section">

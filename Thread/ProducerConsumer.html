@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Smooths out bursty workloads via buffering.</li>
-            <li>Cleanly separates producer and consumer responsibilities.</li>
-            <li>Blocking queues remove the need for manual locking.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Smooths Bursty Load</div>
+            <p>Buffering absorbs uneven production rates so downstream work is smoothed out over time.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Clean Separation</div>
+            <p>Producer and consumer responsibilities are cleanly decoupled from each other.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">No Manual Locking</div>
+            <p>Blocking queues handle the wait and notify internally, removing the need for manual locking.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Buffer sizing is a tuning trade-off between latency and memory.</li>
-            <li>Manual wait-notify is error-prone (missed signals, spurious wakeups).</li>
-            <li>A slow consumer can throttle the whole pipeline.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Buffer Sizing</div>
+            <p>Choosing a buffer size is a tuning trade-off between latency and memory use.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Error-Prone Signalling</div>
+            <p>Manual wait-notify is error-prone, risking missed signals and spurious wakeups.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Slow Consumer Throttles</div>
+            <p>A slow consumer can throttle the throughput of the whole pipeline.</p>
+        </div>
     </div>
 
     <div class="section code-section">

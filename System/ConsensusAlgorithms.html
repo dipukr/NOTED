@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Provides strong consistency and a total order of operations.</li>
-            <li>Survives node crashes and network partitions on the minority side.</li>
-            <li>Raft's clear roles make correct implementation and debugging easier.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Strong Consistency</div>
+            <p>Provides strong consistency and a total order of operations.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Fault Tolerant</div>
+            <p>Survives node crashes and network partitions on the minority side.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Easier To Implement</div>
+            <p>Raft's clear roles make correct implementation and debugging easier.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Every commit needs a majority round trip, adding write latency.</li>
-            <li>Throughput is bounded by the single leader handling all writes.</li>
-            <li>A lost quorum halts progress, trading availability for consistency.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Write Latency</div>
+            <p>Every commit needs a majority round trip, adding write latency.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Leader Bottleneck</div>
+            <p>Throughput is bounded by the single leader handling all writes.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Quorum Dependency</div>
+            <p>A lost quorum halts progress, trading availability for consistency.</p>
+        </div>
     </div>
 
     <div class="section code-section">

@@ -71,22 +71,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Clear separation of concerns.</li>
-            <li>Views and models can be developed and tested independently.</li>
-            <li>Supports multiple views over the same model.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Separation of Concerns</div>
+            <p>The pattern gives each responsibility its own layer, keeping data, presentation, and input handling cleanly separated.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Independent Development</div>
+            <p>Views and models can be developed and tested independently of each other.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Multiple Views</div>
+            <p>A single model can support multiple views presenting the same data in different ways.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages</div>
-        <div class="section-content"><ul>
-            <li>Extra layers add boilerplate for simple screens.</li>
-            <li>Controllers can grow bloated if logic leaks into them.</li>
-            <li>Navigating the layers has a learning curve.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Added Boilerplate</div>
+            <p>The extra layers add boilerplate that is overkill for simple screens.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Bloated Controllers</div>
+            <p>Controllers can grow bloated if business logic leaks into them.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Learning Curve</div>
+            <p>Navigating the separate layers has a learning curve for newcomers.</p>
+        </div>
     </div>
     <div class="subheading">Java Swing Example &mdash; a Calculator</div>
 

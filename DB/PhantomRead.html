@@ -29,22 +29,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Understanding it guides correct isolation choice for range logic.</li>
-            <li>Serializable eliminates it for strict correctness.</li>
-            <li>Allowing phantoms keeps concurrency higher when safe.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Guides Isolation Choice</div>
+            <p>Understanding phantom reads helps you pick the correct isolation level for range-based logic.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Strict Correctness</div>
+            <p>Serializable isolation eliminates phantoms entirely for strict correctness.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Higher Concurrency</div>
+            <p>Allowing phantoms keeps concurrency higher when it is safe to do so.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Can break invariants that depend on a stable row set.</li>
-            <li>Preventing it (range locks) reduces concurrency.</li>
-            <li>Behaviour differs across database engines.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Broken Invariants</div>
+            <p>Phantoms can break invariants that depend on a stable set of rows.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Reduced Concurrency</div>
+            <p>Preventing phantoms with range locks reduces overall concurrency.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Engine Differences</div>
+            <p>Phantom behaviour differs across database engines.</p>
+        </div>
     </div>
 
     <div class="section code-section">

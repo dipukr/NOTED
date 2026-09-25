@@ -28,22 +28,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Processes massive datasets by scaling out across many nodes.</li>
-            <li>Parallelism dramatically reduces processing time.</li>
-            <li>Frameworks retry failed tasks automatically for fault tolerance.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Handles Massive Data</div>
+            <p>Processes massive datasets by scaling out across many nodes.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Faster Processing</div>
+            <p>Parallelism dramatically reduces processing time.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Fault Tolerance</div>
+            <p>Frameworks retry failed tasks automatically for fault tolerance.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Data shuffling between nodes is expensive and often the bottleneck.</li>
-            <li>Skewed partitions overload some nodes and idle others.</li>
-            <li>Cluster setup, tuning, and debugging are complex.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Expensive Shuffling</div>
+            <p>Data shuffling between nodes is expensive and often the bottleneck.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Partition Skew</div>
+            <p>Skewed partitions overload some nodes and idle others.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Operational Complexity</div>
+            <p>Cluster setup, tuning, and debugging are complex.</p>
+        </div>
     </div>
 
     <div class="section code-section">

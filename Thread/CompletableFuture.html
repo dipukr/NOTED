@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Fluent composition of dependent and independent tasks.</li>
-            <li>Non-blocking callbacks and built-in error handling.</li>
-            <li>Combine many futures with <code>allOf</code>/<code>anyOf</code>.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Fluent Composition</div>
+            <p>Dependent and independent tasks can be composed together in a readable, chained pipeline.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Non-Blocking Callbacks</div>
+            <p>Callbacks run without blocking and error handling is built directly into the pipeline.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Combine Many Futures</div>
+            <p>Multiple futures can be combined with <code>allOf</code> and <code>anyOf</code>.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Defaults to the common <code>ForkJoinPool</code>, bad for blocking I/O.</li>
-            <li>Deep chains can be hard to debug and read.</li>
-            <li>Exceptions are wrapped in <code>CompletionException</code>.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Default Pool Pitfall</div>
+            <p>It defaults to the common <code>ForkJoinPool</code>, which is a poor fit for blocking I/O.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Hard To Debug</div>
+            <p>Deep chains can be difficult to debug and read.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Wrapped Exceptions</div>
+            <p>Exceptions are wrapped in a <code>CompletionException</code>.</p>
+        </div>
     </div>
 
     <div class="section cmp">

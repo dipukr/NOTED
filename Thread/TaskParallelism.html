@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Overlaps unrelated work to cut total latency.</li>
-            <li>Naturally maps to service calls and pipelines.</li>
-            <li>Composes cleanly with futures.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Lower Total Latency</div>
+            <p>Overlaps unrelated work so the total time is cut instead of running each task in sequence.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Maps To Services</div>
+            <p>Naturally fits service calls and pipelines where independent operations run side by side.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Composes With Futures</div>
+            <p>Composes cleanly with futures, making it easy to launch and combine tasks.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Coordination and error handling add complexity.</li>
-            <li>Uneven task durations leave cores idle.</li>
-            <li>Shared dependencies reintroduce synchronization needs.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Added Complexity</div>
+            <p>Coordination and error handling across tasks add complexity to the code.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Idle Cores</div>
+            <p>Uneven task durations leave some cores idle while waiting for the slowest task.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Shared Dependencies</div>
+            <p>Shared dependencies reintroduce synchronization needs between tasks.</p>
+        </div>
     </div>
 
     <div class="section code-section">

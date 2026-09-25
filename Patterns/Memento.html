@@ -28,27 +28,53 @@
         </div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content">
-            <ul>
-                <li>Preserves encapsulation by keeping the saved state private to the originator.</li>
-                <li>Simplifies the originator, which does not manage its own history.</li>
-                <li>Makes undo/redo and state restoration straightforward to implement.</li>
-                <li>The caretaker manages snapshots without knowing their contents.</li>
-            </ul>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Preserves Encapsulation</div>
+            <p>The saved state stays private to the originator, so internal details are never exposed.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Simplifies Originator</div>
+            <p>The originator does not have to manage its own history of states.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Easy Undo and Redo</div>
+            <p>Undo, redo, and state restoration become straightforward to implement.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Simple Caretaker</div>
+            <p>The caretaker manages snapshots without needing to know their contents.</p>
         </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages</div>
-        <div class="section-content">
-            <ul>
-                <li>Storing many mementos can consume a lot of memory.</li>
-                <li>The caretaker must track the lifecycle of mementos to avoid leaks.</li>
-                <li>Frequent state capture of large objects can be expensive.</li>
-            </ul>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">High Memory Use</div>
+            <p>Storing many mementos can consume a large amount of memory.</p>
         </div>
+        <div class="pc-card con">
+            <div class="pc-title">Lifecycle Management</div>
+            <p>The caretaker must track the lifecycle of mementos to avoid memory leaks.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Expensive Capture</div>
+            <p>Frequent state capture of large objects can be costly in performance.</p>
+        </div>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">Real-world example</div>
+        <div class="section-content"><ul>
+            <li>Java Serializable &ndash; serializing an object captures its state so it can be restored later, much like a memento.</li>
+            <li>Text editors and IDEs &ndash; undo/redo stacks store snapshots of document state to roll back edits.</li>
+            <li>Database transactions &ndash; savepoints and rollback restore a prior state if a transaction fails.</li>
+            <li>Version control (Git) &ndash; each commit is a snapshot of the project you can checkout and restore.</li>
+            <li>Video game save points &ndash; a save file captures the full game state so play can resume from that moment.</li>
+            <li>Spring Webflow &ndash; conversation/flow state is snapshotted so users can navigate back through steps.</li>
+            <li>Browser session restore &ndash; open tabs and their state are saved and reopened after a crash or restart.</li>
+        </ul></div>
     </div>
 
     <div class="section code-section">

@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>No thread parking/unparking, so no context-switch cost.</li>
-            <li>Very low latency when the lock is released quickly.</li>
-            <li>Simple to implement with atomics.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">No Context Switch</div>
+            <p>It avoids thread parking and unparking, so there is no context-switch cost.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Low Latency</div>
+            <p>It offers very low latency when the lock is released quickly.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Simple Implementation</div>
+            <p>It is simple to implement using atomics.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Wastes CPU while spinning, harmful under high contention.</li>
-            <li>Can starve other threads and drain battery.</li>
-            <li>Poor choice for long-held locks.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Wastes CPU</div>
+            <p>It wastes CPU cycles while spinning, which is harmful under high contention.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Thread Starvation</div>
+            <p>It can starve other threads and drain battery.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Bad For Long Locks</div>
+            <p>It is a poor choice for long-held locks.</p>
+        </div>
     </div>
 
     <div class="section code-section">

@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Simple to develop, test, and deploy.</li>
-            <li>Easy end-to-end debugging and local transactions.</li>
-            <li>Low operational overhead, no network between modules.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Simple Lifecycle</div>
+            <p>The application is simple to develop, test, and deploy as a single unified unit.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Easy Debugging</div>
+            <p>End-to-end debugging is straightforward and transactions stay local within one process.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Low Overhead</div>
+            <p>Operational overhead is low since there is no network hop between modules.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Tight coupling: changes in one module can break another.</li>
-            <li>Failure in one module can bring down the entire application.</li>
-            <li>Any change requires re-deploying the whole system, even for small updates.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Tight Coupling</div>
+            <p>Modules are tightly coupled, so changes in one module can break another.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Cascading Failures</div>
+            <p>A failure in one module can bring down the entire application.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Full Redeploys</div>
+            <p>Any change requires re-deploying the whole system, even for small updates.</p>
+        </div>
     </div>
 
     <div class="section code-section">

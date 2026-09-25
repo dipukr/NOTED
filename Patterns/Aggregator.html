@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Fewer client round-trips and simpler clients.</li>
-            <li>Lower latency via parallel calls.</li>
-            <li>Centralizes composition and cross-cutting logic.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Simpler Clients</div>
+            <p>Clients make fewer round-trips and stay simpler by talking to a single endpoint.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Lower Latency</div>
+            <p>Firing calls in parallel keeps total latency close to the slowest single call.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Centralized Composition</div>
+            <p>Composition and cross-cutting logic live in one place instead of being scattered.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>The aggregator can become a bottleneck or hotspot.</li>
-            <li>Must handle partial failures of individual sources.</li>
-            <li>Adds coupling to the shape of many backends.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Potential Bottleneck</div>
+            <p>The aggregator can become a bottleneck or hotspot as all traffic flows through it.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Partial Failures</div>
+            <p>It must handle partial failures of individual sources with defaults or timeouts.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Backend Coupling</div>
+            <p>It adds coupling to the shape of many backends whose responses it merges.</p>
+        </div>
     </div>
 
     <div class="section code-section">

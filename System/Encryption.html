@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Protects confidentiality and integrity against eavesdropping and tampering.</li>
-            <li>Certificate validation authenticates the server (and optionally the client).</li>
-            <li>TLS 1.3 reduces handshake latency and removes weak legacy ciphers.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Confidentiality and Integrity</div>
+            <p>Protects data confidentiality and integrity against eavesdropping and tampering.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Server Authentication</div>
+            <p>Certificate validation authenticates the server and optionally the client.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Faster Modern Handshake</div>
+            <p>TLS 1.3 reduces handshake latency and removes weak legacy ciphers.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Adds CPU and handshake latency, though modern hardware makes this small.</li>
-            <li>Certificate management, rotation, and expiry add operational burden.</li>
-            <li>Misconfiguration (weak ciphers, self-signed certs) undermines the protection.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Added Latency</div>
+            <p>Adds CPU and handshake latency, though modern hardware makes this small.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Certificate Management</div>
+            <p>Certificate management, rotation, and expiry add operational burden.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Misconfiguration Risk</div>
+            <p>Misconfiguration such as weak ciphers or self-signed certs undermines the protection.</p>
+        </div>
     </div>
 
     <div class="section code-section">

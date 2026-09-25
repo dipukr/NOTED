@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Builder Pattern - Notes</title>
+<title>Builder Pattern</title>
 <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
@@ -11,9 +11,8 @@
     <div class="title">Builder Pattern</div>
 
     <div class="intro">
-        <p>Builder is a creational design pattern that lets you construct complex objects step by step, separating the construction process from the final representation.</p>
-        <p>It is especially useful when an object has many optional parameters, avoiding the "telescoping constructor" problem where constructors take long, confusing argument lists.</p>
-        <p>The same construction process can produce different representations, and the resulting object is typically immutable.</p>
+        <p>Builder is a creational design pattern that provides a step-by-step approach for constructing complex objects.</p>
+        <p>This separates the process of constructing an object from its final representation, allowing the same construction mechanism to create objects with different configurations. It is particularly useful when an object has many required and optional parameters, helping avoid large or telescoping constructors while making object creation more readable, flexible, and maintainable. The final object is also commonly designed to be immutable.</p>
     </div>
 
     <div class="section when-use">
@@ -29,28 +28,57 @@
         </div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content">
-            <ul>
-                <li>Produces highly readable, self-documenting object creation code.</li>
-                <li>Handles optional parameters cleanly without multiple constructors.</li>
-                <li>Allows the final object to be immutable and thread-safe.</li>
-                <li>Isolates complex construction logic from the object itself.</li>
-                <li>Enables validation of the object state before it is built.</li>
-            </ul>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Readable Creation</div>
+            <p>Produces highly readable, self-documenting object creation code.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Clean Optional Params</div>
+            <p>Handles optional parameters cleanly without multiple constructors.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Immutable Objects</div>
+            <p>Allows the final object to be immutable and thread-safe.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Isolated Construction</div>
+            <p>Isolates complex construction logic from the object itself.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Pre-build Validation</div>
+            <p>Enables validation of the object state before it is built.</p>
         </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages</div>
-        <div class="section-content">
-            <ul>
-                <li>Requires writing extra boilerplate for the builder class.</li>
-                <li>Increases the overall number of classes in the codebase.</li>
-                <li>Can be overkill for simple objects with few fields.</li>
-            </ul>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Extra Boilerplate</div>
+            <p>Requires writing extra boilerplate for the builder class.</p>
         </div>
+        <div class="pc-card con">
+            <div class="pc-title">More Classes</div>
+            <p>Increases the overall number of classes in the codebase.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Overkill For Simple</div>
+            <p>Can be overkill for simple objects with few fields.</p>
+        </div>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">Real-world example</div>
+        <div class="section-content"><ul>
+            <li>StringBuilder &ndash; appends characters step by step through chained calls before producing the final string.</li>
+            <li>Stream.Builder in Java &ndash; adds elements one at a time and then calls build to create a stream.</li>
+            <li>Lombok @Builder &ndash; generates a fluent builder class for any annotated POJO at compile time.</li>
+            <li>HttpRequest.newBuilder (Java 11 HttpClient) &ndash; sets URI, headers, and method fluently before building an immutable request.</li>
+            <li>Spring SpringApplicationBuilder &ndash; configures sources, profiles, and properties step by step to bootstrap an application.</li>
+            <li>OkHttp Request.Builder and Retrofit.Builder &ndash; assemble HTTP requests and client instances through chained configuration.</li>
+            <li>Ordering a custom meal &ndash; you choose bun, patty, and toppings one by one, and the burger is assembled at the end.</li>
+        </ul></div>
     </div>
 
     <div class="section code-section">
@@ -59,7 +87,7 @@
             <div class="code-wrapper">
 <pre><code><span class="code-keyword">public class</span> <span class="code-class">User</span> {
     <span class="code-keyword">private final</span> String name;      <span class="code-comment"># required</span>
-    <span class="code-keyword">private final</span> <span class="code-keyword">int</span> age;         <span class="code-comment"># optional</span>
+    <span class="code-keyword">private final</span> <span class="code-keyword">int</span> age;          <span class="code-comment"># optional</span>
     <span class="code-keyword">private final</span> String email;     <span class="code-comment"># optional</span>
 
     <span class="code-keyword">private</span> <span class="code-class">User</span>(<span class="code-class">Builder</span> b) {
@@ -98,10 +126,10 @@
 
             <div class="code-explanation">
                 <div class="code-explanation-title">How the Builder works</div>
-                <p>The <code>User</code> constructor is <code>private</code>; objects are created only through the builder.<br><br>
+                <p>The <code>User</code> constructor is <code>private</code>, objects are created only through the builder.<br><br>
                     Required fields go into the <code>Builder</code> constructor; optional ones use fluent setters.<br><br>
                     Each setter returns <code>this</code>, allowing calls to be chained.<br><br>
-                    <code>build()</code> assembles a final, immutable <code>User</code> instance.</p>
+                    <code>build</code> assembles a final, immutable <code>User</code> instance.</p>
             </div>
         </div>
     </div>

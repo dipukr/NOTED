@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Prevents race conditions and memory inconsistency.</li>
-            <li>Simple mental model: one thread in at a time.</li>
-            <li>Built into the language via <code>synchronized</code>.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Prevents Race Conditions</div>
+            <p>Guarding shared state prevents race conditions and memory inconsistency.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Simple Mental Model</div>
+            <p>The model is easy to reason about: only one thread is inside at a time.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Language Built-in</div>
+            <p>It is built into the language via the <code>synchronized</code> keyword.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Serialises access, reducing parallelism.</li>
-            <li>Large critical sections become bottlenecks.</li>
-            <li>Poor lock ordering across sections can cause deadlock.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Reduced Parallelism</div>
+            <p>Serialising access to the section reduces parallelism.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Potential Bottleneck</div>
+            <p>Large critical sections become performance bottlenecks.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Deadlock Risk</div>
+            <p>Poor lock ordering across sections can cause deadlock.</p>
+        </div>
     </div>
 
     <div class="section code-section">

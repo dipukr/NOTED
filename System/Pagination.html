@@ -27,23 +27,40 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Offset: simple, supports arbitrary page jumps and total counts.</li>
-            <li>Cursor: constant-time page reads regardless of depth.</li>
-            <li>Cursor: no rows skipped or duplicated when data is inserted mid-scroll.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Simple Page Jumps</div>
+            <p>Offset pagination is simple and supports arbitrary page jumps and total counts.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Constant-Time Reads</div>
+            <p>Cursor pagination delivers constant-time page reads regardless of how deep you go.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Stable During Inserts</div>
+            <p>Cursor pagination skips or duplicates no rows when data is inserted mid-scroll.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Offset: deep pages scan and discard many rows, degrading performance.</li>
-            <li>Offset: inserts/deletes shift rows, causing skipped or repeated items.</li>
-            <li>Cursor: cannot jump to an arbitrary page number easily.</li>
-            <li>Cursor: exposing raw keys may leak ordering; encode the cursor token.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Deep Page Cost</div>
+            <p>With offset, deep pages scan and discard many rows, degrading performance.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Shifting Rows</div>
+            <p>With offset, inserts and deletes shift rows, causing skipped or repeated items.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">No Page Jumps</div>
+            <p>Cursor pagination cannot jump to an arbitrary page number easily.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Key Exposure</div>
+            <p>Cursor pagination may leak ordering if raw keys are exposed, so encode the cursor token.</p>
+        </div>
     </div>
 
     <div class="section code-section">

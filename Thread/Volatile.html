@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Very cheap compared to locking, no blocking or context switches.</li>
-            <li>Guarantees the latest value is always visible to every thread.</li>
-            <li>Prevents instruction reordering around the field access.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Very Cheap</div>
+            <p>It is far cheaper than locking, with no blocking or context switches involved.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Guaranteed Visibility</div>
+            <p>It guarantees the latest value is always visible to every thread.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Prevents Reordering</div>
+            <p>It prevents instruction reordering around the field access.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>No atomicity for read-modify-write operations like <code>count++</code>.</li>
-            <li>Cannot coordinate invariants that span multiple fields.</li>
-            <li>Overuse can hide the need for proper synchronization.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">No Atomicity</div>
+            <p>It provides no atomicity for read-modify-write operations like <code>count++</code>.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">No Multi-Field Coordination</div>
+            <p>It cannot coordinate invariants that span multiple fields.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Can Mask Real Needs</div>
+            <p>Overuse can hide the need for proper synchronization.</p>
+        </div>
     </div>
 
     <div class="section code-section">

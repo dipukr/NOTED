@@ -29,23 +29,40 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Guarantees durability even across crashes.</li>
-            <li>Sequential writes are efficient.</li>
-            <li>Enables crash recovery, replication and PITR.</li>
-            <li>Allows deferring random data-file writes.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Durability Across Crashes</div>
+            <p>It guarantees durability even when the system crashes, so committed changes are never lost.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Efficient Sequential Writes</div>
+            <p>Appending to the log uses fast sequential writes rather than slower random data-page writes.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Recovery and Replication</div>
+            <p>It enables crash recovery, replication and point-in-time recovery from the log stream.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Deferred Data Writes</div>
+            <p>It allows random data-file writes to be deferred and batched for better efficiency.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Every commit needs a durable log flush (fsync overhead).</li>
-            <li>The log consumes additional disk space.</li>
-            <li>Recovery replay can take time after a crash.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Commit Flush Overhead</div>
+            <p>Every commit needs a durable log flush, adding fsync overhead to each transaction.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Extra Disk Space</div>
+            <p>The log consumes additional disk space on top of the data files.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Recovery Replay Time</div>
+            <p>Replaying the log during recovery can take time after a crash.</p>
+        </div>
     </div>
 
     <div class="section code-section">

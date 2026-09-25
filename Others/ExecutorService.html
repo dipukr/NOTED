@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Thread reuse reduces creation overhead.</li>
-            <li>Bounded pools cap resource usage.</li>
-            <li>Futures provide results, cancellation and completion tracking.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Thread Reuse</div>
+            <p>Reusing worker threads reduces the overhead of creating a new thread per task.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Bounded Resources</div>
+            <p>Bounded pools cap the number of concurrent threads and keep resource usage under control.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Rich Task Tracking</div>
+            <p>Futures provide results, cancellation and completion tracking for submitted tasks.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Forgetting <code>shutdown()</code> leaks threads.</li>
-            <li>Unbounded queues can hide back-pressure and grow memory.</li>
-            <li>Wrong pool sizing causes contention or starvation.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Thread Leaks</div>
+            <p>Forgetting to call <code>shutdown()</code> leaks worker threads.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Hidden Back-Pressure</div>
+            <p>Unbounded queues can hide back-pressure and grow memory unchecked.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Wrong Pool Sizing</div>
+            <p>Sizing the pool incorrectly causes contention or starvation.</p>
+        </div>
     </div>
 
     <div class="section code-section">

@@ -29,23 +29,40 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Prevents incompatible schema changes from breaking pipelines.</li>
-            <li>Smaller messages since the schema is referenced by ID.</li>
-            <li>Central, versioned source of truth for message contracts.</li>
-            <li>Lets producers and consumers evolve independently.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Prevents Breaking Changes</div>
+            <p>It prevents incompatible schema changes from breaking downstream pipelines.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Smaller Messages</div>
+            <p>Messages stay smaller because the schema is referenced by a compact ID rather than embedded in full.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Central Source Of Truth</div>
+            <p>It provides a central, versioned source of truth for message contracts.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Independent Evolution</div>
+            <p>It lets producers and consumers evolve independently.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Adds an external dependency to the pipeline.</li>
-            <li>If unavailable, serialization/deserialization can fail.</li>
-            <li>Requires discipline around compatibility settings.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">External Dependency</div>
+            <p>It adds an external dependency to the pipeline.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Availability Risk</div>
+            <p>If the registry is unavailable, serialization and deserialization can fail.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Compatibility Discipline</div>
+            <p>It requires discipline around compatibility settings.</p>
+        </div>
     </div>
 
     <div class="section code-section">

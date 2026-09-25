@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Simple, property-driven configuration.</li>
-            <li>Graceful shutdown support integrated with Spring lifecycle.</li>
-            <li>Bounded queue and pool prevent runaway thread creation.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Property-Driven Config</div>
+            <p>Configuration is simple and driven entirely by properties.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Graceful Shutdown</div>
+            <p>It supports graceful shutdown integrated with the Spring lifecycle.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Bounded Resources</div>
+            <p>A bounded queue and pool prevent runaway thread creation.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Misunderstood core/max/queue interplay leads to surprises.</li>
-            <li>Large queue plus small pool hides latency until it overflows.</li>
-            <li>Wrong rejection policy can silently drop work.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Confusing Interplay</div>
+            <p>Misunderstood core, max, and queue interplay leads to surprises.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Hidden Latency</div>
+            <p>A large queue plus a small pool hides latency until it overflows.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Silent Task Drops</div>
+            <p>The wrong rejection policy can silently drop work.</p>
+        </div>
     </div>
 
     <div class="section code-section">

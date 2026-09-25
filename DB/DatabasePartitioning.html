@@ -29,23 +29,40 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Queries scan only relevant partitions, improving performance.</li>
-            <li>Maintenance (archiving, purging) is faster per partition.</li>
-            <li>Indexes stay smaller per partition.</li>
-            <li>Transparent to the application, which still sees one table.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Partition Pruning</div>
+            <p>Queries scan only the relevant partitions, which improves performance.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Faster Maintenance</div>
+            <p>Maintenance such as archiving and purging is faster when done per partition.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Smaller Indexes</div>
+            <p>Indexes stay smaller because each partition maintains its own.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Application Transparent</div>
+            <p>Partitioning is transparent to the application, which still sees a single table.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Queries that ignore the partition key must scan every partition.</li>
-            <li>Choosing the wrong partition key causes uneven partitions.</li>
-            <li>Adds schema complexity and maintenance of the partition scheme.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Full Partition Scans</div>
+            <p>Queries that ignore the partition key must scan every partition.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Uneven Partitions</div>
+            <p>Choosing the wrong partition key causes uneven partitions.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Added Complexity</div>
+            <p>It adds schema complexity and requires maintaining the partition scheme.</p>
+        </div>
     </div>
 
     <div class="section code-section">

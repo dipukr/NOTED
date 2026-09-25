@@ -42,17 +42,45 @@
         </div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Pros and cons</div>
-        <div class="section-content">
-            <ul>
-                <li>Add new operations without changing existing object structures.</li>
-                <li>Encourages separation of concerns (data vs behavior).</li>
-                <li>Makes operations extensible and easy to manage.</li>
-                <li>Adding a new element (type) requires updating all visitors.</li>
-                <li>Involves double dispatch &ndash; one call from client to element, one from element to visitor.</li>
-            </ul>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">New Operations Easily</div>
+            <p>New operations can be added without changing the existing object structures.</p>
         </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Separation Of Concerns</div>
+            <p>It encourages a clean separation of concerns between data and behavior.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Extensible Operations</div>
+            <p>It makes operations extensible and easy to manage over time.</p>
+        </div>
+    </div>
+
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Hard To Add Elements</div>
+            <p>Adding a new element type requires updating all existing visitors.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Double Dispatch</div>
+            <p>It involves double dispatch &ndash; one call from client to element, and one from element to visitor.</p>
+        </div>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">Real-world example</div>
+        <div class="section-content"><ul>
+            <li>Java NIO FileVisitor &ndash; Files.walkFileTree traverses a directory tree and calls visitFile and visitDirectory callbacks on each node.</li>
+            <li>javax.lang.model.element.ElementVisitor &ndash; annotation processors visit program elements (classes, methods, fields) during compilation.</li>
+            <li>Java compiler AST &ndash; the com.sun.source.util.TreeVisitor walks syntax tree nodes for analysis and code generation.</li>
+            <li>ASM bytecode library &ndash; ClassVisitor and MethodVisitor let tools inspect and transform bytecode without changing the class model.</li>
+            <li>Spring BeanDefinitionVisitor &ndash; visits bean definitions to resolve and rewrite property placeholder values.</li>
+            <li>ANTLR and XML parsers &ndash; generated visitors walk parse trees so each operation (evaluation, pretty-printing) stays separate from the grammar.</li>
+            <li>Tax auditor analogy &ndash; an auditor visits different account types (savings, business, trust) applying rules per type without the accounts changing.</li>
+        </ul></div>
     </div>
 
     <div class="section code-section">

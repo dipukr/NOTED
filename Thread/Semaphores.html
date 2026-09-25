@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Expresses bounded concurrency directly.</li>
-            <li>Permits can be released by a different thread than acquired.</li>
-            <li>Supports fairness and timed/try acquisition.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Bounded Concurrency</div>
+            <p>It expresses a limit on how many threads may access a resource at once, directly.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Cross-Thread Release</div>
+            <p>A permit can be released by a different thread than the one that acquired it.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Fairness And Timed Acquisition</div>
+            <p>It supports fair ordering and timed or try-based acquisition of permits.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Forgetting to release leaks permits and can deadlock.</li>
-            <li>No ownership tracking, unlike a reentrant lock.</li>
-            <li>Fair mode reduces throughput.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Permit Leaks</div>
+            <p>Forgetting to release a permit leaks it and can eventually deadlock the system.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">No Ownership Tracking</div>
+            <p>Unlike a reentrant lock, a semaphore does not track which thread owns a permit.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Fairness Costs Throughput</div>
+            <p>Enabling fair mode reduces overall throughput.</p>
+        </div>
     </div>
 
     <div class="section code-section">
@@ -92,22 +106,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Simple way to cap concurrency to a fixed number.</li>
-            <li>Permits can be released by a different thread than acquired them.</li>
-            <li>Supports fairness and timed acquisition.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Simple Concurrency Cap</div>
+            <p>It is a simple way to cap concurrency to a fixed number of threads.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Cross-Thread Release</div>
+            <p>Permits can be released by a different thread than the one that acquired them.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Fairness And Timed Acquisition</div>
+            <p>It supports fair ordering and timed acquisition of permits.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>No ownership tracking; a forgotten <code>release()</code> leaks permits.</li>
-            <li>Not reentrant; re-acquiring can deadlock.</li>
-            <li>Misconfigured permit counts silently under- or over-throttle.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">No Ownership Tracking</div>
+            <p>There is no ownership tracking, so a forgotten <code>release()</code> leaks permits.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Not Reentrant</div>
+            <p>A semaphore is not reentrant, so re-acquiring within the same thread can deadlock.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Misconfigured Permit Counts</div>
+            <p>Setting the permit count wrong silently under-throttles or over-throttles access.</p>
+        </div>
     </div>
 
     <div class="section code-section">

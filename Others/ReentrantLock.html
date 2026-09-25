@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Non-blocking <code>tryLock()</code> avoids indefinite waits.</li>
-            <li>Interruptible locking allows cancellation.</li>
-            <li>Multiple conditions and optional fairness.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Non-Blocking Acquisition</div>
+            <p>Non-blocking <code>tryLock()</code> avoids indefinite waits by returning immediately when the lock is unavailable.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Interruptible Locking</div>
+            <p>Interruptible locking allows a waiting thread to be cancelled instead of blocking forever.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Conditions and Fairness</div>
+            <p>It supports multiple conditions and optional fairness for finer control over thread coordination.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Manual <code>unlock()</code>; forgetting it in <code>finally</code> causes deadlocks.</li>
-            <li>More verbose than <code>synchronized</code>.</li>
-            <li>Fair mode reduces throughput.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Manual Unlock Required</div>
+            <p>Manual <code>unlock()</code> is required, and forgetting it in a <code>finally</code> block causes deadlocks.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">More Verbose</div>
+            <p>It is more verbose than <code>synchronized</code>, requiring explicit lock and unlock calls.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Reduced Throughput</div>
+            <p>Fair mode reduces throughput because it enforces FIFO ordering of waiting threads.</p>
+        </div>
     </div>
 
     <div class="section code-section">

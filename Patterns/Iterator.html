@@ -29,15 +29,33 @@
         </div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content">
-            <ul>
-                <li>Separates collection traversal logic from collection data structure.</li>
-                <li>Uniform traversal for various types of collections.</li>
-                <li>Supports multiple iterations simultaneously.</li>
-            </ul>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Separation of Concerns</div>
+            <p>Separates collection traversal logic from the collection's underlying data structure.</p>
         </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Uniform Traversal</div>
+            <p>Provides a uniform way to traverse various types of collections.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Multiple Iterations</div>
+            <p>Supports multiple iterations over the same collection simultaneously.</p>
+        </div>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">Real-world example</div>
+        <div class="section-content"><ul>
+            <li>java.util.Iterator &ndash; every Collection returns one via iterator() so for-each loops can traverse lists, sets and maps uniformly.</li>
+            <li>java.util.Enumeration &ndash; the legacy iterator used by Vector, Stack and Hashtable before the Iterator interface.</li>
+            <li>ListIterator &ndash; extends Iterator to allow bidirectional traversal and element modification while iterating a List.</li>
+            <li>java.util.Scanner &ndash; walks through tokens or lines of input one at a time without exposing the underlying buffer.</li>
+            <li>Spring Data Pageable/Iterable &ndash; repository results are exposed as iterables so callers stream rows without knowing the query mechanics.</li>
+            <li>java.util.stream.Stream &ndash; internally pulls elements through a Spliterator, an iterator variant built for splitting and parallel traversal.</li>
+            <li>TV remote channel button &ndash; a real-life analogy where you move to the next channel one by one without knowing how channels are stored.</li>
+        </ul></div>
     </div>
 
     <div class="section code-section">

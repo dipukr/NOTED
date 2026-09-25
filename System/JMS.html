@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Vendor-neutral standard API portable across compliant brokers.</li>
-            <li>Built-in transactions, acknowledgment modes, and durable subscriptions.</li>
-            <li>First-class Spring integration via JmsTemplate and listeners.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Vendor-Neutral API</div>
+            <p>It is a standard API that stays portable across any compliant broker.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Built-In Reliability</div>
+            <p>It offers transactions, acknowledgment modes, and durable subscriptions out of the box.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">First-Class Spring Support</div>
+            <p>It integrates cleanly with Spring through JmsTemplate and listeners.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Java-centric; not suited to polyglot ecosystems.</li>
-            <li>Less throughput and replay capability than Kafka for large streams.</li>
-            <li>The abstraction hides broker-specific tuning and features.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Java-Centric</div>
+            <p>It is tied to Java and not suited to polyglot ecosystems.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Lower Throughput</div>
+            <p>It offers less throughput and replay capability than Kafka for large streams.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Hidden Broker Features</div>
+            <p>The abstraction hides broker-specific tuning and features.</p>
+        </div>
     </div>
 
     <div class="section code-section">

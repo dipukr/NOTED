@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Single deploy and one runtime keep operations simple.</li>
-            <li>Clear module boundaries improve maintainability.</li>
-            <li>Local, in-process calls avoid network cost and distributed transactions.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Simple Operations</div>
+            <p>A single deploy and one runtime keep operations simple.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Better Maintainability</div>
+            <p>Clear module boundaries improve maintainability.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Fast In-Process Calls</div>
+            <p>Local, in-process calls avoid network cost and distributed transactions.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Boundaries erode without discipline and tooling to enforce them.</li>
-            <li>Still scaled as a single unit, not per module.</li>
-            <li>A crash can still affect the whole application.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Eroding Boundaries</div>
+            <p>Boundaries erode without discipline and tooling to enforce them.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Scaled As One Unit</div>
+            <p>The application is still scaled as a single unit, not per module.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Shared Failure Domain</div>
+            <p>A crash can still affect the whole application.</p>
+        </div>
     </div>
 
     <div class="section code-section">

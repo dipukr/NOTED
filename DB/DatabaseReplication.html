@@ -29,24 +29,44 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Scales read throughput horizontally.</li>
-            <li>Improves availability and enables failover.</li>
-            <li>Replicas can serve backups and analytics without loading the primary.</li>
-            <li>Reduces latency by placing replicas closer to users.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Scales Read Throughput</div>
+            <p>Read traffic can be spread horizontally across multiple replicas.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Higher Availability</div>
+            <p>It improves availability and enables automatic failover when the primary goes down.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Offloads Backups and Analytics</div>
+            <p>Replicas can serve backups and analytics workloads without loading the primary.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Lower Latency</div>
+            <p>Placing replicas closer to users reduces read latency.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Asynchronous replicas can serve stale data due to lag.</li>
-            <li>Synchronous replication increases write latency.</li>
-            <li>Multi-leader setups introduce write conflicts that must be resolved.</li>
-            <li>Operational complexity and extra storage cost.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Stale Reads</div>
+            <p>Asynchronous replicas can serve stale data because of replication lag.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Higher Write Latency</div>
+            <p>Synchronous replication increases write latency since the primary waits for confirmation.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Write Conflicts</div>
+            <p>Multi-leader setups introduce write conflicts that must be resolved.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Operational Overhead</div>
+            <p>Replication adds operational complexity and extra storage cost.</p>
+        </div>
     </div>
 
     <div class="section code-section">

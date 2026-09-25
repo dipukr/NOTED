@@ -29,28 +29,57 @@
         </div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content">
-            <ul>
-                <li>Guarantees that products from a single family are used together.</li>
-                <li>Isolates concrete classes from the client code.</li>
-                <li>Makes swapping entire product families easy and centralized.</li>
-                <li>Follows the open/closed principle when adding new families.</li>
-                <li>Promotes consistency among the objects produced.</li>
-            </ul>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Family Consistency</div>
+            <p>Guarantees that products from a single family are always used together.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Isolates Concrete Classes</div>
+            <p>Keeps concrete product classes hidden from the client code.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Easy Family Swapping</div>
+            <p>Makes swapping entire product families easy and centralized.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Open/Closed Principle</div>
+            <p>Follows the open/closed principle when adding new families.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Promotes Consistency</div>
+            <p>Promotes consistency among the objects that are produced.</p>
         </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages</div>
-        <div class="section-content">
-            <ul>
-                <li>Adds many interfaces and classes, increasing complexity.</li>
-                <li>Adding a new product type requires changing every factory.</li>
-                <li>Can be over-engineered for systems with a single product family.</li>
-            </ul>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Added Complexity</div>
+            <p>Adds many interfaces and classes, increasing overall complexity.</p>
         </div>
+        <div class="pc-card con">
+            <div class="pc-title">Hard to Extend Products</div>
+            <p>Adding a new product type requires changing every factory.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Risk of Over-Engineering</div>
+            <p>Can be over-engineered for systems with only a single product family.</p>
+        </div>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">Real-world example</div>
+        <div class="section-content"><ul>
+            <li>javax.xml.parsers.DocumentBuilderFactory &ndash; produces a family of related XML parsing objects (DocumentBuilder) hiding the concrete parser implementation.</li>
+            <li>javax.xml.transform.TransformerFactory &ndash; creates Transformer and related objects for a chosen XSLT processor without naming its concrete classes.</li>
+            <li>java.awt.Toolkit &ndash; returns platform-specific families of AWT peer widgets so one code path renders on Windows, macOS or Linux.</li>
+            <li>Spring BeanFactory and ApplicationContext &ndash; produce families of related, wired beans according to the active configuration or profile.</li>
+            <li>JDBC drivers via DriverManager &ndash; each driver supplies a matching family of Connection, Statement and ResultSet objects for its database.</li>
+            <li>Cross-platform UI toolkits &ndash; a theme factory yields buttons, checkboxes and scrollbars that all share one consistent look and feel.</li>
+            <li>Furniture showroom analogy &ndash; a Victorian or Modern factory delivers a matching chair, sofa and table that belong to the same style set.</li>
+        </ul></div>
     </div>
 
     <div class="section code-section">

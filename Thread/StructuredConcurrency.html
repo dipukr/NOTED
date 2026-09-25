@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>No leaked threads; lifetimes are scoped like local variables.</li>
-            <li>Cleaner error propagation and cancellation.</li>
-            <li>Easier reasoning than free-floating futures.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">No Leaked Threads</div>
+            <p>Subtask lifetimes are scoped like local variables, so no thread outlives its enclosing block.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Clean Error Handling</div>
+            <p>Errors propagate and cancellation flows predictably up the call tree.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Easier To Reason About</div>
+            <p>Grouping related tasks in a scope is easier to reason about than free-floating futures.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Preview API; syntax may change across JDK versions.</li>
-            <li>Requires a recent JDK with preview features enabled.</li>
-            <li>Less flexible than unstructured futures for long-lived tasks.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Preview API</div>
+            <p>It is still a preview API, so its syntax may change across JDK versions.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Recent JDK Needed</div>
+            <p>It requires a recent JDK with preview features explicitly enabled.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Less Flexible</div>
+            <p>It is less flexible than unstructured futures for long-lived tasks.</p>
+        </div>
     </div>
 
     <div class="section code-section">

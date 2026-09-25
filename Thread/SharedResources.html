@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Allows threads to collaborate on common state.</li>
-            <li>Thread-safe collections encapsulate the locking.</li>
-            <li>Atomics offer lock-free updates for simple cases.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Thread Collaboration</div>
+            <p>Allows multiple threads to collaborate on common state.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Encapsulated Locking</div>
+            <p>Thread-safe collections encapsulate the locking internally.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Lock-Free Updates</div>
+            <p>Atomics offer lock-free updates for simple cases.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Race conditions and visibility bugs if unguarded.</li>
-            <li>Locking reduces parallelism and can deadlock.</li>
-            <li>Contention on hot resources limits scalability.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Race Conditions</div>
+            <p>Race conditions and visibility bugs occur if access is unguarded.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Reduced Parallelism</div>
+            <p>Locking reduces parallelism and can lead to deadlock.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Contention Limits Scaling</div>
+            <p>Contention on hot resources limits scalability.</p>
+        </div>
     </div>
 
     <div class="section code-section">

@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Decouples task logic from thread management.</li>
-            <li><code>Callable</code> returns results and reports exceptions cleanly.</li>
-            <li>Futures let you await or cancel work.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Decoupled Design</div>
+            <p>Task logic is separated from thread management, so you focus on the work rather than on running it.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Clean Results</div>
+            <p><code>Callable</code> returns results and reports exceptions cleanly.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Await And Cancel</div>
+            <p>Futures let you await or cancel work.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li><code>Future.get()</code> blocks the caller.</li>
-            <li>Uncaught task exceptions are hidden until <code>get()</code> is called.</li>
-            <li>Wrong executor sizing causes contention or resource exhaustion.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Blocking Get</div>
+            <p><code>Future.get()</code> blocks the caller.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Hidden Exceptions</div>
+            <p>Uncaught task exceptions are hidden until <code>get()</code> is called.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Sizing Pitfalls</div>
+            <p>Wrong executor sizing causes contention or resource exhaustion.</p>
+        </div>
     </div>
 
     <div class="section code-section">

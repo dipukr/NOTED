@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Automatic load balancing across cores.</li>
-            <li>Low contention because workers mostly touch their own deque.</li>
-            <li>Great cache locality from LIFO on the owner's end.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Automatic Load Balancing</div>
+            <p>Work is distributed and balanced automatically across all available cores.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Low Contention</div>
+            <p>Workers mostly touch their own deque, which keeps synchronization contention low.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Great Cache Locality</div>
+            <p>Processing LIFO on the owner's end gives excellent cache locality.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Overhead is wasted if tasks are too fine-grained.</li>
-            <li>Stealing itself has synchronization cost.</li>
-            <li>Poor fit for tasks that block on I/O.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Fine-Grained Overhead</div>
+            <p>The overhead is wasted effort when tasks are too fine-grained.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Stealing Cost</div>
+            <p>The act of stealing itself carries a synchronization cost.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Poor I/O Fit</div>
+            <p>It is a poor fit for tasks that block on I/O.</p>
+        </div>
     </div>
 
     <div class="section code-section">

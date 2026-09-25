@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Automatic recovery from transient faults improves availability.</li>
-            <li>Circuit breakers prevent cascading failures and give systems time to heal.</li>
-            <li>Backpressure keeps systems stable under sustained load.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Automatic Recovery</div>
+            <p>Retries recover from transient faults automatically, improving overall availability.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Stops Cascading Failures</div>
+            <p>Circuit breakers prevent cascading failures and give failing systems time to heal.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Stability Under Load</div>
+            <p>Backpressure keeps systems stable under sustained load.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Naive retries amplify load and can cause retry storms.</li>
-            <li>Idempotency keys add storage and lookup overhead.</li>
-            <li>Tuning breaker thresholds and timeouts is tricky and workload-specific.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Retry Storms</div>
+            <p>Naive retries amplify load and can cause retry storms.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Idempotency Overhead</div>
+            <p>Idempotency keys add storage and lookup overhead.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Hard to Tune</div>
+            <p>Tuning breaker thresholds and timeouts is tricky and workload-specific.</p>
+        </div>
     </div>
 
     <div class="section code-section">

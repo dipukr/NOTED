@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Thread-safe with zero locking.</li>
-            <li>Safe to share, cache, and reuse freely.</li>
-            <li>Simpler reasoning; no hidden state changes.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Thread-Safe By Default</div>
+            <p>Immutable state is inherently thread-safe and requires zero locking.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Safe To Share</div>
+            <p>Instances can be shared, cached, and reused freely without risk.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Simpler Reasoning</div>
+            <p>Behavior is easier to reason about because there are no hidden state changes.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Every change allocates a new object, adding GC pressure.</li>
-            <li>Awkward for large objects with many fields.</li>
-            <li>Defensive copies add overhead for mutable members.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">GC Pressure</div>
+            <p>Every change allocates a new object, which adds garbage collection pressure.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Awkward For Large Objects</div>
+            <p>It becomes awkward for large objects that have many fields to copy.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Defensive Copy Overhead</div>
+            <p>Defensive copies add overhead for any mutable members held by the object.</p>
+        </div>
     </div>
 
     <div class="section code-section">

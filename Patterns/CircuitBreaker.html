@@ -49,75 +49,67 @@
         </div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content">
-            <div class="card-grid">
-                <div class="card">
-                    <div class="card-title">Stops Cascading Failures</div>
-                    <p>Cutting traffic to a sick dependency prevents the failure from spreading up the call chain and taking down healthy services with it.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Fails Fast</div>
-                    <p>Callers get an immediate response instead of blocking on timeouts, so threads and connection-pool slots are freed rather than piling up.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Protects the Dependency</div>
-                    <p>Removing load from a struggling service gives it the breathing room to recover instead of being hammered while it's already down.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Graceful Degradation</div>
-                    <p>The fallback path lets the app keep serving a reduced experience (cached data, defaults) rather than erroring out completely.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Better Latency</div>
-                    <p>Short-circuited calls return in microseconds, so a down dependency doesn't turn every request into a slow one.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Automatic Recovery</div>
-                    <p>Half-open probing means the system heals on its own once the dependency is back, with no manual intervention.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Observability</div>
-                    <p>Trip events and state changes are a clear, actionable signal of dependency health to feed dashboards and alerts.</p>
-                </div>
-            </div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Stops Cascading Failures</div>
+            <p>Cutting traffic to a sick dependency prevents the failure from spreading up the call chain and taking down healthy services with it.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Fails Fast</div>
+            <p>Callers get an immediate response instead of blocking on timeouts, so threads and connection-pool slots are freed rather than piling up.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Protects the Dependency</div>
+            <p>Removing load from a struggling service gives it the breathing room to recover instead of being hammered while it's already down.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Graceful Degradation</div>
+            <p>The fallback path lets the app keep serving a reduced experience (cached data, defaults) rather than erroring out completely.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Better Latency</div>
+            <p>Short-circuited calls return in microseconds, so a down dependency doesn't turn every request into a slow one.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Automatic Recovery</div>
+            <p>Half-open probing means the system heals on its own once the dependency is back, with no manual intervention.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Observability</div>
+            <p>Trip events and state changes are a clear, actionable signal of dependency health to feed dashboards and alerts.</p>
         </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages</div>
-        <div class="section-content">
-            <div class="card-grid">
-                <div class="card">
-                    <div class="card-title">Hard to Tune</div>
-                    <p>Thresholds, windows, and timeouts that are too sensitive cause needless trips, while lax ones let failures through; getting them right takes real traffic data.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Can Reject Good Calls</div>
-                    <p>While open, the breaker rejects every request &mdash; including ones that would have succeeded &mdash; so partial outages can look like total ones.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Fallback Complexity</div>
-                    <p>A meaningful fallback (stale cache, default, degraded response) has to be designed, tested, and kept correct; a bad one can hide real problems.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Added Moving Parts</div>
-                    <p>It introduces extra state and a library/dependency that must be configured, monitored, and reasoned about during incidents.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Distributed State</div>
-                    <p>Per-instance breakers can disagree across a cluster; sharing state adds coordination cost and its own failure modes.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Masks Root Causes</div>
-                    <p>Fast fallbacks can make a degraded system feel healthy, delaying investigation if trips aren't surfaced loudly.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Testing Effort</div>
-                    <p>Exercising open/half-open transitions and recovery reliably requires fault injection, which many test suites lack.</p>
-                </div>
-            </div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Hard to Tune</div>
+            <p>Thresholds, windows, and timeouts that are too sensitive cause needless trips, while lax ones let failures through; getting them right takes real traffic data.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Can Reject Good Calls</div>
+            <p>While open, the breaker rejects every request &mdash; including ones that would have succeeded &mdash; so partial outages can look like total ones.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Fallback Complexity</div>
+            <p>A meaningful fallback (stale cache, default, degraded response) has to be designed, tested, and kept correct; a bad one can hide real problems.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Added Moving Parts</div>
+            <p>It introduces extra state and a library/dependency that must be configured, monitored, and reasoned about during incidents.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Distributed State</div>
+            <p>Per-instance breakers can disagree across a cluster; sharing state adds coordination cost and its own failure modes.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Masks Root Causes</div>
+            <p>Fast fallbacks can make a degraded system feel healthy, delaying investigation if trips aren't surfaced loudly.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Testing Effort</div>
+            <p>Exercising open/half-open transitions and recovery reliably requires fault injection, which many test suites lack.</p>
         </div>
     </div>
 

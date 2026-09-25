@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Pinpoints deadlocks and contention hotspots.</li>
-            <li>JFR adds negligible overhead in production.</li>
-            <li>Metrics enable alerting on pool saturation.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Pinpoints Contention</div>
+            <p>Pinpoints deadlocks and contention hotspots in a running system.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Low Overhead Profiling</div>
+            <p>JFR adds negligible overhead in production.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Enables Alerting</div>
+            <p>Metrics enable alerting on pool saturation.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Thread dumps are point-in-time snapshots.</li>
-            <li>Interpreting dumps requires experience.</li>
-            <li>Excessive instrumentation adds overhead.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Point-in-Time Only</div>
+            <p>Thread dumps are point-in-time snapshots.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Requires Experience</div>
+            <p>Interpreting dumps requires experience.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Instrumentation Cost</div>
+            <p>Excessive instrumentation adds overhead.</p>
+        </div>
     </div>
 
     <div class="section code-section">

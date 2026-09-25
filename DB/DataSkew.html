@@ -29,22 +29,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Detecting and fixing skew restores even load and scalability.</li>
-            <li>Good key choice avoids skew from the start.</li>
-            <li>Salting techniques can neutralize hot keys.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Restores Scalability</div>
+            <p>Detecting and fixing skew restores even load and scalability across the system.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Good Key Choice</div>
+            <p>Choosing a well-distributed key avoids skew from the start.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Salting Neutralizes Hotspots</div>
+            <p>Salting techniques can neutralize hot keys by spreading them across buckets.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Hotspots cap throughput regardless of total capacity.</li>
-            <li>Salting complicates queries and reassembly.</li>
-            <li>Rebalancing is disruptive and costly.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Throughput Cap</div>
+            <p>Hotspots cap throughput regardless of the system's total capacity.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Complex Queries</div>
+            <p>Salting complicates queries and the reassembly of results.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Costly Rebalancing</div>
+            <p>Rebalancing is disruptive and costly to carry out.</p>
+        </div>
     </div>
 
     <div class="section code-section">

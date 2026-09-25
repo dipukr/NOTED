@@ -52,6 +52,19 @@
         </div>
     </div>
 
+    <div class="section when-use">
+        <div class="section-title">Real-world example</div>
+        <div class="section-content"><ul>
+            <li>java.util.Arrays.asList &ndash; adapts a plain array into a fixed-size List interface expected by collection clients.</li>
+            <li>InputStreamReader &ndash; adapts a byte-based InputStream into a character-based Reader in the Java IO library.</li>
+            <li>Spring HandlerAdapter &ndash; lets DispatcherServlet invoke many kinds of controllers through one uniform interface.</li>
+            <li>SLF4J logging facade &ndash; adapts different logging frameworks like Log4j and java.util.logging to a common API.</li>
+            <li>Arrays and collection views &ndash; java.util.Collections wrappers adapt collections into synchronized or unmodifiable forms.</li>
+            <li>JDBC drivers &ndash; each vendor driver adapts a database-specific protocol to the standard JDBC interface.</li>
+            <li>Power plug adapter &ndash; a real-life travel adapter lets a device plug into a foreign socket without changing either one.</li>
+        </ul></div>
+    </div>
+
     <div class="section code-section">
         <div class="section-title">Code</div>
         <div class="code-layout">
@@ -580,46 +593,50 @@ processor = <span class="code-keyword">new</span> <span class="code-class">Razor
     </div>
 
     <div class="subheading">Advantages</div>
-
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content">
-            <div class="card-grid">
-                <div class="card">
-                    <div class="card-title">Loose Coupling</div>
-                    <p>The client does not depend directly on the adaptee; it talks only to the target interface.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Reusability</div>
-                    <p>Existing classes can be reused without modifying them.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Open/Closed Principle</div>
-                    <p>New providers are integrated by adding new adapters rather than modifying existing business logic.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Third-Party Isolation</div>
-                    <p>External APIs remain behind an application-owned interface, so vendor changes stay contained.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Easier Testing</div>
-                    <p>Business services can be tested against the application interface without requiring the real external provider.</p>
-                </div>
-            </div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Loose Coupling</div>
+            <p>The client does not depend directly on the adaptee; it talks only to the target interface.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Reusability</div>
+            <p>Existing classes can be reused without modifying them.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Open/Closed Principle</div>
+            <p>New providers are integrated by adding new adapters rather than modifying existing business logic.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Third-Party Isolation</div>
+            <p>External APIs remain behind an application-owned interface, so vendor changes stay contained.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Easier Testing</div>
+            <p>Business services can be tested against the application interface without requiring the real external provider.</p>
         </div>
     </div>
 
     <div class="subheading">Disadvantages</div>
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages</div>
-        <div class="section-content">
-            <ul>
-                <li>Adds another layer of abstraction.</li>
-                <li>Can increase the number of classes in the application.</li>
-                <li>Complex interface mismatches may require substantial translation code.</li>
-                <li>Too many adapters can make a codebase harder to navigate.</li>
-                <li>A poorly designed adapter can become a place for unrelated business logic.</li>
-            </ul>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Extra Abstraction</div>
+            <p>It adds another layer of abstraction between the client and the existing class.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">More Classes</div>
+            <p>It can increase the number of classes in the application.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Translation Overhead</div>
+            <p>Complex interface mismatches may require substantial translation code.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Harder Navigation</div>
+            <p>Too many adapters can make a codebase harder to navigate.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Logic Leakage</div>
+            <p>A poorly designed adapter can become a place for unrelated business logic.</p>
         </div>
     </div>
 

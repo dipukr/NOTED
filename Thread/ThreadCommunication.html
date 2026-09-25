@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Avoids busy waiting by suspending idle threads.</li>
-            <li>Built into every Java object's monitor.</li>
-            <li>Foundation for producer-consumer and other patterns.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Avoids Busy Waiting</div>
+            <p>It suspends idle threads instead of spinning, so no CPU cycles are wasted while waiting.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Built Into Every Object</div>
+            <p>The wait-notify mechanism is built into every Java object's monitor, requiring no extra libraries.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Foundation For Patterns</div>
+            <p>It forms the foundation for producer-consumer and other coordination patterns.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Easy to misuse: missed signals and lost notifications.</li>
-            <li>Must hold the monitor or an <code>IllegalMonitorStateException</code> is thrown.</li>
-            <li>Higher-level constructs like <code>BlockingQueue</code> are usually safer.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Easy To Misuse</div>
+            <p>It is easy to misuse, leading to missed signals and lost notifications.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Requires Monitor Ownership</div>
+            <p>You must hold the monitor or an <code>IllegalMonitorStateException</code> is thrown.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Safer Alternatives Exist</div>
+            <p>Higher-level constructs like <code>BlockingQueue</code> are usually safer to use.</p>
+        </div>
     </div>
 
     <div class="section code-section">

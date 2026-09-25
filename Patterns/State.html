@@ -28,27 +28,53 @@
         </div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content">
-            <ul>
-                <li>Removes bulky conditional statements by using polymorphism.</li>
-                <li>Organizes state-specific behavior into separate, cohesive classes.</li>
-                <li>Follows the Single Responsibility and Open/Closed Principles.</li>
-                <li>Makes state transitions explicit and easier to reason about.</li>
-            </ul>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Removes Conditionals</div>
+            <p>It replaces bulky conditional statements with polymorphism.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Cohesive Classes</div>
+            <p>It organizes state-specific behavior into separate, cohesive classes.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">SRP and OCP</div>
+            <p>It follows the Single Responsibility and Open/Closed Principles.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Explicit Transitions</div>
+            <p>It makes state transitions explicit and easier to reason about.</p>
         </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages</div>
-        <div class="section-content">
-            <ul>
-                <li>Increases the number of classes, one per state.</li>
-                <li>Can be overkill when there are only a few states with simple logic.</li>
-                <li>Transition logic may be scattered across the state classes.</li>
-            </ul>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">More Classes</div>
+            <p>It increases the number of classes, one per state.</p>
         </div>
+        <div class="pc-card con">
+            <div class="pc-title">Can Be Overkill</div>
+            <p>It can be overkill when there are only a few states with simple logic.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Scattered Transition Logic</div>
+            <p>Transition logic may be scattered across the state classes.</p>
+        </div>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">Real-world example</div>
+        <div class="section-content"><ul>
+            <li>Java Thread &ndash; a thread moves through states like NEW, RUNNABLE, BLOCKED, WAITING and TERMINATED, each allowing different operations.</li>
+            <li>TCP connection &ndash; a socket behaves differently in states such as LISTEN, ESTABLISHED, CLOSE_WAIT and CLOSED.</li>
+            <li>Spring Statemachine &ndash; models application workflows as explicit states and transitions.</li>
+            <li>Media player &ndash; play, pause and stop buttons behave differently depending on whether the player is playing, paused or stopped.</li>
+            <li>Vending machine &ndash; the same coin or button acts differently in idle, coin-inserted and dispensing states.</li>
+            <li>Order processing &ndash; an order in NEW, PAID, SHIPPED or DELIVERED state allows different actions like cancel or refund.</li>
+            <li>Traffic light &ndash; each colour decides the next colour and how long it stays, without any central conditional.</li>
+        </ul></div>
     </div>
 
     <div class="section code-section">

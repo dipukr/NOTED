@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Strong decoupling between services.</li>
-            <li>Elastic scaling of consumers under load.</li>
-            <li>Easy to add new reactions without changing producers.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Strong Decoupling</div>
+            <p>Services communicate through events, keeping producers and consumers independent of each other.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Elastic Scaling</div>
+            <p>Consumers can scale elastically to handle load as event volume rises and falls.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Easy Extensibility</div>
+            <p>New reactions can be added by subscribing fresh consumers without changing existing producers.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Eventual consistency complicates reasoning about state.</li>
-            <li>Distributed tracing and debugging become harder.</li>
-            <li>Requires idempotent consumers to handle duplicate events.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Eventual Consistency</div>
+            <p>State is only eventually consistent, which complicates reasoning about the system.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Harder Debugging</div>
+            <p>Distributed tracing and debugging become more difficult across asynchronous event flows.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Idempotent Consumers</div>
+            <p>Consumers must be idempotent to safely handle duplicate events without side effects.</p>
+        </div>
     </div>
 
     <div class="section code-section">

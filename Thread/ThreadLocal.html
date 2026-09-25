@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>No synchronization needed; each thread is isolated.</li>
-            <li>Avoids passing context through every method parameter.</li>
-            <li>Makes non-thread-safe objects safe to reuse per thread.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">No Synchronization</div>
+            <p>Each thread gets its own isolated copy, so no locking or synchronization is required.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Avoids Parameter Passing</div>
+            <p>Context is available anywhere on the thread without threading it through every method parameter.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Safe Object Reuse</div>
+            <p>Non-thread-safe objects become safe to reuse by giving each thread its own instance.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Memory leaks in pooled threads if <code>remove()</code> is forgotten.</li>
-            <li>Hidden global state makes code harder to reason about and test.</li>
-            <li>Does not propagate across asynchronous task boundaries by default.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Memory Leaks</div>
+            <p>Pooled threads leak memory if <code>remove()</code> is forgotten.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Hidden Global State</div>
+            <p>It acts as hidden global state, making code harder to reason about and test.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">No Async Propagation</div>
+            <p>Values do not propagate across asynchronous task boundaries by default.</p>
+        </div>
     </div>
 
     <div class="section code-section">

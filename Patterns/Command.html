@@ -28,27 +28,53 @@
         </div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content">
-            <ul>
-                <li>Decouples the invoker from the receiver that performs the work.</li>
-                <li>Commands are first-class objects that can be stored, passed, and queued.</li>
-                <li>Makes it easy to add new commands without changing existing code (Open/Closed Principle).</li>
-                <li>Supports undo/redo and logging of operations naturally.</li>
-            </ul>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Decouples Invoker and Receiver</div>
+            <p>It separates the object that invokes an operation from the object that knows how to perform the work.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">First-Class Commands</div>
+            <p>Commands are first-class objects that can be stored, passed around, and queued.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Easy To Extend</div>
+            <p>You can add new commands without changing existing code, following the Open/Closed Principle.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Supports Undo and Logging</div>
+            <p>It naturally supports undo/redo and logging of operations.</p>
         </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages</div>
-        <div class="section-content">
-            <ul>
-                <li>Increases the number of classes, since each command usually needs its own class.</li>
-                <li>Adds indirection that can make simple actions look more complex.</li>
-                <li>Maintaining undo state for complex commands can be difficult.</li>
-            </ul>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">More Classes</div>
+            <p>It increases the number of classes, since each command usually needs its own class.</p>
         </div>
+        <div class="pc-card con">
+            <div class="pc-title">Added Indirection</div>
+            <p>It adds indirection that can make simple actions look more complex.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Complex Undo State</div>
+            <p>Maintaining undo state for complex commands can be difficult.</p>
+        </div>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">Real-world example</div>
+        <div class="section-content"><ul>
+            <li>java.lang.Runnable &ndash; each Runnable wraps an action as an object that an executor invokes later without knowing its details.</li>
+            <li>javax.swing.Action &ndash; Swing binds an Action command to buttons, menu items, and key strokes as the invokers.</li>
+            <li>Spring JdbcTemplate &ndash; StatementCallback and PreparedStatementCallback encapsulate a database operation passed to the template.</li>
+            <li>java.util.concurrent Callable and Future &ndash; a Callable is a queued command whose result is retrieved through its Future.</li>
+            <li>Undo and redo in editors &ndash; each edit is stored as a command object so it can be reversed or replayed.</li>
+            <li>Restaurant orders &ndash; a waiter writes an order (command) that the kitchen (receiver) later executes, decoupling the two.</li>
+            <li>Task queues and job schedulers &ndash; jobs are captured as command objects that workers pull and execute asynchronously.</li>
+        </ul></div>
     </div>
 
     <div class="section code-section">

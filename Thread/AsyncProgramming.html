@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Higher throughput by not blocking threads on I/O.</li>
-            <li>Declarative composition of multi-step workflows.</li>
-            <li>Better resource use than one-thread-per-request.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Higher Throughput</div>
+            <p>Threads are not blocked on I/O, so the system handles more work concurrently.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Declarative Composition</div>
+            <p>Multi-step workflows can be composed declaratively into readable pipelines.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Better Resource Use</div>
+            <p>It uses resources more efficiently than a one-thread-per-request model.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Harder to read and debug than sequential code.</li>
-            <li>Callback chains can become complex; exceptions propagate subtly.</li>
-            <li>Requires care about which thread pool runs each stage.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Harder To Debug</div>
+            <p>Asynchronous code is harder to read and debug than sequential code.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Complex Callback Chains</div>
+            <p>Callback chains can become complex and exceptions propagate subtly.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Thread Pool Management</div>
+            <p>It requires care about which thread pool runs each stage.</p>
+        </div>
     </div>
 
     <div class="section code-section">

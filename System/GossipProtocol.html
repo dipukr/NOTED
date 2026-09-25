@@ -28,22 +28,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Highly scalable and robust to node failures.</li>
-            <li>No single point of failure or central coordinator.</li>
-            <li>Fast, exponential propagation of updates.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Highly Scalable</div>
+            <p>It scales gracefully and stays robust even as nodes fail across the cluster.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">No Central Coordinator</div>
+            <p>There is no single point of failure or central coordinator to depend on.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Fast Propagation</div>
+            <p>Updates spread quickly through exponential, rumour-style propagation.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Only eventually consistent - updates take several rounds to reach all nodes.</li>
-            <li>Redundant messages consume some bandwidth.</li>
-            <li>Convergence time and reasoning about state are harder than with a coordinator.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Eventual Consistency</div>
+            <p>Updates are only eventually consistent and take several rounds to reach all nodes.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Redundant Messages</div>
+            <p>Repeated, overlapping messages consume some extra network bandwidth.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Harder To Reason About</div>
+            <p>Convergence time and reasoning about state are harder than with a central coordinator.</p>
+        </div>
     </div>
 
     <div class="section code-section">

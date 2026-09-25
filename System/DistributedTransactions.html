@@ -28,22 +28,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>2PC provides strict atomicity across participants.</li>
-            <li>Saga keeps services loosely coupled and scales without distributed locks.</li>
-            <li>Saga stays available and resilient to individual service failures.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Strict Atomicity</div>
+            <p>2PC provides strict atomicity across all participants.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Loose Coupling</div>
+            <p>Saga keeps services loosely coupled and scales without distributed locks.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">High Availability</div>
+            <p>Saga stays available and resilient to individual service failures.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>2PC is blocking, slow, and the coordinator is a single point of failure.</li>
-            <li>Saga only offers eventual consistency and exposes intermediate states.</li>
-            <li>Writing correct compensating transactions is complex and error-prone.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Blocking Coordinator</div>
+            <p>2PC is blocking, slow, and the coordinator is a single point of failure.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Eventual Consistency</div>
+            <p>Saga only offers eventual consistency and exposes intermediate states.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Complex Compensation</div>
+            <p>Writing correct compensating transactions is complex and error-prone.</p>
+        </div>
     </div>
 
     <div class="section code-section">

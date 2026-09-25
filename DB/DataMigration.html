@@ -29,24 +29,44 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Repeatable, auditable schema evolution.</li>
-            <li>Keeps all environments consistent.</li>
-            <li>Enables safe, incremental change.</li>
-            <li>Supports rollback with down migrations.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Repeatable and Auditable</div>
+            <p>Schema evolution is repeatable and auditable, so every change is tracked and can be reproduced.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Environment Consistency</div>
+            <p>Keeps all environments consistent by applying the same versioned changes everywhere.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Safe Incremental Change</div>
+            <p>Enables safe, incremental change instead of large risky one-off updates.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Rollback Support</div>
+            <p>Supports rollback with down migrations when a change needs to be reverted.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Large migrations can lock tables and cause downtime.</li>
-            <li>Irreversible steps (dropping columns) risk data loss.</li>
-            <li>Data transformation bugs can corrupt data.</li>
-            <li>Requires careful coordination with application deploys.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Locking and Downtime</div>
+            <p>Large migrations can lock tables and cause downtime while they run.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Risk of Data Loss</div>
+            <p>Irreversible steps such as dropping columns risk permanent data loss.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Transformation Bugs</div>
+            <p>Data transformation bugs can corrupt data during the migration.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Deploy Coordination</div>
+            <p>Requires careful coordination with application deploys to avoid breakage.</p>
+        </div>
     </div>
 
     <div class="section code-section">

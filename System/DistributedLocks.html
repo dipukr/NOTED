@@ -28,22 +28,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Guarantees mutual exclusion across separate machines.</li>
-            <li>Prevents duplicate processing and race conditions on shared resources.</li>
-            <li>Enables safe single-runner scheduling in a horizontally scaled system.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Cross-Machine Mutual Exclusion</div>
+            <p>Guarantees mutual exclusion across separate machines.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Prevents Duplicate Work</div>
+            <p>Prevents duplicate processing and race conditions on shared resources.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Safe Single-Runner Scheduling</div>
+            <p>Enables safe single-runner scheduling in a horizontally scaled system.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Hard to make fully correct under GC pauses, clock skew, and partitions.</li>
-            <li>The lock store is a dependency and potential single point of failure.</li>
-            <li>Locks add latency and can become a contention bottleneck.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Hard To Get Correct</div>
+            <p>Hard to make fully correct under GC pauses, clock skew, and partitions.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Single Point Of Failure</div>
+            <p>The lock store is a dependency and potential single point of failure.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Latency And Contention</div>
+            <p>Locks add latency and can become a contention bottleneck.</p>
+        </div>
     </div>
 
     <div class="section code-section">

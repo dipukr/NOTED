@@ -29,24 +29,44 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Adapts plans to the actual data distribution.</li>
-            <li>Usually outperforms fixed rule-based heuristics.</li>
-            <li>Automatically reconsiders plans as data grows.</li>
-            <li>Handles complex multi-join queries.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Adapts To Data</div>
+            <p>It tailors execution plans to the actual data distribution rather than fixed assumptions.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Beats Fixed Rules</div>
+            <p>It usually outperforms fixed rule-based heuristics by reasoning about real costs.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Reconsiders As Data Grows</div>
+            <p>It automatically reconsiders plans as the underlying data grows and changes.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Handles Complex Joins</div>
+            <p>It can handle complex multi-join queries by comparing many alternative plans.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Depends heavily on accurate statistics.</li>
-            <li>Estimation errors compound in multi-join queries.</li>
-            <li>Plan instability can cause sudden regressions.</li>
-            <li>Planning itself has overhead for very complex queries.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Needs Accurate Statistics</div>
+            <p>It depends heavily on accurate, up-to-date statistics to make good decisions.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Errors Compound</div>
+            <p>Estimation errors compound across the joins in multi-join queries.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Plan Instability</div>
+            <p>Plan instability can cause sudden performance regressions without warning.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Planning Overhead</div>
+            <p>Planning itself adds overhead for very complex queries.</p>
+        </div>
     </div>
 
     <div class="section code-section">

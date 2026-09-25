@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>No blocking, no deadlocks, no context switching.</li>
-            <li>Often faster than locks for single-variable updates.</li>
-            <li>Rich API: get-and-set, CAS, atomic accumulate.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Non-Blocking</div>
+            <p>Operations proceed without blocking, so there are no deadlocks and no context switching.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Faster Than Locks</div>
+            <p>They are often faster than locks for single-variable updates.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Rich API</div>
+            <p>They offer a rich API including get-and-set, CAS, and atomic accumulate operations.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Only atomic for one variable, not multi-field invariants.</li>
-            <li>CAS retries can spin under extreme contention.</li>
-            <li>Vulnerable to the ABA problem (use <code>AtomicStampedReference</code> if needed).</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Single Variable Only</div>
+            <p>They are atomic for only one variable and cannot protect multi-field invariants.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Retry Spinning</div>
+            <p>CAS retries can spin wastefully under extreme contention.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">ABA Problem</div>
+            <p>They are vulnerable to the ABA problem, so use <code>AtomicStampedReference</code> if needed.</p>
+        </div>
     </div>
 
     <div class="section code-section">

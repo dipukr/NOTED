@@ -29,22 +29,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Allowing dirty reads gives maximum concurrency and no read locks.</li>
-            <li>Can be acceptable for approximate, non-critical metrics.</li>
-            <li>Understanding it clarifies why Read Committed is the sane default.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Maximum Concurrency</div>
+            <p>Allowing dirty reads gives maximum concurrency and no read locks.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Approximate Metrics</div>
+            <p>It can be acceptable for approximate, non-critical metrics.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Clarifies Defaults</div>
+            <p>Understanding it clarifies why Read Committed is the sane default.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Can read values that are later rolled back.</li>
-            <li>Leads to incorrect business decisions.</li>
-            <li>Hard to reason about and debug.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Rolled-Back Values</div>
+            <p>It can read values that are later rolled back.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Incorrect Decisions</div>
+            <p>It leads to incorrect business decisions.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Hard To Debug</div>
+            <p>It is hard to reason about and debug.</p>
+        </div>
     </div>
 
     <div class="section code-section">

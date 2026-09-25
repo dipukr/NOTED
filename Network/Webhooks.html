@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Real-time push without wasteful polling.</li>
-            <li>Simple to implement over standard HTTP.</li>
-            <li>Decouples the producer from the consumer.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Real-Time Push</div>
+            <p>Events are pushed the moment they occur, avoiding wasteful polling.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Simple To Implement</div>
+            <p>It works over standard HTTP, so it is easy to build and integrate.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Loose Coupling</div>
+            <p>It decouples the producer from the consumer, letting them evolve independently.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>The receiver must expose a public, always-available endpoint.</li>
-            <li>Delivery can fail; retries risk duplicate processing.</li>
-            <li>Payloads must be authenticated to prevent spoofing.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Public Endpoint Required</div>
+            <p>The receiver must expose a public, always-available endpoint to accept calls.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Duplicate Processing</div>
+            <p>Delivery can fail and retries risk processing the same event more than once.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Spoofing Risk</div>
+            <p>Payloads must be authenticated to prevent spoofed or malicious requests.</p>
+        </div>
     </div>
 
     <div class="section code-section">

@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Decouples task logic from execution mechanism.</li>
-            <li>Concise as a lambda or method reference.</li>
-            <li>Reusable across threads and executors.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Decouples Task and Execution</div>
+            <p>It separates the task logic from the mechanism that runs it.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Concise Syntax</div>
+            <p>It can be written concisely as a lambda or method reference.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Reusable Across Executors</div>
+            <p>The same instance is reusable across threads and executors.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Cannot return a value directly.</li>
-            <li>Cannot throw checked exceptions from <code>run()</code>.</li>
-            <li>Result must be communicated via shared state.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">No Return Value</div>
+            <p>It cannot return a value directly from its task.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">No Checked Exceptions</div>
+            <p>It cannot throw checked exceptions from the <code>run()</code> method.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Relies On Shared State</div>
+            <p>Any result must be communicated back via shared state.</p>
+        </div>
     </div>
 
     <div class="section code-section">

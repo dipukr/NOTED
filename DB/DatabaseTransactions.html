@@ -29,23 +29,40 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Guarantees all-or-nothing atomic updates.</li>
-            <li>Keeps data consistent even during concurrent access.</li>
-            <li>Survives failures via rollback and durability.</li>
-            <li>Simplifies error handling for multi-step operations.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Atomic Updates</div>
+            <p>Guarantees all-or-nothing atomic updates so partial changes are never applied.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Data Consistency</div>
+            <p>Keeps data consistent even during concurrent access by multiple users.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Failure Recovery</div>
+            <p>Survives failures through rollback and durability guarantees.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Simpler Error Handling</div>
+            <p>Simplifies error handling for multi-step operations.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Long transactions hold locks and reduce concurrency.</li>
-            <li>Higher isolation levels cost performance.</li>
-            <li>Distributed transactions across services are complex and slow.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Reduced Concurrency</div>
+            <p>Long transactions hold locks and reduce concurrency.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Performance Cost</div>
+            <p>Higher isolation levels cost performance.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Distributed Complexity</div>
+            <p>Distributed transactions across services are complex and slow.</p>
+        </div>
     </div>
 
     <div class="section code-section">

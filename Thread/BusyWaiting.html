@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>No context-switch or wakeup latency for ultra-short waits.</li>
-            <li>Simple to write for a quick prototype.</li>
-            <li>Can be lower latency on lightly loaded multi-core systems.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">No Wakeup Latency</div>
+            <p>Avoids context-switch and wakeup latency for ultra-short waits.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Simple To Write</div>
+            <p>It is simple to write for a quick prototype.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Lower Latency</div>
+            <p>Can be lower latency on lightly loaded multi-core systems.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Wastes CPU and drains power while spinning.</li>
-            <li>Starves other threads that could use the core.</li>
-            <li>Missing <code>volatile</code> can loop forever on a cached value.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Wastes CPU</div>
+            <p>Wastes CPU and drains power while spinning.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Starves Threads</div>
+            <p>Starves other threads that could use the core.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Stale Cached Value</div>
+            <p>Missing <code>volatile</code> can loop forever on a cached value.</p>
+        </div>
     </div>
 
     <div class="section code-section">

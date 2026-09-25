@@ -40,56 +40,61 @@
         </div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content">
-            <div class="card-grid">
-                <div class="card">
-                    <div class="card-title">Reduced creation cost</div>
-                    <p>Expensive initialization can be avoided for every new object by copying an initialized prototype.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Preserves object state</div>
-                    <p>A clone starts with the prototype's already-configured state.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Less repeated construction</div>
-                    <p>Common configuration lives in the prototype instead of being rebuilt each time.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Hides complex construction</div>
-                    <p>The client does not need to know how the object was originally built.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Runtime configuration</div>
-                    <p>Different prototypes can represent different predefined configurations chosen at runtime.</p>
-                </div>
-            </div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Reduced Creation Cost</div>
+            <p>Expensive initialization can be avoided for every new object by copying an initialized prototype.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Preserves Object State</div>
+            <p>A clone starts with the prototype's already-configured state.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Less Repeated Construction</div>
+            <p>Common configuration lives in the prototype instead of being rebuilt each time.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Hides Complex Construction</div>
+            <p>The client does not need to know how the object was originally built.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Runtime Configuration</div>
+            <p>Different prototypes can represent different predefined configurations chosen at runtime.</p>
         </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages</div>
-        <div class="section-content">
-            <div class="card-grid">
-                <div class="card">
-                    <div class="card-title">Cloning can be complicated</div>
-                    <p>Complex object graphs require careful, correct copying.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Shallow-copy bugs</div>
-                    <p>Mutable nested objects may accidentally remain shared between original and clone.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Deep-copy complexity</div>
-                    <p>Nested references, circular references, and resource ownership make copying difficult.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Maintenance</div>
-                    <p>Whenever the object structure changes, the copy logic may also need to change.</p>
-                </div>
-            </div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Cloning Can Be Complicated</div>
+            <p>Complex object graphs require careful, correct copying.</p>
         </div>
+        <div class="pc-card con">
+            <div class="pc-title">Shallow-Copy Bugs</div>
+            <p>Mutable nested objects may accidentally remain shared between original and clone.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Deep-Copy Complexity</div>
+            <p>Nested references, circular references, and resource ownership make copying difficult.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Maintenance Burden</div>
+            <p>Whenever the object structure changes, the copy logic may also need to change.</p>
+        </div>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">Real-world example</div>
+        <div class="section-content"><ul>
+            <li>Java Object.clone() &ndash; the language-level prototype mechanism where a Cloneable object copies itself field by field.</li>
+            <li>Java ArrayList and HashMap copy constructors &ndash; new ArrayList&lt;&gt;(list) produces an independent copy of a configured collection.</li>
+            <li>Spring bean scope "prototype" &ndash; the container hands out a fresh instance on each request instead of a shared singleton.</li>
+            <li>Object copying libraries &ndash; Apache Commons SerializationUtils.clone() and deep-copy utilities duplicate whole object graphs.</li>
+            <li>Game and graphics engines &ndash; spawning many enemies, bullets, or shapes by cloning a preconfigured template object.</li>
+            <li>Document and design tools &ndash; "Duplicate" on a slide, shape, or layer creates a new item copied from the selected one.</li>
+            <li>Cell division analogy &ndash; a cell reproduces by copying itself, producing a new cell that starts from the parent's state.</li>
+        </ul></div>
     </div>
 
     <div class="section code-section">

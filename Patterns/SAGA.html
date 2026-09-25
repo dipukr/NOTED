@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Maintains data consistency without distributed ACID transactions.</li>
-            <li>Keeps services loosely coupled via asynchronous messaging.</li>
-            <li>Each service manages only its own local transaction.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Data Consistency</div>
+            <p>Maintains data consistency across services without relying on distributed ACID transactions.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Loose Coupling</div>
+            <p>Keeps services loosely coupled through asynchronous messaging.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Local Ownership</div>
+            <p>Each service manages only its own local transaction.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Compensating logic adds significant complexity.</li>
-            <li>Only eventual consistency, not immediate isolation.</li>
-            <li>Debugging long, multi-step sagas is difficult.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Added Complexity</div>
+            <p>Compensating logic adds significant complexity to the system.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Eventual Consistency</div>
+            <p>Provides only eventual consistency, not immediate isolation.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Hard to Debug</div>
+            <p>Debugging long, multi-step sagas is difficult.</p>
+        </div>
     </div>
 
     <div class="section code-section">

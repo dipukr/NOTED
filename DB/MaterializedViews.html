@@ -29,23 +29,40 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Very fast reads because results are precomputed.</li>
-            <li>Offloads heavy computation from query time.</li>
-            <li>Managed and refreshed by the database engine.</li>
-            <li>Can be indexed for further speedups.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Very Fast Reads</div>
+            <p>Reads are extremely fast because the results are already precomputed and stored.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Offloads Computation</div>
+            <p>Heavy computation is moved away from query time and done during refresh instead.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Engine Managed</div>
+            <p>The view is managed and refreshed by the database engine itself.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Indexable</div>
+            <p>It can be indexed like a normal table for further speedups.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Data is stale between refreshes.</li>
-            <li>Refreshing consumes CPU, I/O and storage.</li>
-            <li>Not all databases support incremental refresh.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Stale Data</div>
+            <p>The stored data becomes stale between refreshes.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Refresh Overhead</div>
+            <p>Refreshing consumes CPU, I/O and storage.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Limited Support</div>
+            <p>Not all databases support incremental refresh.</p>
+        </div>
     </div>
 
     <div class="section code-section">

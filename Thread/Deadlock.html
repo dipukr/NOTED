@@ -96,22 +96,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Lock ordering is simple and provably deadlock-free.</li>
-            <li><code>tryLock</code> lets threads recover instead of hanging.</li>
-            <li>Fewer, coarser locks reduce ordering complexity.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Simple Lock Ordering</div>
+            <p>Imposing a consistent global lock order is simple and provably deadlock-free.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Graceful Recovery</div>
+            <p><code>tryLock</code> lets threads recover instead of hanging indefinitely.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Coarser Locks</div>
+            <p>Using fewer, coarser locks reduces the complexity of ordering them.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Global ordering can be hard to maintain in large codebases.</li>
-            <li><code>tryLock</code> retry loops can cause livelock if unthrottled.</li>
-            <li>Coarser locks lower concurrency.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Hard To Maintain</div>
+            <p>A global lock ordering can be hard to maintain across large codebases.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Livelock Risk</div>
+            <p><code>tryLock</code> retry loops can cause livelock if they are left unthrottled.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Lower Concurrency</div>
+            <p>Coarser locks reduce the amount of concurrency the system can achieve.</p>
+        </div>
     </div>
 </div>
 </body>

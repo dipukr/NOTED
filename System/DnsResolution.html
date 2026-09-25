@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Decouples stable names from changing IP addresses.</li>
-            <li>Enables global load distribution and failover at the DNS layer.</li>
-            <li>Caching and TTLs minimize lookup latency.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Name and IP Decoupling</div>
+            <p>Stable domain names stay constant while the underlying IP addresses change freely.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Load Distribution and Failover</div>
+            <p>It enables global load distribution and failover at the DNS layer.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Low Lookup Latency</div>
+            <p>Caching and TTLs minimize lookup latency for repeat requests.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Cached records delay propagation of changes until TTL expiry.</li>
-            <li>Misconfiguration or outages can make services unreachable globally.</li>
-            <li>Plain DNS is unencrypted and vulnerable to spoofing without DNSSEC.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Slow Propagation</div>
+            <p>Cached records delay the propagation of changes until the TTL expires.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Global Outage Risk</div>
+            <p>Misconfiguration or outages can make services unreachable globally.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Spoofing Vulnerability</div>
+            <p>Plain DNS is unencrypted and vulnerable to spoofing without DNSSEC.</p>
+        </div>
     </div>
 
     <div class="section code-section">

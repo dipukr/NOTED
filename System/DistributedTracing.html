@@ -28,22 +28,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>End-to-end visibility into a request's path and timing.</li>
-            <li>Pinpoints which service or call causes slowness or errors.</li>
-            <li>Complements logs and metrics for full observability.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">End-to-End Visibility</div>
+            <p>Provides full visibility into a request's path and timing across services.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Pinpoints Bottlenecks</div>
+            <p>Identifies exactly which service or call causes slowness or errors.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Full Observability</div>
+            <p>Complements logs and metrics to give full observability.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Instrumentation and context propagation add overhead and effort.</li>
-            <li>High-volume tracing needs sampling, which can miss rare events.</li>
-            <li>Storing and querying trace data has real cost.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Instrumentation Overhead</div>
+            <p>Instrumentation and context propagation add overhead and effort.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Sampling Gaps</div>
+            <p>High-volume tracing needs sampling, which can miss rare events.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Storage Cost</div>
+            <p>Storing and querying trace data has real cost.</p>
+        </div>
     </div>
 
     <div class="section code-section">

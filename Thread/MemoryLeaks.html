@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Fixing leaks restores stable memory and uptime.</li>
-            <li>Prevents costly production crashes.</li>
-            <li>Improves GC efficiency and latency.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Stable Memory</div>
+            <p>Fixing leaks restores stable memory usage and long-term uptime.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Prevents Crashes</div>
+            <p>It prevents costly production crashes caused by exhausted heap.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Better GC</div>
+            <p>It improves GC efficiency and reduces latency.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Leaks can stay hidden until sustained load.</li>
-            <li>Heap-dump analysis is time-consuming.</li>
-            <li>Weak references add complexity and subtle behavior.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Hidden Until Load</div>
+            <p>Leaks can stay hidden until the system runs under sustained load.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Slow Analysis</div>
+            <p>Heap-dump analysis is time-consuming.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Weak Reference Complexity</div>
+            <p>Weak references add complexity and subtle behavior.</p>
+        </div>
     </div>
 
     <div class="section code-section">

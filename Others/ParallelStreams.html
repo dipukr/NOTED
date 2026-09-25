@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>One call to parallelise existing stream code.</li>
-            <li>Automatic splitting and result merging.</li>
-            <li>Scales with cores for suitable workloads.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Easy To Enable</div>
+            <p>A single call parallelises existing stream code without a rewrite.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Automatic Work Handling</div>
+            <p>Splitting of the data and merging of the results happen automatically.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Scales With Cores</div>
+            <p>Throughput scales with available cores for suitable workloads.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Overhead can make small streams slower.</li>
-            <li>Shares one common pool across the whole JVM.</li>
-            <li>Ordering and stateful ops reduce or lose gains.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Overhead On Small Data</div>
+            <p>Setup overhead can make small streams slower than running them sequentially.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Shared Common Pool</div>
+            <p>It shares one common Fork-Join pool across the whole JVM.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Ordering And State Costs</div>
+            <p>Ordering requirements and stateful operations reduce or eliminate the gains.</p>
+        </div>
     </div>
 
     <div class="section code-section">

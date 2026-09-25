@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>High availability through failover to a replica.</li>
-            <li>Read scaling by distributing queries across followers.</li>
-            <li>Geographic locality reduces latency for distant users.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">High Availability</div>
+            <p>Failover to a replica keeps the system available when the leader goes down.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Read Scaling</div>
+            <p>Distributing queries across followers spreads read load beyond a single node.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Geographic Locality</div>
+            <p>Placing replicas near users reduces latency for distant clients.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Async replication risks losing recent writes on leader failure.</li>
-            <li>Multi-leader introduces write conflicts requiring resolution logic.</li>
-            <li>Replication lag produces inconsistent reads across replicas.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Risk Of Data Loss</div>
+            <p>Async replication can lose recent writes if the leader fails before they propagate.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Write Conflicts</div>
+            <p>Multi-leader setups introduce write conflicts that require resolution logic.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Replication Lag</div>
+            <p>Lag produces inconsistent, stale reads across replicas.</p>
+        </div>
     </div>
 
     <div class="section code-section">

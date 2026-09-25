@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Strong: simple reasoning, no stale reads, correctness by default.</li>
-            <li>Eventual: higher availability and lower latency, survives partitions.</li>
-            <li>Eventual: scales writes across regions without global coordination.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Simple Reasoning</div>
+            <p>Strong consistency offers simple reasoning with no stale reads and correctness by default.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Higher Availability</div>
+            <p>Eventual consistency gives higher availability and lower latency, surviving partitions.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Scales Writes Globally</div>
+            <p>Eventual consistency scales writes across regions without global coordination.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Strong: higher latency and reduced availability under partitions.</li>
-            <li>Eventual: apps must handle stale reads and conflict resolution.</li>
-            <li>Eventual: harder to reason about and test correctly.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Latency Under Partitions</div>
+            <p>Strong consistency brings higher latency and reduced availability under partitions.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Stale Reads And Conflicts</div>
+            <p>With eventual consistency, apps must handle stale reads and conflict resolution.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Harder To Reason About</div>
+            <p>Eventual consistency is harder to reason about and test correctly.</p>
+        </div>
     </div>
 
     <div class="section code-section">

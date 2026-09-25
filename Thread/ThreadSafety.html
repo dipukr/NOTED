@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Correct results under concurrency, no corrupted state.</li>
-            <li>Prevents race conditions and visibility bugs.</li>
-            <li>Enables safe scaling across cores.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Correct Under Concurrency</div>
+            <p>Produces correct results even under concurrent access, with no corrupted state.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Prevents Races</div>
+            <p>Prevents race conditions and visibility bugs between threads.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Safe Scaling</div>
+            <p>Enables safe scaling of work across multiple cores.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Synchronization adds latency and contention.</li>
-            <li>Over-locking can serialize an otherwise parallel program.</li>
-            <li>Subtle bugs are hard to reproduce and test.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Synchronization Overhead</div>
+            <p>Synchronization adds latency and contention to execution.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Over-Locking</div>
+            <p>Over-locking can serialize an otherwise parallel program.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Hard To Test</div>
+            <p>Subtle bugs are hard to reproduce and test reliably.</p>
+        </div>
     </div>
 
     <div class="section code-section">

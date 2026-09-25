@@ -29,23 +29,40 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Lets you tune the consistency/performance trade-off per transaction.</li>
-            <li>Higher levels give stronger correctness guarantees.</li>
-            <li>Lower levels give higher concurrency.</li>
-            <li>Standardized and widely supported.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Tunable Trade-off</div>
+            <p>Lets you tune the consistency and performance trade-off per transaction.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Stronger Guarantees</div>
+            <p>Higher levels give stronger correctness guarantees.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Higher Concurrency</div>
+            <p>Lower levels give higher concurrency.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Widely Supported</div>
+            <p>Standardized and widely supported across database engines.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Higher isolation reduces concurrency and can increase locking.</li>
-            <li>Serializable may cause serialization failures needing retries.</li>
-            <li>Behaviour varies subtly between database engines.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Reduced Concurrency</div>
+            <p>Higher isolation reduces concurrency and can increase locking.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Serialization Failures</div>
+            <p>Serializable may cause serialization failures needing retries.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Engine Variance</div>
+            <p>Behaviour varies subtly between database engines.</p>
+        </div>
     </div>
 
     <div class="section code-section">

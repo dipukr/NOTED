@@ -29,22 +29,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Understanding it lets you cut hundreds of queries down to one.</li>
-            <li>Fixing it greatly reduces database round trips and latency.</li>
-            <li>Lazy loading itself is useful when related data is rarely needed.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Massive Query Reduction</div>
+            <p>Understanding the problem lets you cut hundreds of queries down to a single one.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Lower Latency</div>
+            <p>Fixing it greatly reduces database round trips and overall latency.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Useful Lazy Loading</div>
+            <p>Lazy loading itself is useful when the related data is rarely needed.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Left unfixed, it severely degrades performance at scale.</li>
-            <li>Over-eager fetching can load too much data (the opposite problem).</li>
-            <li>It is easy to reintroduce accidentally during refactoring.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Severe Performance Hit</div>
+            <p>Left unfixed, it severely degrades performance at scale.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Over-Eager Fetching</div>
+            <p>Over-eager fetching can load too much data, which is the opposite problem.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Easy To Reintroduce</div>
+            <p>It is easy to reintroduce accidentally during refactoring.</p>
+        </div>
     </div>
 
     <div class="section code-section">

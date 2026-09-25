@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Threads remain responsive, unlike a hard deadlock.</li>
-            <li>Randomised back-off usually resolves it cheaply.</li>
-            <li>Retry counters make it observable and testable.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Threads Stay Responsive</div>
+            <p>Threads remain responsive, unlike a hard deadlock where they are fully blocked.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Cheap To Resolve</div>
+            <p>Randomised back-off usually resolves it cheaply.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Observable And Testable</div>
+            <p>Retry counters make it observable and testable.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages</div>
-        <div class="section-content"><ul>
-            <li>Wastes CPU while making no progress.</li>
-            <li>Harder to spot than deadlock because nothing is blocked.</li>
-            <li>Detection thresholds are workload-dependent and tricky to tune.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Wastes CPU</div>
+            <p>It wastes CPU while making no progress.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Hard To Spot</div>
+            <p>It is harder to spot than deadlock because nothing is blocked.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Tricky To Tune</div>
+            <p>Detection thresholds are workload-dependent and tricky to tune.</p>
+        </div>
     </div>
 
     <div class="section code-section">

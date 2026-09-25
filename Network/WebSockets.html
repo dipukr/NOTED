@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Real-time, bidirectional communication.</li>
-            <li>Low overhead after the initial handshake.</li>
-            <li>Eliminates constant polling of the server.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Real-Time Bidirectional</div>
+            <p>Either side can send data at any time over a full-duplex connection.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Low Overhead</div>
+            <p>After the initial handshake, messages carry very little protocol overhead.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">No Constant Polling</div>
+            <p>The server pushes updates directly, eliminating the need for the client to poll repeatedly.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Persistent connections consume server resources.</li>
-            <li>Scaling across many servers needs sticky sessions or a broker.</li>
-            <li>Some proxies and firewalls interfere with upgrades.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Resource Consumption</div>
+            <p>Persistent connections tie up server resources for as long as they stay open.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Harder Scaling</div>
+            <p>Scaling across many servers requires sticky sessions or a message broker.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Proxy Interference</div>
+            <p>Some proxies and firewalls interfere with the protocol upgrade.</p>
+        </div>
     </div>
 
     <div class="section code-section">

@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Scales horizontally by adding nodes.</li>
-            <li>Isolates failures so the whole system stays up.</li>
-            <li>Places compute closer to data or users for performance.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Horizontal Scalability</div>
+            <p>The system scales out by simply adding more nodes.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Fault Isolation</div>
+            <p>Failures are isolated so the whole system stays up.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Data Locality</div>
+            <p>Compute is placed closer to data or users for better performance.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Consistency across nodes is a significant challenge (see CAP theorem).</li>
-            <li>Operational cost and complexity are much higher.</li>
-            <li>Network latency and partial failures must be designed around.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Consistency Challenge</div>
+            <p>Keeping data consistent across nodes is a significant challenge (see CAP theorem).</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Higher Complexity</div>
+            <p>Operational cost and complexity are much higher.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Network Failures</div>
+            <p>Network latency and partial failures must be designed around.</p>
+        </div>
     </div>
 
     <div class="section code-section">

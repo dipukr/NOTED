@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Complete audit log and ability to reconstruct past state.</li>
-            <li>Enables replay, debugging, and new projections after the fact.</li>
-            <li>Append-only writes are simple and fast.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Complete Audit Log</div>
+            <p>The full event history lets you reconstruct any past state of the application.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Replay and New Projections</div>
+            <p>Events can be replayed for debugging and to build new projections after the fact.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Fast Append-Only Writes</div>
+            <p>Writes are simple and fast because events are only ever appended, never modified.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Higher complexity than storing current state directly.</li>
-            <li>Querying current state requires projections or snapshots.</li>
-            <li>Schema evolution of old events is tricky.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Added Complexity</div>
+            <p>It is more complex than simply storing the current state directly.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Current State Queries</div>
+            <p>Reading the current state requires projections or snapshots rather than a direct lookup.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Schema Evolution</div>
+            <p>Evolving the schema of old, already-stored events is tricky to manage.</p>
+        </div>
     </div>
 
     <div class="section code-section">

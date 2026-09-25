@@ -28,22 +28,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Near-linear capacity growth by adding commodity machines.</li>
-            <li>No hard ceiling like a single machine's max spec.</li>
-            <li>Improves availability - one node failing does not stop the service.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Near-Linear Scaling</div>
+            <p>Capacity grows almost linearly by adding commodity machines to the pool.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">No Hard Ceiling</div>
+            <p>There is no fixed limit like a single machine's maximum specification.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Improves Availability</div>
+            <p>One node failing does not stop the service, so the system stays up.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Adds distributed-system complexity: consistency, coordination, networking.</li>
-            <li>Stateful data needs sharding or replication, which is hard to get right.</li>
-            <li>More nodes mean more operational and monitoring surface.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Distributed Complexity</div>
+            <p>It adds distributed-system complexity around consistency, coordination, and networking.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Hard Data Partitioning</div>
+            <p>Stateful data needs sharding or replication, which is hard to get right.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">More Operational Surface</div>
+            <p>More nodes mean more operational and monitoring surface to manage.</p>
+        </div>
     </div>
 
     <div class="section code-section">

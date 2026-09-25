@@ -29,23 +29,40 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Avoids repeated connection setup cost (DNS, TCP, TLS, auth).</li>
-            <li>Lowers latency and raises throughput.</li>
-            <li>Caps the number of connections to protect the database.</li>
-            <li>Reuses validated, ready-to-use connections.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Avoids Setup Cost</div>
+            <p>Reusing open connections avoids repeating the DNS lookup, TCP handshake, TLS handshake and authentication on every operation.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Lower Latency</div>
+            <p>Skipping connection establishment lowers latency and raises overall throughput.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Protects Database</div>
+            <p>Capping the number of connections shields the database from being overwhelmed.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Ready Connections</div>
+            <p>The pool hands out validated, ready-to-use connections instead of freshly created ones.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>A pool that is too small starves requests; too large overloads the database.</li>
-            <li>Leaked connections (not returned) exhaust the pool.</li>
-            <li>Adds a tuning and monitoring burden.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Sizing Is Tricky</div>
+            <p>A pool that is too small starves requests, while one that is too large overloads the database.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Connection Leaks</div>
+            <p>Connections that are borrowed but never returned eventually exhaust the pool.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Tuning Burden</div>
+            <p>Running a pool adds an ongoing tuning and monitoring burden.</p>
+        </div>
     </div>
 
     <div class="section code-section">

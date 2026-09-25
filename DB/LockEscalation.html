@@ -29,22 +29,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Reduces memory spent tracking many individual locks.</li>
-            <li>Lowers lock-management CPU overhead.</li>
-            <li>Simplifies the lock manager's bookkeeping.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Lower Memory Use</div>
+            <p>It reduces the memory spent tracking many individual row and page locks.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Less CPU Overhead</div>
+            <p>It lowers the lock-management CPU overhead.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Simpler Bookkeeping</div>
+            <p>It simplifies the lock manager's bookkeeping.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>A table lock blocks other transactions, reducing concurrency.</li>
-            <li>Can cause blocking chains and timeouts under load.</li>
-            <li>Increases the chance of deadlocks.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Reduced Concurrency</div>
+            <p>A table lock blocks other transactions, reducing concurrency.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Blocking And Timeouts</div>
+            <p>It can cause blocking chains and timeouts under load.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">More Deadlocks</div>
+            <p>It increases the chance of deadlocks.</p>
+        </div>
     </div>
 
     <div class="section code-section">

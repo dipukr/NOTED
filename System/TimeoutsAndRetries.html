@@ -28,22 +28,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Prevents threads from hanging on slow or dead dependencies.</li>
-            <li>Recovers automatically from brief, transient failures.</li>
-            <li>Improves perceived reliability and stability.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Prevents Hanging Calls</div>
+            <p>Timeouts stop threads from hanging on slow or dead dependencies.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Automatic Recovery</div>
+            <p>Retries recover automatically from brief, transient failures.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Improved Reliability</div>
+            <p>Together they improve perceived reliability and stability.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Aggressive retries can overload an already-struggling service (retry storms).</li>
-            <li>Retrying non-idempotent operations can duplicate side effects.</li>
-            <li>Too-short timeouts cause false failures; too-long ones waste resources.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Retry Storms</div>
+            <p>Aggressive retries can overload an already-struggling service.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Duplicated Side Effects</div>
+            <p>Retrying non-idempotent operations can duplicate side effects.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Timeout Tuning</div>
+            <p>Too-short timeouts cause false failures while too-long ones waste resources.</p>
+        </div>
     </div>
 
     <div class="section code-section">

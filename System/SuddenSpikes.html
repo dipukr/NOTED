@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Proper handling preserves availability during peak demand.</li>
-            <li>Graceful degradation keeps critical paths working when overloaded.</li>
-            <li>Queues and caches smooth load and protect databases.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Preserves Availability</div>
+            <p>Proper handling preserves availability during peak demand.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Graceful Degradation</div>
+            <p>Graceful degradation keeps critical paths working when overloaded.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Smooths Load</div>
+            <p>Queues and caches smooth load and protect databases.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Over-provisioning for rare spikes wastes cost.</li>
-            <li>Autoscaling lag can still drop requests during the initial surge.</li>
-            <li>Rate limiting and shedding reject some legitimate users.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Wasted Cost</div>
+            <p>Over-provisioning for rare spikes wastes cost.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Autoscaling Lag</div>
+            <p>Autoscaling lag can still drop requests during the initial surge.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Rejects Legitimate Users</div>
+            <p>Rate limiting and shedding reject some legitimate users.</p>
+        </div>
     </div>
 
     <div class="section code-section">

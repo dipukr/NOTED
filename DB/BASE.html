@@ -29,23 +29,40 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>High availability and fault tolerance.</li>
-            <li>Scales horizontally with ease.</li>
-            <li>Low latency because writes need not wait for global agreement.</li>
-            <li>Resilient to network partitions.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">High Availability</div>
+            <p>The system stays available and fault tolerant, continuing to respond even during failures.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Horizontal Scalability</div>
+            <p>It scales horizontally with ease by adding more nodes.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Low Latency</div>
+            <p>Writes achieve low latency because they need not wait for global agreement.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Partition Resilient</div>
+            <p>The system remains resilient to network partitions.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Reads can return stale data.</li>
-            <li>Application must handle conflicts and reconciliation.</li>
-            <li>Not suitable for operations needing strict correctness like money transfers.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Stale Reads</div>
+            <p>Reads can return stale data because replicas may not yet have converged.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Conflict Handling</div>
+            <p>The application must handle conflicts and reconciliation itself.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Not Strictly Correct</div>
+            <p>It is not suitable for operations needing strict correctness like money transfers.</p>
+        </div>
     </div>
 
     <div class="section code-section">

@@ -29,17 +29,45 @@
         </div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Pros and Cons</div>
-        <div class="section-content">
-            <ul>
-                <li>Promotes low coupling between components.</li>
-                <li>Simplifies maintenance and enhances reusability.</li>
-                <li>Centralizes complex communications.</li>
-                <li>Mediator can become a God object if it gets too complex.</li>
-                <li>Too much logic inside the mediator can lead to poor scalability.</li>
-            </ul>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Low Coupling</div>
+            <p>Promotes low coupling between components by routing their communication through a central mediator.</p>
         </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Easier Maintenance</div>
+            <p>Simplifies maintenance and enhances reusability since components no longer depend on each other directly.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Centralized Communication</div>
+            <p>Centralizes complex communications in one place, making the interactions easier to follow and manage.</p>
+        </div>
+    </div>
+
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">God Object Risk</div>
+            <p>The mediator can become a God object if it accumulates too much responsibility and grows too complex.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Poor Scalability</div>
+            <p>Too much logic packed inside the mediator can lead to poor scalability as the system grows.</p>
+        </div>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">Real-world example</div>
+        <div class="section-content"><ul>
+            <li>java.util.Timer &ndash; coordinates scheduling and execution of TimerTask objects without them knowing each other.</li>
+            <li>Spring ApplicationEventPublisher &ndash; publishers and listeners communicate through the central event multicaster, not directly.</li>
+            <li>JMS message broker &ndash; producers and consumers exchange messages via the broker rather than point-to-point links.</li>
+            <li>Air traffic control tower &ndash; pilots coordinate takeoffs and landings through the tower instead of talking to each other.</li>
+            <li>Chat room server &ndash; users send messages to the server, which relays them to the other participants.</li>
+            <li>GUI dialog controller &ndash; a form controller mediates between buttons, text fields, and checkboxes to enable or disable them.</li>
+            <li>Enterprise Service Bus &ndash; services integrate through the bus, which routes and transforms messages between them.</li>
+        </ul></div>
     </div>
 
     <div class="section code-section">

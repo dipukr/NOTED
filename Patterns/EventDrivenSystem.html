@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Loose coupling: producers and consumers evolve separately.</li>
-            <li>Scalability: consumers scale independently of producers.</li>
-            <li>Resilience: a slow consumer does not block the producer.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Loose Coupling</div>
+            <p>Producers and consumers evolve separately without direct knowledge of each other.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Independent Scalability</div>
+            <p>Consumers scale independently of producers to match their own load.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Resilience</div>
+            <p>A slow consumer does not block the producer from continuing its work.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Harder to trace and debug flows across asynchronous hops.</li>
-            <li>Eventual consistency, not immediate consistency.</li>
-            <li>Duplicate or out-of-order events must be handled by consumers.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Harder To Trace</div>
+            <p>Debugging flows across asynchronous hops is more difficult than synchronous calls.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Eventual Consistency</div>
+            <p>The system offers eventual consistency rather than immediate consistency.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Duplicate Events</div>
+            <p>Duplicate or out-of-order events must be handled explicitly by consumers.</p>
+        </div>
     </div>
 
     <div class="section code-section">

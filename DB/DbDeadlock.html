@@ -29,22 +29,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Automatic detection prevents transactions from hanging forever.</li>
-            <li>Aborting a victim preserves overall system liveness.</li>
-            <li>Understanding them leads to safer locking patterns.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Automatic Detection</div>
+            <p>Automatic deadlock detection prevents transactions from hanging forever.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Preserves Liveness</div>
+            <p>Aborting a victim transaction preserves overall system liveness.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Safer Locking Patterns</div>
+            <p>Understanding deadlocks leads to safer locking patterns.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>The victim transaction's work is lost and must be retried.</li>
-            <li>Frequent deadlocks hurt throughput.</li>
-            <li>Hard to reproduce and diagnose intermittently.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Lost Work</div>
+            <p>The victim transaction's work is lost and must be retried.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Reduced Throughput</div>
+            <p>Frequent deadlocks hurt throughput.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Hard To Diagnose</div>
+            <p>They are hard to reproduce and diagnose because they occur intermittently.</p>
+        </div>
     </div>
 
     <div class="section code-section">

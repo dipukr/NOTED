@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Reuses one sidecar across services in any language.</li>
-            <li>Isolates concerns from the main application code.</li>
-            <li>Independently upgradable from the service.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Language Agnostic Reuse</div>
+            <p>One sidecar can be reused across services written in any language.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Isolates Concerns</div>
+            <p>It keeps cross-cutting concerns isolated from the main application code.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Independent Upgrades</div>
+            <p>The sidecar can be upgraded independently of the service it supports.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Extra process per instance increases resource use.</li>
-            <li>Adds a localhost network hop and some latency.</li>
-            <li>More moving parts to deploy and monitor.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Higher Resource Use</div>
+            <p>An extra process per instance increases overall resource consumption.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Added Latency</div>
+            <p>It adds a localhost network hop that introduces some latency.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">More Moving Parts</div>
+            <p>There are more components to deploy and monitor.</p>
+        </div>
     </div>
 
     <div class="section code-section">

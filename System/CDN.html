@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Lower latency by serving content from a nearby edge location.</li>
-            <li>Reduced origin load and bandwidth costs through caching.</li>
-            <li>Higher availability and resilience against traffic spikes and attacks.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Lower Latency</div>
+            <p>Content is served from a nearby edge location, cutting round-trip time for users.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Reduced Origin Load</div>
+            <p>Caching at the edge lowers origin server load and bandwidth costs.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Higher Availability</div>
+            <p>Edge distribution improves resilience against traffic spikes and attacks.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Stale content can be served until caches expire or are purged.</li>
-            <li>Cache invalidation across many edges is hard to do instantly.</li>
-            <li>Adds cost and another vendor dependency to the stack.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Stale Content</div>
+            <p>Outdated content can be served until caches expire or are purged.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Hard Invalidation</div>
+            <p>Invalidating caches across many edges instantly is difficult.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Added Cost</div>
+            <p>A CDN adds cost and another vendor dependency to the stack.</p>
+        </div>
     </div>
 
     <div class="section code-section">

@@ -29,22 +29,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Recognizing it drives correct isolation and query design.</li>
-            <li>Snapshot isolation removes it cheaply via MVCC.</li>
-            <li>Batch reads sidestep it without heavy locking.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Guides Correct Design</div>
+            <p>Recognizing read skew drives correct isolation and query design decisions.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Cheap Prevention</div>
+            <p>Snapshot isolation removes it cheaply through MVCC.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Lock-Free Batch Reads</div>
+            <p>Reading related rows in a single batch sidesteps it without heavy locking.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Produces inconsistent snapshots that violate invariants.</li>
-            <li>Subtle and hard to reproduce.</li>
-            <li>Preventing it may require higher isolation or extra care.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Inconsistent Snapshots</div>
+            <p>It produces inconsistent snapshots that violate invariants across related rows.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Hard to Reproduce</div>
+            <p>It is subtle and hard to reproduce reliably.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Costly Prevention</div>
+            <p>Preventing it may require higher isolation levels or extra care.</p>
+        </div>
     </div>
 
     <div class="section code-section">

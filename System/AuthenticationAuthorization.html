@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>JWTs scale statelessly and carry claims for authorization.</li>
-            <li>Sessions are easy to revoke instantly on the server.</li>
-            <li>OAuth avoids sharing passwords with third-party apps.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Stateless Scaling</div>
+            <p>JWTs scale statelessly and carry claims that drive authorization decisions.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Instant Revocation</div>
+            <p>Sessions are easy to revoke instantly on the server.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">No Password Sharing</div>
+            <p>OAuth avoids sharing passwords with third-party apps.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>JWTs are hard to revoke before expiry without extra machinery.</li>
-            <li>Sessions require shared/sticky state, complicating horizontal scaling.</li>
-            <li>OAuth flows are complex and easy to misconfigure insecurely.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Hard To Revoke</div>
+            <p>JWTs are hard to revoke before expiry without extra machinery.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Shared State Needed</div>
+            <p>Sessions require shared or sticky state, complicating horizontal scaling.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Complex OAuth Flows</div>
+            <p>OAuth flows are complex and easy to misconfigure insecurely.</p>
+        </div>
     </div>
 
     <div class="section code-section">

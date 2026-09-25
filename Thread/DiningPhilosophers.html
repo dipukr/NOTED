@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Teaches concrete strategies to break the circular-wait condition.</li>
-            <li>Resource-ordering solution is simple and provably deadlock-free.</li>
-            <li>Highlights the trade-off between concurrency and safety.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Breaks Circular Wait</div>
+            <p>It teaches concrete strategies for breaking the circular-wait condition.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Provably Deadlock-Free</div>
+            <p>The resource-ordering solution is simple and provably deadlock-free.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Concurrency Versus Safety</div>
+            <p>It highlights the trade-off between concurrency and safety.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages</div>
-        <div class="section-content"><ul>
-            <li>Strict lock ordering can reduce parallelism.</li>
-            <li>Naive solutions can trade deadlock for starvation of some philosophers.</li>
-            <li>Arbitrator solutions add a central bottleneck.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Reduced Parallelism</div>
+            <p>Strict lock ordering can reduce parallelism.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Risk Of Starvation</div>
+            <p>Naive solutions can trade deadlock for starvation of some philosophers.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Central Bottleneck</div>
+            <p>Arbitrator solutions add a central bottleneck.</p>
+        </div>
     </div>
 
     <div class="section code-section">

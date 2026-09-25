@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Cheap to compute and compact to store or transmit.</li>
-            <li>Quickly detects bit-flips, truncation, and transfer errors.</li>
-            <li>Enables deduplication and change detection by comparing digests.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Cheap and Compact</div>
+            <p>Checksums are inexpensive to compute and small enough to store or transmit alongside the data.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Fast Error Detection</div>
+            <p>They quickly detect bit-flips, truncation, and transfer errors in data.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Deduplication and Change Detection</div>
+            <p>Comparing digests enables deduplication and change detection across data blocks.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Weak checksums (CRC, MD5) can be forged, so they are not secure.</li>
-            <li>Collisions mean different inputs may share a checksum.</li>
-            <li>A matching checksum proves integrity only, never source authenticity.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Not Secure</div>
+            <p>Weak checksums such as CRC and MD5 can be forged, so they do not provide security.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Collisions Possible</div>
+            <p>Different inputs may share the same checksum, leading to collisions.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Integrity Only</div>
+            <p>A matching checksum proves integrity only and never confirms source authenticity.</p>
+        </div>
     </div>
 
     <div class="section code-section">

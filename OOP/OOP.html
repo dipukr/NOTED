@@ -29,79 +29,71 @@
         </div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content">
-            <div class="card-grid">
-                <div class="card">
-                    <div class="card-title">Modularity</div>
-                    <p>Encapsulation bundles data with the methods that operate on it, so each class is a self-contained unit.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Reusability</div>
-                    <p>Inheritance and composition let existing classes be reused without duplicating code or data.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Maintainability</div>
-                    <p>One part of the code can change without breaking others, because internals stay hidden behind interfaces.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Extensibility</div>
-                    <p>New types can be added without modifying existing code, following the open-closed principle.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Data hiding and security</div>
-                    <p>Private fields with getters and setters protect state from uncontrolled external modification.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Flexibility through polymorphism</div>
-                    <p>One interface can work with many implementations, chosen at runtime.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Easier modelling</div>
-                    <p>Classes and relationships map closely to the problem domain, making designs easier to reason about.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Testability</div>
-                    <p>Depending on abstractions rather than concrete classes makes components easy to mock and test in isolation.</p>
-                </div>
-            </div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Modularity</div>
+            <p>Encapsulation bundles data with the methods that operate on it, so each class is a self-contained unit.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Reusability</div>
+            <p>Inheritance and composition let existing classes be reused without duplicating code or data.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Maintainability</div>
+            <p>One part of the code can change without breaking others, because internals stay hidden behind interfaces.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Extensibility</div>
+            <p>New types can be added without modifying existing code, following the open-closed principle.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Data Hiding and Security</div>
+            <p>Private fields with getters and setters protect state from uncontrolled external modification.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Flexibility Through Polymorphism</div>
+            <p>One interface can work with many implementations, chosen at runtime.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Easier Modelling</div>
+            <p>Classes and relationships map closely to the problem domain, making designs easier to reason about.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Testability</div>
+            <p>Depending on abstractions rather than concrete classes makes components easy to mock and test in isolation.</p>
         </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages</div>
-        <div class="section-content">
-            <div class="card-grid">
-                <div class="card">
-                    <div class="card-title">Added complexity</div>
-                    <p>Simple problems can end up spread across many small classes and layers of indirection.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Steeper learning curve</div>
-                    <p>Abstraction, inheritance hierarchies and dynamic dispatch take time to understand and design well.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Performance overhead</div>
-                    <p>Object allocation, indirection and virtual method calls cost more than plain procedural code.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Fragile base class problem</div>
-                    <p>Deep inheritance hierarchies couple subclasses tightly to their parents, so parent changes ripple downward.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Over-engineering</div>
-                    <p>It is easy to build abstractions for flexibility that is never actually needed.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Shared mutable state</div>
-                    <p>Objects holding mutable state need careful synchronisation in multi-threaded environments.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Harder to trace flow</div>
-                    <p>Behaviour resolved at runtime through polymorphism can make execution paths less obvious when debugging.</p>
-                </div>
-            </div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Added Complexity</div>
+            <p>Simple problems can end up spread across many small classes and layers of indirection.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Steeper Learning Curve</div>
+            <p>Abstraction, inheritance hierarchies and dynamic dispatch take time to understand and design well.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Performance Overhead</div>
+            <p>Object allocation, indirection and virtual method calls cost more than plain procedural code.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Fragile Base Class Problem</div>
+            <p>Deep inheritance hierarchies couple subclasses tightly to their parents, so parent changes ripple downward.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Over-engineering</div>
+            <p>It is easy to build abstractions for flexibility that is never actually needed.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Shared Mutable State</div>
+            <p>Objects holding mutable state need careful synchronisation in multi-threaded environments.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Harder to Trace Flow</div>
+            <p>Behaviour resolved at runtime through polymorphism can make execution paths less obvious when debugging.</p>
         </div>
     </div>
 </div>

@@ -29,23 +29,40 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Enables near-linear horizontal scaling of storage and writes.</li>
-            <li>Smaller per-shard datasets mean faster queries and indexes.</li>
-            <li>Failure of one shard affects only part of the data.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Horizontal Scaling</div>
+            <p>Sharding enables near-linear horizontal scaling of both storage capacity and write throughput.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Faster Queries</div>
+            <p>Smaller per-shard datasets mean queries and indexes run faster.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Fault Isolation</div>
+            <p>The failure of one shard affects only part of the data rather than the whole dataset.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Cross-shard queries and joins are complex and slow.</li>
-            <li>A poor shard key causes hotspots and uneven load.</li>
-            <li>Re-sharding to add capacity is difficult and risky.</li>
-            <li>Distributed transactions across shards are hard to guarantee.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Complex Cross-Shard Queries</div>
+            <p>Queries and joins that span multiple shards are complex and slow.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Hotspot Risk</div>
+            <p>A poorly chosen shard key causes hotspots and uneven load across shards.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Difficult Re-Sharding</div>
+            <p>Re-sharding to add capacity is difficult and risky to perform.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Hard Distributed Transactions</div>
+            <p>Distributed transactions spanning multiple shards are hard to guarantee.</p>
+        </div>
     </div>
 
     <div class="section code-section">

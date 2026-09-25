@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Catches races that single-threaded tests miss.</li>
-            <li>Builds confidence before production deployment.</li>
-            <li>Reproduces contention scenarios deliberately.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Exposes Hidden Races</div>
+            <p>Catches concurrency races that single-threaded tests would never surface.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Builds Confidence</div>
+            <p>Builds confidence in correctness before production deployment.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Deliberate Contention</div>
+            <p>Reproduces contention scenarios deliberately to stress shared state.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Passing tests do not prove absence of races.</li>
-            <li>Flaky failures are hard to reproduce and diagnose.</li>
-            <li>Timing-dependent tests can be slow and machine-specific.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">No Absence Proof</div>
+            <p>Passing tests do not prove the absence of races.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Flaky Failures</div>
+            <p>Flaky failures are hard to reproduce and diagnose.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Slow And Machine-Specific</div>
+            <p>Timing-dependent tests can be slow and vary from machine to machine.</p>
+        </div>
     </div>
 
     <div class="section code-section">

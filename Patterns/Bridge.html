@@ -29,28 +29,57 @@
         </div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content">
-            <ul>
-                <li>Abstraction and implementation can evolve separately.</li>
-                <li>Avoids a combinatorial explosion of subclasses.</li>
-                <li>Follows the open/closed principle for both hierarchies.</li>
-                <li>Hides implementation details from the client.</li>
-                <li>Allows implementations to be swapped at runtime.</li>
-            </ul>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Independent Evolution</div>
+            <p>Abstraction and implementation can evolve separately.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Avoids Class Explosion</div>
+            <p>It avoids a combinatorial explosion of subclasses.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Open/Closed Principle</div>
+            <p>It follows the open/closed principle for both hierarchies.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Hides Implementation</div>
+            <p>It hides implementation details from the client.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Runtime Swapping</div>
+            <p>It allows implementations to be swapped at runtime.</p>
         </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages</div>
-        <div class="section-content">
-            <ul>
-                <li>Increases complexity by introducing extra layers and interfaces.</li>
-                <li>Can be hard to apply to a highly cohesive class.</li>
-                <li>The added indirection may be unnecessary for simple designs.</li>
-            </ul>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Added Complexity</div>
+            <p>It increases complexity by introducing extra layers and interfaces.</p>
         </div>
+        <div class="pc-card con">
+            <div class="pc-title">Cohesive Classes</div>
+            <p>It can be hard to apply to a highly cohesive class.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Needless Indirection</div>
+            <p>The added indirection may be unnecessary for simple designs.</p>
+        </div>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">Real-world example</div>
+        <div class="section-content"><ul>
+            <li>JDBC &ndash; the java.sql API is the abstraction while each vendor Driver is the implementation, so the same code runs against any database.</li>
+            <li>SLF4J &ndash; the logging facade is the abstraction bridged to concrete backends like Logback or Log4j chosen at deployment.</li>
+            <li>Java AWT &ndash; Component classes delegate to peer objects (ComponentPeer) so widgets stay independent of the native windowing toolkit.</li>
+            <li>Spring Resource &ndash; the Resource abstraction is bridged to implementations such as ClassPathResource, FileSystemResource and UrlResource.</li>
+            <li>JCA / Java Cryptography &ndash; engine classes like MessageDigest and Cipher are bridged to pluggable provider implementations.</li>
+            <li>Device drivers &ndash; the operating system exposes one device abstraction while each hardware vendor supplies its own driver implementation.</li>
+            <li>TV and remote &ndash; a remote control (abstraction) works with many TV brands (implementations) that can be paired independently.</li>
+        </ul></div>
     </div>
 
     <div class="section code-section">

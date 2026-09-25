@@ -29,23 +29,40 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Allows querying across data too large for one machine.</li>
-            <li>Broadcast joins are efficient when one side is small.</li>
-            <li>Engines parallelize the work across many nodes.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Queries Massive Data</div>
+            <p>They allow querying across data that is too large to fit on a single machine.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Efficient Broadcast Joins</div>
+            <p>Broadcast joins are efficient when one side of the join is small.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Parallel Execution</div>
+            <p>Engines parallelize the work across many nodes for faster processing.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Network data movement makes them slow and costly.</li>
-            <li>Shuffle joins can overwhelm memory and network.</li>
-            <li>Data skew on the join key creates hotspots.</li>
-            <li>Hard to guarantee low latency for interactive queries.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Costly Network Movement</div>
+            <p>Moving data across the network makes distributed joins slow and costly.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Resource Intensive Shuffles</div>
+            <p>Shuffle joins can overwhelm memory and network capacity.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Data Skew Hotspots</div>
+            <p>Data skew on the join key creates hotspots that unbalance the work.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Hard To Keep Low Latency</div>
+            <p>It is hard to guarantee low latency for interactive queries.</p>
+        </div>
     </div>
 
     <div class="section code-section">

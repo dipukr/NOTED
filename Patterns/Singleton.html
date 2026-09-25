@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Singleton Pattern - Notes</title>
+<title>Singleton Pattern</title>
 <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
@@ -11,9 +11,9 @@
     <div class="title">Singleton Pattern</div>
 
     <div class="intro">
-        <p>Singleton is a creational design pattern that ensures a class has only one instance and provides a global point of access to that instance.</p>
-        <p>The class itself is made responsible for controlling its instantiation, hiding the constructor and exposing a single accessor method.</p>
-        <p>It is commonly used for shared resources such as configuration holders, logging, caches, thread pools, and connection managers.</p>
+        <p>Singleton is a creational design pattern that ensures a class has only one instance and provides a global point of access to that instance. 
+            The class itself is made responsible for controlling its instantiation, hiding the constructor and exposing a single accessor method.
+            This is commonly used for shared resources such as configuration holders, logging, caches, thread pools, and connection managers.</p>
     </div>
 
     <div class="section when-use">
@@ -29,44 +29,74 @@
         </div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content">
-            <ul>
-                <li>Guarantees that a class has only a single instance.</li>
-                <li>Provides a global access point to that instance.</li>
-                <li>The instance is created only once (lazy or eager initialization).</li>
-                <li>Saves memory by avoiding repeated object creation.</li>
-                <li>Useful for coordinating actions across a system.</li>
-            </ul>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Single Instance</div>
+            <p>Guarantees that a class has only a single instance across the application.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Global Access Point</div>
+            <p>Provides a global point of access to that shared instance.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Created Once</div>
+            <p>The instance is created only once through lazy or eager initialization.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Saves Memory</div>
+            <p>Saves memory by avoiding repeated object creation.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Coordinates Actions</div>
+            <p>Useful for coordinating actions across a system.</p>
         </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages</div>
-        <div class="section-content">
-            <ul>
-                <li>Introduces global state, which can make code harder to test and reason about.</li>
-                <li>Can hide dependencies instead of exposing them explicitly.</li>
-                <li>Requires careful handling to remain thread-safe.</li>
-                <li>Violates the single responsibility principle by controlling both logic and its own lifecycle.</li>
-            </ul>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Global State</div>
+            <p>Introduces global state, which can make code harder to test and reason about.</p>
         </div>
+        <div class="pc-card con">
+            <div class="pc-title">Hidden Dependencies</div>
+            <p>Can hide dependencies instead of exposing them explicitly.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Thread Safety</div>
+            <p>Requires careful handling to remain thread-safe.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Violates SRP</div>
+            <p>Violates the single responsibility principle by controlling both logic and its own lifecycle.</p>
+        </div>
+    </div>
+
+    <div class="subheading">
+        
+    </div>
+    <div class="section when-use">
+        <div class="section-title">Real-world example</div>
+        <div class="section-content"><ul>
+            <li>java.lang.Runtime &ndash; Runtime.getRuntime() always returns the one JVM runtime instance per application.</li>
+            <li>Spring beans &ndash; the default bean scope is singleton, so the container manages a single shared instance per context.</li>
+            <li>Java Logging &ndash; java.util.logging.LogManager and loggers are accessed through a single shared manager.</li>
+            <li>SLF4J and Log4j &ndash; the LoggerFactory hands out loggers backed by a single logging context.</li>
+            <li>java.awt.Desktop &ndash; Desktop.getDesktop() exposes one instance representing the current desktop environment.</li>
+            <li>Database connection pools &ndash; a single pool manager (such as HikariCP's data source) is shared to reuse connections.</li>
+            <li>Government registry &ndash; a country has one central authority issuing passports, an everyday single-instance analogy.</li>
+        </ul></div>
     </div>
 
     <div class="section code-section">
-        <div class="section-title">Code</div>
+        <div class="section-title">Eager, Thread-safe Example</div>
         <div class="code-layout">
             <div class="code-wrapper">
 <pre><code><span class="code-keyword">public class</span> <span class="code-class">ConfigManager</span> {
-
-    <span class="code-comment"># Eager, thread-safe instance</span>
-    <span class="code-keyword">private static final</span> <span class="code-class">ConfigManager</span> INSTANCE
-            = <span class="code-keyword">new</span> <span class="code-class">ConfigManager</span>();
-
+    <span class="code-keyword">private static final</span> <span class="code-class">ConfigManager</span> INSTANCE = <span class="code-keyword">new</span> <span class="code-class">ConfigManager</span>();
     <span class="code-keyword">private</span> String environment;
 
-    <span class="code-comment"># Private constructor prevents external instantiation</span>
     <span class="code-keyword">private</span> <span class="code-class">ConfigManager</span>() {
         <span class="code-keyword">this</span>.environment = <span class="code-string">"production"</span>;
     }

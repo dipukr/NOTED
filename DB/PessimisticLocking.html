@@ -29,23 +29,40 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Guarantees exclusive access, avoiding lost updates.</li>
-            <li>No wasted retries on conflict.</li>
-            <li>Simple mental model for contended data.</li>
-            <li>Predictable behaviour under heavy contention.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Exclusive Access</div>
+            <p>It guarantees exclusive access to a row, avoiding lost updates.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">No Wasted Retries</div>
+            <p>There are no wasted retries on conflict because waiters block until the lock is free.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Simple Mental Model</div>
+            <p>It provides a simple mental model for contended data.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Predictable Behaviour</div>
+            <p>It behaves predictably under heavy contention.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Reduces concurrency because readers block.</li>
-            <li>Can cause deadlocks if locks are taken in different orders.</li>
-            <li>Long-held locks hurt throughput.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Reduced Concurrency</div>
+            <p>It reduces concurrency because readers block.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Deadlock Risk</div>
+            <p>It can cause deadlocks if locks are taken in different orders.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Throughput Cost</div>
+            <p>Long-held locks hurt throughput.</p>
+        </div>
     </div>
 
     <div class="section code-section">

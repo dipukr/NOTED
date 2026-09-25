@@ -29,23 +29,40 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>No locks held during reads, so high concurrency.</li>
-            <li>No risk of deadlocks from held locks.</li>
-            <li>Scales well for read-heavy workloads.</li>
-            <li>Simple to implement with a version field.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">High Concurrency</div>
+            <p>No locks are held during reads, so many transactions can proceed at once.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">No Deadlocks</div>
+            <p>Because no locks are held, there is no risk of deadlocks from contended locks.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Scales For Reads</div>
+            <p>It scales well for read-heavy workloads where writes rarely collide.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Simple To Implement</div>
+            <p>It is simple to implement using just a version field on the row.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Wasted work when conflicts do occur and retries are needed.</li>
-            <li>Poor fit for highly contended rows.</li>
-            <li>Callers must handle and retry conflict exceptions.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Wasted Retries</div>
+            <p>Work is wasted when conflicts do occur and the transaction must retry.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Poor For Contention</div>
+            <p>It is a poor fit for highly contended rows that frequently collide.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Caller Must Retry</div>
+            <p>Callers must handle and retry conflict exceptions themselves.</p>
+        </div>
     </div>
 
     <div class="section code-section">

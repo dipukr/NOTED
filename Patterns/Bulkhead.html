@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Contains failures to a single compartment.</li>
-            <li>Preserves capacity for healthy dependencies.</li>
-            <li>Improves overall system resilience under load.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Contains Failures</div>
+            <p>A fault is confined to a single compartment instead of spreading across the whole system.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Preserves Healthy Capacity</div>
+            <p>Healthy dependencies keep their own resources and continue serving requests normally.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Better Resilience</div>
+            <p>Overall system resilience improves because load in one area cannot exhaust everything.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Partitioning can under-utilize total resources.</li>
-            <li>Requires sizing each pool correctly.</li>
-            <li>More pools mean more configuration to manage.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Under-Utilized Resources</div>
+            <p>Partitioning resources into separate pools can leave total capacity under-utilized.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Careful Pool Sizing</div>
+            <p>Each pool must be sized correctly to balance isolation against efficient use.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">More Configuration</div>
+            <p>Having more pools means more configuration to set up and manage over time.</p>
+        </div>
     </div>
 
     <div class="section code-section">

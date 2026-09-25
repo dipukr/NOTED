@@ -940,6 +940,10 @@ br {
 	text-align: center;
 }
 
+.stretch {
+	text-align: justify;
+}
+
 strong {
     font-weight: 500;
 }

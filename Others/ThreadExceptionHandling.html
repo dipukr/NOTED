@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Prevents silent failures from going unnoticed.</li>
-            <li>Centralizes error logging and alerting.</li>
-            <li>Enables graceful recovery or restart of failed work.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Prevents Silent Failures</div>
+            <p>Failures that would otherwise vanish are surfaced so they no longer go unnoticed.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Centralized Error Logging</div>
+            <p>Error logging and alerting are handled in one place rather than scattered across tasks.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Graceful Recovery</div>
+            <p>Failed work can be recovered or restarted instead of simply being lost.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Easy to forget, leading to invisible thread death.</li>
-            <li><code>submit()</code> swallows exceptions until <code>get()</code> is called.</li>
-            <li>Handlers add boilerplate to thread setup.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Easy To Forget</div>
+            <p>It is easy to omit a handler, which leads to invisible thread death.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Swallowed Exceptions</div>
+            <p><code>submit()</code> swallows exceptions until <code>get()</code> is called.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Added Boilerplate</div>
+            <p>Handlers add extra boilerplate to thread setup.</p>
+        </div>
     </div>
 
     <div class="section code-section">

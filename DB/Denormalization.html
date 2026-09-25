@@ -29,23 +29,40 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Faster reads by avoiding expensive joins.</li>
-            <li>Simpler and quicker queries for reporting.</li>
-            <li>Can reduce load on the primary tables.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Faster Reads</div>
+            <p>Read performance improves because expensive joins are avoided.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Simpler Queries</div>
+            <p>Reporting queries become simpler and quicker to run.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Reduced Table Load</div>
+            <p>It can reduce load on the primary tables.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Redundant data risks inconsistency.</li>
-            <li>Writes become more complex and must update multiple copies.</li>
-            <li>Uses more storage.</li>
-            <li>Harder to maintain as the schema evolves.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Inconsistency Risk</div>
+            <p>Redundant data risks becoming inconsistent across copies.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Complex Writes</div>
+            <p>Writes become more complex and must update multiple copies.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">More Storage</div>
+            <p>Duplicated data uses more storage space.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Harder Maintenance</div>
+            <p>It becomes harder to maintain as the schema evolves.</p>
+        </div>
     </div>
 
     <div class="section code-section">

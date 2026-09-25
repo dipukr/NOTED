@@ -29,23 +29,40 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Non-blocking under synchronous network assumptions.</li>
-            <li>Participants can reach a decision after coordinator failure.</li>
-            <li>Reduces the in-doubt window compared to 2PC.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Non-Blocking Protocol</div>
+            <p>It avoids blocking under synchronous network assumptions with bounded delays.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Survives Coordinator Failure</div>
+            <p>Participants can still reach a decision autonomously after the coordinator fails.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Smaller In-Doubt Window</div>
+            <p>It reduces the in-doubt window compared to two-phase commit.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Extra phase adds latency and message overhead.</li>
-            <li>Correctness relies on bounded network delays, which real networks violate.</li>
-            <li>Network partitions can still cause inconsistency.</li>
-            <li>Rarely implemented in practice.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Added Latency</div>
+            <p>The extra phase adds latency and message overhead to every transaction.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Fragile Timing Assumptions</div>
+            <p>Correctness relies on bounded network delays, which real networks routinely violate.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Partition Inconsistency</div>
+            <p>Network partitions can still lead to inconsistency between participants.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Rarely Used</div>
+            <p>It is rarely implemented in practice due to its impractical assumptions.</p>
+        </div>
     </div>
 
     <div class="section code-section">

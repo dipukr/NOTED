@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Loose coupling and independent scaling of producers and consumers.</li>
-            <li>Resilience: messages persist until acknowledged, surviving consumer crashes.</li>
-            <li>Load leveling absorbs spikes without overwhelming downstream services.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Loose Coupling</div>
+            <p>Producers and consumers are decoupled and can scale independently of each other.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Built-In Resilience</div>
+            <p>Messages persist until acknowledged, so they survive consumer crashes.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Load Leveling</div>
+            <p>Queues absorb traffic spikes without overwhelming downstream services.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Adds operational complexity and another component to monitor.</li>
-            <li>Eventual, asynchronous processing complicates end-to-end tracing.</li>
-            <li>Redelivery and ordering guarantees force careful consumer design.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Added Complexity</div>
+            <p>It introduces operational complexity and another component to monitor.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Harder Tracing</div>
+            <p>Eventual, asynchronous processing complicates end-to-end tracing.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Careful Consumer Design</div>
+            <p>Redelivery and ordering guarantees force careful consumer design.</p>
+        </div>
     </div>
 
     <div class="section code-section">

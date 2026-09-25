@@ -19,67 +19,59 @@
         <p>Consumers must be idempotent since delivery is at-least-once.</p>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content">
-            <div class="card-grid">
-                <div class="card">
-                    <div class="card-title">No Lost Events</div>
-                    <p>The event row commits in the same transaction as the data, so an event exists exactly when the business change did.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">No Distributed Transaction</div>
-                    <p>Only a local DB transaction is needed; it avoids two-phase commit (XA) across the database and the broker.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Crash-Safe and Retryable</div>
-                    <p>Unsent rows survive restarts and are retried until delivered, giving at-least-once guarantees.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Decoupled from the Broker</div>
-                    <p>The write succeeds even if Kafka is down; the relay catches up once it recovers.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Broker-Agnostic</div>
-                    <p>Works with Kafka, RabbitMQ, or any transport, since the source of truth is a table.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">CDC-Friendly</div>
-                    <p>The same table can be streamed by Debezium for near real-time publishing with no polling overhead.</p>
-                </div>
-            </div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">No Lost Events</div>
+            <p>The event row commits in the same transaction as the data, so an event exists exactly when the business change did.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">No Distributed Transaction</div>
+            <p>Only a local DB transaction is needed; it avoids two-phase commit (XA) across the database and the broker.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Crash-Safe and Retryable</div>
+            <p>Unsent rows survive restarts and are retried until delivered, giving at-least-once guarantees.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Decoupled from the Broker</div>
+            <p>The write succeeds even if Kafka is down; the relay catches up once it recovers.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Broker-Agnostic</div>
+            <p>Works with Kafka, RabbitMQ, or any transport, since the source of truth is a table.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">CDC-Friendly</div>
+            <p>The same table can be streamed by Debezium for near real-time publishing with no polling overhead.</p>
         </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages</div>
-        <div class="section-content">
-            <div class="card-grid">
-                <div class="card">
-                    <div class="card-title">More Moving Parts</div>
-                    <p>An outbox table plus a relay (poller or CDC connector) to build, deploy, and monitor.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">At-Least-Once, Not Exactly-Once</div>
-                    <p>The same event can be delivered twice, so consumers must be idempotent.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Publishing Latency</div>
-                    <p>A polling relay adds delay up to one poll interval; CDC shrinks this but never fully removes it.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Table Growth</div>
-                    <p>Sent rows must be purged or archived, or the outbox table bloats over time.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Concurrency Care</div>
-                    <p>Scaling to multiple relay instances needs row locking (for example <code>SKIP LOCKED</code>) to avoid double-sends and reordering.</p>
-                </div>
-                <div class="card">
-                    <div class="card-title">Schema Coupling</div>
-                    <p>The event payload stored in the table has to evolve carefully alongside the data model.</p>
-                </div>
-            </div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">More Moving Parts</div>
+            <p>An outbox table plus a relay (poller or CDC connector) to build, deploy, and monitor.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">At-Least-Once, Not Exactly-Once</div>
+            <p>The same event can be delivered twice, so consumers must be idempotent.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Publishing Latency</div>
+            <p>A polling relay adds delay up to one poll interval; CDC shrinks this but never fully removes it.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Table Growth</div>
+            <p>Sent rows must be purged or archived, or the outbox table bloats over time.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Concurrency Care</div>
+            <p>Scaling to multiple relay instances needs row locking (for example <code>SKIP LOCKED</code>) to avoid double-sends and reordering.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Schema Coupling</div>
+            <p>The event payload stored in the table has to evolve carefully alongside the data model.</p>
         </div>
     </div>
 

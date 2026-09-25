@@ -29,24 +29,44 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Dramatically speeds up reads by avoiding full table scans.</li>
-            <li>Speeds up sorting and grouping on indexed columns.</li>
-            <li>Enforces uniqueness when created as a unique index.</li>
-            <li>Clustered indexes keep related rows physically close.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Faster Reads</div>
+            <p>Dramatically speeds up reads by avoiding full table scans.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Efficient Sorting</div>
+            <p>Speeds up sorting and grouping on indexed columns.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Enforces Uniqueness</div>
+            <p>Enforces uniqueness when created as a unique index.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Rows Physically Close</div>
+            <p>Clustered indexes keep related rows physically close.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>Consume extra storage.</li>
-            <li>Slow down INSERT, UPDATE and DELETE because indexes must be maintained.</li>
-            <li>Too many indexes waste space and confuse the optimizer.</li>
-            <li>Non-clustered indexes are slower to query than clustered ones.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">Extra Storage</div>
+            <p>Indexes consume extra storage.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Slower Writes</div>
+            <p>They slow down INSERT, UPDATE and DELETE because indexes must be maintained.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Too Many Indexes</div>
+            <p>Too many indexes waste space and confuse the optimizer.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Slower Non-Clustered Lookups</div>
+            <p>Non-clustered indexes are slower to query than clustered ones.</p>
+        </div>
     </div>
 
     <div class="section code-section">

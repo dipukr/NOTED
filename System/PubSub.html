@@ -27,22 +27,36 @@
         </ul></div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content"><ul>
-            <li>Strong decoupling; add or remove subscribers without touching publishers.</li>
-            <li>Efficient one-to-many broadcast of events.</li>
-            <li>Scales naturally as new consumers subscribe independently.</li>
-        </ul></div>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Strong Decoupling</div>
+            <p>Subscribers can be added or removed without touching the publishers.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">One-to-Many Broadcast</div>
+            <p>A single event is efficiently broadcast to many consumers at once.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Natural Scaling</div>
+            <p>The system scales naturally as new consumers subscribe independently.</p>
+        </div>
     </div>
 
-    <div class="section disadvantages">
-        <div class="section-title">Disadvantages / Trade-offs</div>
-        <div class="section-content"><ul>
-            <li>No direct feedback that a specific subscriber processed a message.</li>
-            <li>Delivery guarantees and ordering vary by implementation.</li>
-            <li>Hard to trace and debug across many loosely coupled subscribers.</li>
-        </ul></div>
+    <div class="subheading">Disadvantages</div>
+    <div class="pc-grid">
+        <div class="pc-card con">
+            <div class="pc-title">No Direct Feedback</div>
+            <p>Publishers get no confirmation that a specific subscriber processed a message.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Variable Guarantees</div>
+            <p>Delivery guarantees and message ordering vary widely by implementation.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Hard to Debug</div>
+            <p>Tracing and debugging is difficult across many loosely coupled subscribers.</p>
+        </div>
     </div>
 
     <div class="section code-section">

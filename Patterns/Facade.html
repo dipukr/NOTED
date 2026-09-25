@@ -29,16 +29,37 @@
         </div>
     </div>
 
-    <div class="section advantages">
-        <div class="section-title">Advantages</div>
-        <div class="section-content">
-            <ul>
-                <li>Simplifies complex interfaces.</li>
-                <li>Makes the system easier to use.</li>
-                <li>Promotes loose coupling.</li>
-                <li>Improves code readability.</li>
-            </ul>
+    <div class="subheading">Advantages</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Simplifies Interfaces</div>
+            <p>It provides a single, unified interface that hides the complexity of the underlying subsystems.</p>
         </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Easier To Use</div>
+            <p>It makes the system easier to use by exposing only the operations clients actually need.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Promotes Loose Coupling</div>
+            <p>It decouples clients from the internal components, reducing dependencies between them.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Improves Readability</div>
+            <p>It improves code readability by keeping client code clean and focused on high-level intent.</p>
+        </div>
+    </div>
+
+    <div class="section when-use">
+        <div class="section-title">Real-world example</div>
+        <div class="section-content"><ul>
+            <li>SLF4J &ndash; provides a simple logging facade over backends like Logback, Log4j and java.util.logging.</li>
+            <li>JDBC DriverManager &ndash; offers a unified interface hiding vendor-specific database driver complexity.</li>
+            <li>Spring JdbcTemplate &ndash; wraps connection, statement and result-set handling behind simple query methods.</li>
+            <li>SLF4J LoggerFactory and Java Faces external context &ndash; hide framework wiring behind one entry point.</li>
+            <li>javax.faces.context.FacesContext &ndash; acts as a facade over the whole JSF request-processing subsystem.</li>
+            <li>Home theater remote &ndash; a single button turns on the TV, receiver and player, hiding each device.</li>
+            <li>Car ignition &ndash; turning the key starts fuel, ignition and electrical systems through one action.</li>
+        </ul></div>
     </div>
 
     <div class="section code-section">
