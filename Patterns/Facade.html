@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Facade Pattern - Notes</title>
+<title>Facade Pattern</title>
 <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
 <div class="note">
-    <div class="title">Facade Pattern</div>
+    <div class="title">Facade</div>
 
     <div class="intro">
         <p>Facade pattern is a structural design pattern that provides a unified interface to a set of interfaces in a subsystem.</p>
@@ -52,18 +52,18 @@
     <div class="section realworld">
         <div class="section-title">Real-world example</div>
         <div class="section-content"><ul>
-            <li><strong>SLF4J</strong> &mdash; provides a simple logging facade over backends like Logback, Log4j and java.util.logging.</li>
+            <li><strong>SLF4J</strong> &mdash; provides a simple logging facade over backends like Logback, Log4j and Java logging.</li>
             <li><strong>JDBC DriverManager</strong> &mdash; offers a unified interface hiding vendor-specific database driver complexity.</li>
             <li><strong>Spring JdbcTemplate</strong> &mdash; wraps connection, statement and result-set handling behind simple query methods.</li>
             <li><strong>SLF4J LoggerFactory and Java Faces external context</strong> &mdash; hide framework wiring behind one entry point.</li>
-            <li><strong>javax.faces.context.FacesContext</strong> &mdash; acts as a facade over the whole JSF request-processing subsystem.</li>
+            <li><strong>FacesContext</strong> &mdash; acts as a facade over the whole JSF request-processing subsystem.</li>
             <li><strong>Home theater remote</strong> &mdash; a single button turns on the TV, receiver and player, hiding each device.</li>
             <li><strong>Car ignition</strong> &mdash; turning the key starts fuel, ignition and electrical systems through one action.</li>
         </ul></div>
     </div>
 
     <div class="section code-section">
-        <div class="code-layout">
+        <div class="code-layout code-layout-equal">
             <div class="code-wrapper">
 <pre><code><span class="code-keyword">public class</span> <span class="code-class">PaymentService</span> {
     <span class="code-keyword">public void</span> processPayment() {

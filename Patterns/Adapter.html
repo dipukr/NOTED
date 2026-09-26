@@ -8,14 +8,13 @@
 </head>
 <body>
 <div class="note">
-    <div class="title">Adapter Pattern</div>
+    <div class="title">Adapter</div>
 
     <div class="intro">
         <p>Adapter pattern is a structural design pattern that allows objects with incompatible interfaces to work together.</p>
         <p>Adapter allows classes with incompatible interfaces to collaborate without modifying the existing class.</p>
         <p>Adapter converts the interface of an existing class into the interface that the client expects.</p>
         <p>Adapter catches calls for one object and transforms them to format and interface recognizable by the second object.</p>
-        <p>Adapter lets classes work together that couldn't otherwise because of incompatible interfaces.</p>
         <p>Adapter acts as a bridge between two incompatible interfaces.</p>
     </div>
 
@@ -40,25 +39,13 @@
         </div>
     </div>
 
-    <div class="section when-use">
-        <div class="section-title">Pros and Cons</div>
-        <div class="section-content">
-            <ul>
-                <li>Reusability of existing functionality.</li>
-                <li>Keeps existing code untouched.</li>
-                <li>Code can become complex if many adapters are introduced.</li>
-                <li>Sometimes it's better to refactor than use adapters excessively.</li>
-            </ul>
-        </div>
-    </div>
-
     <div class="section realworld">
         <div class="section-title">Real-world example</div>
         <div class="section-content"><ul>
-            <li><strong>java.util.Arrays.asList</strong> &mdash; adapts a plain array into a fixed-size List interface expected by collection clients.</li>
+            <li><strong>Arrays.asList</strong> &mdash; adapts a plain array into a fixed-size List interface expected by collection clients.</li>
             <li><strong>InputStreamReader</strong> &mdash; adapts a byte-based InputStream into a character-based Reader in the Java IO library.</li>
             <li><strong>Spring HandlerAdapter</strong> &mdash; lets DispatcherServlet invoke many kinds of controllers through one uniform interface.</li>
-            <li><strong>SLF4J logging facade</strong> &mdash; adapts different logging frameworks like Log4j and java.util.logging to a common API.</li>
+            <li><strong>SLF4J logging facade</strong> &mdash; adapts different logging frameworks like Log4j and Java logging to a common API.</li>
             <li><strong>Arrays and collection views</strong> &mdash; java.util.Collections wrappers adapt collections into synchronized or unmodifiable forms.</li>
             <li><strong>JDBC drivers</strong> &mdash; each vendor driver adapts a database-specific protocol to the standard JDBC interface.</li>
             <li><strong>Power plug adapter</strong> &mdash; a real-life travel adapter lets a device plug into a foreign socket without changing either one.</li>
@@ -66,24 +53,20 @@
     </div>
 
     <div class="section code-section">
-        <div class="section-title">Code</div>
-        <div class="code-layout">
+        <div class="code-layout code-layout-equal">
             <div class="code-wrapper">
-<pre><code><span class="code-comment"># Target interface the client expects</span>
-<span class="code-keyword">public interface</span> <span class="code-class">MediaPlayer</span> {
+<pre><code><span class="code-keyword">public interface</span> <span class="code-class">MediaPlayer</span> {
     <span class="code-keyword">void</span> play(String file);
 }
 
-<span class="code-comment"># Adaptee with an incompatible interface</span>
 <span class="code-keyword">public class</span> <span class="code-class">LegacyMp3Player</span> {
     <span class="code-keyword">public void</span> playMp3(String file) {
         System.out.println(<span class="code-string">"Playing mp3: "</span> + file);
     }
 }
 
-<span class="code-comment"># Adapter converts play() into playMp3()</span>
 <span class="code-keyword">public class</span> <span class="code-class">Mp3Adapter</span> <span class="code-keyword">implements</span> <span class="code-class">MediaPlayer</span> {
-    <span class="code-keyword">private final</span> <span class="code-class">LegacyMp3Player</span> player;
+    <span class="code-keyword">private</span> <span class="code-class">LegacyMp3Player</span> player;
 
     <span class="code-keyword">public</span> <span class="code-class">Mp3Adapter</span>(<span class="code-class">LegacyMp3Player</span> player) {
         <span class="code-keyword">this</span>.player = player;
@@ -103,9 +86,9 @@
             <div class="code-explanation">
                 <div class="code-explanation-title">How the Adapter works</div>
                 <p><code>MediaPlayer</code> is the target interface the client codes against.<br><br>
-                    <code>LegacyMp3Player</code> is the adaptee with an incompatible <code>playMp3()</code> method.<br><br>
+                    <code>LegacyMp3Player</code> is the adaptee with an incompatible interface (<code>playMp3</code> method).<br><br>
                     <code>Mp3Adapter</code> implements the target and delegates to the wrapped adaptee.<br><br>
-                    The client calls <code>play()</code> and stays unaware of the legacy method underneath.</p>
+                    The client calls <code>play</code> and stays unaware of the legacy method underneath.</p>
             </div>
         </div>
     </div>

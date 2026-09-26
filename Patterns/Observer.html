@@ -3,21 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Observer Pattern - Notes</title>
+<title>Observer Pattern</title>
 <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
 <div class="note">
-    <div class="title">Observer Pattern</div>
+    <div class="title">Observer</div>
 
     <div class="intro">
-        <p>Observer pattern is a behavioral design pattern that defines a one-to-many dependency between objects.</p>
-        <p>In this pattern an object known as subject maintains a list of its dependent objects known as observers.</p>
-        <p>When the subject's state changes, all objects that depend on it are notified and updated automatically by subject.</p>
+        <p>Observer is a behavioral design pattern that defines a one-to-many dependency between objects, where one object, called the Subject (or Publisher), maintains a collection of dependent objects called Observers (or Subscribers). Observers can subscribe to or unsubscribe from the Subject dynamically.</p>
+        <p>Whenever the Subject's state changes or an important event occurs, the Subject automatically notifies all registered Observers, allowing each Observer to react or update itself accordingly. This promotes loose coupling because the Subject does not need to know the concrete implementations of its Observers - it only communicates with them through a common Observer interface.</p>
     </div>
 
     <div class="section when-use">
-        <div class="section-title">When-to use</div>
+        <div class="section-title">When to use</div>
         <div class="section-content">
             <ul>
                 <li>Use Observer when you want to automatically notify multiple objects of state changes.</li>
@@ -31,11 +30,47 @@
         <div class="section-title">Components</div>
         <div class="section-content">
             <ul>
-                <li>Subject &ndash; The core object being observed. Maintains a list of observers.</li>
-                <li>Observer &ndash; Interface that defines the update method.</li>
-                <li>ConcreteSubject &ndash; Implements subject and notifies observers.</li>
-                <li>ConcreteObserver &ndash; Implements observer and responds to state changes.</li>
+                <li><strong>Subject</strong> (interface) &ndash; contract for being observed: keeps the observer list and exposes subscribe|unsubscribe|notify.</li>
+                <li><strong>ConcreteSubject</strong> (class) &ndash; holds the real state and notifies every observer whenever that state changes.</li>
+                <li><strong>Observer</strong> (interface) &ndash; contract for listeners: declares the <code>update</code> method the subject calls.</li>
+                <li><strong>ConcreteObserver</strong> (class) &ndash; reacts to notifications, reading the subject's new state and updating itself.</li>
             </ul>
+        </div>
+    </div>
+
+    <div class="subheading">Pros and Cons</div>
+    <div class="pc-grid">
+        <div class="pc-card pro">
+            <div class="pc-title">Loose Coupling</div>
+            <p>The subject and observers interact only through an interface, so neither depends on the other's concrete type.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Dynamic Subscription</div>
+            <p>Observers can subscribe and unsubscribe at runtime without changing the subject.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Open/Closed Principle</div>
+            <p>New observer types can be added without modifying the subject's code.</p>
+        </div>
+        <div class="pc-card pro">
+            <div class="pc-title">Broadcast Updates</div>
+            <p>A single state change notifies many observers automatically.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Unpredictable Order</div>
+            <p>The order in which observers are notified is not guaranteed.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Update Cascades</div>
+            <p>One change can trigger chains of updates that are hard to trace and can hurt performance.</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Memory Leaks</div>
+            <p>Observers that forget to unsubscribe stay referenced by the subject (the lapsed-listener problem).</p>
+        </div>
+        <div class="pc-card con">
+            <div class="pc-title">Harder Debugging</div>
+            <p>The indirect, push-based flow makes the control path harder to follow.</p>
         </div>
     </div>
 
@@ -53,27 +88,33 @@
     </div>
 
     <div class="section code-section">
-        <div class="section-title">Code</div>
-        <div class="code-layout">
+        <div class="code-layout code-layout-equal">
             <div class="code-wrapper">
 <pre><code><span class="code-keyword">public interface</span> <span class="code-class">Observer</span> {
     <span class="code-keyword">void</span> update(String news);
 }
 
-<span class="code-keyword">public class</span> <span class="code-class">NewsAgency</span> {                  <span class="code-comment"># Subject</span>
+<span class="code-keyword">public interface</span> <span class="code-class">Subject</span> {
+    <span class="code-keyword">void</span> subscribe(Observer o);
+    <span class="code-keyword">void</span> unsubscribe(Observer o);
+    <span class="code-keyword">void</span> publish(String news);
+}
+
+<span class="code-keyword">public class</span> <span class="code-class">NewsAgency</span> <span class="code-keyword">implements</span> Subject {
     <span class="code-keyword">private</span> List&lt;Observer&gt; observers = <span class="code-keyword">new</span> ArrayList&lt;&gt;();
 
-    <span class="code-keyword">void</span> subscribe(Observer o) { observers.add(o); }
-    <span class="code-keyword">void</span> unsubscribe(Observer o) { observers.remove(o); }
+    <span class="code-keyword">public void</span> subscribe(Observer o) {observers.add(o);}
+    <span class="code-keyword">public void</span> unsubscribe(Observer o) {observers.remove(o);}
 
-    <span class="code-keyword">void</span> publish(String news) {
-        <span class="code-keyword">for</span> (Observer o : observers) o.update(news);
+    <span class="code-keyword">public void</span> publish(String news) {
+        <span class="code-keyword">for</span> (Observer o: observers)
+            o.update(news);
     }
 }
 
 <span class="code-keyword">public class</span> <span class="code-class">Subscriber</span> <span class="code-keyword">implements</span> Observer {
     <span class="code-keyword">private</span> String name;
-    Subscriber(String name) { <span class="code-keyword">this</span>.name = name; }
+    <span class="code-keyword">public</span> Subscriber(String name) {<span class="code-keyword">this</span>.name = name;}
     <span class="code-keyword">public void</span> update(String news) {
         System.out.println(name + <span class="code-string">" received: "</span> + news);
     }
@@ -88,7 +129,7 @@
 
             <div class="code-explanation">
                 <div class="code-explanation-title">How the Observer works</div>
-                <p><code>NewsAgency</code> is the subject holding a list of observers.<br><br>
+                <p><code>NewsAgency</code> implements the <code>Subject</code> interface and holds a list of observers.<br><br>
                     <code>Subscriber</code> implements <code>update()</code> to react to changes.<br><br>
                     <code>publish()</code> notifies every registered observer.<br><br>
                     Observers can subscribe or unsubscribe without touching the subject's logic.</p>

@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Template Method Pattern - Notes</title>
+<title>Template</title>
 <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
 <div class="note">
-    <div class="title">Template Method Pattern</div>
+    <div class="title">Template</div>
 
     <div class="intro">
         <p>Template Method is a behavioral design pattern that defines the skeleton of an algorithm in a base class and lets subclasses override specific steps without changing the algorithm's overall structure.</p>
@@ -64,7 +64,7 @@
 
     <div class="section realworld">
         <div class="section-title">Real-world example</div>
-        <div class="section-content"><ul>
+        <div class="section-content font-size-15"><ul>
             <li><strong>Java InputStream/OutputStream</strong> &mdash; the abstract stream classes define read/write skeletons while concrete streams supply the varying byte operations.</li>
             <li><strong>Java AbstractList</strong> &mdash; provides skeletal list behavior and leaves get() and size() for subclasses to implement.</li>
             <li><strong>Spring JdbcTemplate</strong> &mdash; fixes the connect, execute, and cleanup sequence while callbacks supply the query and row-mapping steps.</li>

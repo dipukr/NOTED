@@ -69,13 +69,11 @@ br {
 
 .intro li { margin: 2px 0; }
 
-/* purple accent term for lead-in labels in prose */
 .term {
     color: #7c3aed;
     font-weight: 700;
 }
 
-/* category cards (Creational / Structural / Behavioral) */
 .cat-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -135,7 +133,6 @@ br {
 .cat-behavioral { --cat: #0891b2; }
 .cat-behavioral .cat-badge { background: linear-gradient(135deg, #0891b2, #155e75); }
 
-/* pro / con cards (stylized advantages and disadvantages) */
 .pc-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -187,7 +184,6 @@ br {
 .pc-card.pro { --pc: #16a34a; --pc-soft: #dcfce7; border-color: #bbf7d0; background: #f6fef9; }
 .pc-card.con { --pc: #dc2626; --pc-soft: #fee2e2; border-color: #fecaca; background: #fef7f7; }
 
-/* benefit cards (purple-accented) */
 .benefit-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -200,6 +196,19 @@ br {
     border: 1px solid #e9e2fb;
     border-radius: 8px;
     padding: 14px 18px;
+}
+
+.comp-tag {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    padding: 1px 7px;
+    border-radius: 999px;
+    background: #eef2f6;
+    color: #64748b;
+    vertical-align: 2px;
 }
 
 .benefit-title {
@@ -280,12 +289,15 @@ br {
     background: #effcfb;
 }
 
+.when-use .section-content {
+    font-size: 17px;
+}
+
 .when-use .section-title {
     background: #cff3f1;
     color: #155e63;
 }
 
-/* Real-world example: same look as When to use, slightly smaller text */
 .realworld {
     background: #effcfb;
 }
@@ -324,7 +336,6 @@ br {
     margin: 6px 0 4px;
 }
 
-/* exactly 4 cards -> 2x2 grid instead of 3+1 */
 .card-grid:has(> .card:nth-child(4):last-child) {
     grid-template-columns: repeat(2, 1fr);
 }
@@ -357,7 +368,6 @@ br {
     color: #374151;
 }
 
-/* ===== MVC role cards (reuse the SOLID card styling) ===== */
 .mvc-m .solid-badge { background: linear-gradient(135deg, #7c3aed, #5b21b6); }
 .mvc-m { border-left: 4px solid #7c3aed; }
 
@@ -373,7 +383,6 @@ br {
 .disadvantages .card { border-color: #fecaca; }
 .disadvantages .card-title { color: #991b1b; }
 
-/* ===== SOLID principle cards ===== */
 .solid-grid {
     display: grid;
     gap: 16px;
@@ -429,7 +438,6 @@ br {
     color: #374151;
 }
 
-/* per-letter accent: badge gradient + tinted left edge */
 .solid-s .solid-badge { background: linear-gradient(135deg, #2563eb, #1e40af); }
 .solid-s { border-left: 4px solid #2563eb; }
 
@@ -452,7 +460,6 @@ br {
 
 .when-use .card { border-color: #bfdbfe; }
 .when-use .card-title { color: #1e40af; }
-
 
 .examples .card { border-color: #bae6fd; }
 .examples .card-title { color: #075985; }
@@ -605,6 +612,14 @@ br {
 }
 
 .cmp .section-content { padding: 0; }
+
+.cmp-table.cmp-teal th {
+    background: #cff3f1;
+    color: #155e63;
+    border-bottom-color: #a7e8e3;
+}
+.cmp-table.cmp-teal tbody tr:nth-child(even) { background: #f1fbfa; }
+.cmp-table.cmp-teal td:first-child { color: #155e63; }
 
 .cmp-table {
     width: 100%;
@@ -759,7 +774,6 @@ br {
     color: #1f2937;
 }
 
-/* no title -> avoid a doubled top border on the first code block */
 .code-section > .code-layout:first-child,
 .code-section > .code-wrapper:first-child,
 .code-section > .code-block:first-child {
@@ -967,4 +981,8 @@ br {
 
 strong {
     font-weight: 500;
+}
+
+.font-size-15 {
+    font-size: 15px !important;
 }
