@@ -191,6 +191,16 @@ br {
     margin: 6px 0 4px;
 }
 
+.benefit-grid-2x2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+@media (max-width: 560px) {
+    .benefit-grid-2x2 {
+        grid-template-columns: 1fr;
+    }
+}
+
 .benefit-card {
     background: #faf8ff;
     border: 1px solid #e9e2fb;

@@ -18,7 +18,7 @@
     </div>
 
     <div class="section when-use">
-        <div class="section-title">When to use / Key points</div>
+        <div class="section-title">Key points</div>
         <div class="section-content"><ul>
             <li>The key trait is independent development, deployment, and scaling per module.</li>
             <li>Communication happens through lightweight protocols like REST or messaging.</li>
@@ -58,42 +58,6 @@
         <div class="pc-card con">
             <div class="pc-title">Data Consistency</div>
             <p>Maintaining consistency across independent services and databases is difficult.</p>
-        </div>
-    </div>
-
-    <div class="section code-section">
-        <div class="section-title">Code</div>
-        <div class="code-layout">
-            <div class="code-wrapper">
-<pre><code><span class="code-comment"># One service calls another over a well-defined REST API</span>
-<span class="code-class">@FeignClient</span>(name = <span class="code-string">"inventory-service"</span>)
-<span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">InventoryClient</span> {
-
-    <span class="code-class">@GetMapping</span>(<span class="code-string">"/stock/{sku}"</span>)
-    <span class="code-class">StockDto</span> getStock(<span class="code-class">@PathVariable</span> <span class="code-class">String</span> sku);
-}
-
-<span class="code-class">@Service</span>
-<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderService</span> {
-
-    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">InventoryClient</span> inventory;
-
-    <span class="code-keyword">public</span> <span class="code-class">OrderService</span>(<span class="code-class">InventoryClient</span> inventory) {
-        <span class="code-keyword">this</span>.inventory = inventory;
-    }
-
-    <span class="code-keyword">public</span> <span class="code-keyword">boolean</span> canFulfill(<span class="code-class">String</span> sku) {
-        <span class="code-class">StockDto</span> stock = inventory.getStock(sku); <span class="code-comment"># remote, independent service</span>
-        <span class="code-keyword">return</span> stock.getQty() &gt; <span class="code-string">0</span>;
-    }
-}</code></pre>
-            </div>
-            <div class="code-explanation">
-                <div class="code-explanation-title">How it works</div>
-                <p><code>@FeignClient</code> declares a typed client to another service's API.<br><br>
-                    Each service owns its data; they share only the API contract.<br><br>
-                    Services deploy and scale on their own release cycles.</p>
-            </div>
         </div>
     </div>
 </div>

@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Prototype Pattern - Notes</title>
+<title>Prototype</title>
 <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
 <div class="note">
-    <div class="title">Prototype Pattern</div>
+    <div class="title">Prototype</div>
 
     <div class="intro">
         <p>The Prototype Pattern is a creational design pattern that creates new objects by copying an existing object (prototype) instead of creating a new object from scratch.
@@ -189,7 +189,7 @@ document.setTags(<span class="code-class">List</span>.of(<span class="code-strin
         </div>
     </div>
 
-    <div class="subheading">4. Real-World Example: Invoice</div>
+    <div class="subheading">Real-World Example: Invoice</div>
 
     <div class="intro">
         <p>Imagine an application that generates invoices. A standard invoice might contain common company information, tax configuration, payment terms, currency, and formatting configuration.</p>
@@ -412,10 +412,9 @@ registry.register(<span class="code-string">"invoice"</span>, invoicePrototype);
 <span class="code-class">Document</span> invoice2 = registry.create(<span class="code-string">"invoice"</span>);
 <span class="code-class">Document</span> invoice3 = registry.create(<span class="code-string">"invoice"</span>);</code></pre></div>
 
-    <div class="subheading">12. Prototype vs Factory</div>
+    <div class="subheading">Prototype vs Factory</div>
 
     <div class="section cmp">
-        <div class="section-title">Prototype vs Factory</div>
         <div class="section-content">
             <table class="cmp-table cmp-peer">
                 <thead><tr><th>Prototype</th><th>Factory</th></tr></thead>

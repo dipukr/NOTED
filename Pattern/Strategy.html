@@ -3,17 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Strategy Pattern - Notes</title>
+<title>Strategy</title>
 <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
 <div class="note">
-    <div class="title">Strategy Pattern</div>
+    <div class="title">Strategy</div>
 
     <div class="intro">
-        <p>Strategy is a behavioral design pattern that defines a family of algorithms, encapsulates each one in its own class, and makes them interchangeable.</p>
-        <p>The strategy lets the algorithm vary independently from the clients that use it.</p>
-        <p>The context holds a reference to a strategy object and delegates the work to it, so the behavior can be swapped at runtime.</p>
+        <p>Strategy is a behavioral design pattern that defines a family of related algorithms or behaviors, encapsulates each one in a separate class, and makes them interchangeable. It allows the algorithm used by an object to vary independently from the client that uses it. Instead of implementing multiple variations of a behavior directly inside the client or Context class using large if-else or switch statements, each variation is extracted into a separate Strategy implementation that follows a common interface.</p>
+        <p>Context is the class that needs some behavior or algorithm to perform its job, but does not implement that algorithm itself. The context holds a reference to a strategy object and delegates the work to it, so the behavior can be swapped at runtime.</p><br>
+        <p><strong>Context</strong> = the object that uses an algorithm.</p>
+        <p><strong>Strategy</strong> = the interface that defines the algorithm or behavior.</p>
+        <p><strong>Concrete Strategy</strong> = the class that implements a particular version of that algorithm.</p>
     </div>
 
     <div class="section when-use">
@@ -65,7 +67,7 @@
     <div class="section realworld">
         <div class="section-title">Real-world example</div>
         <div class="section-content"><ul>
-            <li><strong>java.util.Comparator</strong> &mdash; passing different Comparator objects to Collections.sort or List.sort swaps the ordering algorithm.</li>
+            <li><strong>Comparator</strong> &mdash; passing different Comparator objects to Collections.sort or List.sort swaps the ordering algorithm.</li>
             <li><strong>Java layout managers</strong> &mdash; Swing containers delegate positioning to interchangeable LayoutManager strategies like BorderLayout and GridLayout.</li>
             <li><strong>Spring Resource loading</strong> &mdash; ResourceLoader picks different Resource strategies (classpath, file, URL) based on the location prefix.</li>
             <li><strong>Spring PlatformTransactionManager</strong> &mdash; the transaction behavior varies by implementation (JPA, JDBC, JTA) behind one interface.</li>
@@ -76,8 +78,7 @@
     </div>
 
     <div class="section code-section">
-        <div class="section-title">Code</div>
-        <div class="code-layout">
+        <div class="code-layout code-layout-equal">
             <div class="code-wrapper">
 <pre><code><span class="code-keyword">public interface</span> <span class="code-class">PaymentStrategy</span> {
     <span class="code-keyword">void</span> pay(<span class="code-keyword">int</span> amount);
@@ -97,8 +98,8 @@
 
 <span class="code-keyword">public class</span> <span class="code-class">Checkout</span> {                   <span class="code-comment"># Context</span>
     <span class="code-keyword">private</span> PaymentStrategy strategy;
-    <span class="code-keyword">void</span> setStrategy(PaymentStrategy s) { strategy = s; }
-    <span class="code-keyword">void</span> checkout(<span class="code-keyword">int</span> amount) { strategy.pay(amount); }
+    <span class="code-keyword">public void</span> setStrategy(PaymentStrategy s) {strategy = s;}
+    <span class="code-keyword">public void</span> checkout(<span class="code-keyword">int</span> amount) {strategy.pay(amount);}
 }
 
 <span class="code-keyword">void</span> main() {
@@ -113,7 +114,7 @@
                 <p><code>PaymentStrategy</code> is the common algorithm interface.<br><br>
                     <code>CardPayment</code> and <code>UpiPayment</code> are interchangeable strategies.<br><br>
                     <code>Checkout</code> delegates to whichever strategy it holds.<br><br>
-                    The behavior can be swapped at runtime with <code>setStrategy()</code>.</p>
+                    The behavior can be swapped at runtime with <code>setStrategy</code>.</p>
             </div>
         </div>
     </div>

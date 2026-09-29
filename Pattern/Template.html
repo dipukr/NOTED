@@ -11,9 +11,9 @@
     <div class="title">Template</div>
 
     <div class="intro">
-        <p>Template Method is a behavioral design pattern that defines the skeleton of an algorithm in a base class and lets subclasses override specific steps without changing the algorithm's overall structure.</p>
-        <p>The base class provides a "template method" that calls a sequence of steps, some of which are abstract and implemented by subclasses.</p>
-        <p>This lets subclasses redefine certain steps while the invariant parts of the algorithm stay fixed.</p>
+        <p>Template is a behavioral design pattern that defines the overall skeleton of an algorithm in a base class while allowing subclasses to customize or override specific steps without changing the algorithm’s overall structure or execution order.</p>
+        <p>The base class provides a template method that defines the fixed sequence of steps required to perform the algorithm. Some of these steps may have common implementations in the base class, while others may be abstract or overridable so that subclasses can provide their own behavior. This allows the invariant parts of the algorithm to remain fixed and reusable, while the variable parts can be customized by subclasses.</p>
+        <p>This way template method pattern promotes code reuse, avoids duplication, and ensures that all subclasses follow the same overall algorithm while still allowing controlled variation in individual steps.</p>
     </div>
 
     <div class="section when-use">
@@ -23,7 +23,7 @@
                 <li>When several classes share the same algorithm structure but differ in some steps.</li>
                 <li>When you want to control which parts of an algorithm subclasses may change.</li>
                 <li>When you want to eliminate duplicated code across similar subclasses.</li>
-                <li>Typical uses: frameworks, build/parse pipelines, and data-processing workflows.</li>
+                <li>Typical uses: frameworks, build or parse pipelines, and data-processing workflows.</li>
             </ul>
         </div>
     </div>
@@ -65,7 +65,7 @@
     <div class="section realworld">
         <div class="section-title">Real-world example</div>
         <div class="section-content font-size-15"><ul>
-            <li><strong>Java InputStream/OutputStream</strong> &mdash; the abstract stream classes define read/write skeletons while concrete streams supply the varying byte operations.</li>
+            <li><strong>Java IOS</strong> &mdash; the abstract stream classes define read/write skeletons while concrete streams supply the varying byte operations.</li>
             <li><strong>Java AbstractList</strong> &mdash; provides skeletal list behavior and leaves get() and size() for subclasses to implement.</li>
             <li><strong>Spring JdbcTemplate</strong> &mdash; fixes the connect, execute, and cleanup sequence while callbacks supply the query and row-mapping steps.</li>
             <li><strong>Servlet HttpServlet.service()</strong> &mdash; the fixed service method dispatches to doGet, doPost, and other steps that subclasses override.</li>
@@ -76,12 +76,9 @@
     </div>
 
     <div class="section code-section">
-        <div class="section-title">Code</div>
         <div class="code-layout">
             <div class="code-wrapper">
 <pre><code><span class="code-keyword">public abstract class</span> <span class="code-class">DataProcessor</span> {
-
-    <span class="code-comment"># Template method: fixed algorithm skeleton</span>
     <span class="code-keyword">public final void</span> process() {
         read();
         transform();
@@ -91,28 +88,29 @@
     <span class="code-keyword">abstract void</span> read();
     <span class="code-keyword">abstract void</span> transform();
 
-    <span class="code-keyword">void</span> save() {            <span class="code-comment"># common step</span>
+    <span class="code-keyword">public void</span> save() {
         System.out.println(<span class="code-string">"Saving result"</span>);
     }
 }
 
 <span class="code-keyword">public class</span> <span class="code-class">CsvProcessor</span> <span class="code-keyword">extends</span> DataProcessor {
-    <span class="code-keyword">void</span> read() { System.out.println(<span class="code-string">"Read CSV"</span>); }
-    <span class="code-keyword">void</span> transform() { System.out.println(<span class="code-string">"Transform CSV"</span>); }
+    <span class="code-keyword">public void</span> read() {System.out.println(<span class="code-string">"Read CSV"</span>);}
+    <span class="code-keyword">public void</span> transform() {System.out.println(<span class="code-string">"Transform CSV"</span>);}
 }
 
 <span class="code-keyword">void</span> main() {
     DataProcessor p = <span class="code-keyword">new</span> CsvProcessor();
-    p.process();  <span class="code-comment"># Read CSV, Transform CSV, Saving result</span>
+    p.process();
 }</code></pre>
             </div>
 
             <div class="code-explanation">
                 <div class="code-explanation-title">How the Template Method works</div>
                 <p><code>process()</code> is the template method and is <code>final</code>.<br><br>
+                    <code>process()</code>: fixed algorithm skeleton.<br><br>
                     It fixes the order: <code>read</code>, <code>transform</code>, then <code>save</code>.<br><br>
                     Subclasses supply the varying steps like <code>read()</code>.<br><br>
-                    Common steps such as <code>save()</code> stay in the base class.</p>
+                    Common steps such as <code>save</code> stay in the base class.</p>
             </div>
         </div>
     </div>
