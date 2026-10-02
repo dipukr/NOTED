@@ -3,88 +3,435 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Scalability (QPS, Throughput, Latency, Storage) - Notes</title>
+<title>Scalability</title>
 <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
 <div class="note">
-    <div class="title">Scalability (QPS, Throughput, Latency, Storage)</div>
+    <div class="title">Scalability</div>
 
     <div class="intro">
-        <p>Scalability is the ability of a system to handle an increased workload without losing performance.</p>
-        <p>It means handling growing traffic, data, or users by adding resources rather than breaking or slowing down.</p>
-        <p>QPS (queries per second) and throughput measure how much work the system completes per unit of time.</p>
-        <p>Latency measures how long a single request takes, while storage capacity bounds how much data can be retained.</p>
-        <p>A truly scalable system keeps latency stable and throughput growing as resources are added.</p>
+        <p>Scalability is a system's ability to handle growing amounts of work, traffic, or data efficiently without losing performance or quality.
+        A system must be scalable in order to accommodate growing user traffic, data volumes, or computing demands without suffering a major performance hit or necessitating a total redesign.</p>
+        <p>For example, an online shopping application might initially serve <strong>1,000 users</strong>. Later, it must serve <strong>1 million users</strong>, store hundreds of millions of orders, and process thousands of payments per second.</p>
+        <p>A scalable design lets the system grow to meet that demand without requiring a complete redesign.</p>
+        <p>Scalability is not simply <strong>add more servers</strong>. If all those servers depend on one overloaded database, adding servers may achieve very little.</p>
     </div>
 
-    <div class="section when-use">
-        <div class="section-title">When to use / Key points</div>
-        <div class="section-content"><ul>
-            <li><strong>QPS / Throughput</strong> - requests served per second; the capacity dimension of the system.</li>
-            <li><strong>Latency</strong> - time to serve one request; track p50, p95 and p99, not just the average.</li>
-            <li><strong>Storage</strong> - total data the system must persist and index over time.</li>
-            <li>Measure before scaling - find the actual bottleneck (CPU, memory, IO, network, DB) first.</li>
-            <li>Prefer stateless services so replicas can be added freely behind a load balancer.</li>
-        </ul></div>
-    </div>
-
-    <div class="subheading">Pros and Cons</div>
-    <div class="pc-grid">
-        <div class="pc-card pro">
-            <div class="pc-title">Absorbs Growth</div>
-            <p>It absorbs traffic spikes and steady growth without requiring a rewrite.</p>
+    <div class="subheading">Key Techniques</div>
+    <div class="benefit-grid">
+        <div class="benefit-card">
+            <div class="benefit-title">Load Balancing</div>
+            <p>Spreads incoming traffic across many servers to prevent crashes.</p>
         </div>
-        <div class="pc-card pro">
-            <div class="pc-title">Predictable Latency</div>
-            <p>It keeps latency predictable even under increasing load.</p>
+        <div class="benefit-card">
+            <div class="benefit-title">Caching</div>
+            <p>Stores frequent data in fast memory to speed up response times.</p>
         </div>
-        <div class="pc-card pro">
-            <div class="pc-title">Cost Control</div>
-            <p>It lets capacity track demand, which keeps cost under control.</p>
+        <div class="benefit-card">
+            <div class="benefit-title">Sharding</div>
+            <p>Splits large databases into smaller, easy-to-manage parts.</p>
         </div>
-    
-
-        <div class="pc-card con">
-            <div class="pc-title">Added Complexity</div>
-            <p>Distributed scaling adds operational and consistency complexity.</p>
+        <div class="benefit-card">
+            <div class="benefit-title">Replication</div>
+            <p>Copies data to read replicas so read traffic is spread across many nodes.</p>
         </div>
-        <div class="pc-card con">
-            <div class="pc-title">Latency Trade-off</div>
-            <p>Throughput gains often trade against per-request latency through batching and queuing.</p>
+        <div class="benefit-card">
+            <div class="benefit-title">Stateless Services</div>
+            <p>Keeps user state out of app instances so any instance can serve any request.</p>
         </div>
-        <div class="pc-card con">
-            <div class="pc-title">Provisioning Risk</div>
-            <p>Over-provisioning wastes money while under-provisioning causes outages.</p>
+        <div class="benefit-card">
+            <div class="benefit-title">Asynchronous Processing</div>
+            <p>Moves slow work to background workers through queues so requests return fast.</p>
         </div>
-    </div>
-
-    <div class="section code-section">
-        <div class="section-title">Code</div>
-        <div class="code-layout">
-            <div class="code-wrapper">
-<pre><code><span class="code-comment"># Simple latency + throughput meter around a service call</span>
-<span class="code-keyword">public</span> <span class="code-class">String</span> handle(<span class="code-class">Request</span> req) {
-    <span class="code-keyword">long</span> start = <span class="code-class">System</span>.nanoTime();
-    <span class="code-keyword">try</span> {
-        <span class="code-keyword">return</span> service.process(req);
-    } <span class="code-keyword">finally</span> {
-        <span class="code-keyword">long</span> micros = (<span class="code-class">System</span>.nanoTime() - start) / <span class="code-string">1_000</span>;
-        metrics.timer(<span class="code-string">"request.latency"</span>).record(micros);
-        metrics.counter(<span class="code-string">"request.count"</span>).increment(); <span class="code-comment"># feeds QPS</span>
-    }
-}
-</code></pre>
-            </div>
-            <div class="code-explanation">
-                <div class="code-explanation-title">How it works</div>
-                <p><code>System.nanoTime()</code> brackets the call to measure per-request latency.<br><br>
-                    <code>timer.record()</code> lets the backend compute p95/p99, not just the mean.<br><br>
-                    <code>counter.increment()</code> divided by time gives QPS / throughput.<br><br>
-                    The <code>finally</code> block guarantees metrics are recorded even on failure.</p>
-            </div>
+        <div class="benefit-card">
+            <div class="benefit-title">Message Queues</div>
+            <p>Buffer bursts of work and let producers and consumers scale independently.</p>
+        </div>
+        <div class="benefit-card">
+            <div class="benefit-title">CDN and Edge</div>
+            <p>Serve cacheable content from locations close to users to cut latency.</p>
+        </div>
+        <div class="benefit-card">
+            <div class="benefit-title">Database Indexing</div>
+            <p>Speeds up queries and reduces load by avoiding full table scans.</p>
+        </div>
+        <div class="benefit-card">
+            <div class="benefit-title">Partitioning</div>
+            <p>Divides a large table within one database to improve manageability and some queries.</p>
+        </div>
+        <div class="benefit-card">
+            <div class="benefit-title">Autoscaling</div>
+            <p>Adds and removes capacity automatically as demand rises and falls.</p>
+        </div>
+        <div class="benefit-card">
+            <div class="benefit-title">Rate Limiting</div>
+            <p>Caps request rates to protect the system from overload and abuse.</p>
         </div>
     </div>
+
+    <div class="subheading">What exactly needs to scale: Workload has several dimensions</div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table cmp-teal centered">
+            <thead><tr><th>Dimension</th><th>What increases</th><th>Example</th></tr></thead>
+            <tbody>
+                <tr><td>Request volume</td><td>Requests per second</td><td>An API grows from 100 to 100,000 requests/second</td></tr>
+                <tr><td>Concurrent activity</td><td>Work happening at the same time</td><td>A chat application maintains 1 million open connections</td></tr>
+                <tr><td>Data volume</td><td>Stored and processed data</td><td>An orders table grows from 1 million to 1 billion rows</td></tr>
+                <tr><td>Read workload</td><td>Data retrieval operations</td><td>Millions of people browse a product catalog</td></tr>
+                <tr><td>Write workload</td><td>Data modification operations</td><td>Devices send millions of telemetry events</td></tr>
+                <tr><td>Computational workload</td><td>CPU/GPU work</td><td>Video encoding, image processing, ML inference</td></tr>
+                <tr><td>Network traffic</td><td>Bytes transferred</td><td>A video platform serves thousands of simultaneous streams</td></tr>
+                <tr><td>Geographic reach</td><td>Users across distant regions</td><td>An application expands from India to worldwide use</td></tr>
+            </tbody>
+        </table>
+    </div></div> <br>
+    <div class="intro">
+        <p>A system may scale well along one dimension and poorly along another.</p>
+        <ul>
+            <li>A product catalog may support enormous read traffic through caching.</li>
+            <li>Same system may struggle with inventory updates because many transactions modify the same popular product.</li>
+            <li>A chat server may handle many idle connections but struggle when all users send messages simultaneously.</li>
+        </ul>
+    </div>
+    <div class="callout callout-note"><p><strong>Always ask:</strong> Scalable for which workload?</p></div>
+
+    <div class="subheading">Performance, scalability and availability</div>
+    <div class="intro">
+        <p>An application can be fast but not scalable. For example, an in-memory application on one machine might respond<br> in  2 ms, but its data cannot grow beyond that machine's memory. An application can also scale to high throughput while individual requests remain slow.</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table cmp-teal centered">
+            <thead><tr><th>Concept</th><th>Main question</th><th>Example</th></tr></thead>
+            <tbody>
+                <tr><td>Performance</td><td>How quickly does the system complete work?</td><td>An API responds in 100 ms</td></tr>
+                <tr><td>Scalability</td><td>Can it handle more work as resources increase?</td><td>Adding service instances increases sustainable throughput</td></tr>
+                <tr><td>Elasticity</td><td>Can capacity expand and shrink with demand?</td><td>Instances auto increase during a sale and decrease afterward</td></tr>
+                <tr><td>Availability</td><td>Is the system accessible when needed?</td><td>Requests continue succeeding after a server fails</td></tr>
+                <tr><td>Efficiency</td><td>How much work can it perform per unit of resource or cost?</td><td>Requests processed per CPU core or per dollar</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="callout callout-note"><p><strong>Good system design considers both throughput and latency.</strong></p></div>
+
+    <div class="subheading">Vertical scalability: make one machine more powerful</div>
+    <div class="intro">
+        <p>Vertical scaling means increasing the resources (CPU, RAM or Storage) of an existing machine. Simple but limited by hardware maximums. This is also called <strong>scaling up</strong>. Reducing resources is <strong>scaling down</strong>.</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table cmp-teal centered">
+            <thead><tr><th>Resource</th><th>Before</th><th>After</th></tr></thead>
+            <tbody>
+                <tr><td>CPU cores</td><td>4</td><td>32</td></tr>
+                <tr><td>RAM</td><td>16 GB</td><td>128 GB</td></tr>
+                <tr><td>Storage</td><td>Low-throughput disk</td><td>High-throughput SSD storage</td></tr>
+                <tr><td>Network capacity</td><td>Lower bandwidth</td><td>Higher bandwidth</td></tr>
+            </tbody>
+        </table>
+    </div></div> <br>
+    <div class="intro">
+        <p>Your application still runs on one machine, but that machine has more capacity. For a Java application this might allow:</p>
+        <ul>
+            <li>More CPU-intensive tasks to run concurrently.</li>
+            <li>A larger heap for live application data.</li>
+            <li>More filesystem cache.</li>
+            <li>Higher disk throughput.</li>
+            <li>More concurrent requests, provided the application can use the additional resources.</li>
+        </ul>
+        <p><strong>Ways to scale vertically:</strong> increase CPU cores or speed, add RAM, use faster storage or more provisioned throughput, increase network bandwidth, and adjust application limits so it can use the new capacity.</p>
+        <p>Adding resources does not automatically remove every bottleneck. A single-threaded operation may not benefit much from additional CPU cores. A global lock can prevent multiple threads from doing useful work simultaneously.</p>
+        <p><strong>Advantages:</strong> usually simpler to implement; often requires fewer architectural changes; keeps data and transactions within one machine; useful for databases and applications that are difficult to distribute.</p>
+        <p><strong>Limitations:</strong> there is a maximum practical machine size; larger machines can become disproportionately expensive; resizing may require interruption; one machine remains a failure domain unless redundancy is added separately.</p>
+    </div>
+    <div class="callout callout-note"><p><strong>Example:</strong> If a database is slow because its working set does not fit in memory, adding RAM may be a highly effective first step.</p></div>
+
+    <div class="subheading">Horizontal scalability: add more machines or instances</div>
+    <div class="intro">
+        <p>Horizontal scaling means increasing the number of machines or nodes or application instances. This is also called <strong>scaling out</strong>. Removing instances is <strong>scaling in</strong>. Adding more machines or nodes to share the workload. This handles massive growth well, but requires complex setup like load balancing.</p>
+        <p>Instead of one large application server, you run several servers and distribute work across them.</p>
+    </div>
+    <div class="section-diagram" style="background:#f1f7fb;border:1px solid #dbe8f0;border-radius:10px;padding:20px 18px;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 462" style="width:100%;max-width:480px;height:auto" role="img" aria-label="A load balancer distributes client requests among three application instances that share one database"><defs><marker id="horizontal-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#527b8a"/></marker></defs><path d="M400 74 V116" fill="none" stroke="#527b8a" stroke-width="2.2" marker-end="url(#horizontal-arrow)"/><path d="M400 170 V200 H140 V232" fill="none" stroke="#527b8a" stroke-width="2.2" marker-end="url(#horizontal-arrow)"/><path d="M400 170 V232" fill="none" stroke="#527b8a" stroke-width="2.2" marker-end="url(#horizontal-arrow)"/><path d="M400 170 V200 H660 V232" fill="none" stroke="#527b8a" stroke-width="2.2" marker-end="url(#horizontal-arrow)"/><path d="M140 294 V332 H400 V364" fill="none" stroke="#527b8a" stroke-width="2.2" marker-end="url(#horizontal-arrow)"/><path d="M400 294 V364" fill="none" stroke="#527b8a" stroke-width="2.2" marker-end="url(#horizontal-arrow)"/><path d="M660 294 V332 H400 V364" fill="none" stroke="#527b8a" stroke-width="2.2" marker-end="url(#horizontal-arrow)"/><rect x="300" y="20" width="200" height="54" rx="12" fill="#f1f5fb" stroke="#9db5c5"/><text x="400" y="53" text-anchor="middle" fill="#173649" font-family="Arial, sans-serif" font-size="17">Clients</text><rect x="300" y="116" width="200" height="54" rx="12" fill="#f1f5fb" stroke="#9db5c5"/><text x="400" y="149" text-anchor="middle" fill="#173649" font-family="Arial, sans-serif" font-size="17">Load balancer</text><rect x="35" y="232" width="210" height="62" rx="12" fill="#f1f5fb" stroke="#9db5c5"/><text x="140" y="269" text-anchor="middle" fill="#173649" font-family="Arial, sans-serif" font-size="17">Application instance 1</text><rect x="295" y="232" width="210" height="62" rx="12" fill="#f1f5fb" stroke="#9db5c5"/><text x="400" y="269" text-anchor="middle" fill="#173649" font-family="Arial, sans-serif" font-size="17">Application instance 2</text><rect x="555" y="232" width="210" height="62" rx="12" fill="#f1f5fb" stroke="#9db5c5"/><text x="660" y="269" text-anchor="middle" fill="#173649" font-family="Arial, sans-serif" font-size="17">Application instance 3</text><rect x="300" y="364" width="200" height="62" rx="12" fill="#e8f4f1" stroke="#9db5c5"/><text x="400" y="401" text-anchor="middle" fill="#173649" font-family="Arial, sans-serif" font-size="17">Shared database</text></svg>
+    </div>
+    <div class="intro">
+        <p>When one instance can sustainably process 500 requests/second, four instances might approach 2,000 requests/second <strong>if shared dependencies and workload distribution allow it</strong>. The diagram also reveals a possible limitation: all three instances still depend on the same database.</p>
+        <p><strong>Ways to scale horizontally:</strong> run multiple instances behind a load balancer; add worker processes for background jobs; add database read replicas; shard data across nodes; partition event streams; distribute cache entries across cache nodes.</p>
+        <p><strong>Advantages:</strong> capacity can grow incrementally; work spreads across many machines; supports redundancy across independent failure domains; often fits elastic workloads well.</p>
+        <p><strong>Challenges:</strong> requests can reach different instances; data and sessions must be managed across instances; network calls add latency and partial failures; coordination and consistency become more complex; uneven distribution can overload individual nodes.</p>
+        <p>Horizontal scaling is easiest when work can be divided into relatively independent units. For example, processing 10,000 unrelated images is easier to distribute than coordinating 10,000 purchases of the last available concert ticket.</p>
+    </div>
+
+    <div class="subheading">Diagonal scaling: combine vertical and horizontal</div>
+    <div class="intro">
+        <p>Diagonal scaling is a commonly used term for combining both approaches.</p>
+        <ol>
+            <li>Start with one instance containing 2 CPU cores and 4 GB RAM.</li>
+            <li>Increase it to 8 CPU cores and 16 GB RAM.</li>
+            <li>When further growth makes sense, run several instances of that size.</li>
+            <li>Continue adjusting both instance size and instance count.</li>
+        </ol>
+        <p>This is common in practice because the smallest possible instances are not always efficient and the largest possible machines are not always economical.</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table cmp-teal centered">
+            <thead><tr><th>Approach</th><th>Main change</th><th>Typical strength</th><th>Main limitation</th></tr></thead>
+            <tbody>
+                <tr><td>Vertical</td><td>Bigger machines</td><td>Simplicity</td><td>Per-machine capacity ceiling</td></tr>
+                <tr><td>Horizontal</td><td>More machines</td><td>Distributed capacity</td><td>Coordination and shared bottlenecks</td></tr>
+                <tr><td>Diagonal</td><td>Bigger plus more machines</td><td>Flexibility</td><td>Requires tuning both dimensions</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+
+    <div class="subheading">Scale copies, functions, or data</div>
+    <div class="intro">
+        <p>Vertical and horizontal describe <strong>how resources grow</strong>. Another classification describes <strong>how the application's work is divided</strong>.</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table cmp-teal centered">
+            <thead><tr><th>Approach</th><th>What is divided?</th><th>Example</th></tr></thead>
+            <tbody>
+                <tr><td>X-axis scaling</td><td>Copies of the same application</td><td>Run 10 identical application instances</td></tr>
+                <tr><td>Y-axis scaling</td><td>Business capabilities or functions</td><td>Scale search separately from checkout</td></tr>
+                <tr><td>Z-axis scaling</td><td>Data or workload subsets</td><td>Route different customers to different shards</td></tr>
+            </tbody>
+        </table>
+    </div></div> <br>
+    <div class="intro">
+        <p><strong>X-axis: duplicate the application.</strong> Each instance runs the same code and can handle the same kinds of requests. For example, run five copies of a Spring Boot application behind a load balancer.</p>
+        <p><strong>Y-axis: separate functions.</strong> Different capabilities receive independent resources:</p>
+        <ul>
+            <li>Product search requires substantial read capacity.</li>
+            <li>Order processing requires transactional database capacity.</li>
+            <li>Video processing requires CPU or GPU capacity.</li>
+            <li>Email delivery requires background workers.</li>
+        </ul>
+        <p>You do not need to scale all of them equally. Microservices can enable this, but <strong>microservices do not automatically make a system scalable</strong>. Poor boundaries and excessive synchronous calls can create additional bottlenecks.</p>
+        <p><strong>Z-axis: divide the workload or data.</strong> Customer IDs in one group go to shard A, another group goes to shard B, and each shard handles only its assigned customers. This helps when one database or processing group cannot handle the full dataset or workload. The difficulty is selecting a partitioning strategy that avoids hotspots and supports your access patterns.</p>
+    </div>
+
+    <div class="subheading">Stateless application design eases horizontal scaling</div>
+    <div class="intro">
+        <p>Suppose a user logs in through application instance A, and A stores the user's session only in its own memory. The next request reaches instance B. B does not have that session. This creates a problem because requests are distributed across instances.</p>
+        <p>A more scalable design keeps application instances <strong>stateless with respect to durable, user-specific state</strong>. That does not mean the entire system has no state &mdash; it means state is stored somewhere appropriate:</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table cmp-teal centered">
+            <thead><tr><th>State</th><th>Possible location</th></tr></thead>
+            <tbody>
+                <tr><td>Login session</td><td>Shared session store</td></tr>
+                <tr><td>Orders and payments</td><td>Database</td></tr>
+                <tr><td>Uploaded files</td><td>Shared object storage</td></tr>
+                <tr><td>Background job progress</td><td>Durable job store</td></tr>
+                <tr><td>Temporary cached results</td><td>Local or distributed cache, depending on requirements</td></tr>
+            </tbody>
+        </table>
+    </div></div> <br>
+    <div class="intro">
+        <p>Now, any healthy instance can handle the next request.</p>
+        <p><strong>Sticky sessions</strong> can route a user back to the same instance, but they can create uneven load and complicate failure handling. Similarly, storing uploaded files only on an application server's local disk makes it difficult for other instances to access them.</p>
+    </div>
+
+    <div class="subheading">Database scalability: reads and writes</div>
+    <div class="intro">
+        <p>The database often becomes a bottleneck because many application instances share it. Before distributing the database, reduce unnecessary work:</p>
+        <ul>
+            <li>Add appropriate indexes.</li>
+            <li>Examine expensive query plans.</li>
+            <li>Fetch only required columns and rows.</li>
+            <li>Avoid repeated queries and N+1 query patterns.</li>
+            <li>Keep transactions reasonably short.</li>
+            <li>Use suitable pagination.</li>
+            <li>Batch operations where appropriate.</li>
+            <li>Bound connection pools.</li>
+        </ul>
+        <p><strong>Read scalability</strong> &mdash; common approaches: caching frequently requested data; adding read replicas; precomputing summaries or materialized views; using a separate search system for search-heavy workloads; creating read models tailored to query patterns.</p>
+        <p>With read replicas, writes generally go to a primary, while eligible reads go to replicas. However, asynchronously replicated data may be temporarily stale. A user who updates an address may not immediately see the update if the next read goes to a lagging replica.</p>
+        <p><strong>Write scalability</strong> &mdash; common approaches: reducing unnecessary writes; batching small writes; spreading independent writes across shards; reducing contention on frequently updated rows; using asynchronous processing where delayed completion is acceptable.</p>
+    </div>
+    <div class="callout callout-warning"><p><strong>Adding read replicas usually does not increase the primary database's write capacity.</strong></p></div>
+    <div class="intro">
+        <p>Also, partitioning a table inside one database can improve management and certain queries, but it does not necessarily distribute work across machines. <strong>Sharding</strong> specifically distributes subsets of data across database nodes. Sharding introduces trade-offs:</p>
+        <ul>
+            <li>Cross-shard joins become harder.</li>
+            <li>Cross-shard transactions become more complex.</li>
+            <li>Rebalancing requires moving data.</li>
+            <li>Some shards may receive much more traffic than others.</li>
+        </ul>
+        <p>For example, assigning tenants to shards works well until one tenant generates half of all traffic.</p>
+    </div>
+
+    <div class="subheading">Caching: reduce repeated work</div>
+    <div class="intro">
+        <p>Suppose a product-details endpoint receives 20,000 requests/second. If 95% of those requests can be served from cache, the database receives approximately 1,000 read/second for that workload.</p>
+    </div>
+    <div class="callout callout-note"><p style="text-align:center; border-left: 0px;"><code>20,000 &times; (1 &minus; 0.95) = <strong>1,000 reads/second</strong></code></p></div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table cmp-teal centered">
+            <thead><tr><th>Cache location</th><th>Typical use</th></tr></thead>
+            <tbody>
+                <tr><td>Browser</td><td>Static assets and cacheable responses</td></tr>
+                <tr><td>CDN</td><td>Images, videos, scripts, and other cacheable content</td></tr>
+                <tr><td>Reverse proxy</td><td>Cacheable HTTP responses</td></tr>
+                <tr><td>Application memory</td><td>Small, frequently used local data</td></tr>
+                <tr><td>Distributed cache</td><td>Data shared across application instances</td></tr>
+            </tbody>
+        </table>
+    </div></div> <br>
+    <div class="intro">
+        <p>Caching works best when data is reused enough to justify storing it. Its challenges include stale data, cache invalidation, memory limits and eviction, hot keys, and cache stampedes when many requests regenerate the same expired entry.</p>
+    </div>
+    <div class="callout callout-warning"><p><strong>A cache reduces backend demand; it does not eliminate the need to plan backend capacity.</strong> A cold or unavailable cache can suddenly expose the database to much higher traffic.</p></div>
+
+    <div class="subheading">Asynchronous processing: separate requests from background work</div>
+    <div class="intro">
+        <p>Consider an order workflow:</p>
+        <ol>
+            <li>Save the order.</li>
+            <li>Send a confirmation email.</li>
+            <li>Generate an invoice.</li>
+            <li>Update analytics.</li>
+            <li>Notify the warehouse.</li>
+        </ol>
+        <p>If every action runs synchronously, the user waits for all of them, and downstream delays occupy request-handling capacity. Instead, the request can complete after the required durable order operation, while suitable follow-up work runs asynchronously.</p>
+    </div>
+    <div class="section-diagram" style="background:#f1f7fb;border:1px solid #dbe8f0;border-radius:10px;padding:20px 18px;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 552" style="width:100%;max-width:420px;height:auto" role="img" aria-label="The order API saves orders and an outbox; an outbox publisher sends events to a message broker, which distributes work to email, invoice, and warehouse consumers"><defs><marker id="async-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#527b8a"/></marker></defs><path d="M400 64 V98" fill="none" stroke="#527b8a" stroke-width="2.2" marker-end="url(#async-arrow)"/><path d="M400 146 V180" fill="none" stroke="#527b8a" stroke-width="2.2" marker-end="url(#async-arrow)"/><path d="M400 234 V268" fill="none" stroke="#527b8a" stroke-width="2.2" marker-end="url(#async-arrow)"/><path d="M400 316 V350" fill="none" stroke="#527b8a" stroke-width="2.2" marker-end="url(#async-arrow)"/><path d="M400 398 V430 H140 V464" fill="none" stroke="#527b8a" stroke-width="2.2" marker-end="url(#async-arrow)"/><path d="M400 398 V464" fill="none" stroke="#527b8a" stroke-width="2.2" marker-end="url(#async-arrow)"/><path d="M400 398 V430 H660 V464" fill="none" stroke="#527b8a" stroke-width="2.2" marker-end="url(#async-arrow)"/><rect x="300" y="16" width="200" height="48" rx="12" fill="#f1f5fb" stroke="#9db5c5"/><text x="400" y="46" text-anchor="middle" fill="#173649" font-family="Arial, sans-serif" font-size="17">Client</text><rect x="300" y="98" width="200" height="48" rx="12" fill="#f1f5fb" stroke="#9db5c5"/><text x="400" y="128" text-anchor="middle" fill="#173649" font-family="Arial, sans-serif" font-size="17">Order API</text><rect x="275" y="180" width="250" height="54" rx="12" fill="#e8f4f1" stroke="#9db5c5"/><text x="400" y="213" text-anchor="middle" fill="#173649" font-family="Arial, sans-serif" font-size="17">Orders and outbox</text><rect x="290" y="268" width="220" height="48" rx="12" fill="#e8f4f1" stroke="#9db5c5"/><text x="400" y="298" text-anchor="middle" fill="#173649" font-family="Arial, sans-serif" font-size="17">Outbox publisher</text><rect x="300" y="350" width="200" height="48" rx="12" fill="#e8f4f1" stroke="#9db5c5"/><text x="400" y="380" text-anchor="middle" fill="#173649" font-family="Arial, sans-serif" font-size="17">Message broker</text><rect x="30" y="464" width="220" height="60" rx="12" fill="#f1f5fb" stroke="#9db5c5"/><text x="140" y="500" text-anchor="middle" fill="#173649" font-family="Arial, sans-serif" font-size="17">Email workers</text><rect x="290" y="464" width="220" height="60" rx="12" fill="#f1f5fb" stroke="#9db5c5"/><text x="400" y="500" text-anchor="middle" fill="#173649" font-family="Arial, sans-serif" font-size="17">Invoice workers</text><rect x="550" y="464" width="220" height="60" rx="12" fill="#f1f5fb" stroke="#9db5c5"/><text x="660" y="500" text-anchor="middle" fill="#173649" font-family="Arial, sans-serif" font-size="17">Warehouse integration</text></svg>
+    </div>
+    <div class="intro">
+        <p>An outbox can help reliably connect the database transaction to event publication. Each worker group can scale independently.</p>
+    </div>
+    <div class="callout callout-warning"><p><strong>A queue absorbs bursts; it does not create processing capacity.</strong></p></div>
+    <div class="intro"><p>If jobs arrive at 10,000/second and workers process 8,000/second:</p></div>
+    <div class="callout callout-note"><p style="text-align:center"><code>Backlog growth = 10,000 &minus; 8,000 = <strong>2,000 jobs/second</strong></code></p></div>
+    <div class="intro">
+        <p>The backlog keeps growing until processing capacity increases or incoming work decreases. Queue-based systems also need retry handling, idempotent processing, backpressure, handling for repeatedly failing jobs, and ordering rules where required.</p>
+    </div>
+
+    <div class="subheading">Geographic scalability: bring processing closer to users</div>
+    <div class="intro">
+        <p>When users are distributed worldwide, one region can create long network delays. Possible approaches include:</p>
+        <ul>
+            <li>Serve static and cacheable content through a CDN.</li>
+            <li>Run application instances in multiple regions.</li>
+            <li>Route requests to suitable nearby regions.</li>
+            <li>Replicate data across regions.</li>
+            <li>Assign users or tenants a home region.</li>
+        </ul>
+        <p>The difficult part is usually mutable data. For example, if two regions simultaneously update the same account balance, the system needs a clear coordination or conflict-resolution strategy. Synchronous cross-region coordination adds network latency. Asynchronous replication permits temporary differences between regions.</p>
+    </div>
+    <div class="callout callout-note"><p><strong>Geographic scaling involves decisions about latency, consistency, availability, and where writes are accepted.</strong></p></div>
+
+    <div class="subheading">The real limit is often the bottleneck</div>
+    <div class="intro">
+        <p>Consider a request path:</p>
+    </div>
+    <div class="callout callout-note"><p style="text-align:center"><code>Load balancer &rarr; application &rarr; database &rarr; external payment provider</code></p></div>
+    <div class="intro"><p>Increasing application capacity does little if the payment provider accepts only 1,000 requests/second.</p></div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table cmp-teal centered">
+            <thead><tr><th>Bottleneck</th><th>Possible response</th></tr></thead>
+            <tbody>
+                <tr><td>Application CPU</td><td>Improve algorithms, scale up, or add instances</td></tr>
+                <tr><td>Memory</td><td>Reduce allocations, bound caches, stream data, or add RAM</td></tr>
+                <tr><td>Database query cost</td><td>Improve queries, indexes, and access patterns</td></tr>
+                <tr><td>Database lock contention</td><td>Shorten transactions and reduce shared updates</td></tr>
+                <tr><td>Storage throughput</td><td>Reduce I/O or use higher-throughput storage</td></tr>
+                <tr><td>Network bandwidth</td><td>Compress, reduce payloads, or use a CDN</td></tr>
+                <tr><td>External service limits</td><td>Apply rate limits, queues, or negotiated capacity</td></tr>
+                <tr><td>Hot data partition</td><td>Change partitioning or isolate the hot workload</td></tr>
+                <tr><td>Excessive coordination</td><td>Reduce shared state and synchronous dependencies</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>A subtle example is database connection pools. If one application instance allows 50 database connections, then 100 instances could collectively attempt:</p>
+    </div>
+    <div class="callout callout-note"><p style="text-align:center"><code>100 &times; 50 = <strong>5,000 connections</strong></code></p></div>
+    <div class="intro"><p>Scaling the application may therefore overload the database unless pool sizes and concurrency are controlled.</p></div>
+    <div class="callout callout-note"><p><strong>Capacity planning must consider the whole request path.</strong></p></div>
+
+    <div class="subheading">Scaling is rarely perfectly linear</div>
+    <div class="intro"><p>Ideally, doubling resources doubles throughput:</p></div>
+    <div class="callout callout-note"><p style="text-align:center"><code>T(N) &asymp; N &times; T(1)</code></p></div>
+    <div class="intro">
+        <p>where <em>T(N)</em> is throughput with <em>N</em> equivalent instances. Actual throughput is usually lower because of shared resources, network overhead, coordination, serial processing, lock contention, and uneven work distribution.</p>
+        <p>A useful theoretical model is <strong>Amdahl's law</strong>:</p>
+    </div>
+    <div class="callout callout-note"><p style="text-align:center"><code>Speedup(N) = 1 / [s + (1 &minus; s) / N]</code></p></div>
+    <div class="intro">
+        <p>Here <em>s</em> is the fraction of work that must remain serial, and <em>N</em> is the number of parallel workers. If 10% of a fixed workload is inherently serial, the theoretical maximum speedup is:</p>
+    </div>
+    <div class="callout callout-note"><p style="text-align:center"><code>1 / 0.10 = <strong>10&times;</strong></code></p></div>
+    <div class="intro">
+        <p>Even an unlimited number of workers cannot remove that serial portion. Real distributed systems may perform worse because this model does not include all communication and coordination costs. This is why removing a global lock or a centralized sequencing step can matter more than adding servers.</p>
+    </div>
+
+    <div class="subheading">Measure scalability against an explicit target</div>
+    <div class="intro">
+        <p><strong>Handles 10,000 requests/second</strong> is incomplete. Useful measurements include:</p>
+    </div>
+    <div class="callout callout-note"><p>Sustain 10,000 requests/second with p99 latency below 300 ms, errors below 0.1%, and enough spare capacity to tolerate one instance failure.</p></div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table cmp-teal centered">
+            <thead><tr><th>Metric</th><th>What it tells you</th></tr></thead>
+            <tbody>
+                <tr><td>Throughput</td><td>Work completed per second</td></tr>
+                <tr><td>p95/p99 latency</td><td>Response time experienced by slower requests</td></tr>
+                <tr><td>Error and timeout rate</td><td>Whether requests are completing successfully</td></tr>
+                <tr><td>CPU, memory, disk, network use</td><td>Resource pressure</td></tr>
+                <tr><td>Queue length and message age</td><td>Whether background processing is keeping up</td></tr>
+                <tr><td>Database lock and pool waits</td><td>Contention and concurrency limits</td></tr>
+                <tr><td>Replication lag</td><td>How far replicas trail writes</td></tr>
+                <tr><td>Cost per request or job</td><td>Economic efficiency</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>Concurrency also matters. For a stable system, <strong>Little's law</strong> relates average in-flight work, throughput, and average time in the system:</p>
+    </div>
+    <div class="callout callout-note"><p style="text-align:center"><code>L = &lambda;W</code></p></div>
+    <div class="intro"><p>At 2,000 requests/second and an average response time of 0.2 seconds:</p></div>
+    <div class="callout callout-note"><p style="text-align:center"><code>L = 2,000 &times; 0.2 = <strong>400 requests in flight</strong></code></p></div>
+    <div class="intro">
+        <p>Approximately 400 requests are in flight on average. This does <strong>not</strong> necessarily mean 400 threads are required; that depends on the execution model. If response time increases, more requests remain in flight, which can create additional memory and connection pressure.</p>
+    </div>
+
+    <div class="subheading">Autoscaling needs headroom and overload protection</div>
+    <div class="intro">
+        <p>Autoscaling is a mechanism for adjusting capacity as demand changes. It depends on the system already being able to scale. Common signals include:</p>
+        <ul>
+            <li>CPU utilization.</li>
+            <li>Requests per instance.</li>
+            <li>Queue backlog.</li>
+            <li>Age of the oldest queued job.</li>
+            <li>Active connections.</li>
+            <li>Processing latency.</li>
+        </ul>
+        <p>CPU is not always the right signal. An application waiting on a slow database may have low CPU while requests pile up. Scaling also takes time: instances must start, initialize, warm caches, and become healthy.</p>
+        <p>Useful protections include spare capacity, bounded queues, concurrency limits, rate limiting, timeouts, retries with backoff and jitter, and load shedding when capacity is exhausted.</p>
+        <p>Without these protections, retries and unbounded queues can turn a temporary overload into a larger failure.</p>
+    </div>
+
+    <div class="subheading">A practical scaling path for a Spring Boot shopping application</div>
+    <div class="intro"><p>A reasonable progression is driven by measurements: You do not need to implement every technique in advance.</p></div>
+    <div class="section cmp centered"><div class="section-content">
+        <table class="cmp-table cmp-teal">
+            <thead><tr><th>Situation</th><th>Potential next step</th></tr></thead>
+            <tbody>
+                <tr><td>One instance comfortably handles demand</td><td>Keep the design simple and monitor</td></tr>
+                <tr><td>Slow SQL dominates response time</td><td>Fix queries and indexes</td></tr>
+                <tr><td>Application CPU is saturated</td><td>Increase CPU or add instances</td></tr>
+                <tr><td>Multiple instances are needed</td><td>Externalize sessions and shared files</td></tr>
+                <tr><td>Product reads overload the database</td><td>Add caching and eligible read replicas</td></tr>
+                <tr><td>Email and invoice work delays checkout</td><td>Move suitable work to background workers</td></tr>
+                <tr><td>Search competes with checkout resources</td><td>Give search independent capacity</td></tr>
+                <tr><td>One database cannot sustain writes or storage</td><td>Evaluate sharding or workload separation</td></tr>
+                <tr><td>Distant users experience high latency</td><td>Add CDN coverage and evaluate regional serving</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="callout callout-note"><p>The central design habit is to <strong>identify the workload, define acceptable service levels, measure the limiting resource, and choose a scaling approach that addresses that specific limit.</strong></p></div>
 </div>
 </body>
 </html>

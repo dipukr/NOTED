@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vertical Scaling - Notes</title>
+<title>Vertical Scaling</title>
 <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
@@ -59,32 +59,6 @@
         <div class="pc-card con">
             <div class="pc-title">Downtime on Upgrade</div>
             <p>Upgrades often require downtime or a restart.</p>
-        </div>
-    </div>
-
-    <div class="section code-section">
-        <div class="section-title">Code</div>
-        <div class="code-layout">
-            <div class="code-wrapper">
-<pre><code><span class="code-comment"># Vertical scaling is mostly config: give the JVM more of the bigger box</span>
-<span class="code-comment"># -Xms and -Xmx set heap; more RAM on the host lets you raise them</span>
-<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Runtime</span>Info {
-    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-keyword">void</span> print() {
-        <span class="code-class">Runtime</span> rt = <span class="code-class">Runtime</span>.getRuntime();
-        <span class="code-keyword">int</span> cores = rt.availableProcessors();      <span class="code-comment"># scales with more CPU</span>
-        <span class="code-keyword">long</span> maxMb = rt.maxMemory() / (<span class="code-string">1024</span> * <span class="code-string">1024</span>); <span class="code-comment"># scales with more RAM</span>
-        <span class="code-class">System</span>.out.println(<span class="code-string">"cores="</span> + cores + <span class="code-string">" maxHeapMB="</span> + maxMb);
-    }
-}
-</code></pre>
-            </div>
-            <div class="code-explanation">
-                <div class="code-explanation-title">How it works</div>
-                <p><code>availableProcessors()</code> grows when the host gets more CPU cores.<br><br>
-                    <code>maxMemory()</code> reflects the heap ceiling raised via <code>-Xmx</code> on a bigger box.<br><br>
-                    The application code is unchanged - only the machine and JVM flags grow.<br><br>
-                    This simplicity is the appeal, but the single node remains the limit.</p>
-            </div>
         </div>
     </div>
 </div>
