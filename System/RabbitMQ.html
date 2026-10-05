@@ -24,7 +24,8 @@
         <p>Imagine a website where a user uploads some information and the system must generate a PDF and email it back. Producing the PDF takes several seconds &mdash; a good reason to move the work off the request path and onto a queue.</p>
         <p>When the user enters information into the web interface, the web application will create a <i>PDF processing</i> message that includes all of the important information needed to perform the task.</p>
     </div>
-    <div class="section-diagram" style="background:#f1f7fb;border:1px solid #dbe8f0;border-radius:10px;padding:20px 18px;">
+    <div class="section-diagram">
+        <div class="diagram-panel">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 230" style="width:100%;max-width:760px;height:auto" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" role="img" aria-label="A user submits a request to the web application (producer), which sends a message to an exchange; the exchange routes it to a queue; the PDF worker (consumer) processes it and emails the result back to the user">
             <defs><marker id="rm-arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#5b6b7b"/></marker></defs>
             <path d="M152 101 H170" fill="none" stroke="#5b6b7b" stroke-width="1.8" marker-end="url(#rm-arrow)"/>
@@ -39,6 +40,7 @@
             <rect x="492" y="72" width="136" height="58" rx="8" fill="#7CC0EB" stroke="#0C5C8D" stroke-width="1.5"/><text x="547" y="106" text-anchor="middle" fill="#13324a" font-size="14" font-weight="600">Queue</text><circle cx="600" cy="92" r="3.6" fill="#ffffff" stroke="#0C5C8D" stroke-width="1.2"/><circle cx="600" cy="104" r="3.6" fill="#ffffff" stroke="#0C5C8D" stroke-width="1.2"/><circle cx="600" cy="116" r="3.6" fill="#ffffff" stroke="#0C5C8D" stroke-width="1.2"/>
             <rect x="650" y="72" width="142" height="58" rx="8" fill="#FECCED" stroke="#D53196" stroke-width="1.5"/><text x="721" y="97" text-anchor="middle" fill="#1f2937" font-size="14" font-weight="600">PDF worker</text><text x="721" y="115" text-anchor="middle" fill="#9d2673" font-size="11">consumer</text>
         </svg>
+        </div>
     </div>
     <div class="intro">
         <p>The basic architecture of a message queue is simple. There are client applications called producers that create messages and deliver them to the broker (the message queue). Other applications, called consumers, connect to the queue and subscribe to the messages for processing. Software can act as a producer, a consumer, or both a consumer and a producer of messages. Messages placed onto the queue are stored until the consumer retrieves them.</p>
@@ -59,7 +61,8 @@
     <div class="intro">
         <p>The messages are not published directly to a queue, instead the producer sends messages to an exchange. <br>The exchange is responsible for routing messages to different queues using <strong>bindings</strong> and <strong>routing keys</strong>.<br> A binding is a link between a queue and an exchange.</p>
     </div>
-    <div class="section-diagram" style="background:#f1f7fb;border:1px solid #dbe8f0;border-radius:10px;padding:20px 18px;">
+    <div class="section-diagram">
+        <div class="diagram-panel">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 280" style="width:100%;max-width:700px;height:auto" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" role="img" aria-label="A producer publishes to an exchange; bindings connect the exchange to two queues, and each queue is read by its own consumer">
             <defs><marker id="rm2-arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#5b6b7b"/></marker></defs>
             <path d="M176 146 H216" fill="none" stroke="#5b6b7b" stroke-width="1.8" marker-end="url(#rm2-arrow)"/>
@@ -78,6 +81,7 @@
             <rect x="654" y="42" width="152" height="50" rx="8" fill="#FECCED" stroke="#D53196" stroke-width="1.5"/><text x="730" y="72" text-anchor="middle" fill="#1f2937" font-size="14" font-weight="600">Consumer 1</text>
             <rect x="654" y="198" width="152" height="50" rx="8" fill="#FECCED" stroke="#D53196" stroke-width="1.5"/><text x="730" y="228" text-anchor="middle" fill="#1f2937" font-size="14" font-weight="600">Consumer 2</text>
         </svg>
+        </div>
     </div>
     <div class="subheading">The message flow through RabbitMQ</div>
     <div class="intro">
