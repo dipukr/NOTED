@@ -59,7 +59,7 @@ br {
     color: #475569;
     text-transform: uppercase;
     /* bleed into .note's side padding so the separators span the full note width */
-    margin: 34px calc(-1 * var(--note-pad-x, 0px)) 12px;
+    margin: 18px calc(-1 * var(--note-pad-x, 0px)) 12px;
     padding: 14px var(--note-pad-x, 0px) 0;
     border-top: 1px solid #e5e7eb;
 }
@@ -658,16 +658,43 @@ br {
     .cmp-table td:first-child { width: 100%; min-width: 0; white-space: normal; padding-top: 8px; }
 }
 
+/* full-width separator at the start of an image section (bleeds into .note padding) */
 .section-diagram {
-    margin: 20px 0;
+    margin: 20px calc(-1 * var(--note-pad-x, 0px));
+    padding: 20px var(--note-pad-x, 0px) 0;
+    border-top: 1px solid #e5e7eb;
     text-align: center;
 }
 
+/* a subheading already draws a separator just above */
+.subheading + .section-diagram {
+    border-top: 0;
+    padding-top: 0;
+}
+
+/* blocks that open right under a subheading sit as close as a paragraph would */
+.subheading + .section,
+.subheading + .scenario-layout,
+.subheading + .section-diagram {
+    margin-top: 12px;
+}
+
+/* tinted, bordered box around an inline SVG diagram */
+.diagram-panel {
+    background: #f1f7fb;
+    border: 1px solid #dbe8f0;
+    border-radius: 10px;
+    padding: 20px 18px;
+}
+
 .section-diagram img {
+    display: block;            /* no descender gap under the image */
+    margin: 0 auto;
     max-width: 100%;
     height: auto;
     border-radius: 5px;
 }
+
 
 .section-diagram.narrow img {
     max-width: 360px;
