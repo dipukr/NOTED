@@ -1,5 +1,9 @@
 * {box-sizing: border-box;}
 
+html {
+    zoom: 0.9;
+}
+
 body {
     margin: 0;
     padding: 35px 24px;
@@ -69,11 +73,6 @@ br {
 }
 
 .intro li { margin: 2px 0; }
-
-.term {
-    color: #7c3aed;
-    font-weight: 700;
-}
 
 .cat-grid {
     display: grid;
@@ -150,23 +149,6 @@ br {
     padding: 14px 18px;
 }
 
-.pc-badge {
-    flex: 0 0 auto;
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 15px;
-    font-weight: 800;
-    color: #ffffff;
-    background: var(--pc);
-    line-height: 1;
-}
-
-.pc-body { min-width: 0; }
-
 .pc-title {
     font-family: Arial, Helvetica, sans-serif;
     font-weight: 700;
@@ -209,19 +191,6 @@ br {
     padding: 14px 18px;
 }
 
-.comp-tag {
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 10.5px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-    padding: 1px 7px;
-    border-radius: 999px;
-    background: #eef2f6;
-    color: #64748b;
-    vertical-align: 2px;
-}
-
 .benefit-title {
     font-family: Arial, Helvetica, sans-serif;
     font-weight: 700;
@@ -235,6 +204,8 @@ br {
     font-size: 14.5px;
     line-height: 1.55;
     color: #374151;
+    -webkit-hyphens: auto;
+    hyphens: auto;
 }
 
 .resources {
@@ -331,15 +302,6 @@ br {
     color: #166534;
 }
 
-.disadvantages {
-    background: #fef2f2;
-}
-
-.disadvantages .section-title {
-    background: #fee2e2;
-    color: #991b1b;
-}
-
 .card-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -390,9 +352,6 @@ br {
 
 .advantages .card { border-color: #bbf7d0; }
 .advantages .card-title { color: #166534; }
-
-.disadvantages .card { border-color: #fecaca; }
-.disadvantages .card-title { color: #991b1b; }
 
 .solid-grid {
     display: grid;
@@ -932,12 +891,6 @@ br {
 .index .title { margin: 0 0 8px; }
 .index .section-content { padding: 18px 20px 20px; }
 
-.subtitle {
-    margin: 0 0 10px;
-    color: #4b5563;
-    font-size: 18px;
-}
-
 .grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -984,11 +937,6 @@ br {
 
     .code-explanation {
         font-size: 15px;
-    }
-
-    .comparison-row {
-        grid-template-columns: 1fr;
-        gap: 20px;
     }
 
     body {
