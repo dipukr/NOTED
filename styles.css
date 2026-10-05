@@ -32,7 +32,8 @@ br {
     max-width: 1040px;
     margin: 0 auto;
     background: #ffffff;
-    padding: 38px 44px;
+    --note-pad-x: 44px;
+    padding: 38px var(--note-pad-x);
     border-radius: 5px;
     box-shadow: 0 3px 14px rgba(0, 0, 0, 0.08);
 }
@@ -57,9 +58,10 @@ br {
     font-weight: 700;
     color: #475569;
     text-transform: uppercase;
-    margin: 34px 0 12px;
-    padding-bottom: 6px;
-    border-bottom: 1px solid #e5e7eb;
+    /* bleed into .note's side padding so the separators span the full note width */
+    margin: 34px calc(-1 * var(--note-pad-x, 0px)) 12px;
+    padding: 14px var(--note-pad-x, 0px) 0;
+    border-top: 1px solid #e5e7eb;
 }
 
 .intro p {
@@ -944,7 +946,7 @@ br {
         font-size: 17px;
     }
 
-    .note { padding: 25px 22px; }
+    .note { --note-pad-x: 22px; padding: 25px var(--note-pad-x); }
     .title { font-size: 27px; }
     .section-title { font-size: 17px; }
     .code-wrapper pre { font-size: 12px; }
@@ -958,6 +960,7 @@ br {
 
     .note {
         box-shadow: none;
+        --note-pad-x: 20px;
         padding: 20px;
     }
 }
