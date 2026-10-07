@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Singleton Pattern</title>
+<title>Singleton</title>
 <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
 <div class="note">
-    <div class="title">Singleton Pattern</div>
+    <div class="title">Singleton</div>
 
     <div class="intro">
         <p>Singleton is a creational design pattern that ensures a class has only one instance and provides a global point of access to that instance. 
@@ -77,18 +77,18 @@
     <div class="section realworld">
         <div class="section-title">Real-world example</div>
         <div class="section-content"><ul>
-            <li><strong>java.lang.Runtime</strong> &mdash; Runtime.getRuntime() always returns the one JVM runtime instance per application.</li>
+            <li><strong>Runtime</strong> &mdash; Runtime.getRuntime() always returns the one JVM runtime instance per application.</li>
             <li><strong>Spring beans</strong> &mdash; the default bean scope is singleton, so the container manages a single shared instance per context.</li>
-            <li><strong>Java Logging</strong> &mdash; java.util.logging.LogManager and loggers are accessed through a single shared manager.</li>
+            <li><strong>Java Logging</strong> &mdash; LogManager and loggers are accessed through a single shared manager.</li>
             <li><strong>SLF4J and Log4j</strong> &mdash; the LoggerFactory hands out loggers backed by a single logging context.</li>
-            <li><strong>java.awt.Desktop</strong> &mdash; Desktop.getDesktop() exposes one instance representing the current desktop environment.</li>
+            <li><strong>Desktop</strong> &mdash; Desktop.getDesktop() exposes one instance representing the current desktop environment.</li>
             <li><strong>Database connection pools</strong> &mdash; a single pool manager (such as HikariCP's data source) is shared to reuse connections.</li>
             <li><strong>Government registry</strong> &mdash; a country has one central authority issuing passports, an everyday single-instance analogy.</li>
         </ul></div>
     </div>
 
+    <div class="subheading">EAGER THREAD-SAFE EXAMPLE</div>
     <div class="section code-section">
-        <div class="section-title">Eager, Thread-safe Example</div>
         <div class="code-layout">
             <div class="code-wrapper">
 <pre><code><span class="code-keyword">public class</span> <span class="code-class">ConfigManager</span> {

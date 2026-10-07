@@ -13,7 +13,8 @@
     <div class="intro">
         <p>The Prototype Pattern is a creational design pattern that creates new objects by copying an existing object (prototype) instead of creating a new object from scratch.
         This is useful when object creation is costly or complex, and when a new object should start as a duplicate of a configured instance.</p>
-        <p>In Java the pattern is often implemented with the <code>Cloneable</code> interface and the <code>clone()</code> method, taking care to choose between shallow and deep copying.</p>
+        <p>Use prototype when the cost of creating an object is expensive or time-consuming (e.g. from a database or network).</p>
+        <p>In Java the pattern is often implemented with the <code>Cloneable</code> interface and the <code>clone</code> method, taking care to choose between shallow and deep copying.</p>
     </div>
 
     <div class="section advantages">
@@ -30,7 +31,7 @@
                 </div>
                 <div class="card">
                     <div class="card-title">Many similar objects are required</div>
-                    <p>Clone the prototype and customize each copy.</p>
+                    <p>When you need a large number of similar objects.</p>
                 </div>
                 <div class="card">
                     <div class="card-title">The concrete class should be hidden</div>

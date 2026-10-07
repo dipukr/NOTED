@@ -11,8 +11,8 @@
     <div class="title">Factory Method</div>
 
     <div class="intro">
-        <p>Factory Method is a creational design pattern that defines an interface for creating an object but lets subclasses decide which concrete class to instantiate. It defers instantiation to subclasses, so the client code depends only on an abstract product type rather than on concrete implementations.
-            This promotes loose coupling by removing the need for the client to use the <code>new</code> operator on specific classes.</p>
+        <p>Factory Method is a creational design pattern used when a class needs an object but wants to let subclasses decide which concrete implementation gets created.</p>
+        <p>The parent class defines <strong>when and how</strong> an object is used, but delegates <strong>which</strong> concrete object is created to subclasses. That distinction is what makes Factory Method different from simply putting <code>new</code> inside a helper class.</p>
     </div>
 
     <div class="section when-use">
@@ -65,71 +65,696 @@
             <p>Requires a parallel class hierarchy for creators and products.</p>
         </div>
     </div>
+    <div class="subheading">What problem Factory Method solves</div>
+    <div class="intro">
+        <p>Suppose you are building a notification system. Initially you only support email:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">NotificationService</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> send(<span class="code-class">String</span> message) {
+        <span class="code-class">EmailNotification</span> notification = <span class="code-keyword">new</span> <span class="code-class">EmailNotification</span>();
+        notification.send(message);
+    }
+}
 
-    <div class="section realworld">
-        <div class="section-title">Real-world example</div>
-        <div class="section-content"><ul>
-            <li><strong>java.util.Calendar.getInstance()</strong> &mdash; returns a locale and time-zone specific Calendar subclass chosen at runtime.</li>
-            <li><strong>java.text.NumberFormat.getInstance()</strong> &mdash; hands back the right formatter subclass for the current locale.</li>
-            <li><strong>Collection.iterator()</strong> &mdash; each collection returns its own Iterator implementation without exposing the class.</li>
-            <li><strong>Spring BeanFactory.getBean()</strong> &mdash; produces configured bean instances so callers never call new on concrete types.</li>
-            <li><strong>JDBC DriverManager.getConnection()</strong> &mdash; yields a driver-specific Connection based on the connection URL.</li>
-            <li><strong>javax.xml.parsers.DocumentBuilderFactory.newDocumentBuilder()</strong> &mdash; creates a parser implementation decided by configuration.</li>
-            <li><strong>Logistics app</strong> &mdash; a Transport creator whose subclasses build a Truck or a Ship depending on the delivery type.</li>
-        </ul></div>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">EmailNotification</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> send(<span class="code-class">String</span> message) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Sending EMAIL: "</span> + message);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>This works. But later you add SMS, push notifications, WhatsApp and Slack and you might end up doing.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">NotificationService</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> send(<span class="code-class">String</span> type, <span class="code-class">String</span> message) {
+        <span class="code-class">Notification</span> notification;
+        <span class="code-keyword">if</span> (<span class="code-string">"email"</span>.equals(type)) {
+            notification = <span class="code-keyword">new</span> <span class="code-class">EmailNotification</span>();
+        } else <span class="code-keyword">if</span> (<span class="code-string">"sms"</span>.equals(type)) {
+            notification = <span class="code-keyword">new</span> <span class="code-class">SmsNotification</span>();
+        } else <span class="code-keyword">if</span> (<span class="code-string">"push"</span>.equals(type)) {
+            notification = <span class="code-keyword">new</span> <span class="code-class">PushNotification</span>();
+        } else {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>(<span class="code-string">"Unsupported type"</span>);
+        }
+        notification.send(message);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Now <code>NotificationService</code> knows about every concrete notification implementation.</p>
+    </div>
+    <div class="intro">
+        <p>Every time we add another notification type we modify <code>NotificationService</code> so the class is tightly coupled to concrete implementations. Factory Method moves that object-creation decision somewhere else.</p>
     </div>
 
-    <div class="section code-section">
-        <div class="section-title">Code</div>
-        <div class="code-layout">
-            <div class="code-wrapper">
-<pre><code><span class="code-keyword">public interface</span> <span class="code-class">Notification</span> {
-    <span class="code-keyword">void</span> send(String msg);
+    <div class="subheading">Basic structure of Factory Method</div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered">
+            <thead><tr><th>Role</th><th>Class</th></tr></thead>
+            <tbody>
+                <tr><td>Product</td><td>Notification</td></tr>
+                <tr><td>Concrete products</td><td>EmailNotification, SmsNotification</td></tr>
+                <tr><td>Creator</td><td>NotificationService</td></tr>
+                <tr><td>Factory method</td><td>createNotification()</td></tr>
+                <tr><td>Concrete creators</td><td>EmailNotificationService, SmsNotificationService</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>The product and concrete products:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">Notification</span> {
+    <span class="code-keyword">void</span> send(<span class="code-class">String</span> message);
 }
 
-<span class="code-keyword">public class</span> <span class="code-class">EmailNotification</span> <span class="code-keyword">implements</span> <span class="code-class">Notification</span> {
-    <span class="code-keyword">public void</span> send(String msg) {
-        System.out.println(<span class="code-string">"Email: "</span> + msg);
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">EmailNotification</span> <span class="code-keyword">implements</span> <span class="code-class">Notification</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> send(<span class="code-class">String</span> message) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Sending EMAIL: "</span> + message);
     }
 }
 
-<span class="code-keyword">public class</span> <span class="code-class">SmsNotification</span> <span class="code-keyword">implements</span> <span class="code-class">Notification</span> {
-    <span class="code-keyword">public void</span> send(String msg) {
-        System.out.println(<span class="code-string">"SMS: "</span> + msg);
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">SmsNotification</span> <span class="code-keyword">implements</span> <span class="code-class">Notification</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> send(<span class="code-class">String</span> message) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Sending SMS: "</span> + message);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>The creator and concrete creators:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">abstract</span> <span class="code-keyword">class</span> <span class="code-class">NotificationService</span> {
+    <span class="code-keyword">protected</span> <span class="code-keyword">abstract</span> <span class="code-class">Notification</span> createNotification();
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> send(<span class="code-class">String</span> message) {
+        <span class="code-class">Notification</span> notification = createNotification();
+        notification.send(message);
     }
 }
 
-<span class="code-keyword">public abstract class</span> <span class="code-class">NotificationCreator</span> {
-    <span class="code-comment"># The factory method</span>
-    <span class="code-keyword">abstract</span> <span class="code-class">Notification</span> create();
-
-    <span class="code-keyword">public void</span> notify(String msg) {
-        <span class="code-class">Notification</span> n = create();
-        n.send(msg);
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">EmailNotificationService</span> <span class="code-keyword">extends</span> <span class="code-class">NotificationService</span> {
+    <span class="code-keyword">protected</span> <span class="code-class">Notification</span> createNotification() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">EmailNotification</span>();
     }
 }
 
-<span class="code-keyword">public class</span> <span class="code-class">EmailCreator</span> <span class="code-keyword">extends</span> <span class="code-class">NotificationCreator</span> {
-    <span class="code-class">Notification</span> create() {
-        <span class="code-keyword">return new</span> <span class="code-class">EmailNotification</span>();
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">SmsNotificationService</span> <span class="code-keyword">extends</span> <span class="code-class">NotificationService</span> {
+    <span class="code-keyword">protected</span> <span class="code-class">Notification</span> createNotification() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">SmsNotification</span>();
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Usage:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+    <span class="code-class">NotificationService</span> service = <span class="code-keyword">new</span> <span class="code-class">EmailNotificationService</span>();
+    service.send(<span class="code-string">"Your order has been shipped"</span>);
+
+    service = <span class="code-keyword">new</span> <span class="code-class">SmsNotificationService</span>();
+    service.send(<span class="code-string">"OTP: 123456"</span>);
+}</code></pre></div>
+    <div class="intro">
+        <p>Output:</p>
+    </div>
+    <div class="code-block"><pre><code>Sending EMAIL: Your order has been shipped
+Sending SMS: OTP: 123456</code></pre></div>
+    <div class="intro">
+        <p>Notice the critical line <code>Notification notification = createNotification();</code>. <code>NotificationService</code> does not know whether it returns an <code>EmailNotification</code> or an <code>SmsNotification</code>: the subclass decides. Adding WhatsApp or Slack means adding a new product and a new service subclass, without touching <code>NotificationService</code>.</p>
+    </div>
+
+    <div class="subheading">Better real-world example</div>
+    <div class="intro">
+        <p>Take a document export system with the same general workflow for every format:</p>
+    </div>
+    <div class="ascii-diagram">1. Create exporter
+2. Add metadata
+3. Export document
+4. Log completion</div>
+    <div class="intro">
+        <p>The exporter might be PDF, CSV or JSON. The workflow stays mostly the same; only the object being created changes. First define the product and concrete products:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">DocumentExporter</span> {
+    <span class="code-keyword">void</span> export(<span class="code-class">String</span> data);
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">PDFExporter</span> <span class="code-keyword">implements</span> <span class="code-class">DocumentExporter</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> export(<span class="code-class">String</span> data) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Exporting PDF: "</span> + data);
     }
 }
 
-<span class="code-keyword">void</span> main() {
-    <span class="code-class">NotificationCreator</span> c = <span class="code-keyword">new</span> <span class="code-class">EmailCreator</span>();
-    c.notify(<span class="code-string">"Hello"</span>);
-}</code></pre>
-            </div>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CSVExporter</span> <span class="code-keyword">implements</span> <span class="code-class">DocumentExporter</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> export(<span class="code-class">String</span> data) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Exporting CSV: "</span> + data);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Now the creator:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">abstract</span> <span class="code-keyword">class</span> <span class="code-class">ExportService</span> {
+    <span class="code-keyword">protected</span> <span class="code-keyword">abstract</span> <span class="code-class">DocumentExporter</span> createExporter();
 
-            <div class="code-explanation">
-                <div class="code-explanation-title">How the Factory Method works</div>
-                <p><code>Notification</code> is the abstract product; each concrete class implements it.<br><br>
-                    <code>NotificationCreator</code> declares the abstract factory method <code>create()</code>.<br><br>
-                    Subclasses like <code>EmailCreator</code> decide which concrete product to return.<br><br>
-                    The client works only with the creator and product interfaces, never with <code>new</code> on a concrete type.</p>
-            </div>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> exportDocument(<span class="code-class">String</span> data) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Preparing document..."</span>);
+        <span class="code-class">DocumentExporter</span> exporter = createExporter();
+        exporter.export(data);
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Export completed."</span>);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>The concrete creators:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">PDFExportService</span> <span class="code-keyword">extends</span> <span class="code-class">ExportService</span> {
+    <span class="code-keyword">protected</span> <span class="code-class">DocumentExporter</span> createExporter() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">PDFExporter</span>();
+    }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CSVExportService</span> <span class="code-keyword">extends</span> <span class="code-class">ExportService</span> {
+    <span class="code-keyword">protected</span> <span class="code-class">DocumentExporter</span> createExporter() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">CSVExporter</span>();
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Usage:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+    <span class="code-class">ExportService</span> service = <span class="code-keyword">new</span> <span class="code-class">PDFExportService</span>();
+    service.exportDocument(<span class="code-string">"Sales Report"</span>);
+}</code></pre></div>
+    <div class="intro">
+        <p>Output:</p>
+    </div>
+    <div class="code-block"><pre><code>Preparing document...
+Exporting PDF: Sales Report
+Export completed.</code></pre></div>
+    <div class="intro">
+        <p>Change the service to <code>new CSVExportService()</code> and the output becomes:</p>
+    </div>
+    <div class="code-block"><pre><code>Preparing document...
+Exporting CSV: Sales Report
+Export completed.</code></pre></div>
+    <div class="intro">
+        <p>The workflow did not change.</p>
+    </div>
+
+    <div class="subheading">Why not simply create the object directly</div>
+    <div class="intro">
+        <p>You might reasonably ask why not just write <code>DocumentExporter exporter = new PDFExporter();</code> Sometimes you absolutely should. Factory Method is useful only when object creation needs to vary independently from the code using the object.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">void</span> export(<span class="code-class">String</span> type, <span class="code-class">String</span> data) {
+    <span class="code-class">DocumentExporter</span> exporter = null;
+    switch (type) {
+        case <span class="code-string">"pdf"</span>:
+            exporter = <span class="code-keyword">new</span> <span class="code-class">PDFExporter</span>();
+            break;
+        case <span class="code-string">"csv"</span>:
+            exporter = <span class="code-keyword">new</span> <span class="code-class">CSVExporter</span>();
+            break;
+        case <span class="code-string">"json"</span>:
+            exporter = <span class="code-keyword">new</span> <span class="code-class">JSONExporter</span>();
+            break;
+        default:
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>();
+    }
+    exporter.export(data);
+}</code></pre></div>
+    <div class="intro">
+        <p>Here the client knows <code>PDFExporter</code>, <code>CSVExporter</code> and <code>JSONExporter</code>. Factory Method moves that concrete-object creation out of the reusable algorithm.</p>
+    </div>
+
+    <div class="subheading">The key insight</div>
+    <div class="intro">
+        <p>The most important Factory Method relationship is:</p>
+    </div>
+    <div class="ascii-diagram">Creator
+   |
+   | calls
+   ↓
+createProduct()
+   |
+   | overridden by
+   ↓
+ConcreteCreator</div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">abstract</span> <span class="code-keyword">class</span> <span class="code-class">ExportService</span> {
+
+    <span class="code-keyword">protected</span> <span class="code-keyword">abstract</span> <span class="code-class">DocumentExporter</span> createExporter();
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> exportDocument(<span class="code-class">String</span> data) {
+
+        <span class="code-class">DocumentExporter</span> exporter = createExporter();
+
+        exporter.export(data);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>The factory method is <code>createExporter</code>, not <code>exportDocument</code>. <code>exportDocument</code> is ordinary business or workflow logic.</p>
+    </div>
+
+    <div class="subheading">Why does the Creator often contain business logic?</div>
+    <div class="intro">
+        <p>This point causes a lot of confusion. Consider:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">abstract</span> <span class="code-keyword">class</span> <span class="code-class">NotificationService</span> {
+    <span class="code-keyword">protected</span> <span class="code-keyword">abstract</span> <span class="code-class">Notification</span> createNotification();
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> send(<span class="code-class">String</span> message) {
+        <span class="code-class">Notification</span> notification = createNotification();
+        notification.send(message);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>At first it can look strange that something called <code>NotificationService</code> is responsible for both creating and sending. The answer is that <strong>Creator is a GoF role name</strong>, not necessarily the class name you should use. Parent is not supposed<br> to exist only to create objects; usually it owns some useful workflow and contains one overridable creation step.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">abstract</span> <span class="code-keyword">class</span> <span class="code-class">PaymentProcessor</span> {
+    <span class="code-keyword">protected</span> <span class="code-keyword">abstract</span> <span class="code-class">PaymentGateway</span> createGateway();
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> process(<span class="code-class">Payment</span> payment) {
+        validate(payment);
+        <span class="code-class">PaymentGateway</span> gateway = createGateway();
+        gateway.charge(payment);
+        saveTransaction(payment);
+        sendReceipt(payment);
+    }
+
+    <span class="code-keyword">private</span> <span class="code-keyword">void</span> validate(<span class="code-class">Payment</span> payment) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Validate payment"</span>);
+    }
+
+    <span class="code-keyword">private</span> <span class="code-keyword">void</span> saveTransaction(<span class="code-class">Payment</span> payment) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Save transaction"</span>);
+    }
+
+    <span class="code-keyword">private</span> <span class="code-keyword">void</span> sendReceipt(<span class="code-class">Payment</span> payment) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Send receipt"</span>);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Different subclasses select the gateway:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">StripePaymentProcessor</span> <span class="code-keyword">extends</span> <span class="code-class">PaymentProcessor</span> {
+    <span class="code-keyword">protected</span> <span class="code-class">PaymentGateway</span> createGateway() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">StripeGateway</span>();
+    }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">RazorpayPaymentProcessor</span> <span class="code-keyword">extends</span> <span class="code-class">PaymentProcessor</span> {
+    <span class="code-keyword">protected</span> <span class="code-class">PaymentGateway</span> createGateway() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">RazorpayGateway</span>();
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Now Factory Method makes much more sense. The parent owns the workflow, while subclasses choose <code>StripeGateway</code> or <code>RazorpayGateway</code>:</p>
+    </div>
+    <div class="ascii-diagram">validate
+   ↓
+create gateway
+   ↓
+charge
+   ↓
+save transaction
+   ↓
+send receipt</div>
+
+    <div class="subheading">Complete payment example</div>
+    <div class="intro">
+        <p>The product and concrete products:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">PaymentGateway</span> {
+    <span class="code-keyword">void</span> pay(double amount);
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">StripeGateway</span> <span class="code-keyword">implements</span> <span class="code-class">PaymentGateway</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> pay(double amount) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Paid $"</span> + amount + <span class="code-string">" using Stripe"</span>);
+    }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">RazorpayGateway</span> <span class="code-keyword">implements</span> <span class="code-class">PaymentGateway</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> pay(double amount) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Paid ₹"</span> + amount + <span class="code-string">" using Razorpay"</span>);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>The creator and concrete creators:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">abstract</span> <span class="code-keyword">class</span> <span class="code-class">PaymentService</span> {
+    <span class="code-keyword">protected</span> <span class="code-keyword">abstract</span> <span class="code-class">PaymentGateway</span> createGateway();
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> makePayment(double amount) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Validating payment"</span>);
+        <span class="code-class">PaymentGateway</span> gateway = createGateway();
+        gateway.pay(amount);
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Saving transaction"</span>);
+    }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">StripePaymentService</span> <span class="code-keyword">extends</span> <span class="code-class">PaymentService</span> {
+    <span class="code-keyword">protected</span> <span class="code-class">PaymentGateway</span> createGateway() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">StripeGateway</span>();
+    }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">RazorpayPaymentService</span> <span class="code-keyword">extends</span> <span class="code-class">PaymentService</span> {
+    <span class="code-keyword">protected</span> <span class="code-class">PaymentGateway</span> createGateway() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">RazorpayGateway</span>();
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Usage:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+    <span class="code-class">PaymentService</span> service = <span class="code-keyword">new</span> <span class="code-class">StripePaymentService</span>();
+    service.makePayment(<span class="code-number">100</span>);
+}</code></pre></div>
+
+    <div class="subheading">What exactly did Factory Method improve</div>
+    <div class="intro">
+        <p>Without Factory Method:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">PaymentService</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> makePayment(<span class="code-class">String</span> gatewayType, double amount) {
+        <span class="code-class">PaymentGateway</span> gateway = null;
+        <span class="code-keyword">if</span> (<span class="code-string">"stripe"</span>.equals(gatewayType)) {
+            gateway = <span class="code-keyword">new</span> <span class="code-class">StripeGateway</span>();
+        } else <span class="code-keyword">if</span> (<span class="code-string">"razorpay"</span>.equals(gatewayType)) {
+            gateway = <span class="code-keyword">new</span> <span class="code-class">RazorpayGateway</span>();
+        } else {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>();
+        }
+        gateway.pay(amount);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Adding PayPal requires modifying this class:</p>
+    </div>
+    <div class="code-block"><pre><code>else <span class="code-keyword">if</span> (<span class="code-string">"paypal"</span>.equals(gatewayType)) {
+    gateway = <span class="code-keyword">new</span> <span class="code-class">PaypalGateway</span>();
+}</code></pre></div>
+    <div class="intro">
+        <p>With Factory Method, you add a new subclass instead and the original algorithm does not change:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">PaypalPaymentService</span> <span class="code-keyword">extends</span> <span class="code-class">PaymentService</span> {
+    <span class="code-keyword">protected</span> <span class="code-class">PaymentGateway</span> createGateway() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">PaypalGateway</span>();
+    }
+}</code></pre></div>
+
+    <div class="subheading">Factory Method and the Open/Closed Principle</div>
+    <div class="callout callout-note"><p>Software should be open for extension but closed for modification.</p></div>
+    <div class="intro">
+        <p>Factory Method often helps here: you add <code>class PaypalPaymentService extends PaymentService</code> instead of modifying <code>PaymentService</code>, so the algorithm remains stable while new creation behaviors can be added.</p>
+        <p>But this is not magic. Someone still needs to decide which concrete creator to instantiate, for example <code>PaymentService service = new StripePaymentService();</code> There is still a concrete choice somewhere; Factory Method simply moves that decision away from the reusable algorithm.</p>
+    </div>
+
+    <div class="subheading">Factory Method is based on inheritance</div>
+    <div class="intro">
+        <p>Classic Factory Method relies heavily on polymorphism:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public abstract</span> <span class="code-keyword">class</span> <span class="code-class">Creator</span> {
+    <span class="code-keyword">protected</span> <span class="code-keyword">abstract</span> <span class="code-class">Product</span> createProduct();
+}
+
+<span class="code-keyword">public class</span> <span class="code-class">CreatorA</span> <span class="code-keyword">extends</span> <span class="code-class">Creator</span> {
+    <span class="code-keyword">protected</span> <span class="code-class">Product</span> createProduct() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">ProductA</span>();
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Variation happens through <strong>subclassing</strong>. This is one of the defining characteristics of Factory Method.</p>
+    </div>
+
+    <div class="subheading">Factory Method looks like Template Method</div>
+    <div class="intro">
+        <p>There is a good reason Factory Method can feel similar to Template Method. Consider:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">abstract</span> <span class="code-keyword">class</span> <span class="code-class">PaymentService</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> pay(double amount) {
+        validate(amount);
+        <span class="code-class">PaymentGateway</span> gateway = createGateway();
+        gateway.pay(amount);
+        save();
+    }
+
+    <span class="code-keyword">protected</span> <span class="code-keyword">abstract</span> <span class="code-class">PaymentGateway</span> createGateway();
+}</code></pre></div>
+    <div class="intro">
+        <p>There are two ideas here. <code>pay()</code> resembles Template Method: it defines the overall algorithm. <code>createGateway()</code> is a Factory Method, because its purpose is creating an object. They frequently appear together:</p>
+        <p>Sometimes a Factory Method is itself one customizable step inside a Template Method.</p>
+    </div>
+    <ul>
+        <li>Template method: steps of an algorithm.</li>
+        <li>Factory method: which object gets created.</li>
+    </ul>
+
+    <div class="subheading">When should you use Factory Method</div>
+    <div class="intro">
+        <p>Factory Method is a good candidate when a class creates a concrete object directly but that concrete class might vary:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public class</span> <span class="code-class">SomeService</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> doSomething() {
+        <span class="code-class">ConcreteClass</span> object = <span class="code-keyword">new</span> <span class="code-class">ConcreteClass</span>();
+        ...
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Typical signs:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>The parent knows the workflow but not the exact implementation it should instantiate.</li>
+        <li>Subclasses naturally correspond to different product types.</li>
+        <li>Creation logic varies while most business logic remains shared.</li>
+        <li>You want framework code to let application code choose implementations.</li>
+        <li>Direct construction would couple reusable code to concrete classes.</li>
+    </ul></div>
+
+    <div class="subheading">When NOT to use Factory Method</div>
+    <div class="intro">
+        <p>Don't introduce Factory Method unless creation genuinely varies.<br> Use it when that abstraction buys you something.</p>
+    </div>
+
+    <div class="subheading">Frameworks are one of the best use cases</div>
+    <div class="intro">
+        <p>Factory Method works especially well in frameworks. Imagine a framework class:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">abstract</span> <span class="code-keyword">class</span> <span class="code-class">DataImporter</span> {
+    <span class="code-keyword">protected</span> <span class="code-keyword">abstract</span> <span class="code-class">Parser</span> createParser();
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> importData(<span class="code-class">String</span> file) {
+        <span class="code-class">Parser</span> parser = createParser();
+        parser.parse(file);
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Save imported data"</span>);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>The framework cannot know which parser the application wants. Each application provides its own:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CSVImporter</span> <span class="code-keyword">extends</span> <span class="code-class">DataImporter</span> {
+    <span class="code-keyword">protected</span> <span class="code-class">Parser</span> createParser() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">CSVParser</span>();
+    }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">JSONImporter</span> <span class="code-keyword">extends</span> <span class="code-class">DataImporter</span> {
+    <span class="code-keyword">protected</span> <span class="code-class">Parser</span> createParser() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">JSONParser</span>();
+    }
+}</code></pre></div>
+    <div class="callout callout-note"><p>This is a natural Factory Method use case: the <strong>framework controls the workflow</strong>, and the <strong>application controls object creation</strong>.</p></div>
+
+    <div class="subheading">Spring changes the picture</div>
+    <div class="intro">
+        <p>Spring creates the concrete object, so manually implementing Factory Method is often unnecessary.<br>
+        Spring IOC container already handles object creation.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">Notification</span> {
+    <span class="code-keyword">void</span> send(<span class="code-class">String</span> message);
+}
+
+<span class="code-annotation">@Component</span>(<span class="code-string">"email"</span>)
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">EmailNotification</span> <span class="code-keyword">implements</span> <span class="code-class">Notification</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> send(<span class="code-class">String</span> message) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Email: "</span> + message);
+    }
+}
+
+<span class="code-annotation">@Component</span>(<span class="code-string">"sms"</span>)
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">SmsNotification</span> <span class="code-keyword">implements</span> <span class="code-class">Notification</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> send(<span class="code-class">String</span> message) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"SMS: "</span> + message);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>You can inject the implementation you need:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@Service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">NotificationService</span> {
+
+    <span class="code-annotation">@Autowired</span>
+    <span class="code-annotation">@Qualifier</span>(<span class="code-string">"email"</span>)
+    <span class="code-keyword">private</span> <span class="code-class">Notification</span> notification;
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> send(<span class="code-class">String</span> message) {
+        notification.send(message);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Spring creates the concrete object, so manually implementing Factory Method is often unnecessary.</p>
+    </div>
+
+    <div class="subheading">A practical Spring Boot factory</div>
+    <div class="intro">
+        <p>When selection happens dynamically at runtime, a registry is often cleaner.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">Notification</span> {
+    <span class="code-class">String</span> type();
+    <span class="code-keyword">void</span> send(<span class="code-class">String</span> message);
+}
+
+<span class="code-annotation">@Component</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">EmailNotification</span> <span class="code-keyword">implements</span> <span class="code-class">Notification</span> {
+    <span class="code-keyword">public</span> <span class="code-class">String</span> type() {
+        <span class="code-keyword">return</span> <span class="code-string">"email"</span>;
+    }
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> send(<span class="code-class">String</span> message) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Email: "</span> + message);
+    }
+}
+
+<span class="code-annotation">@Component</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">SmsNotification</span> <span class="code-keyword">implements</span> <span class="code-class">Notification</span> {
+    <span class="code-keyword">public</span> <span class="code-class">String</span> type() {
+        <span class="code-keyword">return</span> <span class="code-string">"sms"</span>;
+    }
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> send(<span class="code-class">String</span> message) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"SMS: "</span> + message);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>The factory:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@Component</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">NotificationFactory</span> {
+    <span class="code-keyword">private</span> <span class="code-class">Map</span>&lt;<span class="code-class">String</span>, <span class="code-class">Notification</span>&gt; notifications;
+    
+    <span class="code-keyword">public</span> <span class="code-class">NotificationFactory</span>(<span class="code-class">List</span>&lt;<span class="code-class">Notification</span>&gt; notificationList) {
+        <span class="code-keyword">this</span>.notifications = notificationList.stream()
+                .collect(<span class="code-class">Collectors</span>.toMap(
+                        <span class="code-class">Notification</span>::type,
+                        <span class="code-class">Function</span>.identity()
+                ));
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">Notification</span> get(<span class="code-class">String</span> type) {
+        <span class="code-class">Notification</span> notification = notifications.get(type);
+        <span class="code-keyword">if</span> (notification == <span class="code-keyword">null</span>) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>(<span class="code-string">"Unknown notification type: "</span> + type);
+        }
+        <span class="code-keyword">return</span> notification;
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>The service and controller:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@Service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">NotificationService</span> {
+
+    <span class="code-annotation">@Autowired</span>
+    <span class="code-keyword">private</span> <span class="code-class">NotificationFactory</span> factory;
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> send(<span class="code-class">String</span> type, <span class="code-class">String</span> message) {
+        <span class="code-class">Notification</span> notification = factory.get(type);
+        notification.send(message);
+    }
+}
+
+<span class="code-annotation">@RestController</span>
+<span class="code-annotation">@RequestMapping</span>(<span class="code-string">"/notifications"</span>)
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">NotificationController</span> {
+
+    <span class="code-annotation">@Autowired</span>
+    <span class="code-keyword">private</span> <span class="code-class">NotificationService</span> service;
+
+    <span class="code-annotation">@PostMapping</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> send(<span class="code-annotation">@RequestParam</span> <span class="code-class">String</span> type, <span class="code-annotation">@RequestParam</span> <span class="code-class">String</span> message) {
+        service.send(type, message);
+    }
+}</code></pre></div>
+
+    <div class="subheading">Why Factory Method is valuable</div>
+    <div class="intro">
+        <p>The biggest benefits are not merely <strong>creating objects</strong>:</p>
+    </div>
+    <div class="benefit-grid benefit-grid-2x2">
+        <div class="benefit-card">
+            <div class="benefit-title">Loose coupling</div>
+            <p>Instead of <code>new PDFExporter</code>, the parent depends on <code>DocumentExporter</code>. The concrete implementation is selected elsewhere.</p>
+        </div>
+        <div class="benefit-card">
+            <div class="benefit-title">Extensibility</div>
+            <p>You can add an <code>ExcelExporter</code> without rewriting the main workflow.</p>
+        </div>
+        <div class="benefit-card">
+            <div class="benefit-title">Reusable workflow</div>
+            <p>Common logic (validate, prepare, create, execute, log) stays in the parent; only object creation varies.</p>
+        </div>
+        <div class="benefit-card">
+            <div class="benefit-title">Testing</div>
+            <p>The creation step can be overridden with a fake, so the workflow can be tested without calling a real service.</p>
         </div>
     </div>
+    <div class="intro">
+        <p>For example, testing the payment workflow without calling Stripe:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public class</span> <span class="code-class">TestPaymentService</span> <span class="code-keyword">extends</span> <span class="code-class">PaymentService</span> {
+    <span class="code-keyword">protected</span> <span class="code-class">PaymentGateway</span> createGateway() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">FakePaymentGateway</span>();
+    }
+}</code></pre></div>
+
+    <div class="subheading">Main disadvantage</div>
+    <div class="intro">
+        <p>Factory Method tends to increase the number of classes. A simple feature might turn into:</p>
+    </div>
+    <div class="ascii-diagram">Notification
+EmailNotification
+SmsNotification
+
+NotificationService
+EmailNotificationService
+SmsNotificationService</div>
+    <div class="intro">
+        <p>When there is no meaningful variation in the parent workflow, that is often overengineering.</p>
+        <p>An abstract class NotificationCreator whose subclasses do nothing except return new EmailNotification may provide very little benefit.
+            Factory Method is strongest when the Creator itself contains meaningful reusable behavior:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">abstract</span> <span class="code-keyword">class</span> <span class="code-class">FileProcessor</span> {
+
+    <span class="code-keyword">public</span> <span class="code-keyword">final</span> <span class="code-keyword">void</span> process(<span class="code-class">Path</span> path) {
+        validate(path);
+        <span class="code-class">Parser</span> parser = createParser();
+        <span class="code-class">Data</span> data = parser.parse(path);
+        validateData(data);
+        save(data);
+        audit(data);
+    }
+
+    <span class="code-keyword">protected</span> <span class="code-keyword">abstract</span> <span class="code-class">Parser</span> createParser();
+}</code></pre></div>
+    <div class="intro">
+        <p>Now the abstraction earns its existence.</p>
+    </div>
+
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered">
+            <thead><tr><th>Factory Method</th><th>Strategy</th></tr></thead>
+            <tbody>
+                <tr><td>Uses Inheritance</td><td>Uses Composition</td></tr>
+                <tr><td>Which object should I create?</td><td>Which behavior should I use?</td></tr>
+            </tbody>
+        </table>
+    </div></div> <br>
+    <div class="intro">
+        <p>Modern applications - Strategy plus dependency injection is often preferable to Factory Method because it favors composition over inheritance.</p>
+    </div>
+    <div class="callout callout-note"><p>The deepest point: Factory Method is most useful when object creation is one variable part of a larger reusable operation. If you are only wrapping <code>new EmailNotification()</code> with several extra classes and gaining no reusable workflow, a simple factory, dependency injection, or direct construction is usually cleaner.</p></div>
 </div>
 </body>
 </html>

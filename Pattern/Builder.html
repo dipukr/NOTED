@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Builder Pattern</title>
+<title>Builder</title>
 <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
 <div class="note">
-    <div class="title">Builder Pattern</div>
+    <div class="title">Builder</div>
 
     <div class="intro">
         <p>Builder is a creational design pattern that provides a step-by-step approach for constructing complex objects.</p>
-        <p>This separates the process of constructing an object from its final representation, allowing the same construction mechanism to create objects with different configurations. It is particularly useful when an object has many required and optional parameters, helping avoid large or telescoping constructors while making object creation more readable, flexible, and maintainable. The final object is also commonly designed to be immutable.</p>
+        <p>This separates the process of constructing an object from its final representation, allowing the same construction mechanism to create objects with different configurations. It is particularly useful when an object has many required and optional parameters, helping avoid large or telescoping constructors while making object creation more readable, flexible and maintainable. The final object is also commonly designed to be immutable.</p>
     </div>
 
     <div class="section when-use">
@@ -72,16 +72,15 @@
             <li><strong>StringBuilder</strong> &mdash; appends characters step by step through chained calls before producing the final string.</li>
             <li><strong>Stream.Builder in Java</strong> &mdash; adds elements one at a time and then calls build to create a stream.</li>
             <li><strong>Lombok @Builder</strong> &mdash; generates a fluent builder class for any annotated POJO at compile time.</li>
-            <li><strong>HttpRequest.newBuilder (Java 11 HttpClient)</strong> &mdash; sets URI, headers, and method fluently before building an immutable request.</li>
-            <li><strong>Spring SpringApplicationBuilder</strong> &mdash; configures sources, profiles, and properties step by step to bootstrap an application.</li>
-            <li><strong>OkHttp Request.Builder and Retrofit.Builder</strong> &mdash; assemble HTTP requests and client instances through chained configuration.</li>
+            <li><strong>HttpRequest.newBuilder</strong> &mdash; sets URI, headers, and method fluently before building an immutable request.</li>
+            <li><strong>SpringApplicationBuilder</strong> &mdash; configures sources, profiles, and properties step by step to bootstrap an application.</li>
+            <li><strong>OkHttp Request.Builder</strong> &mdash; assemble HTTP requests and client instances through chained configuration.</li>
             <li><strong>Ordering a custom meal</strong> &mdash; you choose bun, patty, and toppings one by one, and the burger is assembled at the end.</li>
         </ul></div>
     </div>
 
     <div class="section code-section">
-        <div class="section-title">Code</div>
-        <div class="code-layout">
+        <div class="code-layout code-layout-equal">
             <div class="code-wrapper">
 <pre><code><span class="code-keyword">public class</span> <span class="code-class">User</span> {
     <span class="code-keyword">private final</span> String name;      <span class="code-comment"># required</span>
@@ -116,9 +115,9 @@
 
 <span class="code-keyword">void</span> main() {
     <span class="code-class">User</span> u = <span class="code-keyword">new</span> <span class="code-class">User</span>.<span class="code-class">Builder</span>(<span class="code-string">"Alice"</span>)
-                    .age(30)
-                    .email(<span class="code-string">"alice@mail.com"</span>)
-                    .build();
+        .age(30)
+        .email(<span class="code-string">"alice@mail.com"</span>)
+        .build();
 }</code></pre>
             </div>
 

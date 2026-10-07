@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Abstract Factory Pattern - Notes</title>
+<title>Abstract Factory</title>
 <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
 <div class="note">
-    <div class="title">Abstract Factory Pattern</div>
+    <div class="title">Abstract Factory</div>
 
     <div class="intro">
         <p>Abstract Factory is a creational design pattern that provides an interface for creating families of related or dependent objects without specifying their concrete classes.</p>
@@ -80,42 +80,1382 @@
         </ul></div>
     </div>
 
-    <div class="section code-section">
-        <div class="section-title">Code</div>
-        <div class="code-layout">
-            <div class="code-wrapper">
-<pre><code><span class="code-keyword">public interface</span> <span class="code-class">Button</span>  { <span class="code-keyword">void</span> paint(); }
-<span class="code-keyword">public interface</span> <span class="code-class">Checkbox</span> { <span class="code-keyword">void</span> paint(); }
 
-<span class="code-keyword">public class</span> <span class="code-class">WinButton</span>   <span class="code-keyword">implements</span> <span class="code-class">Button</span>   { <span class="code-keyword">public void</span> paint(){ System.out.println(<span class="code-string">"Win button"</span>);} }
-<span class="code-keyword">public class</span> <span class="code-class">WinCheckbox</span> <span class="code-keyword">implements</span> <span class="code-class">Checkbox</span> { <span class="code-keyword">public void</span> paint(){ System.out.println(<span class="code-string">"Win checkbox"</span>);} }
+    <div class="subheading">Abstract Factory Design Pattern</div>
+    <div class="intro">
+        <p>Abstract Factory is a creational design pattern that provides an interface for creating families of related objects without specifying their concrete classes.</p>
+    </div>
+    <div class="callout callout-note"><p>The key phrase is: <strong>create a family of related objects that are designed to work together.</strong></p></div>
+    <div class="intro">
+        <p>For example, imagine a cross-platform GUI framework supporting Windows and macOS. Each platform needs related components: Button, Checkbox and Menu.</p>
+        <p>For Windows, you want <code>WindowsButton</code>, <code>WindowsCheckbox</code> and <code>WindowsMenu</code>.<br> For macOS: <code>MacButton</code>, <code>MacCheckbox</code> and <code>MacMenu</code>.</p>
+        <p>You don't want the client code doing this:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">if</span> (os.equals(<span class="code-string">"windows"</span>)) {
+    <span class="code-class">Button</span> button = <span class="code-keyword">new</span> <span class="code-class">WindowsButton</span>();
+    <span class="code-class">Checkbox</span> checkbox = <span class="code-keyword">new</span> <span class="code-class">WindowsCheckbox</span>();
+} else {
+    <span class="code-class">Button</span> button = <span class="code-keyword">new</span> <span class="code-class">MacButton</span>();
+    <span class="code-class">Checkbox</span> checkbox = <span class="code-keyword">new</span> <span class="code-class">MacCheckbox</span>();
+}</code></pre></div>
+    <div class="intro">
+        <p>Instead, you give the application a factory representing the entire product family.</p>
+    </div>
+    <div class="svg-diagram">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 262" style="width:100%;max-width:700px;height:auto" role="img" aria-label="GUIFactory with Windows and Mac factories, each creating its own button and checkbox">
+            <defs><marker id="af1-a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#64748b"/></marker><marker id="af1-l" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#a3afbd"/></marker></defs>
+            <path d="M380 60 V82 H205.2 V102" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af1-a)"/>
+            <path d="M380 60 V82 H554.8 V102" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af1-a)"/>
+            <path d="M205.2 152 V175 H114 V196" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af1-a)"/>
+            <path d="M205.2 152 V175 H296.4 V196" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af1-a)"/>
+            <path d="M554.8 152 V175 H463.6 V196" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af1-a)"/>
+            <path d="M554.8 152 V175 H646 V196" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af1-a)"/>
+            <rect x="285" y="12" width="190" height="48" rx="8" fill="#CCEAD7" stroke="#009639" stroke-width="1.5"/>
+            <text x="380" y="30" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#14532d">GUIFactory</text>
+            <text x="380" y="46" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="11" fill="#009639">abstract factory</text>
+            <rect x="105.2" y="104" width="200" height="48" rx="8" fill="#D6E2FA" stroke="#326CE5" stroke-width="1.5"/>
+            <text x="205.2" y="122" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#1e3a8a">WindowsGUIFactory</text>
+            <text x="205.2" y="138" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="11" fill="#326CE5">concrete factory</text>
+            <rect x="454.8" y="104" width="200" height="48" rx="8" fill="#FECCED" stroke="#D53196" stroke-width="1.5"/>
+            <text x="554.8" y="122" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#831843">MacGUIFactory</text>
+            <text x="554.8" y="138" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="11" fill="#D53196">concrete factory</text>
+            <rect x="39" y="198" width="150" height="46" rx="8" fill="#D6E2FA" stroke="#326CE5" stroke-width="1.5"/>
+            <text x="114" y="223.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#1e3a8a">WindowsButton</text>
+            <text x="120" y="190.5" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#64748b" font-style="italic">creates</text>
+            <rect x="221.4" y="198" width="150" height="46" rx="8" fill="#D6E2FA" stroke="#326CE5" stroke-width="1.5"/>
+            <text x="296.4" y="223.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#1e3a8a">WindowsCheckbox</text>
+            <rect x="388.6" y="198" width="150" height="46" rx="8" fill="#FECCED" stroke="#D53196" stroke-width="1.5"/>
+            <text x="463.6" y="223.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#831843">MacButton</text>
+            <text x="469.6" y="190.5" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#64748b" font-style="italic">creates</text>
+            <rect x="571" y="198" width="150" height="46" rx="8" fill="#FECCED" stroke="#D53196" stroke-width="1.5"/>
+            <text x="646" y="223.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#831843">MacCheckbox</text>
+        </svg>
+    </div>
 
-<span class="code-comment"># Abstract factory: a family of related products</span>
-<span class="code-keyword">public interface</span> <span class="code-class">GUIFactory</span> {
+    <div class="subheading">Main idea</div>
+    <div class="intro">
+        <p>Suppose these are your abstract products:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">interface</span> <span class="code-class">Button</span> {
+    <span class="code-keyword">void</span> render();
+}
+
+<span class="code-keyword">interface</span> <span class="code-class">Checkbox</span> {
+    <span class="code-keyword">void</span> render();
+}</code></pre></div>
+    <div class="intro">
+        <p>Concrete Windows products:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">class</span> <span class="code-class">WindowsButton</span> <span class="code-keyword">implements</span> <span class="code-class">Button</span> {
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> render() {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Rendering Windows button"</span>);
+    }
+}
+
+<span class="code-keyword">class</span> <span class="code-class">WindowsCheckbox</span> <span class="code-keyword">implements</span> <span class="code-class">Checkbox</span> {
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> render() {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Rendering Windows checkbox"</span>);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Concrete macOS products:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">class</span> <span class="code-class">MacButton</span> <span class="code-keyword">implements</span> <span class="code-class">Button</span> {
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> render() {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Rendering Mac button"</span>);
+    }
+}
+
+<span class="code-keyword">class</span> <span class="code-class">MacCheckbox</span> <span class="code-keyword">implements</span> <span class="code-class">Checkbox</span> {
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> render() {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Rendering Mac checkbox"</span>);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Now we create an Abstract Factory.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">interface</span> <span class="code-class">GUIFactory</span> {
+
     <span class="code-class">Button</span> createButton();
+
+    <span class="code-class">Checkbox</span> createCheckbox();
+}</code></pre></div>
+    <div class="intro">
+        <p>Notice something important. The factory doesn't create just one product. It creates an entire family of related products: <code>Button</code> and <code>Checkbox</code>.</p>
+    </div>
+
+    <div class="subheading">Concrete factories</div>
+    <div class="intro">
+        <p>Windows factory:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">class</span> <span class="code-class">WindowsGUIFactory</span> <span class="code-keyword">implements</span> <span class="code-class">GUIFactory</span> {
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">Button</span> createButton() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">WindowsButton</span>();
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">Checkbox</span> createCheckbox() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">WindowsCheckbox</span>();
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Mac factory:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">class</span> <span class="code-class">MacGUIFactory</span> <span class="code-keyword">implements</span> <span class="code-class">GUIFactory</span> {
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">Button</span> createButton() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">MacButton</span>();
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">Checkbox</span> createCheckbox() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">MacCheckbox</span>();
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Each factory guarantees that compatible objects are created together:</p>
+    </div>
+    <div class="svg-diagram">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 176" style="width:100%;max-width:700px;height:auto" role="img" aria-label="Each concrete GUI factory creates a matching button and checkbox">
+            <defs><marker id="af2-a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#64748b"/></marker><marker id="af2-l" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#a3afbd"/></marker></defs>
+            <path d="M190 60 V86 H95 V110" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af2-a)"/>
+            <path d="M190 60 V86 H285 V110" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af2-a)"/>
+            <path d="M570 60 V86 H475 V110" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af2-a)"/>
+            <path d="M570 60 V86 H665 V110" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af2-a)"/>
+            <rect x="85" y="12" width="210" height="48" rx="8" fill="#D6E2FA" stroke="#326CE5" stroke-width="1.5"/>
+            <text x="190" y="30" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#1e3a8a">WindowsGUIFactory</text>
+            <text x="190" y="46" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="11" fill="#326CE5">concrete factory</text>
+            <rect x="25" y="112" width="140" height="46" rx="8" fill="#D6E2FA" stroke="#326CE5" stroke-width="1.5"/>
+            <text x="95" y="137.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#1e3a8a">WindowsButton</text>
+            <rect x="215" y="112" width="140" height="46" rx="8" fill="#D6E2FA" stroke="#326CE5" stroke-width="1.5"/>
+            <text x="285" y="137.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#1e3a8a">WindowsCheckbox</text>
+            <rect x="465" y="12" width="210" height="48" rx="8" fill="#FECCED" stroke="#D53196" stroke-width="1.5"/>
+            <text x="570" y="30" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#831843">MacGUIFactory</text>
+            <text x="570" y="46" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="11" fill="#D53196">concrete factory</text>
+            <rect x="405" y="112" width="140" height="46" rx="8" fill="#FECCED" stroke="#D53196" stroke-width="1.5"/>
+            <text x="475" y="137.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#831843">MacButton</text>
+            <rect x="595" y="112" width="140" height="46" rx="8" fill="#FECCED" stroke="#D53196" stroke-width="1.5"/>
+            <text x="665" y="137.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#831843">MacCheckbox</text>
+        </svg>
+    </div>
+    <div class="intro">
+        <p>This prevents something undesirable like <code>WindowsButton + MacCheckbox</code>.</p>
+    </div>
+
+    <div class="subheading">Client application</div>
+    <div class="intro">
+        <p>Now create an application that depends only on abstractions.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">class</span> <span class="code-class">Application</span> {
+
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">Button</span> button;
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">Checkbox</span> checkbox;
+
+    <span class="code-keyword">public</span> <span class="code-class">Application</span>(<span class="code-class">GUIFactory</span> factory) {
+        <span class="code-keyword">this</span>.button = factory.createButton();
+        <span class="code-keyword">this</span>.checkbox = factory.createCheckbox();
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> renderUI() {
+        button.render();
+        checkbox.render();
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>The application has no idea whether these objects are <code>WindowsButton</code>, <code>MacButton</code>, <code>WindowsCheckbox</code> or <code>MacCheckbox</code>. It only knows <code>Button</code>, <code>Checkbox</code> and <code>GUIFactory</code>. That is the major advantage.</p>
+    </div>
+
+    <div class="subheading">Main method</div>
+    <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+
+    <span class="code-class">String</span> operatingSystem = <span class="code-string">"windows"</span>;
+
+    <span class="code-class">GUIFactory</span> factory;
+
+    <span class="code-keyword">if</span> (operatingSystem.equalsIgnoreCase(<span class="code-string">"windows"</span>)) {
+        factory = <span class="code-keyword">new</span> <span class="code-class">WindowsGUIFactory</span>();
+    } else {
+        factory = <span class="code-keyword">new</span> <span class="code-class">MacGUIFactory</span>();
+    }
+
+    <span class="code-class">Application</span> app = <span class="code-keyword">new</span> <span class="code-class">Application</span>(factory);
+
+    app.renderUI();
+}</code></pre></div>
+    <div class="intro">
+        <p>Output:</p>
+    </div>
+    <div class="code-block"><pre><code>Rendering Windows button
+Rendering Windows checkbox</code></pre></div>
+    <div class="intro">
+        <p>Changing <code>operatingSystem = "mac";</code> gives:</p>
+    </div>
+    <div class="code-block"><pre><code>Rendering Mac button
+Rendering Mac checkbox</code></pre></div>
+    <div class="intro">
+        <p>The important thing is that the <code>Application</code> class never changes.</p>
+    </div>
+
+    <div class="subheading">Structure of Abstract Factory</div>
+    <div class="intro">
+        <p>There are normally five major participants.</p>
+    </div>
+    <div class="svg-diagram">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 372" style="width:100%;max-width:820px;height:auto" role="img" aria-label="Structure: GUIFactory, its concrete factories, the concrete products they create, and the abstract products those implement">
+            <defs><marker id="af3-a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#64748b"/></marker><marker id="af3-l" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#a3afbd"/></marker></defs>
+            <path d="M520 60 V82 H345 V102" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af3-a)"/>
+            <path d="M520 60 V82 H695 V102" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af3-a)"/>
+            <path d="M345 152 V175 H260 V196" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af3-a)"/>
+            <path d="M260 244 V298" fill="none" stroke="#a3afbd" stroke-width="1.6" stroke-dasharray="5 4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af3-l)"/>
+            <path d="M345 152 V175 H430 V196" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af3-a)"/>
+            <path d="M430 244 V298" fill="none" stroke="#a3afbd" stroke-width="1.6" stroke-dasharray="5 4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af3-l)"/>
+            <path d="M695 152 V175 H610 V196" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af3-a)"/>
+            <path d="M610 244 V298" fill="none" stroke="#a3afbd" stroke-width="1.6" stroke-dasharray="5 4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af3-l)"/>
+            <path d="M695 152 V175 H780 V196" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af3-a)"/>
+            <path d="M780 244 V298" fill="none" stroke="#a3afbd" stroke-width="1.6" stroke-dasharray="5 4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af3-l)"/>
+            <text x="16" y="40" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="700" fill="#64748b" letter-spacing="0.7">ABSTRACT FACTORY</text>
+            <text x="16" y="132" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="700" fill="#64748b" letter-spacing="0.7">CONCRETE FACTORY</text>
+            <text x="16" y="226" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="700" fill="#64748b" letter-spacing="0.7">CONCRETE PRODUCT</text>
+            <text x="16" y="328" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="700" fill="#64748b" letter-spacing="0.7">ABSTRACT PRODUCT</text>
+            <rect x="425" y="12" width="190" height="48" rx="8" fill="#CCEAD7" stroke="#009639" stroke-width="1.5"/>
+            <text x="520" y="38.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#14532d">GUIFactory</text>
+            <rect x="245" y="104" width="200" height="48" rx="8" fill="#D6E2FA" stroke="#326CE5" stroke-width="1.5"/>
+            <text x="345" y="130.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#1e3a8a">WindowsGUIFactory</text>
+            <rect x="595" y="104" width="200" height="48" rx="8" fill="#FECCED" stroke="#D53196" stroke-width="1.5"/>
+            <text x="695" y="130.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#831843">MacGUIFactory</text>
+            <rect x="182" y="198" width="156" height="46" rx="8" fill="#D6E2FA" stroke="#326CE5" stroke-width="1.5"/>
+            <text x="260" y="223.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#1e3a8a">WindowsButton</text>
+            <text x="266" y="190.5" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#64748b" font-style="italic">creates</text>
+            <rect x="200" y="300" width="120" height="42" rx="8" fill="#EDE7FB" stroke="#7C4DDB" stroke-width="1.5"/>
+            <text x="260" y="315" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#3b1f80">Button</text>
+            <text x="260" y="331" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="11" fill="#7C4DDB">interface</text>
+            <text x="268" y="276" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#64748b" font-style="italic">implements</text>
+            <rect x="352" y="198" width="156" height="46" rx="8" fill="#D6E2FA" stroke="#326CE5" stroke-width="1.5"/>
+            <text x="430" y="223.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#1e3a8a">WindowsCheckbox</text>
+            <rect x="370" y="300" width="120" height="42" rx="8" fill="#EDE7FB" stroke="#7C4DDB" stroke-width="1.5"/>
+            <text x="430" y="315" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#3b1f80">Checkbox</text>
+            <text x="430" y="331" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="11" fill="#7C4DDB">interface</text>
+            <rect x="532" y="198" width="156" height="46" rx="8" fill="#FECCED" stroke="#D53196" stroke-width="1.5"/>
+            <text x="610" y="223.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#831843">MacButton</text>
+            <text x="616" y="190.5" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#64748b" font-style="italic">creates</text>
+            <rect x="550" y="300" width="120" height="42" rx="8" fill="#EDE7FB" stroke="#7C4DDB" stroke-width="1.5"/>
+            <text x="610" y="315" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#3b1f80">Button</text>
+            <text x="610" y="331" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="11" fill="#7C4DDB">interface</text>
+            <rect x="702" y="198" width="156" height="46" rx="8" fill="#FECCED" stroke="#D53196" stroke-width="1.5"/>
+            <text x="780" y="223.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#831843">MacCheckbox</text>
+            <rect x="720" y="300" width="120" height="42" rx="8" fill="#EDE7FB" stroke="#7C4DDB" stroke-width="1.5"/>
+            <text x="780" y="315" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#3b1f80">Checkbox</text>
+            <text x="780" y="331" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="11" fill="#7C4DDB">interface</text>
+        </svg>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table cmp-teal">
+            <thead><tr><th>Participant</th><th>Role</th><th>Example</th></tr></thead>
+            <tbody>
+                <tr><td>Abstract Factory</td><td>Defines methods for creating each kind of product.</td><td><code>interface GUIFactory</code></td></tr>
+                <tr><td>Concrete Factory</td><td>Creates a particular family.</td><td><code>WindowsGUIFactory</code>, <code>MacGUIFactory</code></td></tr>
+                <tr><td>Abstract Product</td><td>Defines the common API.</td><td><code>interface Button</code>, <code>interface Checkbox</code></td></tr>
+                <tr><td>Concrete Product</td><td>Platform-specific implementations.</td><td><code>WindowsButton</code>, <code>MacButton</code>, <code>WindowsCheckbox</code>, <code>MacCheckbox</code></td></tr>
+                <tr><td>Client</td><td>Uses the abstract factory and abstract products.</td><td><code>class Application</code></td></tr>
+            </tbody>
+        </table>
+    </div></div>
+
+    <div class="subheading">Why do we need Abstract Factory?</div>
+    <div class="intro">
+        <p>Imagine without the pattern you have:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">class</span> <span class="code-class">Application</span> {
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> start(<span class="code-class">String</span> os) {
+
+        <span class="code-class">Button</span> button;
+        <span class="code-class">Checkbox</span> checkbox;
+
+        <span class="code-keyword">if</span> (os.equals(<span class="code-string">"windows"</span>)) {
+            button = <span class="code-keyword">new</span> <span class="code-class">WindowsButton</span>();
+            checkbox = <span class="code-keyword">new</span> <span class="code-class">WindowsCheckbox</span>();
+        } else <span class="code-keyword">if</span> (os.equals(<span class="code-string">"mac"</span>)) {
+            button = <span class="code-keyword">new</span> <span class="code-class">MacButton</span>();
+            checkbox = <span class="code-keyword">new</span> <span class="code-class">MacCheckbox</span>();
+        }
+
+        <span class="code-comment"># ...</span>
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Initially this looks harmless. But suppose your UI grows to Button, Checkbox, Menu, TextField, Dialog, Toolbar and ScrollBar. Now your code becomes:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">if</span> (os.equals(<span class="code-string">"windows"</span>)) {
+
+    button = <span class="code-keyword">new</span> <span class="code-class">WindowsButton</span>();
+    checkbox = <span class="code-keyword">new</span> <span class="code-class">WindowsCheckbox</span>();
+    menu = <span class="code-keyword">new</span> <span class="code-class">WindowsMenu</span>();
+    dialog = <span class="code-keyword">new</span> <span class="code-class">WindowsDialog</span>();
+    toolbar = <span class="code-keyword">new</span> <span class="code-class">WindowsToolbar</span>();
+
+} else <span class="code-keyword">if</span> (os.equals(<span class="code-string">"mac"</span>)) {
+
+    button = <span class="code-keyword">new</span> <span class="code-class">MacButton</span>();
+    checkbox = <span class="code-keyword">new</span> <span class="code-class">MacCheckbox</span>();
+    menu = <span class="code-keyword">new</span> <span class="code-class">MacMenu</span>();
+    dialog = <span class="code-keyword">new</span> <span class="code-class">MacDialog</span>();
+    toolbar = <span class="code-keyword">new</span> <span class="code-class">MacToolbar</span>();
+}</code></pre></div>
+    <div class="intro">
+        <p>And the same condition might appear in many classes. Abstract Factory centralizes this decision. Instead, you hold a <code>GUIFactory factory;</code> and then everywhere:</p>
+    </div>
+    <div class="code-block"><pre><code>factory.createButton();
+factory.createCheckbox();
+factory.createMenu();
+factory.createDialog();</code></pre></div>
+
+    <div class="subheading">Why not just use constructors?</div>
+    <div class="intro">
+        <p>Because direct construction couples the client to concrete implementations. With <code>Button button = new WindowsButton();</code> the client now knows <code>WindowsButton</code>. If tomorrow you switch to macOS, <code>Button button = new MacButton();</code> means the client must change.</p>
+        <p>With Abstract Factory, <code>Button button = factory.createButton();</code> the client does not care. The factory decides what concrete object should be created.</p>
+    </div>
+
+    <div class="subheading">When should you use Abstract Factory?</div>
+    <div class="intro">
+        <p>Abstract Factory is particularly useful when you have multiple related objects that vary together. For example:</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table cmp-teal">
+            <thead><tr><th>Family type</th><th>Family A</th><th>Family B</th></tr></thead>
+            <tbody>
+                <tr><td>Database</td><td>MySQLConnection, MySQLCommand, MySQLTransaction</td><td>PostgresConnection, PostgresCommand, PostgresTransaction</td></tr>
+                <tr><td>Cloud</td><td>AWSStorage, AWSQueue, AWSDatabase</td><td>AzureStorage, AzureQueue, AzureDatabase</td></tr>
+                <tr><td>UI</td><td>WindowsButton, WindowsMenu, WindowsDialog</td><td>MacButton, MacMenu, MacDialog</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="callout callout-note"><p>The important condition is: <strong>several types of objects change together based on one configuration or environment.</strong></p></div>
+
+    <div class="subheading">Real-world example: Cloud providers</div>
+    <div class="intro">
+        <p>Consider an application that supports AWS and Azure. We need Storage, MessageQueue and Database. The AWS implementations are <code>S3Storage</code>, <code>SqsQueue</code> and <code>DynamoDatabase</code>; the Azure implementations are <code>BlobStorage</code>, <code>ServiceBusQueue</code> and <code>CosmosDatabase</code>. We could model them using Abstract Factory.</p>
+        <p>Product interfaces:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">interface</span> <span class="code-class">CloudStorage</span> {
+    <span class="code-keyword">void</span> upload(<span class="code-class">String</span> file);
+}
+
+<span class="code-keyword">interface</span> <span class="code-class">MessageQueue</span> {
+    <span class="code-keyword">void</span> send(<span class="code-class">String</span> message);
+}
+
+<span class="code-keyword">interface</span> <span class="code-class">Database</span> {
+    <span class="code-keyword">void</span> save(<span class="code-class">String</span> data);
+}</code></pre></div>
+
+    <div class="subheading">AWS products</div>
+    <div class="code-block"><pre><code><span class="code-keyword">class</span> <span class="code-class">S3Storage</span> <span class="code-keyword">implements</span> <span class="code-class">CloudStorage</span> {
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> upload(<span class="code-class">String</span> file) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Uploading "</span> + file + <span class="code-string">" to AWS S3"</span>);
+    }
+}
+
+<span class="code-keyword">class</span> <span class="code-class">SqsQueue</span> <span class="code-keyword">implements</span> <span class="code-class">MessageQueue</span> {
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> send(<span class="code-class">String</span> message) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Sending message using AWS SQS: "</span> + message);
+    }
+}
+
+<span class="code-keyword">class</span> <span class="code-class">DynamoDatabase</span> <span class="code-keyword">implements</span> <span class="code-class">Database</span> {
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> save(<span class="code-class">String</span> data) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Saving data to DynamoDB: "</span> + data);
+    }
+}</code></pre></div>
+
+    <div class="subheading">Azure products</div>
+    <div class="code-block"><pre><code><span class="code-keyword">class</span> <span class="code-class">BlobStorage</span> <span class="code-keyword">implements</span> <span class="code-class">CloudStorage</span> {
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> upload(<span class="code-class">String</span> file) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Uploading "</span> + file + <span class="code-string">" to Azure Blob Storage"</span>);
+    }
+}
+
+<span class="code-keyword">class</span> <span class="code-class">ServiceBusQueue</span> <span class="code-keyword">implements</span> <span class="code-class">MessageQueue</span> {
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> send(<span class="code-class">String</span> message) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Sending message using Azure Service Bus: "</span> + message);
+    }
+}
+
+<span class="code-keyword">class</span> <span class="code-class">CosmosDatabase</span> <span class="code-keyword">implements</span> <span class="code-class">Database</span> {
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> save(<span class="code-class">String</span> data) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Saving data to Azure Cosmos DB: "</span> + data);
+    }
+}</code></pre></div>
+
+    <div class="subheading">The cloud Abstract Factory</div>
+    <div class="intro">
+        <p>Now define our cloud infrastructure factory.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">interface</span> <span class="code-class">CloudFactory</span> {
+
+    <span class="code-class">CloudStorage</span> createStorage();
+
+    <span class="code-class">MessageQueue</span> createQueue();
+
+    <span class="code-class">Database</span> createDatabase();
+}</code></pre></div>
+    <div class="intro">
+        <p>The factory represents a complete cloud ecosystem.</p>
+    </div>
+
+    <div class="subheading">AWS factory</div>
+    <div class="code-block"><pre><code><span class="code-keyword">class</span> <span class="code-class">AWSCloudFactory</span> <span class="code-keyword">implements</span> <span class="code-class">CloudFactory</span> {
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">CloudStorage</span> createStorage() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">S3Storage</span>();
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">MessageQueue</span> createQueue() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">SqsQueue</span>();
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">Database</span> createDatabase() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">DynamoDatabase</span>();
+    }
+}</code></pre></div>
+
+    <div class="subheading">Azure factory</div>
+    <div class="code-block"><pre><code><span class="code-keyword">class</span> <span class="code-class">AzureCloudFactory</span> <span class="code-keyword">implements</span> <span class="code-class">CloudFactory</span> {
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">CloudStorage</span> createStorage() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">BlobStorage</span>();
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">MessageQueue</span> createQueue() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">ServiceBusQueue</span>();
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">Database</span> createDatabase() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">CosmosDatabase</span>();
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Now we have:</p>
+    </div>
+    <div class="svg-diagram">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 176" style="width:100%;max-width:760px;height:auto" role="img" aria-label="AWS and Azure cloud factories, each creating storage, queue and database">
+            <defs><marker id="af4-a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#64748b"/></marker><marker id="af4-l" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#a3afbd"/></marker></defs>
+            <path d="M200 60 V86 H66.6667 V110" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af4-a)"/>
+            <path d="M200 60 V86 H200 V110" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af4-a)"/>
+            <path d="M200 60 V86 H333.333 V110" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af4-a)"/>
+            <path d="M600 60 V86 H466.667 V110" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af4-a)"/>
+            <path d="M600 60 V86 H600 V110" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af4-a)"/>
+            <path d="M600 60 V86 H733.333 V110" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af4-a)"/>
+            <rect x="95" y="12" width="210" height="48" rx="8" fill="#FFE6C7" stroke="#E8890C" stroke-width="1.5"/>
+            <text x="200" y="30" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#7c3f00">AWSCloudFactory</text>
+            <text x="200" y="46" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="11" fill="#E8890C">concrete factory</text>
+            <rect x="6" y="112" width="121.333" height="46" rx="8" fill="#FFE6C7" stroke="#E8890C" stroke-width="1.5"/>
+            <text x="66.6667" y="137.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#7c3f00">S3Storage</text>
+            <rect x="139.333" y="112" width="121.333" height="46" rx="8" fill="#FFE6C7" stroke="#E8890C" stroke-width="1.5"/>
+            <text x="200" y="137.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#7c3f00">SqsQueue</text>
+            <rect x="272.667" y="112" width="121.333" height="46" rx="8" fill="#FFE6C7" stroke="#E8890C" stroke-width="1.5"/>
+            <text x="333.333" y="137.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#7c3f00">DynamoDatabase</text>
+            <rect x="495" y="12" width="210" height="48" rx="8" fill="#CDEBF9" stroke="#0C7CBF" stroke-width="1.5"/>
+            <text x="600" y="30" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#0b3d5c">AzureCloudFactory</text>
+            <text x="600" y="46" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="11" fill="#0C7CBF">concrete factory</text>
+            <rect x="406" y="112" width="121.333" height="46" rx="8" fill="#CDEBF9" stroke="#0C7CBF" stroke-width="1.5"/>
+            <text x="466.667" y="137.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#0b3d5c">BlobStorage</text>
+            <rect x="539.333" y="112" width="121.333" height="46" rx="8" fill="#CDEBF9" stroke="#0C7CBF" stroke-width="1.5"/>
+            <text x="600" y="137.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#0b3d5c">ServiceBusQueue</text>
+            <rect x="672.667" y="112" width="121.333" height="46" rx="8" fill="#CDEBF9" stroke="#0C7CBF" stroke-width="1.5"/>
+            <text x="733.333" y="137.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#0b3d5c">CosmosDatabase</text>
+        </svg>
+    </div>
+
+    <div class="subheading">Client service</div>
+    <div class="code-block"><pre><code><span class="code-keyword">class</span> <span class="code-class">OrderService</span> {
+
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">CloudStorage</span> storage;
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">MessageQueue</span> queue;
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">Database</span> database;
+
+    <span class="code-keyword">public</span> <span class="code-class">OrderService</span>(<span class="code-class">CloudFactory</span> factory) {
+
+        <span class="code-keyword">this</span>.storage = factory.createStorage();
+        <span class="code-keyword">this</span>.queue = factory.createQueue();
+        <span class="code-keyword">this</span>.database = factory.createDatabase();
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> processOrder() {
+
+        database.save(<span class="code-string">"Order-1001"</span>);
+
+        queue.send(<span class="code-string">"Order created"</span>);
+
+        storage.upload(<span class="code-string">"invoice.pdf"</span>);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Notice that <code>OrderService</code> knows nothing about AWS, Azure, S3, SQS, DynamoDB, Blob Storage or Cosmos DB. It only depends on abstractions.</p>
+    </div>
+
+    <div class="subheading">Selecting the factory</div>
+    <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+
+    <span class="code-class">String</span> provider = <span class="code-string">"AWS"</span>;
+
+    <span class="code-class">CloudFactory</span> factory;
+
+    <span class="code-keyword">if</span> (provider.equalsIgnoreCase(<span class="code-string">"AWS"</span>)) {
+        factory = <span class="code-keyword">new</span> <span class="code-class">AWSCloudFactory</span>();
+    } else {
+        factory = <span class="code-keyword">new</span> <span class="code-class">AzureCloudFactory</span>();
+    }
+
+    <span class="code-class">OrderService</span> orderService = <span class="code-keyword">new</span> <span class="code-class">OrderService</span>(factory);
+
+    orderService.processOrder();
+}</code></pre></div>
+    <div class="intro">
+        <p>AWS output:</p>
+    </div>
+    <div class="code-block"><pre><code>Saving data to DynamoDB: Order-1001
+Sending message using AWS SQS: Order created
+Uploading invoice.pdf to AWS S3</code></pre></div>
+    <div class="intro">
+        <p>Changing only <code>CloudFactory factory = new AzureCloudFactory();</code> produces:</p>
+    </div>
+    <div class="code-block"><pre><code>Saving data to Azure Cosmos DB: Order-1001
+Sending message using Azure Service Bus: Order created
+Uploading invoice.pdf to Azure Blob Storage</code></pre></div>
+    <div class="intro">
+        <p>The <code>OrderService</code> doesn't change. That is a very good example of why Abstract Factory exists.</p>
+    </div>
+
+    <div class="subheading">The most important concept: product families</div>
+    <div class="intro">
+        <p>This is the part that often makes Abstract Factory confusing. Think of the objects as a table:</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table cmp-teal">
+            <thead><tr><th>Product type</th><th>Windows family</th><th>Mac family</th></tr></thead>
+            <tbody>
+                <tr><td>Button</td><td>WindowsButton</td><td>MacButton</td></tr>
+                <tr><td>Checkbox</td><td>WindowsCheckbox</td><td>MacCheckbox</td></tr>
+                <tr><td>Menu</td><td>WindowsMenu</td><td>MacMenu</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>Or:</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table cmp-teal">
+            <thead><tr><th>Product type</th><th>AWS family</th><th>Azure family</th></tr></thead>
+            <tbody>
+                <tr><td>Storage</td><td>S3</td><td>Blob Storage</td></tr>
+                <tr><td>Queue</td><td>SQS</td><td>Service Bus</td></tr>
+                <tr><td>Database</td><td>DynamoDB</td><td>Cosmos DB</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>Vertical columns are families. Abstract Factory lets you choose a column. For example, <code>CloudFactory factory = new AWSCloudFactory();</code> effectively means <em>use the AWS column</em>. Then <code>factory.createStorage()</code>, <code>factory.createQueue()</code> and <code>factory.createDatabase()</code> will all return AWS-compatible products.</p>
+    </div>
+
+    <div class="subheading">Why is this better than creating objects individually?</div>
+    <div class="intro">
+        <p>Suppose the application accidentally does this:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">CloudStorage</span> storage = <span class="code-keyword">new</span> <span class="code-class">S3Storage</span>();
+
+<span class="code-class">MessageQueue</span> queue = <span class="code-keyword">new</span> <span class="code-class">ServiceBusQueue</span>();
+
+<span class="code-class">Database</span> database = <span class="code-keyword">new</span> <span class="code-class">DynamoDatabase</span>();</code></pre></div>
+    <div class="intro">
+        <p>Now we have a mixture: AWS, Azure, AWS. Sometimes mixing implementations is valid, but sometimes the products are expected to belong to the same family. Abstract Factory can enforce consistency:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">CloudFactory</span> factory = <span class="code-keyword">new</span> <span class="code-class">AWSCloudFactory</span>();
+
+<span class="code-class">CloudStorage</span> storage = factory.createStorage();
+<span class="code-class">MessageQueue</span> queue = factory.createQueue();
+<span class="code-class">Database</span> database = factory.createDatabase();</code></pre></div>
+    <div class="intro">
+        <p>Now all products come from the AWS family.</p>
+    </div>
+
+    <div class="subheading">How Abstract Factory achieves loose coupling</div>
+    <div class="intro">
+        <p>Without Abstract Factory:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">class</span> <span class="code-class">OrderService</span> {
+
+    <span class="code-keyword">private</span> <span class="code-class">S3Storage</span> storage = <span class="code-keyword">new</span> <span class="code-class">S3Storage</span>();
+
+    <span class="code-keyword">private</span> <span class="code-class">SqsQueue</span> queue = <span class="code-keyword">new</span> <span class="code-class">SqsQueue</span>();
+
+    <span class="code-keyword">private</span> <span class="code-class">DynamoDatabase</span> database = <span class="code-keyword">new</span> <span class="code-class">DynamoDatabase</span>();
+}</code></pre></div>
+    <div class="intro">
+        <p>Dependencies:</p>
+    </div>
+    <div class="svg-diagram">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 196" style="width:100%;max-width:680px;height:auto" role="img" aria-label="Without the pattern, OrderService depends directly on three concrete AWS classes">
+            <defs><marker id="af5-a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#64748b"/></marker><marker id="af5-l" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#a3afbd"/></marker></defs>
+            <path d="M380 60 V84 H126.667 V106" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af5-a)"/>
+            <path d="M380 60 V84 H380 V106" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af5-a)"/>
+            <path d="M380 60 V84 H633.333 V106" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af5-a)"/>
+            <rect x="285" y="12" width="190" height="48" rx="8" fill="#E3F5C4" stroke="#438C15" stroke-width="1.5"/>
+            <text x="380" y="38.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#234d07">OrderService</text>
+            <rect x="46.6667" y="108" width="160" height="46" rx="8" fill="#FDE2E2" stroke="#DC2626" stroke-width="1.5"/>
+            <text x="126.667" y="133.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#7f1d1d">S3Storage</text>
+            <rect x="300" y="108" width="160" height="46" rx="8" fill="#FDE2E2" stroke="#DC2626" stroke-width="1.5"/>
+            <text x="380" y="133.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#7f1d1d">SqsQueue</text>
+            <rect x="553.333" y="108" width="160" height="46" rx="8" fill="#FDE2E2" stroke="#DC2626" stroke-width="1.5"/>
+            <text x="633.333" y="133.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#7f1d1d">DynamoDatabase</text>
+            <text x="380" y="184" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12" font-weight="700" fill="#b91c1c">Tightly coupled to concrete classes</text>
+        </svg>
+    </div>
+    <div class="intro">
+        <p>Very tightly coupled. With Abstract Factory:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">class</span> <span class="code-class">OrderService</span> {
+
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">CloudStorage</span> storage;
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">MessageQueue</span> queue;
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">Database</span> database;
+
+    <span class="code-keyword">public</span> <span class="code-class">OrderService</span>(<span class="code-class">CloudFactory</span> factory) {
+        storage = factory.createStorage();
+        queue = factory.createQueue();
+        database = factory.createDatabase();
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Dependencies become:</p>
+    </div>
+    <div class="svg-diagram">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 196" style="width:100%;max-width:680px;height:auto" role="img" aria-label="With the pattern, OrderService depends only on CloudFactory and three interfaces">
+            <defs><marker id="af6-a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#64748b"/></marker><marker id="af6-l" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#a3afbd"/></marker></defs>
+            <path d="M380 60 V84 H95 V106" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af6-a)"/>
+            <path d="M380 60 V84 H285 V106" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af6-a)"/>
+            <path d="M380 60 V84 H475 V106" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af6-a)"/>
+            <path d="M380 60 V84 H665 V106" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af6-a)"/>
+            <rect x="285" y="12" width="190" height="48" rx="8" fill="#E3F5C4" stroke="#438C15" stroke-width="1.5"/>
+            <text x="380" y="38.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#234d07">OrderService</text>
+            <rect x="15" y="108" width="160" height="46" rx="8" fill="#EDE7FB" stroke="#7C4DDB" stroke-width="1.5"/>
+            <text x="95" y="133.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#3b1f80">CloudFactory</text>
+            <rect x="205" y="108" width="160" height="46" rx="8" fill="#EDE7FB" stroke="#7C4DDB" stroke-width="1.5"/>
+            <text x="285" y="133.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#3b1f80">CloudStorage</text>
+            <rect x="395" y="108" width="160" height="46" rx="8" fill="#EDE7FB" stroke="#7C4DDB" stroke-width="1.5"/>
+            <text x="475" y="133.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#3b1f80">MessageQueue</text>
+            <rect x="585" y="108" width="160" height="46" rx="8" fill="#EDE7FB" stroke="#7C4DDB" stroke-width="1.5"/>
+            <text x="665" y="133.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#3b1f80">Database</text>
+            <text x="380" y="184" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12" font-weight="700" fill="#15803d">Depends only on abstractions</text>
+        </svg>
+    </div>
+    <div class="intro">
+        <p>Concrete classes are hidden behind abstractions.</p>
+    </div>
+
+    <div class="subheading">Adding another family</div>
+    <div class="intro">
+        <p>Suppose tomorrow you add Google Cloud. You might create:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">class</span> <span class="code-class">GCSStorage</span> <span class="code-keyword">implements</span> <span class="code-class">CloudStorage</span> {
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> upload(<span class="code-class">String</span> file) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Uploading to Google Cloud Storage"</span>);
+    }
+}
+
+<span class="code-keyword">class</span> <span class="code-class">PubSubQueue</span> <span class="code-keyword">implements</span> <span class="code-class">MessageQueue</span> {
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> send(<span class="code-class">String</span> message) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Sending using Google Pub/Sub"</span>);
+    }
+}
+
+<span class="code-keyword">class</span> <span class="code-class">FirestoreDatabase</span> <span class="code-keyword">implements</span> <span class="code-class">Database</span> {
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> save(<span class="code-class">String</span> data) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Saving to Firestore"</span>);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>And:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">class</span> <span class="code-class">GoogleCloudFactory</span> <span class="code-keyword">implements</span> <span class="code-class">CloudFactory</span> {
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">CloudStorage</span> createStorage() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">GCSStorage</span>();
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">MessageQueue</span> createQueue() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">PubSubQueue</span>();
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">Database</span> createDatabase() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">FirestoreDatabase</span>();
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Then the application only needs <code>CloudFactory factory = new GoogleCloudFactory();</code>. The business logic stays unchanged. This follows the Open/Closed Principle reasonably well when you're adding a new family.</p>
+    </div>
+
+    <div class="subheading">Important disadvantage</div>
+    <div class="intro">
+        <p>Abstract Factory has an interesting tradeoff. It is very easy to add another family (AWS, Azure, GCP), but harder to add another product type. Suppose we suddenly need a Cache. You must modify:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">interface</span> <span class="code-class">CloudFactory</span> {
+
+    <span class="code-class">CloudStorage</span> createStorage();
+
+    <span class="code-class">MessageQueue</span> createQueue();
+
+    <span class="code-class">Database</span> createDatabase();
+
+    <span class="code-class">Cache</span> createCache(); <span class="code-comment"># NEW</span>
+}</code></pre></div>
+    <div class="intro">
+        <p>Now every concrete factory must change, <code>AWSCloudFactory</code>, <code>AzureCloudFactory</code> and <code>GoogleCloudFactory</code>, because every family needs to implement <code>createCache()</code>. Therefore:</p>
+    </div>
+    <div class="svg-diagram">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 138" style="width:100%;max-width:560px;height:auto" role="img" aria-label="Adding a family is easy; adding a product type is relatively difficult">
+            <defs><marker id="af7-a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#64748b"/></marker><marker id="af7-l" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#a3afbd"/></marker></defs>
+            <path d="M275 37 H368" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af7-a)"/>
+            <path d="M275 101 H368" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af7-a)"/>
+            <rect x="25" y="14" width="250" height="46" rx="8" fill="#F1F4F8" stroke="#94A3B8" stroke-width="1.5"/>
+            <text x="150" y="39.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#334155">Adding a new family</text>
+            <rect x="25" y="78" width="250" height="46" rx="8" fill="#F1F4F8" stroke="#94A3B8" stroke-width="1.5"/>
+            <text x="150" y="103.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#334155">Adding a new product type</text>
+            <rect x="395" y="24" width="150" height="26" rx="13" fill="#DCFCE7" stroke="#16A34A" stroke-width="1.4"/>
+            <text x="470" y="41.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12" font-weight="600" fill="#14532d">Easy</text>
+            <rect x="375" y="88" width="190" height="26" rx="13" fill="#FEF3C7" stroke="#D97706" stroke-width="1.4"/>
+            <text x="470" y="105.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12" font-weight="600" fill="#78350f">Relatively difficult</text>
+        </svg>
+    </div>
+    <div class="intro">
+        <p>This is one of the most important tradeoffs of Abstract Factory.</p>
+    </div>
+
+    <div class="subheading">Factory Method vs Abstract Factory</div>
+    <div class="intro">
+        <p>These two are frequently confused. <strong>Factory Method</strong> usually focuses on creating one product type. For example:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">abstract</span> <span class="code-keyword">class</span> <span class="code-class">Dialog</span> {
+
+    <span class="code-keyword">abstract</span> <span class="code-class">Button</span> createButton();
+}
+
+<span class="code-keyword">class</span> <span class="code-class">WindowsDialog</span> <span class="code-keyword">extends</span> <span class="code-class">Dialog</span> {
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-class">Button</span> createButton() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">WindowsButton</span>();
+    }
+}
+
+<span class="code-keyword">class</span> <span class="code-class">WebDialog</span> <span class="code-keyword">extends</span> <span class="code-class">Dialog</span> {
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-class">Button</span> createButton() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">HTMLButton</span>();
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Conceptually:</p>
+    </div>
+    <div class="svg-diagram">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 120" style="width:100%;max-width:600px;height:auto" role="img" aria-label="Factory Method: a creator declares one factory method that returns one product">
+            <defs><marker id="af8-a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#64748b"/></marker><marker id="af8-l" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#a3afbd"/></marker></defs>
+            <path d="M195 70 H238" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af8-a)"/>
+            <path d="M440 70 H483" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af8-a)"/>
+            <text x="340" y="18" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="11" font-weight="700" fill="#64748b" letter-spacing="1">FACTORY METHOD</text>
+            <rect x="25" y="44" width="170" height="52" rx="8" fill="#CCEAD7" stroke="#009639" stroke-width="1.5"/>
+            <text x="110" y="72.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#14532d">Creator</text>
+            <rect x="240" y="50" width="200" height="40" rx="8" fill="#FFFFFF" stroke="#94A3B8" stroke-width="1.5"/>
+            <text x="340" y="72.5" text-anchor="middle" font-family="Consolas, 'Source Code Pro', monospace" font-size="13" font-weight="600" fill="#334155">factoryMethod()</text>
+            <rect x="485" y="44" width="170" height="52" rx="8" fill="#EDE7FB" stroke="#7C4DDB" stroke-width="1.5"/>
+            <text x="570" y="72.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#3b1f80">Product</text>
+            <text x="217.5" y="64" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#64748b" font-style="italic">declares</text>
+            <text x="462.5" y="64" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#64748b" font-style="italic">returns</text>
+        </svg>
+    </div>
+    <div class="intro">
+        <p><strong>Abstract Factory</strong> creates multiple related product types:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">interface</span> <span class="code-class">GUIFactory</span> {
+
+    <span class="code-class">Button</span> createButton();
+
+    <span class="code-class">Checkbox</span> createCheckbox();
+
+    <span class="code-class">Menu</span> createMenu();
+}</code></pre></div>
+    <div class="intro">
+        <p>Conceptually:</p>
+    </div>
+    <div class="svg-diagram">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 232" style="width:100%;max-width:520px;height:auto" role="img" aria-label="Abstract Factory: one factory declares several creation methods, one per product type">
+            <defs><marker id="af9-a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#64748b"/></marker><marker id="af9-l" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#a3afbd"/></marker></defs>
+            <path d="M205 130 H220 V64 H233" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af9-a)"/>
+            <path d="M425 64 H458" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af9-a)"/>
+            <path d="M205 130 H220 V130 H233" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af9-a)"/>
+            <path d="M425 130 H458" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af9-a)"/>
+            <path d="M205 130 H220 V196 H233" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af9-a)"/>
+            <path d="M425 196 H458" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af9-a)"/>
+            <text x="300" y="18" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="11" font-weight="700" fill="#64748b" letter-spacing="1">ABSTRACT FACTORY</text>
+            <rect x="35" y="102" width="170" height="56" rx="8" fill="#CCEAD7" stroke="#009639" stroke-width="1.5"/>
+            <text x="120" y="132.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#14532d">Factory</text>
+            <rect x="235" y="44" width="190" height="40" rx="8" fill="#FFFFFF" stroke="#94A3B8" stroke-width="1.5"/>
+            <text x="330" y="66.5" text-anchor="middle" font-family="Consolas, 'Source Code Pro', monospace" font-size="13" font-weight="600" fill="#334155">createButton()</text>
+            <rect x="460" y="44" width="120" height="40" rx="8" fill="#EDE7FB" stroke="#7C4DDB" stroke-width="1.5"/>
+            <text x="520" y="66.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#3b1f80">Button</text>
+            <rect x="235" y="110" width="190" height="40" rx="8" fill="#FFFFFF" stroke="#94A3B8" stroke-width="1.5"/>
+            <text x="330" y="132.5" text-anchor="middle" font-family="Consolas, 'Source Code Pro', monospace" font-size="13" font-weight="600" fill="#334155">createCheckbox()</text>
+            <rect x="460" y="110" width="120" height="40" rx="8" fill="#EDE7FB" stroke="#7C4DDB" stroke-width="1.5"/>
+            <text x="520" y="132.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#3b1f80">Checkbox</text>
+            <rect x="235" y="176" width="190" height="40" rx="8" fill="#FFFFFF" stroke="#94A3B8" stroke-width="1.5"/>
+            <text x="330" y="198.5" text-anchor="middle" font-family="Consolas, 'Source Code Pro', monospace" font-size="13" font-weight="600" fill="#334155">createMenu()</text>
+            <rect x="460" y="176" width="120" height="40" rx="8" fill="#EDE7FB" stroke="#7C4DDB" stroke-width="1.5"/>
+            <text x="520" y="198.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#3b1f80">Menu</text>
+        </svg>
+    </div>
+    <div class="intro">
+        <p>So a useful shortcut is:</p>
+    </div>
+    <div class="svg-diagram">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 210" style="width:100%;max-width:660px;height:auto" role="img" aria-label="Factory Method creates one type of product; Abstract Factory creates a family of related products">
+            <defs><marker id="af10-a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#64748b"/></marker><marker id="af10-l" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#a3afbd"/></marker></defs>
+            <path d="M180.0 62 V92" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af10-a)"/>
+            <path d="M540.0 62 V92" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af10-a)"/>
+            <rect x="65" y="14" width="230" height="48" rx="8" fill="#CCEAD7" stroke="#009639" stroke-width="1.5"/>
+            <text x="180" y="40.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#14532d">Factory Method</text>
+            <text x="180" y="114" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#334155">Create ONE type of product</text>
+            <rect x="163" y="134" width="34" height="34" rx="7" fill="#EDE7FB" stroke="#7C4DDB" stroke-width="1.4"/>
+            <rect x="425" y="14" width="230" height="48" rx="8" fill="#CCEAD7" stroke="#009639" stroke-width="1.5"/>
+            <text x="540" y="40.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#14532d">Abstract Factory</text>
+            <text x="540" y="114" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#334155">Create a FAMILY of related products</text>
+            <rect x="479" y="134" width="34" height="34" rx="7" fill="#EDE7FB" stroke="#7C4DDB" stroke-width="1.4"/>
+            <rect x="523" y="134" width="34" height="34" rx="7" fill="#EDE7FB" stroke="#7C4DDB" stroke-width="1.4"/>
+            <rect x="567" y="134" width="34" height="34" rx="7" fill="#EDE7FB" stroke="#7C4DDB" stroke-width="1.4"/>
+            <text x="540" y="192" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="11" font-weight="400" fill="#64748b" font-style="italic">related, designed to work together</text>
+        </svg>
+    </div>
+
+    <div class="subheading">Factory Method may exist inside Abstract Factory</div>
+    <div class="intro">
+        <p>An interesting point is that Abstract Factory is often implemented using several factory methods. In <code>interface GUIFactory</code>, each of <code>createButton()</code> and <code>createCheckbox()</code> is essentially a factory method. But together they form an Abstract Factory, because they create a family.</p>
+    </div>
+
+    <div class="subheading">Abstract Factory vs Simple Factory</div>
+    <div class="intro">
+        <p>Suppose you write:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">class</span> <span class="code-class">ButtonFactory</span> {
+
+    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-class">Button</span> create(<span class="code-class">String</span> type) {
+
+        <span class="code-keyword">return</span> switch (type) {
+            case <span class="code-string">"windows"</span> -&gt; <span class="code-keyword">new</span> <span class="code-class">WindowsButton</span>();
+            case <span class="code-string">"mac"</span> -&gt; <span class="code-keyword">new</span> <span class="code-class">MacButton</span>();
+            default -&gt; <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>();
+        };
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>This is typically called a <strong>Simple Factory</strong>. It creates a <code>Button</code> based on a parameter. Abstract Factory instead represents a family:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">GUIFactory</span> factory = <span class="code-keyword">new</span> <span class="code-class">WindowsGUIFactory</span>();
+
+<span class="code-class">Button</span> button = factory.createButton();
+<span class="code-class">Checkbox</span> checkbox = factory.createCheckbox();
+<span class="code-class">Menu</span> menu = factory.createMenu();</code></pre></div>
+    <div class="intro">
+        <p>So:</p>
+    </div>
+    <div class="svg-diagram">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 210" style="width:100%;max-width:660px;height:auto" role="img" aria-label="Simple Factory selects one product implementation; Abstract Factory selects an entire product family">
+            <defs><marker id="af11-a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#64748b"/></marker><marker id="af11-l" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#a3afbd"/></marker></defs>
+            <path d="M180.0 62 V92" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af11-a)"/>
+            <path d="M540.0 62 V92" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af11-a)"/>
+            <rect x="65" y="14" width="230" height="48" rx="8" fill="#F1F4F8" stroke="#94A3B8" stroke-width="1.5"/>
+            <text x="180" y="40.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#334155">Simple Factory</text>
+            <text x="180" y="114" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#334155">Select one product implementation</text>
+            <rect x="163" y="134" width="34" height="34" rx="7" fill="#EDE7FB" stroke="#7C4DDB" stroke-width="1.4"/>
+            <rect x="425" y="14" width="230" height="48" rx="8" fill="#CCEAD7" stroke="#009639" stroke-width="1.5"/>
+            <text x="540" y="40.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#14532d">Abstract Factory</text>
+            <text x="540" y="114" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#334155">Select an entire product family</text>
+            <rect x="479" y="134" width="34" height="34" rx="7" fill="#EDE7FB" stroke="#7C4DDB" stroke-width="1.4"/>
+            <rect x="523" y="134" width="34" height="34" rx="7" fill="#EDE7FB" stroke="#7C4DDB" stroke-width="1.4"/>
+            <rect x="567" y="134" width="34" height="34" rx="7" fill="#EDE7FB" stroke="#7C4DDB" stroke-width="1.4"/>
+            <text x="540" y="192" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="11" font-weight="400" fill="#64748b" font-style="italic">related, designed to work together</text>
+        </svg>
+    </div>
+
+    <div class="subheading">Abstract Factory and Dependency Injection</div>
+    <div class="intro">
+        <p>Abstract Factory works very naturally with dependency injection. Instead of doing this:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">CloudFactory</span> factory = <span class="code-keyword">new</span> <span class="code-class">AWSCloudFactory</span>();
+
+<span class="code-class">OrderService</span> service = <span class="code-keyword">new</span> <span class="code-class">OrderService</span>(factory);</code></pre></div>
+    <div class="intro">
+        <p>Spring could inject it:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@Service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderService</span> {
+
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">CloudFactory</span> cloudFactory;
+
+    <span class="code-keyword">public</span> <span class="code-class">OrderService</span>(<span class="code-class">CloudFactory</span> cloudFactory) {
+        <span class="code-keyword">this</span>.cloudFactory = cloudFactory;
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>And configuration decides which implementation exists. For example:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@Configuration</span>
+<span class="code-keyword">class</span> <span class="code-class">CloudConfiguration</span> {
+
+    <span class="code-annotation">@Bean</span>
+    <span class="code-class">CloudFactory</span> cloudFactory() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">AWSCloudFactory</span>();
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Now business code doesn't choose the concrete family. Configuration does. Conceptually:</p>
+    </div>
+    <div class="svg-diagram">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 96" style="width:100%;max-width:620px;height:auto" role="img" aria-label="Configuration supplies the CloudFactory, which OrderService uses">
+            <defs><marker id="af12-a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#64748b"/></marker><marker id="af12-l" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#a3afbd"/></marker></defs>
+            <path d="M200 48 H258" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af12-a)"/>
+            <path d="M440 48 H498" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af12-a)"/>
+            <rect x="20" y="22" width="180" height="52" rx="8" fill="#F1F4F8" stroke="#94A3B8" stroke-width="1.5"/>
+            <text x="110" y="42" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#334155">Configuration</text>
+            <text x="110" y="58" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="11" fill="#94A3B8">@Configuration / @Bean</text>
+            <rect x="260" y="22" width="180" height="52" rx="8" fill="#CCEAD7" stroke="#009639" stroke-width="1.5"/>
+            <text x="350" y="42" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#14532d">CloudFactory</text>
+            <text x="350" y="58" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="11" fill="#009639">chosen family</text>
+            <rect x="500" y="22" width="180" height="52" rx="8" fill="#E3F5C4" stroke="#438C15" stroke-width="1.5"/>
+            <text x="590" y="42" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#234d07">OrderService</text>
+            <text x="590" y="58" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="11" fill="#438C15">business code</text>
+            <text x="230" y="42" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#64748b" font-style="italic">provides</text>
+            <text x="470" y="42" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#64748b" font-style="italic">injected into</text>
+        </svg>
+    </div>
+    <div class="intro">
+        <p>This separation is extremely common in real applications.</p>
+    </div>
+
+    <div class="subheading">A simplified mental model</div>
+    <div class="intro">
+        <p>Whenever you see this situation, think Abstract Factory:</p>
+    </div>
+    <div class="svg-diagram">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 266" style="width:100%;max-width:540px;height:auto" role="img" aria-label="Product types as rows and families as columns; a factory picks one column">
+            <defs><marker id="af13-a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#64748b"/></marker><marker id="af13-l" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#a3afbd"/></marker></defs>
+            <rect x="158" y="10" width="184" height="220" rx="14" fill="#DCFCE7" fill-opacity="0.55" stroke="#16A34A" stroke-width="1.6"/>
+            <text x="250" y="248" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12" font-weight="700" fill="#14532d">The factory picks one column</text>
+            <rect x="170" y="16" width="160" height="38" rx="8" fill="#D6E2FA" stroke="#326CE5" stroke-width="1.5"/>
+            <text x="250" y="37.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#1e3a8a">Family A</text>
+            <rect x="380" y="16" width="160" height="38" rx="8" fill="#FECCED" stroke="#D53196" stroke-width="1.5"/>
+            <text x="460" y="37.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#831843">Family B</text>
+            <text x="24" y="93" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="700" fill="#334155">Product 1</text>
+            <rect x="170" y="70" width="160" height="38" rx="8" fill="#D6E2FA" stroke="#326CE5" stroke-width="1.5"/>
+            <text x="250" y="91.25" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#1e3a8a">A1</text>
+            <rect x="380" y="70" width="160" height="38" rx="8" fill="#FECCED" stroke="#D53196" stroke-width="1.5"/>
+            <text x="460" y="91.25" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#831843">B1</text>
+            <text x="24" y="149" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="700" fill="#334155">Product 2</text>
+            <rect x="170" y="126" width="160" height="38" rx="8" fill="#D6E2FA" stroke="#326CE5" stroke-width="1.5"/>
+            <text x="250" y="147.25" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#1e3a8a">A2</text>
+            <rect x="380" y="126" width="160" height="38" rx="8" fill="#FECCED" stroke="#D53196" stroke-width="1.5"/>
+            <text x="460" y="147.25" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#831843">B2</text>
+            <text x="24" y="205" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="700" fill="#334155">Product 3</text>
+            <rect x="170" y="182" width="160" height="38" rx="8" fill="#D6E2FA" stroke="#326CE5" stroke-width="1.5"/>
+            <text x="250" y="203.25" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#1e3a8a">A3</text>
+            <rect x="380" y="182" width="160" height="38" rx="8" fill="#FECCED" stroke="#D53196" stroke-width="1.5"/>
+            <text x="460" y="203.25" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#831843">B3</text>
+        </svg>
+    </div>
+    <div class="intro">
+        <p>For example:</p>
+    </div>
+    <div class="svg-diagram">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 266" style="width:100%;max-width:540px;height:auto" role="img" aria-label="Windows and Mac columns of button, menu and dialog">
+            <defs><marker id="af14-a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#64748b"/></marker><marker id="af14-l" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#a3afbd"/></marker></defs>
+            <rect x="158" y="10" width="184" height="220" rx="14" fill="#DCFCE7" fill-opacity="0.55" stroke="#16A34A" stroke-width="1.6"/>
+            <text x="250" y="248" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12" font-weight="700" fill="#14532d">The factory picks one column</text>
+            <rect x="170" y="16" width="160" height="38" rx="8" fill="#D6E2FA" stroke="#326CE5" stroke-width="1.5"/>
+            <text x="250" y="37.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#1e3a8a">Windows</text>
+            <rect x="380" y="16" width="160" height="38" rx="8" fill="#FECCED" stroke="#D53196" stroke-width="1.5"/>
+            <text x="460" y="37.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#831843">Mac</text>
+            <text x="24" y="93" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="700" fill="#334155">Button</text>
+            <rect x="170" y="70" width="160" height="38" rx="8" fill="#D6E2FA" stroke="#326CE5" stroke-width="1.5"/>
+            <text x="250" y="91.25" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#1e3a8a">WinButton</text>
+            <rect x="380" y="70" width="160" height="38" rx="8" fill="#FECCED" stroke="#D53196" stroke-width="1.5"/>
+            <text x="460" y="91.25" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#831843">MacButton</text>
+            <text x="24" y="149" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="700" fill="#334155">Menu</text>
+            <rect x="170" y="126" width="160" height="38" rx="8" fill="#D6E2FA" stroke="#326CE5" stroke-width="1.5"/>
+            <text x="250" y="147.25" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#1e3a8a">WinMenu</text>
+            <rect x="380" y="126" width="160" height="38" rx="8" fill="#FECCED" stroke="#D53196" stroke-width="1.5"/>
+            <text x="460" y="147.25" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#831843">MacMenu</text>
+            <text x="24" y="205" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="700" fill="#334155">Dialog</text>
+            <rect x="170" y="182" width="160" height="38" rx="8" fill="#D6E2FA" stroke="#326CE5" stroke-width="1.5"/>
+            <text x="250" y="203.25" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#1e3a8a">WinDialog</text>
+            <rect x="380" y="182" width="160" height="38" rx="8" fill="#FECCED" stroke="#D53196" stroke-width="1.5"/>
+            <text x="460" y="203.25" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#831843">MacDialog</text>
+        </svg>
+    </div>
+    <div class="intro">
+        <p>Or:</p>
+    </div>
+    <div class="svg-diagram">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 266" style="width:100%;max-width:540px;height:auto" role="img" aria-label="AWS and Azure columns of storage, queue and database">
+            <defs><marker id="af15-a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#64748b"/></marker><marker id="af15-l" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#a3afbd"/></marker></defs>
+            <rect x="158" y="10" width="184" height="220" rx="14" fill="#DCFCE7" fill-opacity="0.55" stroke="#16A34A" stroke-width="1.6"/>
+            <text x="250" y="248" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12" font-weight="700" fill="#14532d">The factory picks one column</text>
+            <rect x="170" y="16" width="160" height="38" rx="8" fill="#FFE6C7" stroke="#E8890C" stroke-width="1.5"/>
+            <text x="250" y="37.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#7c3f00">AWS</text>
+            <rect x="380" y="16" width="160" height="38" rx="8" fill="#CDEBF9" stroke="#0C7CBF" stroke-width="1.5"/>
+            <text x="460" y="37.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#0b3d5c">Azure</text>
+            <text x="24" y="93" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="700" fill="#334155">Storage</text>
+            <rect x="170" y="70" width="160" height="38" rx="8" fill="#FFE6C7" stroke="#E8890C" stroke-width="1.5"/>
+            <text x="250" y="91.25" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#7c3f00">S3</text>
+            <rect x="380" y="70" width="160" height="38" rx="8" fill="#CDEBF9" stroke="#0C7CBF" stroke-width="1.5"/>
+            <text x="460" y="91.25" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#0b3d5c">Blob</text>
+            <text x="24" y="149" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="700" fill="#334155">Queue</text>
+            <rect x="170" y="126" width="160" height="38" rx="8" fill="#FFE6C7" stroke="#E8890C" stroke-width="1.5"/>
+            <text x="250" y="147.25" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#7c3f00">SQS</text>
+            <rect x="380" y="126" width="160" height="38" rx="8" fill="#CDEBF9" stroke="#0C7CBF" stroke-width="1.5"/>
+            <text x="460" y="147.25" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#0b3d5c">Service Bus</text>
+            <text x="24" y="205" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="700" fill="#334155">Database</text>
+            <rect x="170" y="182" width="160" height="38" rx="8" fill="#FFE6C7" stroke="#E8890C" stroke-width="1.5"/>
+            <text x="250" y="203.25" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#7c3f00">DynamoDB</text>
+            <rect x="380" y="182" width="160" height="38" rx="8" fill="#CDEBF9" stroke="#0C7CBF" stroke-width="1.5"/>
+            <text x="460" y="203.25" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#0b3d5c">Cosmos DB</text>
+        </svg>
+    </div>
+    <div class="callout callout-note"><p>The Abstract Factory chooses the <strong>column</strong>, not the individual cell. That is probably the easiest way to remember the pattern.</p></div>
+
+    <div class="subheading">When NOT to use Abstract Factory</div>
+    <div class="intro">
+        <p>Don't use it just because you're creating objects. For example, this probably doesn't justify Abstract Factory:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">User</span> user = <span class="code-keyword">new</span> <span class="code-class">User</span>();
+<span class="code-class">Order</span> order = <span class="code-keyword">new</span> <span class="code-class">Order</span>();
+<span class="code-class">Product</span> product = <span class="code-keyword">new</span> <span class="code-class">Product</span>();</code></pre></div>
+    <div class="intro">
+        <p>Those classes don't form interchangeable families. Abstract Factory makes sense when there is something like this, and the families can be switched:</p>
+    </div>
+    <div class="svg-diagram">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 236" style="width:100%;max-width:540px;height:auto" role="img" aria-label="Two interchangeable families, each with three products">
+            <defs><marker id="af16-a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#64748b"/></marker><marker id="af16-l" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#a3afbd"/></marker></defs>
+            <rect x="30" y="12" width="200" height="212" rx="12" fill="#D6E2FA" fill-opacity="0.35" stroke="#326CE5" stroke-width="1.4" stroke-dasharray="6 5"/>
+            <text x="44" y="34" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12" font-weight="700" letter-spacing="0.6" fill="#1e3a8a">FAMILY A</text>
+            <rect x="370" y="12" width="200" height="212" rx="12" fill="#FECCED" fill-opacity="0.35" stroke="#D53196" stroke-width="1.4" stroke-dasharray="6 5"/>
+            <text x="384" y="34" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12" font-weight="700" letter-spacing="0.6" fill="#831843">FAMILY B</text>
+            <path d="M246 118 H354" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af16-a)"/>
+            <path d="M354 130 H246" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af16-a)"/>
+            <rect x="50" y="44" width="160" height="42" rx="8" fill="#D6E2FA" stroke="#326CE5" stroke-width="1.5"/>
+            <text x="130" y="67.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#1e3a8a">ProductA1</text>
+            <rect x="50" y="102" width="160" height="42" rx="8" fill="#D6E2FA" stroke="#326CE5" stroke-width="1.5"/>
+            <text x="130" y="125.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#1e3a8a">ProductA2</text>
+            <rect x="50" y="160" width="160" height="42" rx="8" fill="#D6E2FA" stroke="#326CE5" stroke-width="1.5"/>
+            <text x="130" y="183.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#1e3a8a">ProductA3</text>
+            <rect x="390" y="44" width="160" height="42" rx="8" fill="#FECCED" stroke="#D53196" stroke-width="1.5"/>
+            <text x="470" y="67.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#831843">ProductB1</text>
+            <rect x="390" y="102" width="160" height="42" rx="8" fill="#FECCED" stroke="#D53196" stroke-width="1.5"/>
+            <text x="470" y="125.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#831843">ProductB2</text>
+            <rect x="390" y="160" width="160" height="42" rx="8" fill="#FECCED" stroke="#D53196" stroke-width="1.5"/>
+            <text x="470" y="183.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#831843">ProductB3</text>
+            <text x="300" y="108" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="11.5" font-weight="700" fill="#64748b">switch</text>
+        </svg>
+    </div>
+    <div class="intro">
+        <p>If you only need one abstraction with implementation A and implementation B, then a simple factory, Factory Method, dependency injection, or even normal construction may be enough.</p>
+    </div>
+
+    <div class="subheading">Advantages</div>
+    <div class="intro">
+        <p>Abstract Factory gives you several benefits:</p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>Loose coupling</strong> &mdash; client code depends on interfaces rather than concrete classes.</li>
+        <li><strong>Family consistency</strong> &mdash; related objects can come from the same implementation family.</li>
+        <li><strong>Easy family switching</strong> &mdash; changing <code>new AWSCloudFactory()</code> to <code>new AzureCloudFactory()</code> can switch the entire infrastructure family.</li>
+        <li><strong>Centralized object creation</strong> &mdash; creation logic doesn't spread throughout business code.</li>
+        <li><strong>Supports dependency inversion</strong> &mdash; high-level code depends on abstractions.</li>
+        <li><strong>Adding new families is relatively easy</strong> &mdash; you can introduce another concrete factory without modifying most client code.</li>
+    </ul></div>
+
+    <div class="subheading">Disadvantages</div>
+    <div class="intro">
+        <p>There are also costs. The pattern introduces many interfaces and classes:</p>
+    </div>
+    <div class="svg-diagram">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 236" style="width:100%;max-width:700px;height:auto" role="img" aria-label="The pattern adds nine types for two products in two families">
+            <defs><marker id="af17-a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#64748b"/></marker><marker id="af17-l" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#a3afbd"/></marker></defs>
+            <rect x="14" y="12" width="232" height="212" rx="12" fill="#F1F4F8" fill-opacity="0.35" stroke="#94A3B8" stroke-width="1.4" stroke-dasharray="6 5"/>
+            <text x="28" y="34" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12" font-weight="700" letter-spacing="0.6" fill="#334155">FACTORIES</text>
+            <rect x="264" y="12" width="232" height="212" rx="12" fill="#F1F4F8" fill-opacity="0.35" stroke="#94A3B8" stroke-width="1.4" stroke-dasharray="6 5"/>
+            <text x="278" y="34" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12" font-weight="700" letter-spacing="0.6" fill="#334155">BUTTONS</text>
+            <rect x="514" y="12" width="232" height="212" rx="12" fill="#F1F4F8" fill-opacity="0.35" stroke="#94A3B8" stroke-width="1.4" stroke-dasharray="6 5"/>
+            <text x="528" y="34" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12" font-weight="700" letter-spacing="0.6" fill="#334155">CHECKBOXES</text>
+            <rect x="32" y="44" width="196" height="42" rx="8" fill="#CCEAD7" stroke="#009639" stroke-width="1.5"/>
+            <text x="130" y="67.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#14532d">GUIFactory</text>
+            <rect x="32" y="102" width="196" height="42" rx="8" fill="#D6E2FA" stroke="#326CE5" stroke-width="1.5"/>
+            <text x="130" y="125.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#1e3a8a">WindowsGUIFactory</text>
+            <rect x="32" y="160" width="196" height="42" rx="8" fill="#FECCED" stroke="#D53196" stroke-width="1.5"/>
+            <text x="130" y="183.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#831843">MacGUIFactory</text>
+            <rect x="282" y="44" width="196" height="42" rx="8" fill="#EDE7FB" stroke="#7C4DDB" stroke-width="1.5"/>
+            <text x="380" y="67.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#3b1f80">Button</text>
+            <rect x="282" y="102" width="196" height="42" rx="8" fill="#D6E2FA" stroke="#326CE5" stroke-width="1.5"/>
+            <text x="380" y="125.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#1e3a8a">WindowsButton</text>
+            <rect x="282" y="160" width="196" height="42" rx="8" fill="#FECCED" stroke="#D53196" stroke-width="1.5"/>
+            <text x="380" y="183.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#831843">MacButton</text>
+            <rect x="532" y="44" width="196" height="42" rx="8" fill="#EDE7FB" stroke="#7C4DDB" stroke-width="1.5"/>
+            <text x="630" y="67.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#3b1f80">Checkbox</text>
+            <rect x="532" y="102" width="196" height="42" rx="8" fill="#D6E2FA" stroke="#326CE5" stroke-width="1.5"/>
+            <text x="630" y="125.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#1e3a8a">WindowsCheckbox</text>
+            <rect x="532" y="160" width="196" height="42" rx="8" fill="#FECCED" stroke="#D53196" stroke-width="1.5"/>
+            <text x="630" y="183.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#831843">MacCheckbox</text>
+        </svg>
+    </div>
+    <div class="intro">
+        <p>For a small application this could be unnecessary complexity. Also, as discussed earlier, a new family is easy but a new product type is harder, because adding <code>Slider createSlider();</code> requires changing every factory implementation.</p>
+    </div>
+
+    <div class="subheading">Complete Java example</div>
+    <div class="intro">
+        <p>Here is the basic pattern in one place:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">interface</span> <span class="code-class">Button</span> {
+    <span class="code-keyword">void</span> render();
+}
+
+<span class="code-keyword">interface</span> <span class="code-class">Checkbox</span> {
+    <span class="code-keyword">void</span> render();
+}
+
+<span class="code-comment"># Windows products</span>
+
+<span class="code-keyword">class</span> <span class="code-class">WindowsButton</span> <span class="code-keyword">implements</span> <span class="code-class">Button</span> {
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> render() {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Windows Button"</span>);
+    }
+}
+
+<span class="code-keyword">class</span> <span class="code-class">WindowsCheckbox</span> <span class="code-keyword">implements</span> <span class="code-class">Checkbox</span> {
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> render() {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Windows Checkbox"</span>);
+    }
+}
+
+<span class="code-comment"># Mac products</span>
+
+<span class="code-keyword">class</span> <span class="code-class">MacButton</span> <span class="code-keyword">implements</span> <span class="code-class">Button</span> {
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> render() {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Mac Button"</span>);
+    }
+}
+
+<span class="code-keyword">class</span> <span class="code-class">MacCheckbox</span> <span class="code-keyword">implements</span> <span class="code-class">Checkbox</span> {
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> render() {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Mac Checkbox"</span>);
+    }
+}
+
+<span class="code-comment"># Abstract Factory</span>
+
+<span class="code-keyword">interface</span> <span class="code-class">GUIFactory</span> {
+
+    <span class="code-class">Button</span> createButton();
+
     <span class="code-class">Checkbox</span> createCheckbox();
 }
 
-<span class="code-keyword">public class</span> <span class="code-class">WinFactory</span> <span class="code-keyword">implements</span> <span class="code-class">GUIFactory</span> {
-    <span class="code-keyword">public</span> <span class="code-class">Button</span> createButton()     { <span class="code-keyword">return new</span> <span class="code-class">WinButton</span>(); }
-    <span class="code-keyword">public</span> <span class="code-class">Checkbox</span> createCheckbox() { <span class="code-keyword">return new</span> <span class="code-class">WinCheckbox</span>(); }
+<span class="code-comment"># Concrete Factories</span>
+
+<span class="code-keyword">class</span> <span class="code-class">WindowsGUIFactory</span> <span class="code-keyword">implements</span> <span class="code-class">GUIFactory</span> {
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">Button</span> createButton() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">WindowsButton</span>();
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">Checkbox</span> createCheckbox() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">WindowsCheckbox</span>();
+    }
 }
 
-<span class="code-keyword">void</span> main() {
-    <span class="code-class">GUIFactory</span> factory = <span class="code-keyword">new</span> <span class="code-class">WinFactory</span>();
-    factory.createButton().paint();
-    factory.createCheckbox().paint();
-}</code></pre>
-            </div>
+<span class="code-keyword">class</span> <span class="code-class">MacGUIFactory</span> <span class="code-keyword">implements</span> <span class="code-class">GUIFactory</span> {
 
-            <div class="code-explanation">
-                <div class="code-explanation-title">How the Abstract Factory works</div>
-                <p><code>Button</code> and <code>Checkbox</code> are abstract products of one family.<br><br>
-                    <code>GUIFactory</code> declares creation methods for the whole family.<br><br>
-                    <code>WinFactory</code> produces matching Windows-style widgets that belong together.<br><br>
-                    The client uses only the factory and product interfaces; swapping to another factory changes the entire look.</p>
-            </div>
-        </div>
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">Button</span> createButton() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">MacButton</span>();
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">Checkbox</span> createCheckbox() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">MacCheckbox</span>();
+    }
+}
+
+<span class="code-comment"># Client</span>
+
+<span class="code-keyword">class</span> <span class="code-class">Application</span> {
+
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">Button</span> button;
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">Checkbox</span> checkbox;
+
+    <span class="code-keyword">public</span> <span class="code-class">Application</span>(<span class="code-class">GUIFactory</span> factory) {
+
+        <span class="code-keyword">this</span>.button = factory.createButton();
+        <span class="code-keyword">this</span>.checkbox = factory.createCheckbox();
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> render() {
+
+        button.render();
+        checkbox.render();
+    }
+}
+
+<span class="code-comment"># Main</span>
+
+<span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+
+    <span class="code-class">GUIFactory</span> factory = <span class="code-keyword">new</span> <span class="code-class">WindowsGUIFactory</span>();
+
+    <span class="code-class">Application</span> application = <span class="code-keyword">new</span> <span class="code-class">Application</span>(factory);
+
+    application.render();
+}</code></pre></div>
+
+    <div class="subheading">Final mental model</div>
+    <div class="intro">
+        <p>Remember Abstract Factory like this:</p>
+    </div>
+    <div class="svg-diagram">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 318" style="width:100%;max-width:660px;height:auto" role="img" aria-label="A factory defines product types A, B and C; each factory family supplies its own version of every type">
+            <defs><marker id="af18-a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#64748b"/></marker><marker id="af18-l" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#a3afbd"/></marker></defs>
+            <path d="M430 58 V79 H260 V98" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af18-a)"/>
+            <path d="M430 58 V79 H430 V98" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af18-a)"/>
+            <path d="M430 58 V79 H600 V98" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af18-a)"/>
+            <path d="M260 144 V194" fill="none" stroke="#a3afbd" stroke-width="1.6" stroke-dasharray="5 4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af18-l)"/>
+            <path d="M430 144 V194" fill="none" stroke="#a3afbd" stroke-width="1.6" stroke-dasharray="5 4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af18-l)"/>
+            <path d="M600 144 V194" fill="none" stroke="#a3afbd" stroke-width="1.6" stroke-dasharray="5 4" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af18-l)"/>
+            <path d="M167 218 H210" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af18-a)"/>
+            <path d="M167 280 H210" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af18-a)"/>
+            <rect x="345" y="12" width="170" height="46" rx="8" fill="#CCEAD7" stroke="#009639" stroke-width="1.5"/>
+            <text x="430" y="29" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#14532d">Factory</text>
+            <text x="430" y="45" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="11" fill="#009639">abstract factory</text>
+            <rect x="190" y="100" width="140" height="44" rx="8" fill="#EDE7FB" stroke="#7C4DDB" stroke-width="1.5"/>
+            <text x="260" y="124.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#3b1f80">Product A</text>
+            <rect x="360" y="100" width="140" height="44" rx="8" fill="#EDE7FB" stroke="#7C4DDB" stroke-width="1.5"/>
+            <text x="430" y="124.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#3b1f80">Product B</text>
+            <rect x="530" y="100" width="140" height="44" rx="8" fill="#EDE7FB" stroke="#7C4DDB" stroke-width="1.5"/>
+            <text x="600" y="124.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#3b1f80">Product C</text>
+            <rect x="17" y="196" width="150" height="44" rx="8" fill="#D6E2FA" stroke="#326CE5" stroke-width="1.5"/>
+            <text x="92" y="220.25" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#1e3a8a">Factory Family 1</text>
+            <rect x="212" y="196" width="96" height="44" rx="8" fill="#D6E2FA" stroke="#326CE5" stroke-width="1.5"/>
+            <text x="260" y="220.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#1e3a8a">A1</text>
+            <rect x="382" y="196" width="96" height="44" rx="8" fill="#D6E2FA" stroke="#326CE5" stroke-width="1.5"/>
+            <text x="430" y="220.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#1e3a8a">B1</text>
+            <rect x="552" y="196" width="96" height="44" rx="8" fill="#D6E2FA" stroke="#326CE5" stroke-width="1.5"/>
+            <text x="600" y="220.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#1e3a8a">C1</text>
+            <rect x="17" y="258" width="150" height="44" rx="8" fill="#FECCED" stroke="#D53196" stroke-width="1.5"/>
+            <text x="92" y="282.25" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#831843">Factory Family 2</text>
+            <rect x="212" y="258" width="96" height="44" rx="8" fill="#FECCED" stroke="#D53196" stroke-width="1.5"/>
+            <text x="260" y="282.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#831843">A2</text>
+            <rect x="382" y="258" width="96" height="44" rx="8" fill="#FECCED" stroke="#D53196" stroke-width="1.5"/>
+            <text x="430" y="282.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#831843">B2</text>
+            <rect x="552" y="258" width="96" height="44" rx="8" fill="#FECCED" stroke="#D53196" stroke-width="1.5"/>
+            <text x="600" y="282.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#831843">C2</text>
+        </svg>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table cmp-teal">
+            <thead><tr><th>Pattern</th><th>Question it asks</th></tr></thead>
+            <tbody>
+                <tr><td>Factory Method</td><td>Which concrete implementation of this product should I create?</td></tr>
+                <tr><td>Abstract Factory</td><td>Which family of related products should my application use?</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="callout callout-note"><p>The strongest signal for Abstract Factory is this requirement: <strong>I have multiple related product types, and I want to switch all of their implementations together as one family.</strong></p></div>
+    <div class="svg-diagram">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 148" style="width:100%;max-width:700px;height:auto" role="img" aria-label="Windows supplies WindowsButton, WindowsMenu and WindowsDialog; Mac supplies the Mac versions">
+            <defs><marker id="af19-a" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#64748b"/></marker><marker id="af19-l" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#a3afbd"/></marker></defs>
+            <path d="M130 39 H176" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af19-a)"/>
+            <path d="M130 109 H176" fill="none" stroke="#64748b" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#af19-a)"/>
+            <rect x="10" y="14" width="120" height="50" rx="8" fill="#D6E2FA" stroke="#326CE5" stroke-width="1.5"/>
+            <text x="70" y="33" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#1e3a8a">Windows</text>
+            <text x="70" y="49" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="11" fill="#326CE5">family</text>
+            <rect x="188" y="18" width="164" height="42" rx="8" fill="#D6E2FA" stroke="#326CE5" stroke-width="1.5"/>
+            <text x="270" y="41.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#1e3a8a">WindowsButton</text>
+            <rect x="368" y="18" width="164" height="42" rx="8" fill="#D6E2FA" stroke="#326CE5" stroke-width="1.5"/>
+            <text x="450" y="41.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#1e3a8a">WindowsMenu</text>
+            <text x="360" y="44" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="18" font-weight="700" fill="#94a3b8">+</text>
+            <rect x="548" y="18" width="164" height="42" rx="8" fill="#D6E2FA" stroke="#326CE5" stroke-width="1.5"/>
+            <text x="630" y="41.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#1e3a8a">WindowsDialog</text>
+            <text x="540" y="44" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="18" font-weight="700" fill="#94a3b8">+</text>
+            <rect x="10" y="84" width="120" height="50" rx="8" fill="#FECCED" stroke="#D53196" stroke-width="1.5"/>
+            <text x="70" y="103" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#831843">Mac</text>
+            <text x="70" y="119" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="11" fill="#D53196">family</text>
+            <rect x="188" y="88" width="164" height="42" rx="8" fill="#FECCED" stroke="#D53196" stroke-width="1.5"/>
+            <text x="270" y="111.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#831843">MacButton</text>
+            <rect x="368" y="88" width="164" height="42" rx="8" fill="#FECCED" stroke="#D53196" stroke-width="1.5"/>
+            <text x="450" y="111.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#831843">MacMenu</text>
+            <text x="360" y="114" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="18" font-weight="700" fill="#94a3b8">+</text>
+            <rect x="548" y="88" width="164" height="42" rx="8" fill="#FECCED" stroke="#D53196" stroke-width="1.5"/>
+            <text x="630" y="111.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#831843">MacDialog</text>
+            <text x="540" y="114" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="18" font-weight="700" fill="#94a3b8">+</text>
+        </svg>
+    </div>
+    <div class="intro">
+        <p>That is the core purpose of the Abstract Factory pattern.</p>
     </div>
 </div>
 </body>

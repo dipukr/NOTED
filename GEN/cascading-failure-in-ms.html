@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cascading Failure in Microservices</title>
+
+<style>
+  :root{
+    --paper:#f4ecd8;
+    --paper-edge:#e7dcc0;
+    --card:#fbf6e9;
+    --card2:#f1e8d0;
+    --ink:#3a3326;
+    --ink-soft:#6b5f48;
+    --muted:#8a7d62;
+    --accent:#9a3b2e;
+    --accent2:#1f6f5c;
+    --gold:#b9892f;
+    --border:#d9cba8;
+    --code-bg:#f8f3e6;
+    --code-text:#3a3326;
+    --shadow:rgba(74,61,38,.14);
+  }
+
+  *{box-sizing:border-box}
+
+  html, body{
+    max-width:100%;
+    overflow-x:hidden;
+  }
+
+  body{
+    margin:0;
+    font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+    background:var(--paper);
+    background-image:radial-gradient(circle at 50% -10%,#fbf6e9 0%,var(--paper) 45%,var(--paper-edge) 100%);
+    background-attachment:fixed;
+    color:var(--ink);
+    line-height:1.65;
+    font-size:16px;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .page{
+    max-width:1000px;
+    margin:0 auto;
+    padding:0 20px 90px;
+  }
+
+  .hero{
+    position:relative;
+    text-align:center;
+    width:100vw;
+    margin-left:calc(50% - 50vw);
+    margin-right:calc(50% - 50vw);
+    margin-bottom:26px;
+    padding:54px 20px 46px;
+    background:linear-gradient(180deg,#fbf6e9,#f0e6cc);
+    border-bottom:1px solid var(--border);
+    box-shadow:0 1px 0 #fff inset;
+    border-radius:0;
+  }
+
+  .hero::after{
+    content:"";
+    position:absolute;
+    left:50%;
+    bottom:26px;
+    transform:translateX(-50%);
+    width:90px;
+    height:3px;
+    border-radius:3px;
+    background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  }
+
+  .hero h1{
+    margin:0;
+    font-size:2.6rem;
+    letter-spacing:.5px;
+    color:var(--accent);
+    font-weight:600;
+    text-shadow:0 1px 0 #fff;
+  }
+
+  .hero p{
+    margin:12px auto 0;
+    max-width:760px;
+    color:var(--ink-soft);
+    font-style:italic;
+    font-size:1.05rem;
+  }
+
+  .pill{
+    display:inline-block;
+    margin-bottom:10px;
+    color:var(--gold);
+    font-size:.82rem;
+    font-weight:600;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+  }
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:26px 30px;
+    margin:0 0 22px;
+    box-shadow:0 4px 18px var(--shadow);
+    position:relative;
+  }
+
+  .hero + .card{
+    margin-top:22px;
+  }
+
+  .card + .card{
+    margin-top:0;
+  }
+
+  h2{
+    margin-top:0;
+    color:var(--accent);
+    font-size:1.5rem;
+    font-weight:600;
+    border-bottom:2px solid var(--border);
+    padding-bottom:12px;
+  }
+
+  h3{
+    color:var(--accent2);
+    margin:24px 0 8px;
+    font-size:1.12rem;
+    font-weight:600;
+  }
+
+  p{margin:10px 0}
+
+  pre{
+    background:var(--code-bg);
+    color:var(--code-text);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:18px 20px;
+    overflow-x:auto;
+    margin:14px 0;
+    box-shadow:0 2px 8px rgba(74,61,38,.08);
+    white-space:pre;
+    line-height:1.5;
+    font-family:"SF Mono","Fira Code",Consolas,"Roboto Mono",monospace;
+    font-size:12px;
+  }
+
+  code{
+    font-family:"SF Mono","Fira Code",Consolas,"Roboto Mono",monospace;
+    font-size:.92em;
+  }
+
+  :not(pre)>code{
+    background:#efe4c9;
+    padding:2px 7px;
+    border-radius:5px;
+    color:#8a3322;
+    border:1px solid #e3d4ac;
+  }
+
+  .callout{
+    border-left:4px solid var(--gold);
+    background:#f7efd9;
+    padding:15px 18px;
+    border-radius:7px;
+    margin:18px 0;
+  }
+
+  .callout.danger{
+    border-left-color:var(--accent);
+    background:#f8e9e4;
+  }
+
+  .callout.success{
+    border-left-color:var(--accent2);
+    background:#eaf3ee;
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+    gap:14px;
+  }
+
+  .mini{
+    background:#f8f1df;
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:15px 16px;
+    box-shadow:0 1px 0 #fff inset;
+  }
+
+  .mini strong{
+    display:block;
+    color:var(--accent2);
+    margin-bottom:5px;
+  }
+
+  ul{padding-left:22px}
+  li{margin:4px 0}
+
+  .footer{
+    text-align:center;
+    color:var(--muted);
+    font-size:.82rem;
+    padding:34px 20px;
+    font-style:italic;
+  }
+
+  @media(max-width:680px){
+    .card{padding:22px}
+    .hero h1{font-size:2rem}
+    .page{padding-left:14px;padding-right:14px}
+  }
+</style>
+
+</head>
+<body>
+
+<div class="page">
+  <section class="hero">
+    <div class="pill">Microservices Resilience Note</div>
+    <h1>Cascading Failure in Microservices</h1>
+    <p>How a local slowdown or failure propagates through dependent services, why retries can amplify it, and how resilience patterns contain the blast radius.</p>
+  </section>
+
+  <section class="card">
+    <h2>What is a Cascading Failure?</h2>
+    <p>A <strong>cascading failure in microservices</strong> happens when a failure or slowdown in one service causes dependent services to fail or slow down, and that impact keeps spreading through the system.</p>
+    <p>Suppose you have:</p>
+    <pre>Client
+  |
+  v
+Order Service
+  |
+  +----&gt; Payment Service
+  |
+  +----&gt; Inventory Service
+  |
+  +----&gt; Shipping Service</pre>
+    <p>Now imagine <code>Payment Service</code> becomes slow. <br> <code>Order Service</code> calls it and waits. While waiting, its request threads remain occupied.</p>
+    <pre>Payment Service slow
+        ↓
+Order Service threads start waiting
+        ↓
+Order Service thread pool fills
+        ↓
+New Order requests cannot be processed
+        ↓
+Clients retry
+        ↓
+More requests hit Order Service
+        ↓
+Even more calls go to Payment Service
+        ↓
+Payment Service becomes even more overloaded</pre>
+    <div class="callout"><strong>That is a cascading failure.</strong></div>
+  </section>
+
+  <section class="card">
+    <h2>A More Realistic Example</h2>
+    <p>Imagine these services:</p>
+    <pre>API Gateway
+     |
+     v
+Order Service
+     |
+     +------&gt; User Service
+     |
+     +------&gt; Inventory Service
+     |
+     +------&gt; Payment Service
+                     |
+                     v
+                  Bank API</pre>
+    <p>Normally:</p>
+    <pre>Order Service
+    |
+    | 100 ms
+    v
+Payment Service
+    |
+    | 200 ms
+    v
+Bank API</pre>
+    <p>Total request might finish in about:</p>
+    <pre>~300-500 ms</pre>
+    <p>But suddenly the external Bank API starts taking <strong>20 seconds</strong>.</p>
+    <p>Payment Service threads now look like this:</p>
+    <pre>Thread 1 ───── waiting for Bank API
+Thread 2 ───── waiting for Bank API
+Thread 3 ───── waiting for Bank API
+Thread 4 ───── waiting for Bank API
+...
+Thread 200 ─── waiting for Bank API</pre>
+    <p>Eventually:</p>
+    <pre>Payment Service thread pool = exhausted</pre>
+    <p>Now Order Service calls Payment Service and waits too.</p>
+    <pre>Bank API slow
+     ↓
+Payment Service overloaded
+     ↓
+Order Service requests blocked
+     ↓
+Order Service thread pool exhausted
+     ↓
+API Gateway requests wait
+     ↓
+Gateway connections increase
+     ↓
+Clients timeout
+     ↓
+Clients retry
+     ↓
+Traffic increases further</pre>
+    <div class="callout danger">A single slow external dependency can therefore affect the <strong>entire platform</strong>.</div>
+  </section>
+
+  <section class="card">
+    <h2>The Dangerous Part: Retries</h2>
+    <p>Retries often make cascading failures much worse.</p>
+    <p>Suppose you normally receive:</p>
+    <pre>1000 requests/sec</pre>
+    <p>Payment Service starts timing out. Clients retry 3 times:</p>
+    <pre>Original traffic = 1000 req/sec
+
+Retry #1 = 1000
+Retry #2 = 1000
+Retry #3 = 1000</pre>
+    <p>Potential effective load:</p>
+    <pre>4000 requests/sec</pre>
+    <p>So the service is already unhealthy, and retries send <strong>even more traffic to it</strong>.</p>
+    <p>This is called a <strong>retry storm</strong>.</p>
+    <pre>Service slow
+   ↓
+Timeout
+   ↓
+Retry
+   ↓
+More traffic
+   ↓
+Service becomes slower
+   ↓
+More timeout
+   ↓
+More retries
+   ↓
+Collapse</pre>
+  </section>
+
+  <section class="card">
+    <h2>Why Cascading Failures Happen</h2>
+    <p>Several mechanisms commonly cause them.</p>
+
+    <h3>1. Long or Missing Timeouts</h3>
+    <p>Bad:</p>
+    <pre>paymentService.call();</pre>
+    <p>where the HTTP client effectively waits for a very long time.</p>
+    <p>One downstream slowdown then holds upstream resources.</p>
+    <p>Better:</p>
+    <pre>connection timeout = 500 ms
+request timeout = 2 sec</pre>
+    <p>Fail quickly rather than hold resources indefinitely.</p>
+
+    <h3>2. Shared Thread Pools</h3>
+    <p>Suppose Order Service has:</p>
+    <pre>Tomcat worker threads = 200</pre>
+    <p>Every request calls Payment Service synchronously.</p>
+    <p>If Payment takes 30 seconds:</p>
+    <pre>200 requests
+      ↓
+200 threads blocked
+      ↓
+thread pool exhausted</pre>
+    <p>Now even endpoints unrelated to payments may fail.</p>
+    <p>For example:</p>
+    <pre>GET /health
+GET /orders
+GET /customers</pre>
+    <p>can become unavailable because the same thread pool is exhausted.</p>
+
+    <h3>3. Unlimited Queues</h3>
+    <p>Sometimes services try to protect themselves by queueing work.</p>
+    <p>But an unlimited queue often just delays the crash.</p>
+    <pre>Incoming requests
+       ↓
+Queue
+       ↓
+Service</pre>
+    <p>If arrival rate is:</p>
+    <pre>10,000 requests/sec</pre>
+    <p>but processing capacity is:</p>
+    <pre>5,000 requests/sec</pre>
+    <p>the queue grows by:</p>
+    <pre>5,000 requests/sec</pre>
+    <p>Eventually:</p>
+    <pre>huge queue
+   ↓
+high memory usage
+   ↓
+GC pressure
+   ↓
+latency increases
+   ↓
+OOM</pre>
+    <p>Bounded queues are usually safer.</p>
+
+    <h3>4. Connection Pool Exhaustion</h3>
+    <p>Suppose:</p>
+    <pre>Order Service
+     ↓
+Database</pre>
+    <p>Database becomes slow.</p>
+    <p>Order Service has:</p>
+    <pre>DB connection pool = 50</pre>
+    <p>Soon:</p>
+    <pre>50 slow queries
+     ↓
+all 50 DB connections occupied
+     ↓
+new requests wait for connection
+     ↓
+application threads block
+     ↓
+thread pool fills</pre>
+    <p>A database slowdown therefore becomes an application outage.</p>
+
+    <h3>5. Synchronous Dependency Chains</h3>
+    <p>Consider:</p>
+    <pre>Service A
+   ↓
+Service B
+   ↓
+Service C
+   ↓
+Service D
+   ↓
+Database</pre>
+    <p>If D slows down:</p>
+    <pre>D slow
+↓
+C waits
+↓
+B waits
+↓
+A waits</pre>
+    <p>Long synchronous chains are particularly vulnerable.</p>
+  </section>
+
+  <section class="card">
+    <h2>How to Prevent Cascading Failures</h2>
+    <p>The most important resilience techniques are:</p>
+    <pre>Timeouts
+Circuit Breakers
+Bulkheads
+Rate Limiting
+Backpressure
+Retries with Backoff
+Load Shedding
+Caching
+Async Messaging
+Fallbacks</pre>
+    <p>These patterns work together.</p>
+
+    <h3>1. Timeouts</h3>
+    <p>Every remote call should generally have a bounded timeout.</p>
+    <p>For example:</p>
+    <pre>HttpClient client = HttpClient.newBuilder()
+        .connectTimeout(Duration.ofMillis(500))
+        .build();
+
+HttpRequest request = HttpRequest.newBuilder()
+        .uri(URI.create("http://payment-service/pay"))
+        .timeout(Duration.ofSeconds(2))
+        .build();</pre>
+    <p>Instead of:</p>
+    <pre>Order Service waits 30 seconds</pre>
+    <p>you prefer something like:</p>
+    <pre>Order Service waits max 2 seconds</pre>
+    <p>Then resources are released sooner.</p>
+
+    <h3>2. Circuit Breaker</h3>
+    <p>A circuit breaker stops repeatedly calling a failing dependency.</p>
+    <p>Think of an electrical circuit breaker.</p>
+    <p>Normal state:</p>
+    <pre>Order Service
+      |
+      v
+Payment Service
+
+Circuit = CLOSED</pre>
+    <p>Calls are allowed.</p>
+    <p>After repeated failures:</p>
+    <pre>Order Service
+      |
+      X
+Payment Service
+
+Circuit = OPEN</pre>
+    <p>Calls fail immediately.</p>
+    <p>Instead of:</p>
+    <pre>request
+   ↓
+wait 20 seconds
+   ↓
+timeout</pre>
+    <p>you get:</p>
+    <pre>request
+   ↓
+circuit open
+   ↓
+fail in 1 ms</pre>
+    <p>This protects both services.</p>
+    <p>With Resilience4j:</p>
+    <pre>@CircuitBreaker(
+    name = "paymentService",
+    fallbackMethod = "paymentFallback"
+)
+public PaymentResponse pay(Order order) {
+
+    return paymentClient.pay(order);
+}
+
+public PaymentResponse paymentFallback(
+        Order order,
+        Throwable throwable) {
+
+    return new PaymentResponse(
+        "PAYMENT_TEMPORARILY_UNAVAILABLE"
+    );
+}</pre>
+
+    <h3>3. Bulkhead Isolation</h3>
+    <p>Bulkheads come from ships.</p>
+    <p>A ship is divided into compartments:</p>
+    <pre>+---------+---------+---------+
+| Comp A  | Comp B  | Comp C  |
++---------+---------+---------+</pre>
+    <p>If one compartment floods, the others remain intact.</p>
+    <p>Apply the same idea to microservices.</p>
+    <p>Instead of:</p>
+    <pre>Shared thread pool
+      |
+      + Payment
+      + Inventory
+      + Shipping</pre>
+    <p>use separate limits:</p>
+    <pre>Payment pool   = 30 threads
+Inventory pool = 40 threads
+Shipping pool  = 30 threads</pre>
+    <p>If Payment gets stuck:</p>
+    <pre>Payment pool exhausted</pre>
+    <p>but:</p>
+    <pre>Inventory still works
+Shipping still works</pre>
+    <p>The failure is contained.</p>
+
+    <h3>4. Rate Limiting</h3>
+    <p>Prevent excessive traffic from reaching a struggling service.</p>
+    <p>For example:</p>
+    <pre>Payment Service capacity:
+
+2000 req/sec</pre>
+    <p>Set a limit around that level rather than allowing:</p>
+    <pre>10,000 req/sec</pre>
+    <p>during a traffic spike.</p>
+    <p>Conceptually:</p>
+    <pre>Requests
+   |
+   v
+Rate Limiter
+   |
+   +---- allowed ----&gt; Payment
+   |
+   +---- rejected ---&gt; 429 Too Many Requests</pre>
+    <p>Rejecting some traffic can protect the system from total collapse.</p>
+
+    <h3>5. Exponential Backoff</h3>
+    <p>Bad retry strategy:</p>
+    <pre>retry after 0 ms
+retry after 0 ms
+retry after 0 ms</pre>
+    <p>Better:</p>
+    <pre>attempt 1
+   ↓
+wait 100 ms
+
+attempt 2
+   ↓
+wait 200 ms
+
+attempt 3
+   ↓
+wait 400 ms
+
+attempt 4
+   ↓
+wait 800 ms</pre>
+    <p>Usually add <strong>jitter</strong> too:</p>
+    <pre>100 ms ± random
+200 ms ± random
+400 ms ± random</pre>
+    <p>Jitter prevents thousands of clients from retrying at exactly the same time.</p>
+
+    <h3>6. Backpressure</h3>
+    <p>Suppose:</p>
+    <pre>Producer = 10,000 events/sec
+Consumer = 2,000 events/sec</pre>
+    <p>Without backpressure:</p>
+    <pre>Producer
+   ↓↓↓↓↓↓↓↓↓↓↓↓↓
+Consumer</pre>
+    <p>the consumer becomes overwhelmed.</p>
+    <p>Backpressure means the consumer or infrastructure communicates:</p>
+    <pre>"Slow down. I cannot process that fast."</pre>
+    <p>This is especially important in reactive and streaming systems.</p>
+
+    <h3>7. Load Shedding</h3>
+    <p>Sometimes the correct behavior is simply:</p>
+    <div class="callout"><strong>Reject some work.</strong></div>
+    <p>Suppose CPU reaches 95%.</p>
+    <p>Instead of accepting everything:</p>
+    <pre>100% traffic
+    ↓
+service dies</pre>
+    <p>accept important traffic and reject less important work:</p>
+    <pre>Critical requests → process
+
+Low-priority requests → reject</pre>
+    <p>This is called <strong>load shedding</strong>.</p>
+    <p>A partial service is often better than a completely dead service.</p>
+
+    <h3>8. Use Asynchronous Communication Where Appropriate</h3>
+    <p>Instead of:</p>
+    <pre>Order
+  ↓ synchronous
+Email
+  ↓ synchronous
+Analytics
+  ↓ synchronous
+Notification</pre>
+    <p>you might use:</p>
+    <pre>Order Service
+      |
+      v
+    Kafka
+   /  |   \
+  v   v    v
+Email Analytics Notification</pre>
+    <p>Order creation no longer depends on all those consumers being immediately healthy.</p>
+    <p>If Email Service is down:</p>
+    <pre>Kafka retains events</pre>
+    <p>and Email Service catches up later.</p>
+    <p>This significantly reduces failure propagation.</p>
+  </section>
+
+  <section class="card">
+    <h2>Failure vs. Cascading Failure</h2>
+    <p>A simple failure:</p>
+    <pre>Payment Service crashes
+
+Only payment requests fail.</pre>
+    <p>Cascading failure:</p>
+    <pre>Payment Service crashes
+        ↓
+Order Service waits/retries
+        ↓
+Order Service overloaded
+        ↓
+API Gateway overloaded
+        ↓
+clients retry
+        ↓
+database overloaded
+        ↓
+entire platform unavailable</pre>
+    <div class="callout">The defining characteristic is: <strong>The failure spreads beyond the component that originally failed.</strong></div>
+  </section>
+
+  <section class="card">
+    <h2>A Robust Architecture Might Look Like This</h2>
+    <pre>                 Client
+                   |
+                   v
+              API Gateway
+                   |
+             Rate Limiter
+                   |
+                   v
+             Order Service
+              /         \
+             /           \
+            v             v
+      Inventory       Payment
+      Bulkhead        Bulkhead
+                         |
+                   Circuit Breaker
+                         |
+                       Timeout
+                         |
+                         v
+                      Bank API</pre>
+    <p>And asynchronous side effects:</p>
+    <pre>Order Service
+      |
+      v
+    Kafka
+   /  |   \
+  v   v    v
+Email Analytics Shipping</pre>
+    <p>Now if the Bank API fails:</p>
+    <pre>Bank fails
+   ↓
+Payment calls timeout
+   ↓
+Circuit breaker opens
+   ↓
+Payment failures are isolated
+   ↓
+Order service remains responsive
+   ↓
+Other services stay healthy</pre>
+    <p>That is the main goal of resilience engineering:</p>
+    <div class="callout success"><strong>Don't try to guarantee that nothing fails. Design the system so that failures remain contained.</strong></div>
+  </section>
+
+  <section class="card">
+    <h2>A Useful Mental Model</h2>
+    <pre>Timeout
+   prevents long waiting
+
+Circuit Breaker
+   prevents repeated calls to broken dependencies
+
+Bulkhead
+   prevents resource exhaustion from spreading
+
+Rate Limiter
+   prevents overload
+
+Backoff + Jitter
+   prevents retry storms
+
+Async Messaging
+   reduces synchronous dependency chains
+
+Load Shedding
+   protects the system under extreme load</pre>
+    <p>In microservices, a healthy architecture assumes that <strong>network calls will fail, services will slow down, databases will stall, and dependencies will sometimes disappear</strong>.</p>
+    <p>Cascading failure occurs when the architecture allows those local failures to consume shared resources and propagate outward.</p>
+  </section>
+
+  <div class="footer">Generated from the conversation as a standalone study note.</div>
+</div>
+</body>
+</html>
