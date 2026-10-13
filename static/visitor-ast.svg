@@ -1,0 +1,17 @@
+<svg width="360" height="210" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 210" role="img" aria-label="Expression tree for (2 + 3) * 4: a multiplication node with an addition node (2 and 3) on the left and the number 4 on the right">
+    <defs><marker id="vs2-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#555555"/></marker><marker id="vs2-l" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#9A9A9A"/></marker></defs>
+    <line x1="180" y1="56" x2="100" y2="82" stroke="#555555" stroke-width="1.5"/>
+    <line x1="180" y1="56" x2="260" y2="82" stroke="#555555" stroke-width="1.5"/>
+    <line x1="100" y1="126" x2="50" y2="152" stroke="#555555" stroke-width="1.5"/>
+    <line x1="100" y1="126" x2="150" y2="152" stroke="#555555" stroke-width="1.5"/>
+    <circle cx="180" cy="34" r="22" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="180" y="39" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="15" font-weight="600" fill="#222222">×</text>
+    <circle cx="100" cy="104" r="22" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="100" y="109" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="15" font-weight="600" fill="#222222">+</text>
+    <circle cx="260" cy="104" r="22" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="260" y="109" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="15" font-weight="600" fill="#222222">4</text>
+    <circle cx="50" cy="174" r="22" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="50" y="179" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="15" font-weight="600" fill="#222222">2</text>
+    <circle cx="150" cy="174" r="22" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="150" y="179" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="15" font-weight="600" fill="#222222">3</text>
+</svg>

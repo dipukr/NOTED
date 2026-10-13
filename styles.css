@@ -82,6 +82,55 @@ br {
 
 .intro li { margin: 2px 0; }
 
+/* numbered steps card: number + bold title, description indented beside a thin rail */
+.steps {
+    margin: 10px 0 18px;
+    padding: 16px 24px 6px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    counter-reset: step;
+}
+
+.steps .step {
+    position: relative;
+    padding-left: 30px;
+    counter-increment: step;
+}
+
+.steps .step-title {
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.steps .step-title::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    width: 14px;
+    text-align: center;
+    font-weight: 400;
+    color: #475569;
+}
+
+.steps .step-body {
+    position: relative;
+    margin: 6px 0 10px;
+    padding: 6px 0;
+    color: #374151;
+}
+
+.steps .step-body::before {
+    content: "";
+    position: absolute;
+    left: -24px;
+    top: 0;
+    bottom: 0;
+    border-left: 2px solid #e5e7eb;
+}
+
+.steps .step:last-child .step-body::before { display: none; }
+
 .cat-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -590,6 +639,15 @@ br {
 }
 
 .cmp .section-content { padding: 0; }
+.section.cmp { margin-bottom: 20px; }
+.intro + .section.cmp { margin-top: 12px; }
+
+/* many-column table: tighter cells and author-set column widths */
+.cmp-table.cmp-compact { table-layout: fixed; }
+.cmp-table.cmp-compact th,
+.cmp-table.cmp-compact td { padding: 10px 12px; }
+.cmp-table.cmp-compact td:first-child,
+.cmp-table.cmp-compact th:first-child { min-width: 0; white-space: normal; }
 
 .cmp-table.cmp-teal th {
     background: #e1f4f1;
@@ -686,7 +744,7 @@ br {
 .diagram-panel {
     background: #f1f7fb;
     border: 1px solid #dbe8f0;
-    border-radius: 10px;
+    border-radius: 6px;
     padding: 20px 18px;
 }
 
@@ -706,11 +764,17 @@ br {
 /* inline SVG diagram that sits in the text flow (no separator line) */
 .svg-diagram {
     margin: 14px 0 18px;
+    padding: 22px 18px;
     text-align: center;
+    background: #f7f8fa;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
 }
 
-.svg-diagram svg {
-    display: inline-block;
+.svg-diagram img {
+    display: block;
+    margin: 0 auto;
+    height: auto;
 }
 
 .callout {
@@ -746,7 +810,19 @@ br {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
     gap: 36px;
     align-items: start;
-    margin: 20px 0 8px;
+    margin: 14px 0 18px;           /* same spacing as a single .code-block */
+}
+
+/* grid items' margins never collapse with the grid's own, so drop the
+   outer margins of whatever sits at the top / bottom of each column */
+.scenario-layout > .code-block,
+.scenario-layout > div > :first-child {
+    margin-top: 0;
+}
+
+.scenario-layout > .code-block,
+.scenario-layout > div > :last-child {
+    margin-bottom: 0;
 }
 
 .scenario-title {
@@ -792,6 +868,25 @@ br {
 
 .scenario-layout-equal {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+/* side-by-side code blocks with only a narrow gap between them */
+.scenario-layout-tight {
+    gap: 10px;
+}
+
+/* columns stretch to the taller one; each column's code block fills its height */
+.scenario-layout-stretch {
+    align-items: stretch;
+}
+
+.scenario-layout-stretch > div {
+    display: flex;
+    flex-direction: column;
+}
+
+.scenario-layout-stretch > div > .code-block {
+    flex: 1;
 }
 
 @media (max-width: 800px) {
@@ -1019,4 +1114,12 @@ strong {
 
 .font-size-15 {
     font-size: 15px !important;
+}
+
+.font-size-16 {
+    font-size: 16px !important;
+}
+
+.font-size-17 {
+    font-size: 17px !important;
 }

@@ -1,0 +1,32 @@
+<svg width="640" height="560" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 560" role="img" aria-label="Client calls LoggingProductProxy, then CachingProductProxy; on a cache hit the cached result is returned, on a miss DatabaseProductService is queried and the result stored in the cache; the logging proxy records the response and the client receives the result">
+    <defs><marker id="px4-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#555555"/></marker><marker id="px4-l" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#9A9A9A"/></marker></defs>
+    <path d="M200 54 V82" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#px4-a)"/>
+    <path d="M200 128 V156" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#px4-a)"/>
+    <path d="M200 202 V230" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#px4-a)"/>
+    <path d="M200 304 V334" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#px4-a)"/>
+    <path d="M200 380 V408" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#px4-a)"/>
+    <path d="M280 268 H470 V408" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#px4-a)"/>
+    <path d="M300 432 H368" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#px4-a)"/>
+    <path d="M470 454 V482" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#px4-a)"/>
+    <path d="M370 506 H302" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#px4-a)"/>
+    <rect x="100" y="10" width="200" height="44" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="200" y="34.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Client</text>
+    <rect x="100" y="84" width="200" height="44" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="200" y="108.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">LoggingProductProxy</text>
+    <rect x="100" y="158" width="200" height="44" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="200" y="182.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">CachingProductProxy</text>
+    <polygon points="200,232 280,268 200,304 120,268" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="200" y="273" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Cache hit?</text>
+    <rect x="100" y="336" width="200" height="44" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="200" y="360.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">DatabaseProductService</text>
+    <rect x="100" y="410" width="200" height="44" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="200" y="434.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Store result in cache</text>
+    <text x="208" y="320" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="11" font-weight="400" fill="#555555" font-style="italic">No</text>
+    <rect x="370" y="410" width="200" height="44" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="470" y="434.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Return cached result</text>
+    <text x="320" y="261" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="11" font-weight="400" fill="#555555" font-style="italic">Yes</text>
+    <rect x="370" y="484" width="200" height="44" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="470" y="508" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12" font-weight="600" fill="#222222">Logging proxy records response</text>
+    <rect x="100" y="484" width="200" height="44" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="200" y="508.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Client receives result</text>
+</svg>

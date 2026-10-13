@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Observer Pattern</title>
+<title>Observer</title>
 <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
@@ -11,131 +11,594 @@
     <div class="title">Observer</div>
 
     <div class="intro">
+        <p>The <strong>Observer Pattern</strong> is a behavioral design pattern that defines a <strong>one-to-many dependency</strong> between objects, so that when one object (called the <strong>Subject</strong>) changes its state, all its dependent objects (called <strong>Observers</strong>) are automatically notified and can react to that change.</p>
+        <p>The Observer pattern establishes a loosely coupled relationship between the object that generates events and the objects that respond to those events.</p>
+        <p>It allows multiple objects to observe changes in another object without requiring the subject to know the concrete implementations of its observers.</p>
         <p>Observer is a behavioral design pattern that defines a one-to-many dependency between objects, where one object, called the Subject (or Publisher), maintains a collection of dependent objects called Observers (or Subscribers). Observers can subscribe to or unsubscribe from the Subject dynamically.</p>
         <p>Whenever the Subject's state changes or an important event occurs, the Subject automatically notifies all registered Observers, allowing each Observer to react or update itself accordingly. This promotes loose coupling because the Subject does not need to know the concrete implementations of its Observers - it only communicates with them through a common Observer interface.</p>
+        <p><strong>Key characteristics:</strong></p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>One-to-many relationship:</strong> A single subject can have multiple observers.</li>
+        <li><strong>Automatic notification:</strong> When the subject's state changes, its registered observers receive notifications.</li>
+        <li><strong>Loose coupling:</strong> The subject depends only on an observer interface, not on concrete observer classes.</li>
+        <li><strong>Dynamic subscription:</strong> Observers can be registered or unregistered at runtime.</li>
+        <li><strong>Independent reactions:</strong> Each observer can respond differently to the same event.</li>
+    </ul></div>
+    <div class="intro">
+        <p>The pattern is commonly used in event-driven programming, GUI frameworks, notification systems, stock market applications, and application event handling.</p>
     </div>
 
-    <div class="section when-use">
-        <div class="section-title">When to use</div>
-        <div class="section-content">
-            <ul>
-                <li>Use Observer when you want to automatically notify multiple objects of state changes.</li>
-                <li>Great for event-driven systems, GUIs, distributed messaging, and real-time updates.</li>
-                <li>Think of it as a push-based notification system for objects.</li>
-            </ul>
-        </div>
+    <div class="subheading">Real-World Example: E-Commerce Order Tracking</div>
+    <div class="intro">
+        <p>Imagine an e-commerce application where customers place orders.</p>
+        <p>Whenever an order's status changes, several independent components need to react:</p>
     </div>
-
-    <div class="section when-use">
-        <div class="section-title">Components</div>
-        <div class="section-content">
-            <ul>
-                <li><strong>Subject</strong> (interface) &ndash; contract for being observed: keeps the observer list and exposes subscribe|unsubscribe|notify.</li>
-                <li><strong>ConcreteSubject</strong> (class) &ndash; holds the real state and notifies every observer whenever that state changes.</li>
-                <li><strong>Observer</strong> (interface) &ndash; contract for listeners: declares the <code>update</code> method the subject calls.</li>
-                <li><strong>ConcreteObserver</strong> (class) &ndash; reacts to notifications, reading the subject's new state and updating itself.</li>
-            </ul>
-        </div>
+    <div class="intro"><ul>
+        <li><strong>Email Notification:</strong> Sends an email to the customer.</li>
+        <li><strong>Dashboard:</strong> Updates the order status displayed to the user.</li>
+        <li><strong>Audit Logger:</strong> Records the order status change.</li>
+        <li><strong>Analytics:</strong> Updates business metrics.</li>
+    </ul></div>
+    <div class="intro">
+        <p>Without the Observer pattern, the <code>Order</code> class might directly call each component.</p>
     </div>
-
-    <div class="subheading">Pros and Cons</div>
-    <div class="pc-grid">
-        <div class="pc-card pro">
-            <div class="pc-title">Loose Coupling</div>
-            <p>The subject and observers interact only through an interface, so neither depends on the other's concrete type.</p>
-        </div>
-        <div class="pc-card pro">
-            <div class="pc-title">Dynamic Subscription</div>
-            <p>Observers can subscribe and unsubscribe at runtime without changing the subject.</p>
-        </div>
-        <div class="pc-card pro">
-            <div class="pc-title">Open/Closed Principle</div>
-            <p>New observer types can be added without modifying the subject's code.</p>
-        </div>
-        <div class="pc-card pro">
-            <div class="pc-title">Broadcast Updates</div>
-            <p>A single state change notifies many observers automatically.</p>
-        </div>
-        <div class="pc-card con">
-            <div class="pc-title">Unpredictable Order</div>
-            <p>The order in which observers are notified is not guaranteed.</p>
-        </div>
-        <div class="pc-card con">
-            <div class="pc-title">Update Cascades</div>
-            <p>One change can trigger chains of updates that are hard to trace and can hurt performance.</p>
-        </div>
-        <div class="pc-card con">
-            <div class="pc-title">Memory Leaks</div>
-            <p>Observers that forget to unsubscribe stay referenced by the subject (the lapsed-listener problem).</p>
-        </div>
-        <div class="pc-card con">
-            <div class="pc-title">Harder Debugging</div>
-            <p>The indirect, push-based flow makes the control path harder to follow.</p>
-        </div>
-    </div>
-
-    <div class="section realworld">
-        <div class="section-title">Real-world example</div>
-        <div class="section-content"><ul>
-            <li><strong>Java util Observer/Observable</strong> &mdash; the legacy built-in subject and observer types (deprecated since Java 9).</li>
-            <li><strong>Java PropertyChangeListener</strong> &mdash; beans fire PropertyChangeEvents to registered listeners on property changes.</li>
-            <li><strong>Swing and AWT listeners</strong> &mdash; ActionListener and MouseListener are notified when UI events occur.</li>
-            <li><strong>Spring ApplicationEvent</strong> &mdash; ApplicationListener beans react when the context publishes events.</li>
-            <li><strong>RxJava and Reactor</strong> &mdash; Observable and Flux push emitted items to their subscribers.</li>
-            <li><strong>JavaScript addEventListener</strong> &mdash; DOM nodes notify all registered handlers when an event fires.</li>
-            <li><strong>Newsletter subscription</strong> &mdash; subscribers get every new issue automatically without asking each time.</li>
-        </ul></div>
-    </div>
-
-    <div class="section code-section">
-        <div class="code-layout code-layout-equal">
-            <div class="code-wrapper">
-<pre><code><span class="code-keyword">public interface</span> <span class="code-class">Observer</span> {
-    <span class="code-keyword">void</span> update(String news);
-}
-
-<span class="code-keyword">public interface</span> <span class="code-class">Subject</span> {
-    <span class="code-keyword">void</span> subscribe(Observer o);
-    <span class="code-keyword">void</span> unsubscribe(Observer o);
-    <span class="code-keyword">void</span> publish(String news);
-}
-
-<span class="code-keyword">public class</span> <span class="code-class">NewsAgency</span> <span class="code-keyword">implements</span> Subject {
-    <span class="code-keyword">private</span> List&lt;Observer&gt; observers = <span class="code-keyword">new</span> ArrayList&lt;&gt;();
-
-    <span class="code-keyword">public void</span> subscribe(Observer o) {observers.add(o);}
-    <span class="code-keyword">public void</span> unsubscribe(Observer o) {observers.remove(o);}
-
-    <span class="code-keyword">public void</span> publish(String news) {
-        <span class="code-keyword">for</span> (Observer o: observers)
-            o.update(news);
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Order</span> {
+    <span class="code-keyword">public void</span> updateStatus(<span class="code-class">String</span> status) {
+        <span class="code-keyword">this</span>.status = status;
+        emailService.sendEmail(status);
+        dashboardService.updateDashboard(status);
+        auditService.log(status);
+        analyticsService.track(status);
     }
-}
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Problems with this approach</strong></p>
+    </div>
+    <div class="intro"><ul>
+        <li>The <code>Order</code> class is tightly coupled to several services.</li>
+        <li>Adding a new notification mechanism requires modifying the <code>Order</code> class.</li>
+        <li>Removing or replacing a service also requires changing the <code>Order</code> implementation.</li>
+        <li>The <code>Order</code> class has multiple responsibilities instead of focusing on order management.</li>
+    </ul></div>
+    <div class="intro">
+        <p><strong>Solution using Observer</strong></p>
+        <p>Instead of invoking specific components, the <code>Order</code> class maintains a collection of objects implementing a common <code>OrderObserver</code> interface. Whenever its status changes, it notifies all registered observers.</p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/observer-order.svg" alt="When its status changes, the Order subject calls notify() on the Email, Dashboard and Audit observers, which send a notification, refresh the UI and record the change" style="width:100%;max-width:640px">
+    </div>
+    <div class="intro">
+        <p>Each observer implements the same interface but performs its own action.</p>
+        <p>Now <code>Order</code> class does not need to know whether an observer sends emails, updates a dashboard, or writes audit logs.</p>
+        <p>It simply announces that a change has occurred.</p>
+    </div>
 
-<span class="code-keyword">public class</span> <span class="code-class">Subscriber</span> <span class="code-keyword">implements</span> Observer {
-    <span class="code-keyword">private</span> String name;
-    <span class="code-keyword">public</span> Subscriber(String name) {<span class="code-keyword">this</span>.name = name;}
-    <span class="code-keyword">public void</span> update(String news) {
-        System.out.println(name + <span class="code-string">" received: "</span> + news);
+    <div class="subheading">Main Components of the Observer Pattern</div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Component</th><th>Responsibility</th></tr></thead>
+            <tbody>
+                <tr><td>Subject (Observable)</td><td>Maintains registered observers and notifies them about changes.</td></tr>
+                <tr><td>Observer</td><td>Defines a common interface for receiving notifications.</td></tr>
+                <tr><td>Concrete Subject</td><td>Stores application state and triggers notifications when it changes.</td></tr>
+                <tr><td>Concrete Observer</td><td>Implements the observer interface and defines its response to notifications.</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p><strong>How the pattern works</strong></p>
+    </div>
+    <div class="steps">
+        <div class="step"><div class="step-title">Registration</div><div class="step-body">Interested observers subscribe to the subject using a method such as <code>subscribe(observer)</code>.</div></div>
+        <div class="step"><div class="step-title">State change</div><div class="step-body">An operation changes the internal state of the subject.</div></div>
+        <div class="step"><div class="step-title">Notification</div><div class="step-body">The subject iterates through its registered observers and calls their notification method.</div></div>
+        <div class="step"><div class="step-title">Reaction</div><div class="step-body">Each observer performs its own action based on the event.</div></div>
+        <div class="step"><div class="step-title">Unsubscription</div><div class="step-body">An observer can stop receiving events by unregistering itself.</div></div>
+    </div>
+
+    <div class="subheading">Java Implementation: Order Notification System</div>
+    <div class="intro">
+        <p>We will implement the Observer pattern using an order tracking application.</p>
+        <p><strong>Define an order status</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">enum</span> <span class="code-class">OrderStatus</span> {
+    CREATED, CONFIRMED, SHIPPED, DELIVERED
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Define an event</strong></p>
+        <p>Rather than sending just the new status, we can create an event containing information about the change.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">OrderStatusChanged</span>(<span class="code-class">String</span> orderId, <span class="code-class">OrderStatus</span> oldStatus, <span class="code-class">OrderStatus</span> newStatus) {}</code></pre></div>
+    <div class="intro">
+        <p>For example, an event might contain:</p>
+    </div>
+    <div class="code-block"><pre><code>orderId   = ORD-101
+oldStatus = CONFIRMED
+newStatus = SHIPPED</code></pre></div>
+    <div class="intro">
+        <p>Passing an event object makes the Observer implementation more flexible because observers have access to the information needed to process the change.</p>
+        <p><strong>Create the Observer interface</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@FunctionalInterface</span>
+<span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">OrderObserver</span> {
+    <span class="code-keyword">void</span> onStatusChanged(<span class="code-class">OrderStatusChanged</span> event);
+}</code></pre></div>
+    <div class="intro">
+        <p>This interface defines the contract that every observer must implement.</p>
+        <p>The subject doesn't need to know what individual observers do.</p>
+        <p>It only needs to know that they implement <code>OrderObserver</code>.</p>
+        <p><strong>Create the Subject</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Order</span> {
+    <span class="code-keyword">private</span> <span class="code-class">String</span> id;
+    <span class="code-keyword">private</span> <span class="code-class">OrderStatus</span> status = <span class="code-class">OrderStatus</span>.CREATED;
+    <span class="code-keyword">private</span> <span class="code-class">CopyOnWriteArrayList</span>&lt;<span class="code-class">OrderObserver</span>&gt; observers = <span class="code-keyword">new</span> <span class="code-class">CopyOnWriteArrayList</span>&lt;&gt;();
+
+    <span class="code-keyword">public</span> <span class="code-class">Order</span>(<span class="code-class">String</span> id) {
+        <span class="code-keyword">this</span>.id = id;
     }
-}
 
-<span class="code-keyword">void</span> main() {
-    NewsAgency agency = <span class="code-keyword">new</span> NewsAgency();
-    agency.subscribe(<span class="code-keyword">new</span> Subscriber(<span class="code-string">"Amit"</span>));
-    agency.publish(<span class="code-string">"Breaking news!"</span>);
-}</code></pre>
-            </div>
+    <span class="code-comment"># Register an observer</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> subscribe(<span class="code-class">OrderObserver</span> observer) {
+        observers.addIfAbsent(observer);
+    }
 
-            <div class="code-explanation">
-                <div class="code-explanation-title">How the Observer works</div>
-                <p><code>NewsAgency</code> implements the <code>Subject</code> interface and holds a list of observers.<br><br>
-                    <code>Subscriber</code> implements <code>update()</code> to react to changes.<br><br>
-                    <code>publish()</code> notifies every registered observer.<br><br>
-                    Observers can subscribe or unsubscribe without touching the subject's logic.</p>
-            </div>
+    <span class="code-comment"># Unregister an observer</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> unsubscribe(<span class="code-class">OrderObserver</span> observer) {
+        observers.remove(observer);
+    }
+
+    <span class="code-comment"># Change the order status</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> updateStatus(<span class="code-class">OrderStatus</span> newStatus) {
+        <span class="code-keyword">if</span> (newStatus == <span class="code-keyword">null</span>) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>(<span class="code-string">"Status cannot be null"</span>);
+        }
+        <span class="code-keyword">if</span> (<span class="code-keyword">this</span>.status == newStatus) {
+            <span class="code-keyword">return</span>;
+        }
+        <span class="code-class">OrderStatus</span> oldStatus = <span class="code-keyword">this</span>.status;
+        <span class="code-keyword">this</span>.status = newStatus;
+        <span class="code-class">OrderStatusChanged</span> event = <span class="code-keyword">new</span> <span class="code-class">OrderStatusChanged</span>(id, oldStatus, newStatus);
+        notifyObservers(event);
+    }
+
+    <span class="code-comment"># Notify all registered observers</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> notifyObservers(<span class="code-class">OrderStatusChanged</span> event) {
+        <span class="code-keyword">for</span> (<span class="code-class">OrderObserver</span> observer : observers) {
+            observer.onStatusChanged(event);
+        }
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">OrderStatus</span> getStatus() {
+        <span class="code-keyword">return</span> status;
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Important observations:</strong></p>
+    </div>
+    <div class="intro"><ul>
+        <li>The <code>Order</code> class stores references to objects implementing the <code>OrderObserver</code> interface.</li>
+        <li>Observers register using <code>subscribe()</code>.</li>
+        <li>Whenever <code>updateStatus()</code> changes the state, <code>notifyObservers()</code> is invoked.</li>
+        <li>Every registered observer receives the same event.</li>
+        <li>An observer can unregister at runtime.</li>
+    </ul></div>
+    <div class="callout callout-note"><p>Here, <code>CopyOnWriteArrayList</code> allows the observer collection to be safely iterated while subscriptions are added or removed, including from another thread. It does not, by itself, make concurrent order-status updates thread-safe.</p></div>
+    <div class="intro">
+        <p><strong>Step 5: Create Concrete Observers</strong></p>
+        <p><strong>Email Notification Observer</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">EmailNotification</span> <span class="code-keyword">implements</span> <span class="code-class">OrderObserver</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> onStatusChanged(<span class="code-class">OrderStatusChanged</span> event) {
+        <span class="code-keyword">if</span> (event.newStatus() == <span class="code-class">OrderStatus</span>.SHIPPED) {
+            <span class="code-class">System</span>.out.println(<span class="code-string">"Email: Order "</span> + event.orderId() + <span class="code-string">" has been shipped."</span>);
+        }
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>This observer responds only when an order is shipped.</p>
+        <p><strong>Dashboard Observer</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">DashboardUpdater</span> <span class="code-keyword">implements</span> <span class="code-class">OrderObserver</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> onStatusChanged(<span class="code-class">OrderStatusChanged</span> event) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Dashboard: Order "</span> + event.orderId() + <span class="code-string">" status updated to "</span> + event.newStatus());
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>This observer responds to every status change.</p>
+        <p><strong>Audit Logger Observer</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">AuditLogger</span> <span class="code-keyword">implements</span> <span class="code-class">OrderObserver</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> onStatusChanged(<span class="code-class">OrderStatusChanged</span> event) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Audit: Order "</span> + event.orderId() + <span class="code-string">" changed from "</span> + event.oldStatus() + <span class="code-string">" to "</span> + event.newStatus());
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Notice how every observer implements the same interface, but each performs a completely different action.</p>
+        <p><strong>Client Code</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+    <span class="code-class">Order</span> order = <span class="code-keyword">new</span> <span class="code-class">Order</span>(<span class="code-string">"ORD-101"</span>);
+    <span class="code-class">OrderObserver</span> email = <span class="code-keyword">new</span> <span class="code-class">EmailNotification</span>();
+    <span class="code-class">OrderObserver</span> dashboard = <span class="code-keyword">new</span> <span class="code-class">DashboardUpdater</span>();
+    <span class="code-class">OrderObserver</span> audit = <span class="code-keyword">new</span> <span class="code-class">AuditLogger</span>();
+    <span class="code-comment"># Subscribe observers</span>
+    order.subscribe(email);
+    order.subscribe(dashboard);
+    order.subscribe(audit);
+    order.updateStatus(<span class="code-class">OrderStatus</span>.CONFIRMED); <span class="code-comment"># First status change</span>
+    order.updateStatus(<span class="code-class">OrderStatus</span>.SHIPPED); <span class="code-comment"># Second status change</span>
+    order.unsubscribe(email); <span class="code-comment"># Dynamically remove an observer</span>
+    order.updateStatus(<span class="code-class">OrderStatus</span>.DELIVERED); <span class="code-comment"># Third status change</span>
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Output</strong></p>
+    </div>
+    <div class="code-block"><pre><code>Dashboard: Order ORD-101 status updated to CONFIRMED
+Audit: Order ORD-101 changed from CREATED to CONFIRMED
+
+Email: Order ORD-101 has been shipped.
+Dashboard: Order ORD-101 status updated to SHIPPED
+Audit: Order ORD-101 changed from CONFIRMED to SHIPPED
+
+Dashboard: Order ORD-101 status updated to DELIVERED
+Audit: Order ORD-101 changed from SHIPPED to DELIVERED</code></pre></div>
+    <div class="intro">
+        <p>When the email observer is removed, it stops receiving subsequent notifications.</p>
+        <p>The <code>Order</code> class itself does not need to change.</p>
+        <p><strong>Adding a New Observer</strong></p>
+        <p>Suppose we want to add an analytics component.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">AnalyticsObserver</span> <span class="code-keyword">implements</span> <span class="code-class">OrderObserver</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> onStatusChanged(<span class="code-class">OrderStatusChanged</span> event) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Analytics: Tracking order status "</span> + event.newStatus());
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>We simply register it:</p>
+    </div>
+    <div class="code-block"><pre><code>order.subscribe(<span class="code-keyword">new</span> <span class="code-class">AnalyticsObserver</span>());</code></pre></div>
+    <div class="intro">
+        <p>No modification is required in the existing <code>Order</code> class.</p>
+    </div>
+    <div class="callout callout-note"><p>This demonstrates the <strong>Open/Closed Principle</strong>: new observer behaviors can be added without modifying the subject's notification logic.</p></div>
+
+    <div class="subheading">Push vs Pull Models in Observer Pattern</div>
+    <div class="intro">
+        <p>There are two common ways an observer obtains information from a subject.</p>
+    </div>
+    <div class="scenario-layout scenario-layout-equal">
+        <div>
+            <div class="intro"><p><strong>Push Model</strong><br>The subject sends relevant data directly to its observers when notifying them.</p></div>
+            <div class="svg-diagram"><img src="../static/observer-push.svg" alt="Push model: the Subject pushes the event data to the Observer, which uses the received data" style="width:100%;max-width:380px"></div>
+        </div>
+        <div>
+            <div class="intro"><p><strong>Pull Model</strong><br>The subject notifies observers, which then retrieve the required information.</p></div>
+            <div class="svg-diagram"><img src="../static/observer-pull.svg" alt="Pull model: the Subject notifies the Observer, which then reads the data by calling the subject getters" style="width:100%;max-width:380px"></div>
         </div>
     </div>
+    <div class="intro">
+        <p><strong>Push Model</strong></p>
+        <p>In the previous example, we used the Push Model.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">OrderObserver</span> {
+    <span class="code-keyword">void</span> onStatusChanged(<span class="code-class">OrderStatusChanged</span> event);
+}</code></pre></div>
+    <div class="intro">
+        <p>The subject pushes the event to its observers:</p>
+    </div>
+    <div class="code-block"><pre><code>observer.onStatusChanged(event);</code></pre></div>
+    <div class="intro">
+        <p>The observer doesn't need to query the subject for information.</p>
+        <p><strong>Advantages:</strong> Fewer queries back to the subject, easy event processing, and the event can preserve the state at the moment the change occurred.</p>
+        <p><strong>Disadvantages:</strong> Events can contain more data than some observers need.</p>
+        <p><strong>Pull Model</strong></p>
+        <p>In the Pull Model, the observer receives a reference to the subject and retrieves the information it needs.</p>
+        <p>For example, we could define a different observer interface:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">OrderObserver</span> {
+    <span class="code-keyword">void</span> update(<span class="code-class">Order</span> order);
+}</code></pre></div>
+    <div class="intro">
+        <p>Inside the subject, notification looks like this:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">void</span> notifyObservers() {
+    <span class="code-keyword">for</span> (<span class="code-class">OrderObserver</span> observer: observers) {
+        observer.update(<span class="code-keyword">this</span>);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>The observer pulls the current status:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">DashboardObserver</span> <span class="code-keyword">implements</span> <span class="code-class">OrderObserver</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> update(<span class="code-class">Order</span> order) {
+        <span class="code-class">OrderStatus</span> status = order.getStatus();
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Current status: "</span> + status);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Advantages:</strong> Observers retrieve only the information they need; notification messages can remain small.</p>
+        <p><strong>Disadvantages:</strong> Observers depend on the subject's read interface and may need additional method calls. If the subject changes again before an observer reads it, the observer could see a newer state rather than the state that triggered the notification.</p>
+    </div>
+    <div class="callout callout-note"><p>In practice, immutable event objects (Push Model) are often a good choice for event-driven applications.</p></div>
+
+    <div class="subheading">Real-World Example: Observer Pattern in Java GUI Frameworks</div>
+    <div class="intro">
+        <p>One of the most common uses of the Observer pattern is in GUI event handling.</p>
+        <p>Consider a button in a Java Swing application.</p>
+        <p>The button acts as an event source, while registered listeners react when the button is clicked.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+    <span class="code-class">SwingUtilities</span>.invokeLater(() -&gt; {
+        <span class="code-class">JFrame</span> frame = <span class="code-keyword">new</span> <span class="code-class">JFrame</span>(<span class="code-string">"Observer Example"</span>);
+        <span class="code-class">JButton</span> button = <span class="code-keyword">new</span> <span class="code-class">JButton</span>(<span class="code-string">"Click Me"</span>);
+        button.addActionListener(event -&gt; { <span class="code-comment"># First observer</span>
+            <span class="code-class">System</span>.out.println(<span class="code-string">"Button clicked!"</span>);
+        });
+        button.addActionListener(event -&gt; { <span class="code-comment"># Second observer</span>
+            <span class="code-class">System</span>.out.println(<span class="code-string">"Analytics event recorded"</span>);
+        });
+        frame.add(button);
+        frame.setSize(<span class="code-number">300</span>, <span class="code-number">150</span>);
+        frame.setDefaultCloseOperation(<span class="code-class">JFrame</span>.EXIT_ON_CLOSE);
+        frame.setVisible(<span class="code-keyword">true</span>);
+    });
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Interactive illustration of the button event</strong></p>
+        <p>Both listeners react to the same click. Each click of <strong>Click Me</strong> adds to the event log:</p>
+    </div>
+    <div class="code-block"><pre><code>Button clicked!
+Analytics event recorded</code></pre></div>
+    <div class="intro">
+        <p>The button doesn't need to know what the listeners do.</p>
+        <p>One listener might update a label, another might play a sound, and another might record analytics.</p>
+        <p>All can respond to the same user action.</p>
+        <p>This is a practical application of Observer-style event handling.</p>
+    </div>
+
+    <div class="subheading">Observer Pattern Using Java's Built-in PropertyChangeSupport</div>
+    <div class="intro">
+        <p>Java provides <code>PropertyChangeSupport</code> in the <code>java.beans</code> package, which implements property-change listener registration and notification.</p>
+        <p>It is useful when observers need to monitor changes to an object's properties.</p>
+        <p>Consider a temperature monitoring system.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">TemperatureSensor</span> {
+    <span class="code-keyword">private</span> <span class="code-keyword">double</span> temperature;
+    <span class="code-keyword">private</span> <span class="code-class">PropertyChangeSupport</span> support = <span class="code-keyword">new</span> <span class="code-class">PropertyChangeSupport</span>(<span class="code-keyword">this</span>);
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> addListener(<span class="code-class">PropertyChangeListener</span> listener) {
+        support.addPropertyChangeListener(<span class="code-string">"temperature"</span>, listener);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> removeListener(<span class="code-class">PropertyChangeListener</span> listener) {
+        support.removePropertyChangeListener(<span class="code-string">"temperature"</span>, listener);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> setTemperature(<span class="code-keyword">double</span> newTemperature) {
+        <span class="code-keyword">double</span> oldTemperature = <span class="code-keyword">this</span>.temperature;
+        <span class="code-keyword">this</span>.temperature = newTemperature;
+        support.firePropertyChange(<span class="code-string">"temperature"</span>, oldTemperature, newTemperature);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Now register two observers:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+    <span class="code-class">TemperatureSensor</span> sensor = <span class="code-keyword">new</span> <span class="code-class">TemperatureSensor</span>();
+    sensor.addListener(event -&gt; { <span class="code-comment"># Observer 1: Display</span>
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Display: "</span> + event.getNewValue() + <span class="code-string">"°C"</span>);
+    });
+    sensor.addListener(event -&gt; { <span class="code-comment"># Observer 2: Temperature alert</span>
+        <span class="code-keyword">double</span> temperature = (<span class="code-keyword">double</span>) event.getNewValue();
+        <span class="code-keyword">if</span> (temperature &gt; <span class="code-number">40</span>) {
+            <span class="code-class">System</span>.out.println(<span class="code-string">"ALERT: High temperature!"</span>);
+        }
+    });
+    sensor.setTemperature(<span class="code-number">25</span>);
+    sensor.setTemperature(<span class="code-number">45</span>);
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Output:</strong></p>
+    </div>
+    <div class="code-block"><pre><code>Display: 25.0°C
+Display: 45.0°C
+ALERT: High temperature!</code></pre></div>
+    <div class="intro">
+        <p>Here, <code>PropertyChangeSupport</code> manages the observer list and notification mechanism.</p>
+    </div>
+    <div class="callout callout-warning"><p><strong>Note:</strong> Java also has the older <code>java.util.Observer</code> and <code>java.util.Observable</code> APIs, but they were deprecated in Java 9. Prefer listener interfaces, <code>PropertyChangeSupport</code>, or modern event APIs for new code.</p></div>
+
+    <div class="subheading">Observer Pattern in Spring Boot</div>
+    <div class="intro">
+        <p>Spring provides an application event mechanism that follows the Observer principle.</p>
+        <p>Instead of manually maintaining a collection of observers, we can use:</p>
+    </div>
+    <div class="intro"><ul>
+        <li><code>ApplicationEventPublisher</code> to publish events.</li>
+        <li><code>@EventListener</code> to register event-handling methods.</li>
+    </ul></div>
+    <div class="intro">
+        <p><strong>Step 1: Define an event</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">OrderShippedEvent</span>(<span class="code-class">String</span> orderId) {}</code></pre></div>
+    <div class="intro">
+        <p><strong>Step 2: Publish an event</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@Service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderService</span> {
+    <span class="code-keyword">private</span> <span class="code-class">ApplicationEventPublisher</span> publisher;
+
+    <span class="code-keyword">public</span> <span class="code-class">OrderService</span>(<span class="code-class">ApplicationEventPublisher</span> publisher) {
+        <span class="code-keyword">this</span>.publisher = publisher;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> shipOrder(<span class="code-class">String</span> orderId) {
+        <span class="code-comment"># Business logic for shipping an order</span>
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Order shipped: "</span> + orderId);
+        publisher.publishEvent(<span class="code-keyword">new</span> <span class="code-class">OrderShippedEvent</span>(orderId));
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Step 3: Create observers using <code>@EventListener</code></strong></p>
+        <p><strong>Email Listener</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@Component</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">EmailListener</span> {
+    <span class="code-annotation">@EventListener</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> onOrderShipped(<span class="code-class">OrderShippedEvent</span> event) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Sending email for order: "</span> + event.orderId());
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Analytics Listener</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@Component</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">AnalyticsListener</span> {
+    <span class="code-annotation">@EventListener</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> trackShipping(<span class="code-class">OrderShippedEvent</span> event) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Recording shipping analytics: "</span> + event.orderId());
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>When <code>OrderService</code> publishes an <code>OrderShippedEvent</code>, Spring dispatches it to both listeners.</p>
+        <p>The service does not know either concrete listener.</p>
+        <p><strong>Important considerations in Spring</strong></p>
+    </div>
+    <div class="intro"><ul>
+        <li>By default, Spring's standard application event listeners execute synchronously in the publisher's thread.</li>
+        <li>That means a slow listener can delay the original service operation.</li>
+        <li>For asynchronous handling, Spring supports <code>@Async</code> when asynchronous execution is configured appropriately.</li>
+        <li>When events are associated with database transactions, <code>@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)</code> can defer listener execution until a successful transaction commit.</li>
+    </ul></div>
+    <div class="callout callout-warning"><p>For reliable delivery across microservices, particularly when database changes and event publishing must remain consistent, the <strong>Transactional Outbox Pattern</strong> together with a message broker such as Kafka is often more appropriate than an in-process observer alone.</p></div>
+
+    <div class="subheading">Observer Pattern vs. Publish-Subscribe Pattern</div>
+    <div class="intro">
+        <p>Observer and Publish-Subscribe are closely related, but they aren't exactly the same architectural mechanism.</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Aspect</th><th>Observer</th><th>Publish-Subscribe</th></tr></thead>
+            <tbody>
+                <tr><td>Communication</td><td>Subject notifies registered observers</td><td>Publisher emits messages through an intermediary</td></tr>
+                <tr><td>Coupling</td><td>Subject knows observer interfaces/references</td><td>Publishers and subscribers can remain unaware of each other</td></tr>
+                <tr><td>Intermediary</td><td>Not required</td><td>Typically an event bus or message broker</td></tr>
+                <tr><td>Execution</td><td>Often synchronous</td><td>Can be synchronous or asynchronous</td></tr>
+                <tr><td>Scope</td><td>Commonly within one application/process</td><td>Can work across processes and services</td></tr>
+                <tr><td>Example</td><td>Java listeners, GUI events</td><td>Kafka, RabbitMQ, event buses</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>A typical Observer implementation has the subject manage its subscribers directly.</p>
+        <p>A Publish-Subscribe implementation introduces an event channel or broker that manages routing between publishers and subscribers.</p>
+        <p>Spring's application event mechanism combines Observer-like listener notification with an in-process event-dispatching abstraction.</p>
+    </div>
+    <div class="callout callout-note"><p>The key distinction is not simply synchronous versus asynchronous communication. Both models can support either behavior.</p></div>
+
+    <div class="subheading">Advantages and Disadvantages</div>
+    <div class="intro">
+        <p><strong>Advantages</strong></p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>Loose coupling</strong><br>The subject depends on an interface instead of concrete observer implementations.</li>
+        <li><strong>Open/Closed Principle</strong><br>New observers can be introduced without modifying the subject's notification implementation.</li>
+        <li><strong>Dynamic relationships</strong><br>Observers can subscribe and unsubscribe at runtime.</li>
+        <li><strong>Separation of concerns</strong><br>The subject manages its own state, while observers handle independent reactions to changes.</li>
+        <li><strong>Event-driven behavior</strong><br>Changes can automatically trigger other application components.</li>
+    </ul></div>
+    <div class="intro">
+        <p><strong>Disadvantages</strong></p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>Unpredictable execution cost</strong><br>In a synchronous implementation, notifying many observers can make a state-change operation slow.</li>
+        <li><strong>Error propagation</strong><br>An exception thrown by one observer can prevent subsequent observers from receiving the event unless failures are handled.</li>
+        <li><strong>Memory leaks</strong><br>If long-lived subjects retain references to observers that are no longer needed, those observers can remain in memory. Proper unsubscription or lifecycle management is important.</li>
+        <li><strong>Notification ordering</strong><br>Observer notification order should not be relied on unless your implementation explicitly guarantees it.</li>
+        <li><strong>Complex event chains</strong><br>An observer might change another subject, which triggers more observers. This can make event flows difficult to understand and can even introduce circular notification loops.</li>
+        <li><strong>Concurrency concerns</strong><br>When several threads update the same subject, state updates and notification ordering must be coordinated. Thread-safe observer collections alone do not solve these problems.</li>
+    </ul></div>
+    <div class="callout callout-note"><p>For important business events, decide explicitly whether observer failures should stop an operation, be isolated, or be retried.</p></div>
+
+    <div class="subheading">Observer Pattern and SOLID Principles</div>
+    <div class="intro">
+        <p>The Observer pattern aligns particularly well with three SOLID principles.</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Principle</th><th>How Observer helps</th></tr></thead>
+            <tbody>
+                <tr><td>Single Responsibility Principle (SRP)</td><td>The subject manages its state, while each observer handles its own reaction.</td></tr>
+                <tr><td>Open/Closed Principle (OCP)</td><td>New observer behavior can be added without changing existing subject notification logic.</td></tr>
+                <tr><td>Dependency Inversion Principle (DIP)</td><td>The subject depends on the Observer abstraction rather than concrete implementations.</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>For example:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">private</span> <span class="code-class">List</span>&lt;<span class="code-class">OrderObserver</span>&gt; observers;</code></pre></div>
+    <div class="intro">
+        <p>This is preferable to a design where the subject directly depends on:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">EmailNotification</span> email;
+<span class="code-class">DashboardUpdater</span> dashboard;
+<span class="code-class">AuditLogger</span> audit;</code></pre></div>
+    <div class="intro">
+        <p>The Observer abstraction makes the system easier to extend and maintain.</p>
+    </div>
+
+    <div class="subheading">When Should You Use the Observer Pattern</div>
+    <div class="intro">
+        <p>Use Observer when a change in one object should automatically trigger behavior in multiple independent components.</p>
+        <p>Good use cases include:</p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>GUI event handling:</strong> button clicks, keyboard input, mouse events.</li>
+        <li><strong>Notification systems:</strong> email, SMS, push notifications.</li>
+        <li><strong>Monitoring applications:</strong> sensor readings, stock prices, system metrics.</li>
+        <li><strong>Domain events:</strong> an order being placed, an invoice being paid, a user being registered.</li>
+        <li><strong>Model-view synchronization:</strong> updating multiple views when model state changes.</li>
+    </ul></div>
+    <div class="callout callout-warning"><p>Avoid introducing Observer when a simple direct method call is sufficient, especially when there is exactly one fixed dependency or when the caller must explicitly coordinate the result of the invoked operation.</p></div>
+    <div class="intro">
+        <p>Also avoid relying solely on in-memory observers for critical cross-service delivery, because an application crash can result in lost notifications.</p>
+    </div>
+
+    <div class="subheading">Observer vs Strategy vs Mediator</div>
+    <div class="intro">
+        <p>These patterns sometimes appear similar because they reduce direct coupling, but they solve different problems.</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Pattern</th><th>Main purpose</th></tr></thead>
+            <tbody>
+                <tr><td>Observer</td><td>Notify multiple dependent objects when an event or state change occurs.</td></tr>
+                <tr><td>Strategy</td><td>Select or replace an algorithm or behavior.</td></tr>
+                <tr><td>Mediator</td><td>Centralize communication and coordination among interacting objects.</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>For example, in an e-commerce application:</p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>Observer:</strong> When an order ships, notify the email, analytics, and audit components.</li>
+        <li><strong>Strategy:</strong> Choose a shipping-cost calculation algorithm based on delivery method.</li>
+        <li><strong>Mediator:</strong> Coordinate interactions among checkout, payment, inventory, and shipping components through a central coordinator.</li>
+    </ul></div>
+
+    <div class="subheading">Key Takeaways</div>
+    <div class="intro">
+        <p>The Observer pattern creates a <strong>one-to-many relationship</strong> between a subject and its observers. The subject maintains subscriptions and notifies observers when relevant changes occur, while each observer independently decides how to react.</p>
+        <p>In Java, you can implement it using your own observer interfaces, GUI listener APIs or <code>PropertyChangeSupport</code>.<br> In Spring Boot, <code>ApplicationEventPublisher</code> and <code>@EventListener</code> provide a convenient application-level event mechanism.</p>
+    </div>
+    <div class="callout callout-note">
+        <p>The central idea is that the object producing a change should not need to know every concrete component interested in that change. <br>
+            This separation makes event-driven systems more modular, extensible, and loosely coupled.</p></div>
 </div>
 </body>
 </html>

@@ -3,100 +3,505 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Flyweight Pattern - Notes</title>
+<title>Flyweight</title>
 <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
 <div class="note">
-    <div class="title">Flyweight Pattern</div>
+    <div class="title">Flyweight</div>
 
     <div class="intro">
-        <p>Flyweight pattern is a structural design pattern that reduces memory uses by sharing similar objects.</p>
-        <p>Flyweight pattern uses a factory to manage these shared objects and ensures that each object is created only once.</p>
-        <p>When we need large number of similar objects then creating and storing each object separately can take too much memory.</p>
+        <p>The Flyweight Design Pattern is a structural design pattern that minimizes memory consumption by <strong>sharing common data among multiple objects</strong> instead of storing duplicate copies of the same data in every object.</p>
+        <p>It is particularly useful when an application needs to create a very large number of similar objects, where most of their data is identical and only a small portion varies.</p>
+        <p>The fundamental idea is:</p>
+    </div>
+    <div class="callout callout-note"><p>Separate an object's state into <strong>shared (intrinsic)</strong> and <strong>unique (extrinsic)</strong> state, then reuse the shared state across multiple objects.</p></div>
+
+    <div class="subheading">Understanding the problem</div>
+    <div class="intro">
+        <p>Consider a game that contains a forest with <strong>1 million trees</strong>.</p>
+        <p>Every tree has several properties:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Tree</span> {
+    <span class="code-keyword">int</span> x;
+    <span class="code-keyword">int</span> y;
+    <span class="code-class">String</span> name;
+    <span class="code-class">String</span> color;
+    <span class="code-class">String</span> texture;
+}</code></pre></div>
+    <div class="intro">
+        <p>Imagine that the forest contains only three types of trees:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>Oak &mdash; Green &mdash; <code>oak.png</code></li>
+        <li>Pine &mdash; Dark Green &mdash; <code>pine.png</code></li>
+        <li>Mango &mdash; Light Green &mdash; <code>mango.png</code></li>
+    </ul></div>
+    <div class="intro">
+        <p>Although there are 1 million individual trees, there are only <strong>three unique combinations</strong> of tree characteristics.</p>
+        <p>With a conventional implementation, each <code>Tree</code> object stores its own tree characteristics.</p>
+        <p><strong>Without Flyweight</strong></p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/flyweight-without.svg" alt="Without Flyweight: Tree 1, Tree 2 and Tree 3 each store their own x and y plus a repeated copy of name Oak, color Green and texture oak.png" style="width:100%;max-width:640px">
+    </div>
+    <div class="intro">
+        <p>The important observation is that <code>name</code>, <code>color</code> and <code>texture</code> are common to all trees of the same type, while <code>x</code> and <code>y</code> are different for each tree.</p>
+        <p>The Flyweight pattern solves this by extracting the common properties into a separate shared object.</p>
     </div>
 
-    <div class="section when-use">
-        <div class="section-title">Components</div>
-        <div class="section-content">
-            <ul>
-                <li>Flyweight interface – Declares methods that accept extrinsic state.</li>
-                <li>ConcreteFlyweight – Implements Flyweight and stores intrinsic state.</li>
-                <li>FlyweightFactory – Manages a pool of flyweight objects.</li>
-                <li>Client – Maintains or computes extrinsic state and passes it to the flyweight.</li>
-            </ul>
-        </div>
+    <div class="subheading">Intrinsic vs Extrinsic State</div>
+    <div class="intro">
+        <p>This is the most important concept in the Flyweight pattern.</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Intrinsic state</th><th>Extrinsic state</th></tr></thead>
+            <tbody>
+                <tr><td>Shared among multiple objects</td><td>Unique to an individual object or operation</td></tr>
+                <tr><td>Independent of individual object context</td><td>Depends on the individual object's context</td></tr>
+                <tr><td>Stored inside the Flyweight</td><td>Stored externally or passed as arguments</td></tr>
+                <tr><td>Typically immutable</td><td>Can change independently</td></tr>
+                <tr><td>Example: tree type, color, texture</td><td>Example: tree position (x, y)</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>For our tree example:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-comment"># Intrinsic state</span>
+<span class="code-class">String</span> name;
+<span class="code-class">String</span> color;
+<span class="code-class">String</span> texture;
+<span class="code-comment"># Extrinsic state</span>
+<span class="code-keyword">int</span> x;
+<span class="code-keyword">int</span> y;</code></pre></div>
+    <div class="intro">
+        <p>After applying Flyweight, the structure looks like this:</p>
+        <p><strong>With Flyweight</strong></p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/flyweight-with.svg" alt="With Flyweight: Tree 1, Tree 2 and Tree 3 store only x and y and all reference one shared TreeType holding name Oak, color Green and texture oak.png" style="width:100%;max-width:640px">
+    </div>
+    <div class="intro">
+        <p>Now each tree stores only its individual position and a reference to the common <code>TreeType</code> object.</p>
+        <p>If 500,000 trees are Oak trees, all 500,000 can point to the same <code>TreeType</code> instance.</p>
+        <p>This is the essence of Flyweight.</p>
     </div>
 
-    <div class="section when-use">
-        <div class="section-title">Pros and cons</div>
-        <div class="section-content">
-            <ul>
-                <li>Reduces memory usage by sharing objects.</li>
-                <li>Increases performance when creating many similar objects.</li>
-                <li>Makes code more complex.</li>
-                <li>Requires careful separation of intrinsic and extrinsic state.</li>
-            </ul>
-        </div>
+    <div class="subheading">Flyweight Pattern Structure</div>
+    <div class="intro">
+        <p>The pattern usually involves four participants.</p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/flyweight-structure.svg" alt="Forest (client) holds Trees and uses TreeTypeFactory; each Tree stores x and y and references a TreeType; the factory caches TreeTypes in a map and returns them from getTreeType" style="width:100%;max-width:720px">
+    </div>
+    <div class="intro font-size-16"><ul>
+        <li><strong>Flyweight (<code>TreeType</code>)</strong> &mdash; Holds the shared intrinsic state.</li>
+        <li><strong>Flyweight Factory (<code>TreeTypeFactory</code>)</strong> &mdash; Creates and caches Flyweight objects, returning existing instances whenever possible.</li>
+        <li><strong>Context (<code>Tree</code>)</strong> &mdash; Stores unique extrinsic state and references the shared Flyweight.</li>
+        <li><strong>Client (<code>Forest</code>)</strong> &mdash; Creates trees through the factory and manages them.</li>
+    </ul></div>
+    <div class="intro">
+        <p>The factory is not strictly mandatory in every implementation, but it is commonly used to ensure consistent sharing.</p>
     </div>
 
-    <div class="section realworld">
-        <div class="section-title">Real-world example</div>
-        <div class="section-content"><ul>
-            <li><strong>java.lang.Integer.valueOf()</strong> &mdash; caches Integer objects for values between -128 and 127 and returns the same instance.</li>
-            <li><strong>String pool in Java</strong> &mdash; string literals are interned and shared so identical strings reuse one object.</li>
-            <li><strong>Character and Boolean caches</strong> &mdash; Character.valueOf() and Boolean.valueOf() return shared cached instances.</li>
-            <li><strong>Text editors and word processors</strong> &mdash; each character glyph is a shared flyweight while position and font style are passed as extrinsic state.</li>
-            <li><strong>Game rendering</strong> &mdash; trees, bullets, or tiles share intrinsic textures and models while coordinates are stored per instance.</li>
-            <li><strong>Web browsers</strong> &mdash; repeated images and icons on a page are loaded once and reused wherever they appear.</li>
-            <li><strong>java.awt.Font and font glyph caches</strong> &mdash; glyph shapes are shared across all text drawn with the same font.</li>
-        </ul></div>
+    <div class="subheading">Practical Example: Forest Rendering System</div>
+    <div class="intro">
+        <p><strong>Create the Flyweight (<code>TreeType</code>)</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">TreeType</span>(<span class="code-class">String</span> name, <span class="code-class">String</span> color, <span class="code-class">String</span> texture) {
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> draw(<span class="code-keyword">int</span> x, <span class="code-keyword">int</span> y) {
+        <span class="code-class">System</span>.out.printf(<span class="code-string">"Drawing %s tree at (%d, %d), color=%s, texture=%s%n"</span>, name, x, y, color, texture);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Notice two important things.</p>
+        <p>First, <code>TreeType</code> contains only intrinsic state: <code>name, color, texture.</code></p>
+    </div>
+    <div class="intro">
+        <p>Second, <code>draw()</code> receives <code>x</code> and <code>y</code> as parameters because these values belong to individual trees.</p>
+        <p>We are not storing individual tree positions inside the Flyweight.</p>
+        <p>Also, Java records are suitable here because their instance fields are final. We are using <code>String</code> components, so this Flyweight is immutable.</p>
+        <p><strong>Create the Flyweight Factory</strong></p>
+        <p>The factory ensures that only one <code>TreeType</code> is created for each unique combination of properties.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">TreeTypeKey</span>(<span class="code-class">String</span> name, <span class="code-class">String</span> color, <span class="code-class">String</span> texture) {}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">TreeTypeFactory</span> {
+    <span class="code-keyword">private</span> <span class="code-class">Map</span>&lt;<span class="code-class">TreeTypeKey</span>, <span class="code-class">TreeType</span>&gt; cache = <span class="code-keyword">new</span> <span class="code-class">ConcurrentHashMap</span>&lt;&gt;();
+
+    <span class="code-keyword">public</span> <span class="code-class">TreeType</span> getTreeType(<span class="code-class">String</span> name, <span class="code-class">String</span> color, <span class="code-class">String</span> texture) {
+        <span class="code-class">TreeTypeKey</span> key = <span class="code-keyword">new</span> <span class="code-class">TreeTypeKey</span>(name, color, texture);
+        <span class="code-keyword">return</span> cache.computeIfAbsent(key, k -&gt; <span class="code-keyword">new</span> <span class="code-class">TreeType</span>(k.name(), k.color(), k.texture()));
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">int</span> getUniqueTypeCount() {
+        <span class="code-keyword">return</span> cache.size();
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>The factory uses <code>computeIfAbsent</code>:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>If the key exists in the map, return the existing Flyweight.</li>
+        <li>Otherwise, create a new Flyweight, store it and return it.</li>
+    </ul></div>
+    <div class="intro">
+        <p>Using <code>ConcurrentHashMap</code> also supports concurrent access to the factory.</p>
+        <p>For example:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">TreeTypeFactory</span> factory = <span class="code-keyword">new</span> <span class="code-class">TreeTypeFactory</span>();
+<span class="code-class">TreeType</span> oak1 = factory.getTreeType(<span class="code-string">"Oak"</span>, <span class="code-string">"Green"</span>, <span class="code-string">"oak.png"</span>);
+<span class="code-class">TreeType</span> oak2 = factory.getTreeType(<span class="code-string">"Oak"</span>, <span class="code-string">"Green"</span>, <span class="code-string">"oak.png"</span>);
+<span class="code-class">TreeType</span> pine = factory.getTreeType(<span class="code-string">"Pine"</span>, <span class="code-string">"DarkGreen"</span>, <span class="code-string">"pine.png"</span>);
+<span class="code-class">System</span>.out.println(oak1 == oak2); <span class="code-comment"># true</span>
+<span class="code-class">System</span>.out.println(oak1 == pine); <span class="code-comment"># false</span></code></pre></div>
+    <div class="intro">
+        <p><code>oak1</code> and <code>oak2</code> refer to the same object. The factory creates a separate object for Pine because it has a different key.</p>
+        <p><strong>Create the Context (<code>Tree</code>)</strong></p>
+        <p>Each tree has its own coordinates but holds a reference to a shared <code>TreeType</code>.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">Tree</span>(<span class="code-keyword">int</span> x, <span class="code-keyword">int</span> y, <span class="code-class">TreeType</span> treeType) {
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> draw() {
+        treeType.draw(x, y);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Notice that:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">TreeType</span> treeType;</code></pre></div>
+    <div class="intro">
+        <p>is just a reference.</p>
+        <p>If 100,000 trees have the same type, they share the same <code>TreeType</code> object.</p>
+        <p>Also notice how the extrinsic state flows:</p>
+    </div>
+    <div class="code-block"><pre><code>treeType.draw(x, y);</code></pre></div>
+    <div class="intro">
+        <p><code>Tree</code> supplies its unique coordinates to the shared Flyweight, rather than having the Flyweight store the coordinates.</p>
+        <p><strong>Create the Client (<code>Forest</code>)</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Forest</span> {
+    <span class="code-keyword">private</span> <span class="code-class">List</span>&lt;<span class="code-class">Tree</span>&gt; trees = <span class="code-keyword">new</span> <span class="code-class">ArrayList</span>&lt;&gt;();
+    <span class="code-keyword">private</span> <span class="code-class">TreeTypeFactory</span> factory = <span class="code-keyword">new</span> <span class="code-class">TreeTypeFactory</span>();
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> plantTree(<span class="code-keyword">int</span> x, <span class="code-keyword">int</span> y, <span class="code-class">String</span> name, <span class="code-class">String</span> color, <span class="code-class">String</span> texture) {
+        <span class="code-class">TreeType</span> treeType = factory.getTreeType(name, color, texture);
+        trees.add(<span class="code-keyword">new</span> <span class="code-class">Tree</span>(x, y, treeType));
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> drawFirst(<span class="code-keyword">int</span> count) {
+        trees.stream().limit(count).forEach(<span class="code-class">Tree</span>::draw);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">int</span> getTreeCount() {
+        <span class="code-keyword">return</span> trees.size();
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">int</span> getUniqueTypeCount() {
+        <span class="code-keyword">return</span> factory.getUniqueTypeCount();
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">Tree</span> getTree(<span class="code-keyword">int</span> index) {
+        <span class="code-keyword">return</span> trees.get(index);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>The <code>Forest</code> manages all the trees, and each <code>Tree</code> refers to a cached <code>TreeType</code>.</p>
+        <p><strong>Main Application</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+    <span class="code-class">Forest</span> forest = <span class="code-keyword">new</span> <span class="code-class">Forest</span>();
+    forest.plantTree(<span class="code-number">10</span>, <span class="code-number">20</span>, <span class="code-string">"Oak"</span>, <span class="code-string">"Green"</span>, <span class="code-string">"oak.png"</span>);
+    forest.plantTree(<span class="code-number">50</span>, <span class="code-number">70</span>, <span class="code-string">"Oak"</span>, <span class="code-string">"Green"</span>, <span class="code-string">"oak.png"</span>);
+    forest.plantTree(<span class="code-number">80</span>, <span class="code-number">90</span>, <span class="code-string">"Pine"</span>, <span class="code-string">"DarkGreen"</span>, <span class="code-string">"pine.png"</span>);
+    <span class="code-keyword">for</span> (<span class="code-keyword">int</span> i = <span class="code-number">3</span>; i &lt; 100_000; i++) { <span class="code-comment"># Plant additional trees</span>
+        <span class="code-keyword">if</span> (i % <span class="code-number">2</span> == <span class="code-number">0</span>) forest.plantTree(i, i, <span class="code-string">"Oak"</span>, <span class="code-string">"Green"</span>, <span class="code-string">"oak.png"</span>);
+        <span class="code-keyword">else</span> forest.plantTree(i, i, <span class="code-string">"Pine"</span>, <span class="code-string">"DarkGreen"</span>, <span class="code-string">"pine.png"</span>);
+    }
+    forest.drawFirst(<span class="code-number">3</span>);
+    <span class="code-class">System</span>.out.println(<span class="code-string">"Total trees: "</span> + forest.getTreeCount());
+    <span class="code-class">System</span>.out.println(<span class="code-string">"Unique tree types: "</span> + forest.getUniqueTypeCount());
+    <span class="code-class">System</span>.out.println(<span class="code-string">"First two trees share the same type: "</span> + (forest.getTree(<span class="code-number">0</span>).treeType() == forest.getTree(<span class="code-number">1</span>).treeType()));
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Output</strong> (the first three drawing lines are abbreviated):</p>
+    </div>
+    <div class="code-block"><pre><code>Drawing Oak tree at (10, 20), color=Green, texture=oak.png
+Drawing Oak tree at (50, 70), color=Green, texture=oak.png
+Drawing Pine tree at (80, 90), color=DarkGreen, texture=pine.png
+
+Total trees: 100000
+Unique tree types: 2
+First two trees share the same type: true</code></pre></div>
+    <div class="intro">
+        <p>We have created 100,000 individual <code>Tree</code> objects, but only two <code>TreeType</code> objects.</p>
     </div>
 
-    <div class="section code-section">
-        <div class="section-title">Code</div>
-        <div class="code-layout">
-            <div class="code-wrapper">
-<pre><code><span class="code-comment"># Flyweight: intrinsic (shared) state only</span>
-<span class="code-keyword">public class</span> <span class="code-class">TreeType</span> {
-    <span class="code-keyword">private final</span> String name;
-    <span class="code-keyword">private final</span> String color;
-    <span class="code-keyword">public</span> <span class="code-class">TreeType</span>(String name, String color) {
-        <span class="code-keyword">this</span>.name = name;
+    <div class="subheading">Memory Savings</div>
+    <div class="intro">
+        <p>Assume a more realistic implementation where each tree type contains about <strong>5 KB</strong> of reusable image or rendering data.</p>
+        <p>Suppose each lightweight context takes 24 bytes and ignore additional collection, reference and JVM overhead.</p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/flyweight-memory.svg" alt="Illustrative memory: without Flyweight 500 MB (100,000 objects times 5 KB of duplicated type data); with Flyweight about 2.41 MB (100,000 contexts times 24 B plus 2 shared types times 5 KB)" style="width:100%;max-width:720px">
+    </div>
+    <div class="callout callout-note"><p>Illustrative calculation, not a measured Java heap benchmark. The actual savings depend on how much duplicated data your objects contain.</p></div>
+    <div class="intro">
+        <p>The benefit is substantial when shared state is expensive.</p>
+        <p>When the shared state consists of just a few small fields or references to already-shared strings, the memory savings may be modest.</p>
+    </div>
+
+    <div class="subheading">Practical Example: Text Editor with Character Formatting</div>
+    <div class="intro">
+        <p>Consider a text editor like Microsoft Word or Google Docs.</p>
+        <p>Every character in a document can have formatting properties:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Character</span> {
+    <span class="code-keyword">char</span> value;
+    <span class="code-keyword">int</span> position;
+    <span class="code-class">String</span> font;
+    <span class="code-keyword">int</span> fontSize;
+    <span class="code-keyword">boolean</span> bold;
+    <span class="code-class">String</span> color;
+}</code></pre></div>
+    <div class="intro">
+        <p>Suppose a document contains 1 million characters.</p>
+        <p>Most of those characters may use the same formatting:</p>
+    </div>
+    <div class="code-block"><pre><code>Font: Arial
+Size: 12
+Bold: false
+Color: Black</code></pre></div>
+    <div class="intro">
+        <p>Duplicating these formatting attributes for every character introduces unnecessary state.</p>
+        <p>Instead, the editor can share formatting objects.</p>
+        <p><strong>Shared <code>CharacterStyle</code> Flyweight</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">CharacterStyle</span>(<span class="code-class">String</span> font, <span class="code-keyword">int</span> size, <span class="code-keyword">boolean</span> bold, <span class="code-class">String</span> color) {}</code></pre></div>
+    <div class="intro">
+        <p><strong><code>CharacterStyle</code> Factory</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CharacterStyleFactory</span> {
+    <span class="code-keyword">private</span> <span class="code-class">Map</span>&lt;<span class="code-class">CharacterStyle</span>, <span class="code-class">CharacterStyle</span>&gt; cache = <span class="code-keyword">new</span> <span class="code-class">HashMap</span>&lt;&gt;();
+
+    <span class="code-keyword">public</span> <span class="code-class">CharacterStyle</span> getStyle(<span class="code-class">String</span> font, <span class="code-keyword">int</span> size, <span class="code-keyword">boolean</span> bold, <span class="code-class">String</span> color) {
+        <span class="code-class">CharacterStyle</span> style = <span class="code-keyword">new</span> <span class="code-class">CharacterStyle</span>(font, size, bold, color);
+        <span class="code-keyword">return</span> cache.computeIfAbsent(style, key -&gt; key);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">int</span> getUniqueStyleCount() {
+        <span class="code-keyword">return</span> cache.size();
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>This factory uses the immutable <code>CharacterStyle</code> value itself as a map key. Its record-generated <code>equals</code> and <code>hashCode</code> methods make equivalent formatting configurations share the same canonical instance.</p>
+        <p><strong>Character Context</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">StyledCharacter</span>(<span class="code-keyword">char</span> value, <span class="code-keyword">int</span> position, <span class="code-class">CharacterStyle</span> style) {
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> display() {
+        <span class="code-class">System</span>.out.printf(<span class="code-string">"Character '%c' at position %d uses %s%n"</span>, value, position, style);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Usage</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">CharacterStyleFactory</span> factory = <span class="code-keyword">new</span> <span class="code-class">CharacterStyleFactory</span>();
+<span class="code-class">CharacterStyle</span> normal1 = factory.getStyle(<span class="code-string">"Arial"</span>, <span class="code-number">12</span>, <span class="code-keyword">false</span>, <span class="code-string">"Black"</span>);
+<span class="code-class">CharacterStyle</span> normal2 = factory.getStyle(<span class="code-string">"Arial"</span>, <span class="code-number">12</span>, <span class="code-keyword">false</span>, <span class="code-string">"Black"</span>);
+<span class="code-class">CharacterStyle</span> bold = factory.getStyle(<span class="code-string">"Arial"</span>, <span class="code-number">12</span>, <span class="code-keyword">true</span>, <span class="code-string">"Black"</span>);
+<span class="code-class">StyledCharacter</span> c1 = <span class="code-keyword">new</span> <span class="code-class">StyledCharacter</span>('H', <span class="code-number">0</span>, normal1);
+<span class="code-class">StyledCharacter</span> c2 = <span class="code-keyword">new</span> <span class="code-class">StyledCharacter</span>('e', <span class="code-number">1</span>, normal2);
+<span class="code-class">StyledCharacter</span> c3 = <span class="code-keyword">new</span> <span class="code-class">StyledCharacter</span>('!', <span class="code-number">2</span>, bold);
+<span class="code-class">System</span>.out.println(c1.style() == c2.style()); <span class="code-comment"># true</span>
+<span class="code-class">System</span>.out.println(c1.style() == c3.style()); <span class="code-comment"># false</span>
+<span class="code-class">System</span>.out.println(factory.getUniqueStyleCount()); <span class="code-comment"># 2</span></code></pre></div>
+    <div class="intro">
+        <p>Here:</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>State</th><th>Type</th><th>Stored in</th></tr></thead>
+            <tbody>
+                <tr><td>Font</td><td>Intrinsic</td><td><code>CharacterStyle</code></td></tr>
+                <tr><td>Font size</td><td>Intrinsic</td><td><code>CharacterStyle</code></td></tr>
+                <tr><td>Bold</td><td>Intrinsic</td><td><code>CharacterStyle</code></td></tr>
+                <tr><td>Color</td><td>Intrinsic</td><td><code>CharacterStyle</code></td></tr>
+                <tr><td>Character value</td><td>Extrinsic in this design</td><td><code>StyledCharacter</code></td></tr>
+                <tr><td>Character position</td><td>Extrinsic</td><td><code>StyledCharacter</code></td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>The key advantage is that 1 million characters can reference just a handful of shared formatting objects.</p>
+    </div>
+    <div class="callout callout-note"><p>A production editor might store text in a rope or piece table and apply styles to ranges, but Flyweight remains useful for sharing the style definitions themselves.</p></div>
+
+    <div class="subheading">Flyweight in the Java Standard Library</div>
+    <div class="intro">
+        <p>Java uses similar object-sharing techniques internally.</p>
+        <p><strong>Example: <code>Integer.valueOf</code></strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">Integer</span> a = <span class="code-class">Integer</span>.valueOf(<span class="code-number">100</span>);
+<span class="code-class">Integer</span> b = <span class="code-class">Integer</span>.valueOf(<span class="code-number">100</span>);
+<span class="code-class">System</span>.out.println(a == b); <span class="code-comment"># true</span></code></pre></div>
+    <div class="intro">
+        <p>Why? Java guarantees caching through <code>Integer.valueOf</code> for values from <strong>-128 to 127</strong>.</p>
+        <p>Both variables refer to the same cached <code>Integer</code> instance.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">Integer</span> x = <span class="code-class">Integer</span>.valueOf(<span class="code-number">1000</span>);
+<span class="code-class">Integer</span> y = <span class="code-class">Integer</span>.valueOf(<span class="code-number">1000</span>);</code></pre></div>
+    <div class="intro">
+        <p>For 1000, identity is not guaranteed because the implementation may or may not cache values outside the required range. This is Flyweight-like behavior: reuse immutable objects representing identical values.</p>
+        <p><strong>Example: String Interning</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">String</span> a = <span class="code-keyword">new</span> <span class="code-class">String</span>(<span class="code-string">"Hello"</span>);
+<span class="code-class">String</span> b = <span class="code-keyword">new</span> <span class="code-class">String</span>(<span class="code-string">"Hello"</span>);
+<span class="code-class">System</span>.out.println(a == b); <span class="code-comment"># false</span>
+<span class="code-class">String</span> c = a.intern();
+<span class="code-class">String</span> d = b.intern();
+<span class="code-class">System</span>.out.println(c == d); <span class="code-comment"># true</span></code></pre></div>
+    <div class="intro">
+        <p>The <code>intern</code> method returns a canonical reference for an equal string.</p>
+        <p>This is another example of sharing equivalent objects, reducing duplication in suitable scenarios.</p>
+    </div>
+    <div class="callout callout-warning"><p>However, interning is not automatically beneficial for every application. Retaining large numbers of distinct interned values can increase memory pressure.</p></div>
+
+    <div class="subheading">Is Flyweight Just Caching</div>
+    <div class="intro">
+        <p>Flyweight and caching are related, but they have different primary objectives.</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Flyweight</th><th>General-purpose cache</th></tr></thead>
+            <tbody>
+                <tr><td>Primarily reduces memory duplication</td><td>Primarily avoids repeated computation, retrieval or creation</td></tr>
+                <tr><td>Shares common state across logical objects</td><td>Stores reusable results or objects</td></tr>
+                <tr><td>Explicitly separates intrinsic and extrinsic state</td><td>Does not require state separation</td></tr>
+                <tr><td>Often uses a factory with a map</td><td>Can use maps, LRU, TTL, Redis, etc.</td></tr>
+                <tr><td>Example: shared font styles</td><td>Example: cached database query results</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>A Flyweight factory usually uses caching as its implementation mechanism.</p>
+        <p>But simply using a <code>HashMap</code> to cache objects does not automatically make an implementation a Flyweight pattern.</p>
+        <p>The defining characteristic is <strong>sharing reusable state among many logical objects while keeping individual context separate</strong>.</p>
+    </div>
+
+    <div class="subheading">Flyweight vs Singleton</div>
+    <div class="intro">
+        <p>These patterns are sometimes confused because both reuse objects.</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Flyweight</th><th>Singleton</th></tr></thead>
+            <tbody>
+                <tr><td>Can have multiple shared instances</td><td>Normally one instance per controlled scope</td></tr>
+                <tr><td>One shared object per unique intrinsic state</td><td>One controlled instance of a class</td></tr>
+                <tr><td>Optimizes repeated state across many logical objects</td><td>Controls the number of instances</td></tr>
+                <tr><td>Example: one <code>TreeType</code> for Oak, another for Pine</td><td>Example: one application-wide configuration manager</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>In our forest example:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">TreeType</span> oak = factory.getTreeType(<span class="code-string">"Oak"</span>, <span class="code-string">"Green"</span>, <span class="code-string">"oak.png"</span>);
+<span class="code-class">TreeType</span> pine = factory.getTreeType(<span class="code-string">"Pine"</span>, <span class="code-string">"DarkGreen"</span>, <span class="code-string">"pine.png"</span>);</code></pre></div>
+    <div class="intro">
+        <p>Both are Flyweights. They are different instances, but each can be reused by thousands of trees.</p>
+        <p>A Singleton would generally restrict the relevant class to one instance.</p>
+    </div>
+
+    <div class="subheading">Important Design Considerations</div>
+    <div class="intro">
+        <p><strong>Flyweights should usually be immutable</strong></p>
+        <p>Consider this dangerous design:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">TreeType</span> {
+    <span class="code-keyword">public</span> <span class="code-class">String</span> color;
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> setColor(<span class="code-class">String</span> color) {
         <span class="code-keyword">this</span>.color = color;
     }
-    <span class="code-keyword">public void</span> draw(<span class="code-keyword">int</span> x, <span class="code-keyword">int</span> y) {  <span class="code-comment"># extrinsic state passed in</span>
-        System.out.println(name + <span class="code-string">" at "</span> + x + <span class="code-string">","</span> + y);
-    }
-}
-
-<span class="code-comment"># Factory shares flyweights via a pool</span>
-<span class="code-keyword">public class</span> <span class="code-class">TreeFactory</span> {
-    <span class="code-keyword">private static final</span> Map&lt;String, <span class="code-class">TreeType</span>&gt; pool
-            = <span class="code-keyword">new</span> <span class="code-class">HashMap</span>&lt;&gt;();
-
-    <span class="code-keyword">public static</span> <span class="code-class">TreeType</span> get(String name, String color) {
-        <span class="code-keyword">return</span> pool.computeIfAbsent(name + color,
-                k -&gt; <span class="code-keyword">new</span> <span class="code-class">TreeType</span>(name, color));
-    }
-}
-
-<span class="code-keyword">void</span> main() {
-    <span class="code-class">TreeType</span> oak = <span class="code-class">TreeFactory</span>.get(<span class="code-string">"Oak"</span>, <span class="code-string">"green"</span>);
-    oak.draw(10, 20);
-    oak.draw(30, 40);  <span class="code-comment"># same shared object</span>
-}</code></pre>
-            </div>
-
-            <div class="code-explanation">
-                <div class="code-explanation-title">How the Flyweight works</div>
-                <p><code>TreeType</code> holds only intrinsic state (<code>name</code>, <code>color</code>) shared by many trees.<br><br>
-                    Extrinsic state such as position is passed into <code>draw()</code> by the client.<br><br>
-                    <code>TreeFactory</code> caches flyweights and returns the same instance for equal keys.<br><br>
-                    Thousands of trees can reuse a handful of <code>TreeType</code> objects, saving memory.</p>
-            </div>
-        </div>
+}</code></pre></div>
+    <div class="intro">
+        <p>If thousands of trees share the same <code>TreeType</code>, changing its color would affect every tree using it.</p>
+        <p>That could be unintended.</p>
+        <p>Prefer immutable objects:</p>
     </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">TreeType</span>(<span class="code-class">String</span> name, <span class="code-class">String</span> color) {}</code></pre></div>
+    <div class="intro">
+        <p>If one tree needs a different color, it should use another suitable Flyweight, or the color must be treated as extrinsic state if it is truly individual to that tree.</p>
+        <p><strong>Avoid unbounded Flyweight caches</strong></p>
+        <p>A Flyweight factory typically maintains a map:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">Map</span>&lt;<span class="code-class">Key</span>, <span class="code-class">Flyweight</span>&gt; cache;</code></pre></div>
+    <div class="intro">
+        <p>If every lookup has a different key, the cache could keep growing.</p>
+        <p>For example, suppose you put unique user IDs into the intrinsic state:</p>
+    </div>
+    <div class="code-block"><pre><code>factory.getStyle(userId, font, color);</code></pre></div>
+    <div class="intro">
+        <p>If every <code>userId</code> is unique, sharing becomes ineffective.</p>
+        <p>For applications with potentially unlimited intrinsic-state combinations, consider bounded caches, eviction policies or weak-reference-based strategies where appropriate.</p>
+        <p><strong>Do not make the Flyweight depend on mutable extrinsic state</strong></p>
+        <p>Avoid implementations where the shared Flyweight stores temporary state for the current caller:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-comment"># Bad design</span>
+sharedTreeType.setCurrentPosition(x, y);
+sharedTreeType.draw();</code></pre></div>
+    <div class="intro">
+        <p>This can introduce race conditions when multiple threads use the same Flyweight.</p>
+        <p>Prefer:</p>
+    </div>
+    <div class="code-block"><pre><code>sharedTreeType.draw(x, y); <span class="code-comment"># Better design</span></code></pre></div>
+    <div class="intro">
+        <p>Each operation supplies its own context without modifying the shared Flyweight.</p>
+        <p><strong>Sharing introduces indirection</strong></p>
+        <p>Flyweight makes object creation and memory management more complex because you must maintain factories, keys, and references. It is not necessarily useful for a small number of inexpensive objects.</p>
+    </div>
+
+    <div class="subheading">Where Is Flyweight Used in Real Applications</div>
+    <div class="intro"><ul>
+        <li><strong>Game engines</strong> &mdash; Thousands of game objects share textures, sprite assets, meshes or material definitions.<br> Each entity retains its own position, rotation and movement state.</li>
+        <li><strong>Text editors and font rendering</strong> &mdash; Characters and text runs can share fonts, styles and glyph resources, while<br> their locations and document content remain individual.</li>
+        <li><strong>Maps and visualization systems</strong> &mdash; Thousands of markers can reuse the same icon or symbol definition while maintaining different coordinates and metadata.</li>
+        <li><strong>Compilers and IDEs</strong> &mdash; Large structures such as syntax trees can reuse immutable descriptors, canonical identifiers or type information instead of repeatedly allocating equivalent objects.</li>
+    </ul></div>
+    <div class="intro">
+        <p>These are common uses scenarios for the pattern, although the exact sharing strategy depends on the implementation.</p>
+    </div>
+
+    <div class="subheading">When Should You Use Flyweight</div>
+    <div class="intro">
+        <p>Flyweight is appropriate when:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>Your application creates a very large number of objects.</li>
+        <li>Many of those objects contain substantial duplicated data.</li>
+        <li>You can clearly separate intrinsic and extrinsic state.</li>
+        <li>The shared state can be immutable.</li>
+        <li>The memory saved is worth the additional factory and lookup complexity.</li>
+    </ul></div>
+    <div class="callout callout-warning"><p>Avoid it when objects are few, their data is mostly unique, or separating the state makes the design significantly harder to maintain without meaningful memory savings.</p></div>
+
+    <div class="subheading">Summary</div>
+    <div class="intro">
+        <p>The Flyweight pattern reduces memory usage by separating shared state from individual state and allowing many logical objects to reference the same reusable, typically immutable object.</p>
+        <p>In the forest example:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-comment"># Shared intrinsic state</span>
+<span class="code-class">TreeType</span> oakType = factory.getTreeType(<span class="code-string">"Oak"</span>, <span class="code-string">"Green"</span>, <span class="code-string">"oak.png"</span>);
+<span class="code-comment"># Unique extrinsic state</span>
+<span class="code-class">Tree</span> tree1 = <span class="code-keyword">new</span> <span class="code-class">Tree</span>(<span class="code-number">10</span>, <span class="code-number">20</span>, oakType);
+<span class="code-class">Tree</span> tree2 = <span class="code-keyword">new</span> <span class="code-class">Tree</span>(<span class="code-number">30</span>, <span class="code-number">40</span>, oakType);
+<span class="code-class">Tree</span> tree3 = <span class="code-keyword">new</span> <span class="code-class">Tree</span>(<span class="code-number">50</span>, <span class="code-number">60</span>, oakType);</code></pre></div>
+    <div class="intro">
+        <p>All three trees have their own coordinates, but they share the same <code>TreeType</code> instance.</p>
+    </div>
+    <div class="callout callout-note"><p><strong>The key takeaway:</strong> Flyweight is not about eliminating individual objects altogether. It is about eliminating unnecessary duplication of their common state.</p></div>
+
 </div>
 </body>
 </html>

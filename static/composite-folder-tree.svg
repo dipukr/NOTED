@@ -1,0 +1,22 @@
+<svg width="720" height="222" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 222" role="img" aria-label="Root Folder (composite) containing file1.txt (leaf) and Images Folder (composite), which contains a.png and b.png (leaves)">
+    <defs><marker id="cs2-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#555555"/></marker><marker id="cs2-l" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#9A9A9A"/></marker></defs>
+    <path d="M360 64 V77 H190 V90" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#cs2-a)"/>
+    <path d="M360 64 V77 H530 V90" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#cs2-a)"/>
+    <path d="M530 144 V155 H440 V166" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#cs2-a)"/>
+    <path d="M530 144 V155 H620 V166" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#cs2-a)"/>
+    <rect x="265" y="12" width="190" height="52" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="360" y="32" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Root Folder</text>
+    <text x="360" y="48" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">composite</text>
+    <rect x="105" y="92" width="170" height="52" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="190" y="112" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">file1.txt</text>
+    <text x="190" y="128" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">leaf</text>
+    <rect x="435" y="92" width="190" height="52" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="530" y="112" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Images Folder</text>
+    <text x="530" y="128" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">composite</text>
+    <rect x="370" y="168" width="140" height="52" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="440" y="188" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">a.png</text>
+    <text x="440" y="204" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">leaf</text>
+    <rect x="550" y="168" width="140" height="52" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="620" y="188" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">b.png</text>
+    <text x="620" y="204" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">leaf</text>
+</svg>

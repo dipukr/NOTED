@@ -1,0 +1,19 @@
+<svg width="640" height="200" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 200" role="img" aria-label="When its status changes, the Order subject calls notify() on the Email, Dashboard and Audit observers, which send a notification, refresh the UI and record the change">
+    <defs><marker id="ob1-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#555555"/></marker><marker id="ob1-l" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#9A9A9A"/></marker></defs>
+    <path d="M320 66 V99 H120 V132" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#ob1-a)"/>
+    <path d="M320 66 V99 H320 V132" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#ob1-a)"/>
+    <path d="M320 66 V99 H520 V132" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#ob1-a)"/>
+    <rect x="180" y="12" width="280" height="54" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="320" y="33" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Order (Subject)</text>
+    <text x="320" y="49" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">status changes → notify observers</text>
+    <rect x="35" y="134" width="170" height="52" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="120" y="154" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Email</text>
+    <text x="120" y="170" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">send notification</text>
+    <rect x="235" y="134" width="170" height="52" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="320" y="154" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Dashboard</text>
+    <text x="320" y="170" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">refresh UI</text>
+    <rect x="435" y="134" width="170" height="52" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="520" y="154" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Audit</text>
+    <text x="520" y="170" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">record change</text>
+    <text x="328" y="87" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="11" font-weight="400" fill="#555555" font-style="italic">notify()</text>
+</svg>

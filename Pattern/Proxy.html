@@ -3,99 +3,931 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Proxy Pattern - Notes</title>
+<title>Proxy</title>
 <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
 <div class="note">
-    <div class="title">Proxy Pattern</div>
+    <div class="title">Proxy</div>
 
     <div class="intro">
-        <p>Proxy pattern is a structural design pattern that provides a proxy for other objects to control access to them.</p>
-        <p>Proxy implements the same interface as the real object and can add behavior like access control, logging, caching, lazy loading, etc.</p>
-        <p>A proxy is a wrapper or agent object that the client calls to access the real serving object behind the scenes. Extra functionalities can be provided into proxy such as caching the operations on the actual object or checking pre-conditions before calling operations on the actual object. A proxy functions as an interface to something else.</p>
+        <p>The <strong>Proxy Design Pattern</strong> is a structural design pattern that provides a substitute or placeholder for another object to control access to it. 
+            Instead of allowing the client to interact directly with the real object, the Proxy Pattern introduces<br> an intermediate object (called a <strong>proxy</strong>) that implements the same interface as the real object.</p>
+        <p>The proxy intercepts requests from the client and may perform additional operations before or after delegating those requests to the real object.</p>
+        <p>These additional operations can include:</p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>Access Control:</strong> Restrict access to certain operations based on permissions.</li>
+        <li><strong>Lazy Initialization:</strong> Delay the creation of expensive objects until they are actually needed.</li>
+        <li><strong>Caching:</strong> Store previously computed results to avoid repeated expensive operations.</li>
+        <li><strong>Logging and Monitoring:</strong> Record method calls, execution times, and other information.</li>
+        <li><strong>Remote Communication:</strong> Represent an object residing on another server or process.</li>
+        <li><strong>Resource Management:</strong> Manage the lifecycle of an object or its associated resources.</li>
+    </ul></div>
+    <div class="callout callout-note"><p>The key idea is that the client interacts with the proxy as though it were the real object, without needing to know the difference.</p></div>
+
+    <div class="subheading">Understanding the Problem</div>
+    <div class="intro">
+        <p>Consider a video streaming application such as YouTube.</p>
+        <p>When a user opens a page containing 100 videos, displaying their titles and thumbnails does not require downloading all 100 video files immediately.</p>
+        <p>If the application eagerly downloads every video, it wastes network bandwidth, memory, and processing time.</p>
+        <p>Instead, we can introduce a proxy:</p>
+    </div>
+    <div class="intro"><ol>
+        <li>The application creates lightweight video proxy objects.</li>
+        <li>Each proxy stores information identifying its video.</li>
+        <li>The actual video is not loaded immediately.</li>
+        <li>When the user clicks <strong>Play</strong>, the proxy loads the real video and delegates playback to it.</li>
+        <li>Subsequent playback requests can reuse the loaded video.</li>
+    </ol></div>
+    <div class="intro">
+        <p>This is an example of a <strong>Virtual Proxy</strong>, which delays expensive object initialization.</p>
+        <p><strong>Without Proxy</strong></p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/proxy-without.svg" alt="Without a proxy, the client directly accesses the real object" style="width:100%;max-width:520px">
+    </div>
+    <div class="intro">
+        <p>The client directly creates and accesses the expensive object.</p>
+        <p><strong>With Proxy</strong></p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/proxy-with.svg" alt="With a proxy, the client calls the proxy, which controls access (cache, lazy load, security, logging) and forwards to the real object" style="width:100%;max-width:780px">
+    </div>
+    <div class="intro">
+        <p>The proxy acts as a controlled gateway to the real object. Depending on the implementation, it may execute the request itself, return a cached result, deny the request, or forward it to the real object.</p>
     </div>
 
-    <div class="section when-use">
-        <div class="section-title">When-to use</div>
-        <div class="section-content">
-            <ul>
-                <li>When we need to perform additional operations (lazy loading, caching, access control) when accessing an object.</li>
-            </ul>
-        </div>
+    <div class="subheading">Structure of the Proxy Pattern</div>
+    <div class="intro">
+        <p>The Proxy Pattern generally contains four participants:</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Component</th><th>Responsibility</th></tr></thead>
+            <tbody>
+                <tr><td>Subject</td><td>Defines the common interface used by both proxy and real object.</td></tr>
+                <tr><td>RealSubject</td><td>Performs the actual business operation.</td></tr>
+                <tr><td>Proxy</td><td>Implements the Subject interface, controls access, and delegates to the RealSubject.</td></tr>
+                <tr><td>Client</td><td>Uses the Subject interface without depending on the concrete implementation.</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="svg-diagram">
+        <img src="../static/proxy-structure.svg" alt="Subject interface implemented by RealSubject and Proxy; Proxy holds a RealSubject and delegates to it; Client uses Subject" style="width:100%;max-width:720px">
+    </div>
+    <div class="intro">
+        <p>A basic implementation looks like this:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">Service</span> {
+    <span class="code-keyword">void</span> execute();
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">RealService</span> <span class="code-keyword">implements</span> <span class="code-class">Service</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> execute() {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Executing actual operation"</span>);
+    }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ServiceProxy</span> <span class="code-keyword">implements</span> <span class="code-class">Service</span> {
+    <span class="code-keyword">private</span> <span class="code-class">Service</span> realService;
+
+    <span class="code-keyword">public</span> <span class="code-class">ServiceProxy</span>(<span class="code-class">Service</span> realService) {
+        <span class="code-keyword">this</span>.realService = realService;
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> execute() {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Before execution"</span>);
+        realService.execute();
+        <span class="code-class">System</span>.out.println(<span class="code-string">"After execution"</span>);
+    }
+}
+
+<span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+    <span class="code-class">Service</span> service = <span class="code-keyword">new</span> <span class="code-class">ServiceProxy</span>(<span class="code-keyword">new</span> <span class="code-class">RealService</span>());
+    service.execute();
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Output:</strong></p>
+    </div>
+    <div class="code-block"><pre><code>Before execution
+Executing actual operation
+After execution</code></pre></div>
+    <div class="intro">
+        <p>Notice that the client depends only on <code>Service</code>. Whether it receives a <code>RealService</code> or a <code>ServiceProxy</code>, it uses the same <code>execute</code> method.</p>
+        <p>This makes it possible to introduce a proxy without changing the client's core business logic.</p>
     </div>
 
-    <div class="section when-use">
-        <div class="section-title">Components</div>
-        <div class="section-content">
-            <ul>
-                <li>Subject (Interface) – Declares common interface for RealSubject and Proxy.</li>
-                <li>RealSubject – The actual object that does the work.</li>
-                <li>Proxy – Controls access to RealSubject, implements the same interface.</li>
-            </ul>
-        </div>
+    <div class="subheading">Types of Proxy Design Pattern</div>
+    <div class="intro">
+        <p>There are several common variations of the Proxy Pattern, each serving a different purpose.</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Proxy Type</th><th>Purpose</th><th>Practical Example</th></tr></thead>
+            <tbody>
+                <tr><td>Virtual Proxy</td><td>Delays expensive object creation</td><td>Lazy-loaded images and videos</td></tr>
+                <tr><td>Protection Proxy</td><td>Controls access to operations</td><td>Role-based authorization</td></tr>
+                <tr><td>Caching Proxy</td><td>Avoids repeated expensive computation</td><td>Cached database or API queries</td></tr>
+                <tr><td>Logging Proxy</td><td>Records interactions with a real object</td><td>API monitoring and audit logs</td></tr>
+                <tr><td>Remote Proxy</td><td>Represents an object in another process</td><td>RPC and remote services</td></tr>
+                <tr><td>Smart Reference Proxy</td><td>Adds management around object access</td><td>Reference counting, resource tracking</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>Let's examine the important types with practical Java implementations.</p>
     </div>
 
-    <div class="section realworld">
-        <div class="section-title">Real-world example</div>
-        <div class="section-content"><ul>
-            <li><strong>Java RMI</strong> &mdash; Uses proxy to call remote objects.</li>
-            <li><strong>Spring AOP</strong> &mdash; Uses proxies for method interception.</li>
-            <li><strong>Hibernate</strong> &mdash; Lazy-loaded entities are proxies.</li>
-            <li><strong>Security managers</strong> &mdash; Proxy access to critical resources.</li>
-            <li><strong>Credit card</strong> &mdash; Acts as a proxy for our bank account.</li>
-        </ul></div>
+    <div class="subheading">Practical Example: Virtual Proxy (Lazy Loading)</div>
+    <div class="intro">
+        <p>A <strong>Virtual Proxy</strong> delays the creation of an expensive object until that object is actually required.</p>
+        <p>Imagine an image-viewing application. Loading a high-resolution image may involve reading a large file from disk or downloading it from a server. 
+            We don't want to load every image at startup.</p>
     </div>
-
-    <div class="section code-section">
-        <div class="section-title">Code</div>
-        <div class="code-layout">
-            <div class="code-wrapper">
-<pre><code><span class="code-keyword">public interface</span> <span class="code-class">Image</span> {
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">Image</span> {
     <span class="code-keyword">void</span> display();
 }
 
-<span class="code-keyword">public class</span> <span class="code-class">RealImage</span> <span class="code-keyword">implements</span> <span class="code-class">Image</span> {
-    <span class="code-keyword">private final</span> String file;
-    <span class="code-keyword">public</span> <span class="code-class">RealImage</span>(String file) {
-        <span class="code-keyword">this</span>.file = file;
-        System.out.println(<span class="code-string">"Loading "</span> + file);  <span class="code-comment"># expensive</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">RealImage</span> <span class="code-keyword">implements</span> <span class="code-class">Image</span> {
+    <span class="code-keyword">private</span> <span class="code-class">String</span> filename;
+
+    <span class="code-keyword">public</span> <span class="code-class">RealImage</span>(<span class="code-class">String</span> filename) {
+        <span class="code-keyword">this</span>.filename = filename;
+        loadImage();
     }
-    <span class="code-keyword">public void</span> display() {
-        System.out.println(<span class="code-string">"Displaying "</span> + file);
+
+    <span class="code-keyword">private</span> <span class="code-keyword">void</span> loadImage() {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Loading image: "</span> + filename); <span class="code-comment"># Expensive disk or network operation</span>
     }
-}
 
-<span class="code-comment"># Virtual proxy: loads on first use only</span>
-<span class="code-keyword">public class</span> <span class="code-class">ImageProxy</span> <span class="code-keyword">implements</span> <span class="code-class">Image</span> {
-    <span class="code-keyword">private final</span> String file;
-    <span class="code-keyword">private</span> <span class="code-class">RealImage</span> real;
-
-    <span class="code-keyword">public</span> <span class="code-class">ImageProxy</span>(String file) { <span class="code-keyword">this</span>.file = file; }
-
-    <span class="code-keyword">public void</span> display() {
-        <span class="code-keyword">if</span> (real == <span class="code-keyword">null</span>)
-            real = <span class="code-keyword">new</span> <span class="code-class">RealImage</span>(file);
-        real.display();
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> display() {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Displaying: "</span> + filename);
     }
 }
 
-<span class="code-keyword">void</span> main() {
-    <span class="code-class">Image</span> img = <span class="code-keyword">new</span> <span class="code-class">ImageProxy</span>(<span class="code-string">"photo.png"</span>);
-    img.display();  <span class="code-comment"># loads now</span>
-    img.display();  <span class="code-comment"># reuses loaded image</span>
-}</code></pre>
-            </div>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ImageProxy</span> <span class="code-keyword">implements</span> <span class="code-class">Image</span> {
+    <span class="code-keyword">private</span> <span class="code-class">String</span> filename;
+    <span class="code-keyword">private</span> <span class="code-class">RealImage</span> realImage;
 
-            <div class="code-explanation">
-                <div class="code-explanation-title">How the Proxy works</div>
-                <p><code>Image</code> is the shared interface implemented by both the real object and the proxy.<br><br>
-                    <code>ImageProxy</code> stands in for <code>RealImage</code> and holds a reference to it.<br><br>
-                    The costly <code>RealImage</code> is created lazily, only on the first <code>display()</code> call.<br><br>
-                    The client uses <code>Image</code> and never needs to know a proxy is involved.</p>
-            </div>
+    <span class="code-keyword">public</span> <span class="code-class">ImageProxy</span>(<span class="code-class">String</span> filename) {
+        <span class="code-keyword">this</span>.filename = filename;
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">synchronized</span> <span class="code-keyword">void</span> display() {
+        <span class="code-keyword">if</span> (realImage == <span class="code-keyword">null</span>) <span class="code-comment"># Create the real object only when needed</span>
+            realImage = <span class="code-keyword">new</span> <span class="code-class">RealImage</span>(filename);
+        realImage.display(); <span class="code-comment"># Delegate to the real object</span>
+    }
+}
+
+<span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+    <span class="code-class">Image</span> image = <span class="code-keyword">new</span> <span class="code-class">ImageProxy</span>(<span class="code-string">"photo.jpg"</span>);
+    <span class="code-class">System</span>.out.println(<span class="code-string">"Proxy created"</span>);
+    <span class="code-class">System</span>.out.println(<span class="code-string">"First display:"</span>);
+    image.display();
+    <span class="code-class">System</span>.out.println(<span class="code-string">"Second display:"</span>);
+    image.display();
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Output:</strong></p>
+    </div>
+    <div class="code-block"><pre><code>Proxy created
+First display:
+Loading image: photo.jpg
+Displaying: photo.jpg
+Second display:
+Displaying: photo.jpg</code></pre></div>
+    <div class="intro">
+        <p><strong>How it works</strong>: <strong>Object lifecycle</strong></p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Step</th><th>What happens</th><th>Result</th></tr></thead>
+            <tbody>
+                <tr><td>Proxy is created</td><td><code>new ImageProxy("photo.jpg")</code></td><td>Only the filename is stored. No image is loaded.</td></tr>
+                <tr><td>First <code>display()</code> call</td><td><code>RealImage</code> created</td><td>Image is loaded and displayed.</td></tr>
+                <tr><td>Second <code>display()</code> call</td><td>Existing instance reused</td><td>No additional loading required.</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>The proxy holds a reference to <code>RealImage</code>, but it doesn't initialize that reference until the first call to <code>display</code>.</p>
+        <p><code>Synchronized</code> keyword prevents concurrent callers from initializing multiple real images in this simple implementation.</p>
+    </div>
+    <div class="callout callout-note"><p><strong>Real-world applications:</strong> Image galleries, video players, large document viewers, ORM lazy loading, and expensive service clients.</p></div>
+    <div class="intro">
+        <p>An important distinction: lazy loading is about <strong>when</strong> the object is initialized. Caching is about <strong>whether previously computed results can be reused</strong>. A virtual proxy may retain its loaded object, but that is different from caching the result of arbitrary operations.</p>
+    </div>
+
+    <div class="subheading">Practical Example: Protection Proxy (Access Control)</div>
+    <div class="intro">
+        <p>A <strong>Protection Proxy</strong> controls which clients can access an object or perform certain operations.</p>
+        <p>Consider a document management system where:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>Regular users can read documents.</li>
+        <li>Administrators can read and delete documents.</li>
+        <li>Unauthorized deletion attempts must be rejected before the real service is invoked.</li>
+    </ul></div>
+    <div class="intro">
+        <p>Rather than embedding authorization into every business service, a proxy can enforce the access policy.</p>
+        <p><strong>Java implementation</strong></p>
+        <p><code>ProtectionProxyDemo.java</code></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">DocumentService</span> {
+    <span class="code-class">String</span> read(<span class="code-class">String</span> docId);
+    <span class="code-keyword">void</span> delete(<span class="code-class">String</span> docId);
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">RealDocumentService</span> <span class="code-keyword">implements</span> <span class="code-class">DocumentService</span> {
+    <span class="code-keyword">private</span> <span class="code-class">Map</span>&lt;<span class="code-class">String</span>, <span class="code-class">String</span>&gt; documents = <span class="code-keyword">new</span> <span class="code-class">ConcurrentHashMap</span>&lt;&gt;(<span class="code-class">Map</span>.of(<span class="code-string">"doc1"</span>, <span class="code-string">"Confidential Report"</span>));
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">String</span> read(<span class="code-class">String</span> docId) {
+        <span class="code-keyword">return</span> documents.get(docId);
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> delete(<span class="code-class">String</span> docId) {
+        documents.remove(docId);
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Document deleted"</span>);
+    }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">enum</span> <span class="code-class">Role</span> {
+    USER, ADMIN
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">DocumentServiceProxy</span> <span class="code-keyword">implements</span> <span class="code-class">DocumentService</span> {
+    <span class="code-keyword">private</span> <span class="code-class">DocumentService</span> realService;
+    <span class="code-keyword">private</span> <span class="code-class">Role</span> role;
+
+    <span class="code-keyword">public</span> <span class="code-class">DocumentServiceProxy</span>(<span class="code-class">DocumentService</span> realService, <span class="code-class">Role</span> role) {
+        <span class="code-keyword">this</span>.realService = realService;
+        <span class="code-keyword">this</span>.role = role;
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">String</span> read(<span class="code-class">String</span> docId) {
+        <span class="code-keyword">return</span> realService.read(docId);
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> delete(<span class="code-class">String</span> docId) {
+        <span class="code-keyword">if</span> (role != <span class="code-class">Role</span>.ADMIN)
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">SecurityException</span>(<span class="code-string">"Only admins can delete documents"</span>);
+        realService.delete(docId);
+    }
+}
+
+<span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+    <span class="code-class">DocumentService</span> realService = <span class="code-keyword">new</span> <span class="code-class">RealDocumentService</span>();
+    <span class="code-class">DocumentService</span> user = <span class="code-keyword">new</span> <span class="code-class">DocumentServiceProxy</span>(realService, <span class="code-class">Role</span>.USER);
+    <span class="code-class">DocumentService</span> admin = <span class="code-keyword">new</span> <span class="code-class">DocumentServiceProxy</span>(realService, <span class="code-class">Role</span>.ADMIN);
+    <span class="code-class">System</span>.out.println(user.read(<span class="code-string">"doc1"</span>));
+    <span class="code-keyword">try</span> {
+        user.delete(<span class="code-string">"doc1"</span>);
+    } <span class="code-keyword">catch</span> (<span class="code-class">SecurityException</span> e) {
+        <span class="code-class">System</span>.out.println(e.getMessage());
+    }
+    admin.delete(<span class="code-string">"doc1"</span>);
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Output:</strong></p>
+    </div>
+    <div class="code-block"><pre><code>Confidential Report
+Only admins can delete documents
+Document deleted</code></pre></div>
+    <div class="intro">
+        <p><strong>What is happening?</strong></p>
+        <p>When <code>user.delete("doc1")</code> is executed:</p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/proxy-protection-flow.svg" alt="The client calls DocumentServiceProxy, which checks whether role equals ADMIN; if no it throws SecurityException, if yes it calls RealDocumentService.delete()" style="width:100%;max-width:600px">
+    </div>
+    <div class="intro">
+        <p>The real service never receives the unauthorized delete request.</p>
+        <p>This separates two responsibilities:</p>
+    </div>
+    <div class="intro"><ul>
+        <li><code>RealDocumentService</code> handles document operations.</li>
+        <li><code>DocumentServiceProxy</code> handles access control.</li>
+    </ul></div>
+    <div class="callout callout-warning"><p>For a production system, the proxy should obtain identity and permissions from a trusted, authenticated security context, not an unverified role supplied by the client. All protected entry points must enforce authorization.</p></div>
+    <div class="intro">
+        <p><strong>Real-world applications:</strong> Role-based APIs, administrative operations, file access permissions, and method-level security in Spring applications.</p>
+    </div>
+
+    <div class="subheading">Practical Example: Caching Proxy with Logging</div>
+    <div class="intro">
+        <p>A <strong>Caching Proxy</strong> stores previously retrieved results so that repeated requests can be served without calling the expensive real service.</p>
+        <p>This is particularly useful for database queries, external API calls, or computationally expensive operations.</p>
+        <p>Suppose we have a product catalog service.</p>
+        <p>Without caching, every request goes to the database:</p>
+    </div>
+    <div class="code-block"><pre><code>getProduct(101) -&gt; Database
+getProduct(101) -&gt; Database
+getProduct(101) -&gt; Database</code></pre></div>
+    <div class="intro">
+        <p>With a caching proxy:</p>
+    </div>
+    <div class="code-block"><pre><code>getProduct(101) -&gt; Cache Miss -&gt; Database
+getProduct(101) -&gt; Cache Hit
+getProduct(101) -&gt; Cache Hit</code></pre></div>
+    <div class="intro">
+        <p>Here we will combine two different proxies: a caching proxy and a logging proxy.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">Product</span>(<span class="code-keyword">long</span> id, <span class="code-class">String</span> name) {}
+
+<span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">ProductService</span> {
+    <span class="code-class">Optional</span>&lt;<span class="code-class">Product</span>&gt; findById(<span class="code-keyword">long</span> id);
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">DatabaseProductService</span> <span class="code-keyword">implements</span> <span class="code-class">ProductService</span> {
+    <span class="code-keyword">private</span> <span class="code-class">Map</span>&lt;<span class="code-class">Long</span>, <span class="code-class">Product</span>&gt; database = <span class="code-class">Map</span>.of(101L, <span class="code-keyword">new</span> <span class="code-class">Product</span>(<span class="code-number">101</span>, <span class="code-string">"Laptop"</span>), 102L, <span class="code-keyword">new</span> <span class="code-class">Product</span>(<span class="code-number">102</span>, <span class="code-string">"Keyboard"</span>));
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">Optional</span>&lt;<span class="code-class">Product</span>&gt; findById(<span class="code-keyword">long</span> id) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Querying database: "</span> + id);
+        <span class="code-keyword">return</span> <span class="code-class">Optional</span>.ofNullable(database.get(id));
+    }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CachingProductProxy</span> <span class="code-keyword">implements</span> <span class="code-class">ProductService</span> {
+    <span class="code-keyword">private</span> <span class="code-class">ProductService</span> realService;
+    <span class="code-keyword">private</span> <span class="code-class">Map</span>&lt;<span class="code-class">Long</span>, <span class="code-class">Optional</span>&lt;<span class="code-class">Product</span>&gt;&gt; cache = <span class="code-keyword">new</span> <span class="code-class">ConcurrentHashMap</span>&lt;&gt;();
+
+    <span class="code-keyword">public</span> <span class="code-class">CachingProductProxy</span>(<span class="code-class">ProductService</span> realService) {
+        <span class="code-keyword">this</span>.realService = realService;
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">Optional</span>&lt;<span class="code-class">Product</span>&gt; findById(<span class="code-keyword">long</span> id) {
+        <span class="code-keyword">return</span> cache.computeIfAbsent(id, key -&gt; {
+            <span class="code-class">System</span>.out.println(<span class="code-string">"Cache miss: "</span> + key);
+            <span class="code-keyword">return</span> realService.findById(key);
+        });
+    }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">LoggingProductProxy</span> <span class="code-keyword">implements</span> <span class="code-class">ProductService</span> {
+    <span class="code-keyword">private</span> <span class="code-class">ProductService</span> delegate;
+
+    <span class="code-keyword">public</span> <span class="code-class">LoggingProductProxy</span>(<span class="code-class">ProductService</span> delegate) {
+        <span class="code-keyword">this</span>.delegate = delegate;
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">Optional</span>&lt;<span class="code-class">Product</span>&gt; findById(<span class="code-keyword">long</span> id) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Request: "</span> + id);
+        <span class="code-class">Optional</span>&lt;<span class="code-class">Product</span>&gt; result = delegate.findById(id);
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Response: "</span> + result);
+        <span class="code-keyword">return</span> result;
+    }
+}
+
+<span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+    <span class="code-class">ProductService</span> service = <span class="code-keyword">new</span> <span class="code-class">LoggingProductProxy</span>(<span class="code-keyword">new</span> <span class="code-class">CachingProductProxy</span>(<span class="code-keyword">new</span> <span class="code-class">DatabaseProductService</span>()));
+    service.findById(<span class="code-number">101</span>);
+    service.findById(<span class="code-number">101</span>);
+    service.findById(<span class="code-number">102</span>);
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Output (simplified):</strong></p>
+    </div>
+    <div class="code-block"><pre><code>Request: 101
+Cache miss: 101
+Querying database: 101
+Response: Optional[Product[id=101, name=Laptop]]
+
+Request: 101
+Response: Optional[Product[id=101, name=Laptop]]
+
+Request: 102
+Cache miss: 102
+Querying database: 102
+Response: Optional[Product[id=102, name=Keyboard]]</code></pre></div>
+    <div class="intro">
+        <p><strong>How the proxies are composed</strong></p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/proxy-caching-flow.svg" alt="Client calls LoggingProductProxy, then CachingProductProxy; on a cache hit the cached result is returned, on a miss DatabaseProductService is queried and the result stored in the cache; the logging proxy records the response and the client receives the result" style="width:100%;max-width:640px">
+    </div>
+    <div class="intro">
+        <p>This demonstrates an important property of proxies: <strong>multiple proxies can be chained</strong> because they implement the same interface.</p>
+        <p>The client only needs the <code>ProductService</code> interface, and each proxy introduces an independent behavior.</p>
+        <p>In this example, <code>computeIfAbsent</code> gives an atomic per-key computation with <code>ConcurrentHashMap</code>, avoiding duplicate cache initialization for the same key under normal concurrent access. The <code>Optional</code> wrapper allows missing products<br> to be cached as well.</p>
+        <p><strong>Production considerations</strong></p>
+        <p>The example intentionally keeps caching simple. A production caching proxy should usually handle:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>Cache expiration (TTL).</li>
+        <li>Cache invalidation when products are updated or deleted.</li>
+        <li>Maximum cache size and eviction.</li>
+        <li>Database or API failures.</li>
+        <li>Monitoring cache-hit ratios.</li>
+        <li>Distributed caching when multiple application instances need shared cached data.</li>
+    </ul></div>
+    <div class="intro">
+        <p>For Java, libraries such as Caffeine and integrations such as Spring Cache offer more complete cache management.</p>
+    </div>
+
+    <div class="subheading">Practical Example: Remote Proxy (Microservices Communication)</div>
+    <div class="intro">
+        <p>A <strong>Remote Proxy</strong> represents an object located in another process, machine, or server.</p>
+        <p>The client interacts with the proxy through an ordinary Java interface. The proxy translates method calls into network requests and converts responses back into a form usable by the client.</p>
+        <p>Consider two microservices:</p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>Order Service:</strong> Needs to retrieve order status.</li>
+        <li><strong>Order Management Service:</strong> Owns and manages orders.</li>
+    </ul></div>
+    <div class="intro">
+        <p>Instead of embedding HTTP communication code throughout the app, we can encapsulate it inside a remote proxy.</p>
+        <p><strong>Architecture</strong></p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/proxy-remote.svg" alt="In microservice A the order service client calls a remote proxy, which sends an HTTP request to the REST API in microservice B; the order business logic returns an HTTP response to the proxy" style="width:100%;max-width:760px">
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">OrderService</span> {
+    <span class="code-class">String</span> getOrderStatus(<span class="code-keyword">long</span> orderId) <span class="code-keyword">throws</span> <span class="code-class">IOException</span>, <span class="code-class">InterruptedException</span>;
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">RemoteOrderServiceProxy</span> <span class="code-keyword">implements</span> <span class="code-class">OrderService</span> {
+    <span class="code-keyword">private</span> <span class="code-class">HttpClient</span> httpClient;
+    <span class="code-keyword">private</span> URI baseUri;
+
+    <span class="code-keyword">public</span> <span class="code-class">RemoteOrderServiceProxy</span>(<span class="code-class">String</span> baseUrl) {
+        <span class="code-keyword">this</span>.baseUri = URI.create(baseUrl);
+        <span class="code-keyword">this</span>.httpClient = <span class="code-class">HttpClient</span>.newBuilder().connectTimeout(<span class="code-class">Duration</span>.ofSeconds(<span class="code-number">3</span>)).build();
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">String</span> getOrderStatus(<span class="code-keyword">long</span> orderId) <span class="code-keyword">throws</span> <span class="code-class">IOException</span>, <span class="code-class">InterruptedException</span> {
+        URI uri = baseUri.resolve(<span class="code-string">"orders/"</span> + orderId + <span class="code-string">"/status"</span>);
+        <span class="code-class">HttpRequest</span> request = <span class="code-class">HttpRequest</span>.newBuilder().uri(uri).timeout(<span class="code-class">Duration</span>.ofSeconds(<span class="code-number">5</span>)).GET().build();
+        <span class="code-class">HttpResponse</span>&lt;<span class="code-class">String</span>&gt; response = httpClient.send(request, <span class="code-class">HttpResponse</span>.<span class="code-class">BodyHandlers</span>.ofString());
+        <span class="code-keyword">if</span> (response.statusCode() != <span class="code-number">200</span>)
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IOException</span>(<span class="code-string">"Remote service returned HTTP "</span> + response.statusCode());
+        <span class="code-keyword">return</span> response.body();
+    }
+}
+
+<span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) <span class="code-keyword">throws</span> <span class="code-class">Exception</span> {
+    <span class="code-class">OrderService</span> orderService = <span class="code-keyword">new</span> <span class="code-class">RemoteOrderServiceProxy</span>(<span class="code-string">"http://localhost:8081/api/"</span>);
+    <span class="code-class">String</span> status = orderService.getOrderStatus(<span class="code-number">1001</span>);
+    <span class="code-class">System</span>.out.println(<span class="code-string">"Order status: "</span> + status);
+}</code></pre></div>
+    <div class="intro">
+        <p>Assume the remote service exposes:</p>
+    </div>
+    <div class="code-block"><pre><code>GET http://localhost:8081/api/orders/1001/status</code></pre></div>
+    <div class="intro">
+        <p>Response:</p>
+    </div>
+    <div class="code-block"><pre><code>SHIPPED</code></pre></div>
+    <div class="intro">
+        <p>The client simply calls:</p>
+    </div>
+    <div class="code-block"><pre><code>orderService.getOrderStatus(<span class="code-number">1001</span>);</code></pre></div>
+    <div class="intro">
+        <p>It doesn't need to construct HTTP requests, manage the HTTP client, or interpret the HTTP status code directly.</p>
+        <p><strong>Why is this a Proxy?</strong></p>
+        <p>Because <code>RemoteOrderServiceProxy</code> implements the same <code>OrderService</code> interface expected by the client, while performing the actual operation by communicating with a remote service.</p>
+    </div>
+    <div class="callout callout-warning"><p>Unlike a local object, a remote service can have network latency, timeouts, partial failures, and independent availability. A remote proxy hides communication mechanics, but callers still need to handle those failure conditions.</p></div>
+    <div class="intro">
+        <p>In real-world systems, remote proxies may additionally provide retries, authentication, load balancing, circuit breaking, tracing, and response serialization. Retries must be designed carefully, especially for operations that change data.</p>
+        <p><strong>Framework examples:</strong> Java RMI, gRPC clients, Spring HTTP Service Clients, Spring Cloud OpenFeign, and other RPC client stubs.</p>
+    </div>
+
+    <div class="subheading">Practical Example: Dynamic Proxy in Java</div>
+    <div class="intro">
+        <p>The previous examples used <strong>static proxies</strong>.</p>
+        <p>A static proxy is a class that we manually create to implement the same interface as a real service.</p>
+        <p>For example:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">LoggingProductProxy</span> <span class="code-keyword">implements</span> <span class="code-class">ProductService</span> {
+    <span class="code-comment"># Manually implemented proxy</span>
+}</code></pre></div>
+    <div class="intro">
+        <p>But what happens if we have hundreds of interfaces and want to apply the same logging behavior to all of them?</p>
+        <p>Creating a separate logging proxy class for every interface would involve substantial repetitive code.</p>
+        <p>Java provides <strong>Dynamic Proxy</strong>, which allows us to create proxy objects at runtime.</p>
+        <p>The key APIs are:</p>
+    </div>
+    <div class="intro font-size-15"><ul>
+        <li><code>java.lang.reflect.Proxy</code></li>
+        <li><code>java.lang.reflect.InvocationHandler</code></li>
+        <li><code>java.lang.reflect.Method</code></li>
+    </ul></div>
+    <div class="intro">
+        <p><strong>Dynamic logging proxy</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">PaymentService</span> {
+    <span class="code-keyword">void</span> pay(<span class="code-keyword">long</span> amountPaise);
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">RealPaymentService</span> <span class="code-keyword">implements</span> <span class="code-class">PaymentService</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> pay(<span class="code-keyword">long</span> amountPaise) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Processing payment of "</span> + amountPaise + <span class="code-string">" paise"</span>);
+    }
+}
+
+<span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+    <span class="code-class">PaymentService</span> realService = <span class="code-keyword">new</span> <span class="code-class">RealPaymentService</span>();
+    <span class="code-class">InvocationHandler</span> handler = (proxy, method, methodArgs) -&gt; {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Before: "</span> + method.getName());
+        <span class="code-keyword">try</span> {
+            <span class="code-class">Object</span> result = method.invoke(realService, methodArgs);
+            <span class="code-class">System</span>.out.println(<span class="code-string">"After: "</span> + method.getName());
+            <span class="code-keyword">return</span> result;
+        } <span class="code-keyword">catch</span> (<span class="code-class">InvocationTargetException</span> e) {
+            <span class="code-keyword">throw</span> e.getCause();
+        }
+    };
+    <span class="code-comment"># Create proxy dynamically at runtime</span>
+    <span class="code-class">PaymentService</span> proxy = (<span class="code-class">PaymentService</span>) <span class="code-class">Proxy</span>.newProxyInstance(<span class="code-class">PaymentService</span>.<span class="code-keyword">class</span>.getClassLoader(),
+                                                                   <span class="code-keyword">new</span> <span class="code-class">Class</span>&lt;?&gt;[] {<span class="code-class">PaymentService</span>.<span class="code-keyword">class</span>}, handler);
+    proxy.pay(<span class="code-number">50000</span>);
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Output:</strong></p>
+    </div>
+    <div class="code-block"><pre><code>Before: pay
+Processing payment of 50000 paise
+After: pay</code></pre></div>
+    <div class="intro">
+        <p><strong>How does the Dynamic Proxy work</strong></p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/proxy-dynamic.svg" alt="Client calls pay() on the dynamic proxy object, which routes to the InvocationHandler; the handler delegates using Method.invoke() and returns the result" style="width:100%;max-width:820px">
+    </div>
+    <div class="intro">
+        <p>When the client invokes:</p>
+    </div>
+    <div class="code-block"><pre><code>proxy.pay(<span class="code-number">50000</span>);</code></pre></div>
+    <div class="intro">
+        <p>The following happens:</p>
+    </div>
+    <div class="intro"><ol>
+        <li>Java routes the interface method call to the generated proxy object.</li>
+        <li>The proxy invokes the <code>InvocationHandler</code>.</li>
+        <li>The handler receives the method information and arguments.</li>
+        <li>The handler executes the logging logic.</li>
+        <li><code>method.invoke(realService, methodArgs)</code> invokes the real service.</li>
+        <li>The handler returns the result to the client.</li>
+    </ol></div>
+    <div class="intro">
+        <p>We can reuse the same concept for many different interfaces, rather than writing a proxy implementation for each one.</p>
+        <p><strong>Static Proxy vs Dynamic Proxy</strong></p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Feature</th><th>Static Proxy</th><th>Dynamic Proxy</th></tr></thead>
+            <tbody>
+                <tr><td>Creation</td><td>Manually implemented</td><td>Generated at runtime</td></tr>
+                <tr><td>Boilerplate</td><td>More</td><td>Less</td></tr>
+                <tr><td>Type safety</td><td>Compile-time delegation</td><td>Reflection-based invocation</td></tr>
+                <tr><td>Flexibility</td><td>Tailored to one interface</td><td>Reusable for many interfaces</td></tr>
+                <tr><td>Common use</td><td>Lazy loading, specialized caching</td><td>AOP, tracing, generic interception</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="callout callout-note"><p>Java's built-in JDK dynamic proxies operate through interfaces. Frameworks can also create subclass-based proxies using code-generation techniques, subject to limitations around final classes, final methods, and other language constraints.</p></div>
+
+    <div class="subheading">Practical Example: Dynamic Proxy Using Annotations</div>
+    <div class="intro">
+        <p>The previous dynamic proxy logged <strong>every</strong> method. Real frameworks are more selective: they add behavior only to methods marked with an annotation, such as Spring's <code>@Transactional</code> or <code>@Cacheable</code>.</p>
+        <p>We can build the same idea ourselves. A custom <code>@Timed</code> annotation marks the methods whose execution time should be measured, and an <code>InvocationHandler</code> reads that annotation at runtime to decide whether to add timing or simply pass the call through.</p>
+        <p><strong>Define the Annotation</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@Retention</span>(<span class="code-class">RetentionPolicy</span>.RUNTIME)
+<span class="code-annotation">@Target</span>(<span class="code-class">ElementType</span>.METHOD)
+<span class="code-keyword">public</span> <span class="code-annotation">@interface</span> <span class="code-class">Timed</span> {
+}</code></pre></div>
+    <div class="intro">
+        <p><code>@Retention(RetentionPolicy.RUNTIME)</code> is essential. Without it, the annotation is discarded by the compiler and<br> is invisible to reflection, so the proxy could never find it.</p>
+        <p><code>@Target(ElementType.METHOD)</code> restricts the annotation to methods.</p>
+        <p><strong>Define the interface and annotate the implementation</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">OrderService</span> {
+    <span class="code-keyword">void</span> placeOrder(<span class="code-class">String</span> orderId);
+    <span class="code-class">String</span> getStatus(<span class="code-class">String</span> orderId);
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderServiceImpl</span> <span class="code-keyword">implements</span> <span class="code-class">OrderService</span> {
+    <span class="code-annotation">@Timed</span>
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> placeOrder(<span class="code-class">String</span> orderId) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Placing order: "</span> + orderId);
+        simulateWork(<span class="code-number">200</span>);
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">String</span> getStatus(<span class="code-class">String</span> orderId) {
+        <span class="code-keyword">return</span> <span class="code-string">"SHIPPED"</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> simulateWork(<span class="code-keyword">long</span> millis) {
+        <span class="code-keyword">try</span> {
+            <span class="code-class">Thread</span>.sleep(millis);
+        } <span class="code-keyword">catch</span> (<span class="code-class">InterruptedException</span> e) {
+            <span class="code-class">Thread</span>.currentThread().interrupt();
+        }
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Only <code>placeOrder()</code> carries <code>@Timed</code>. The <code>getStatus()</code> method is not annotated, so the proxy should leave it alone.</p>
+        <p><strong>Create an annotation-aware InvocationHandler</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">TimedInvocationHandler</span> <span class="code-keyword">implements</span> <span class="code-class">InvocationHandler</span> {
+    <span class="code-keyword">public</span> <span class="code-class">Object</span> target;
+
+    <span class="code-keyword">public</span> <span class="code-class">TimedInvocationHandler</span>(<span class="code-class">Object</span> target) {
+        <span class="code-keyword">this</span>.target = target;
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">Object</span> invoke(<span class="code-class">Object</span> proxy, <span class="code-class">Method</span> method, <span class="code-class">Object</span>[] args) <span class="code-keyword">throws</span> <span class="code-class">Throwable</span> {
+        <span class="code-comment"># The proxy receives the interface method; annotations live on the implementation</span>
+        <span class="code-class">Method</span> targetMethod = target.getClass().getMethod(method.getName(), method.getParameterTypes());
+        <span class="code-keyword">if</span> (!targetMethod.isAnnotationPresent(<span class="code-class">Timed</span>.<span class="code-keyword">class</span>)) {
+            <span class="code-keyword">return</span> invokeTarget(method, args); <span class="code-comment"># Not annotated: pass straight through</span>
+        }
+        <span class="code-keyword">long</span> start = <span class="code-class">System</span>.nanoTime();
+        <span class="code-keyword">try</span> {
+            <span class="code-keyword">return</span> invokeTarget(method, args);
+        } <span class="code-keyword">finally</span> {
+            <span class="code-keyword">long</span> elapsedMs = (<span class="code-class">System</span>.nanoTime() - start) / 1_000_000;
+            <span class="code-class">System</span>.out.println(method.getName() + <span class="code-string">" took "</span> + elapsedMs + <span class="code-string">" ms"</span>);
+        }
+    }
+
+    <span class="code-keyword">private</span> <span class="code-class">Object</span> invokeTarget(<span class="code-class">Method</span> method, <span class="code-class">Object</span>[] args) <span class="code-keyword">throws</span> <span class="code-class">Throwable</span> {
+        <span class="code-keyword">try</span> {
+            <span class="code-keyword">return</span> method.invoke(target, args);
+        } <span class="code-keyword">catch</span> (<span class="code-class">InvocationTargetException</span> e) {
+            <span class="code-keyword">throw</span> e.getCause(); <span class="code-comment"># Rethrow the real exception, not the reflection wrapper</span>
+        }
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Create a small proxy factory</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProxyFactory</span> {
+    <span class="code-annotation">@SuppressWarnings</span>(<span class="code-string">"unchecked"</span>)
+    <span class="code-keyword">public</span> <span class="code-keyword">static</span> &lt;T&gt; T create(T target, <span class="code-class">Class</span>&lt;T&gt; type) {
+        <span class="code-keyword">return</span> (T) <span class="code-class">Proxy</span>.newProxyInstance(type.getClassLoader(), <span class="code-keyword">new</span> <span class="code-class">Class</span>&lt;?&gt;[] { type },
+                                          <span class="code-keyword">new</span> <span class="code-class">TimedInvocationHandler</span>(target));
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>The factory hides the reflection boilerplate. Callers ask for an <code>OrderService</code> and receive a proxy that looks exactly alike.</p>
+        <p><strong>Client code</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+    <span class="code-class">OrderService</span> service = <span class="code-class">ProxyFactory</span>.create(<span class="code-keyword">new</span> <span class="code-class">OrderServiceImpl</span>(), <span class="code-class">OrderService</span>.<span class="code-keyword">class</span>);
+    service.placeOrder(<span class="code-string">"ORD-101"</span>);
+    <span class="code-class">System</span>.out.println(<span class="code-string">"Status: "</span> + service.getStatus(<span class="code-string">"ORD-101"</span>));
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Output:</strong></p>
+    </div>
+    <div class="code-block"><pre><code>Placing order: ORD-101
+placeOrder took 201 ms
+Status: SHIPPED</code></pre></div>
+    <div class="intro">
+        <p>Measured time varies slightly from run to run. Notice that <code>getStatus</code> produced no timing line as it is not annotated.</p>
+        <p><strong>How it works</strong></p>
+    </div>
+    <div class="steps">
+        <div class="step"><div class="step-title">The client calls <code>service.placeOrder("ORD-101")</code></div><div class="step-body">The call goes to the generated proxy, not directly to <code>OrderServiceImpl</code>.</div></div>
+        <div class="step"><div class="step-title">The proxy calls <code>TimedInvocationHandler.invoke()</code></div><div class="step-body">It receives the interface <code>Method</code> and the arguments.</div></div>
+        <div class="step"><div class="step-title">The handler looks up the implementation method</div><div class="step-body"><code>getMethod()</code> finds <code>OrderServiceImpl.placeOrder(String)</code>, where <code>@Timed</code> is declared.</div></div>
+        <div class="step"><div class="step-title">The handler checks for <code>@Timed</code></div><div class="step-body">If it is present, the call is wrapped with timing; otherwise it is passed straight through.</div></div>
+        <div class="step"><div class="step-title">The real method runs</div><div class="step-body"><code>method.invoke(target,args)</code> calls <code>OrderServiceImpl</code> and the result or exception is returned to the client.</div></div>
+    </div>
+    <div class="callout callout-note"><p><strong>Why look up the implementation method?</strong> The <code>Method</code> passed to <code>invoke()</code> belongs to the <strong>interface</strong>. Annotations on the implementation class are not visible on it. An alternative is to place <code>@Timed</code> on the interface method instead, then check <code>method.isAnnotationPresent(Timed.class)</code> directly.</p></div>
+    <div class="intro">
+        <p><strong>Things to keep in mind</strong></p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>Interfaces only:</strong> JDK dynamic proxies can only implement interfaces. Proxying a concrete class needs a bytecode library such as ByteBuddy, which is what frameworks like Spring use internally.</li>
+        <li><strong>Self-invocation bypasses the proxy:</strong> if <code>placeOrder</code> called another <code>@Timed</code> method on <code>this</code>, that inner call would not be timed, for the same reason as the Spring self-invocation problem.</li>
+        <li><strong>Reflection cost:</strong> every call goes through reflection. Production code usually caches the annotation lookup per <code>Method</code> instead of repeating <code>getMethod</code> on each call.</li>
+    </ul></div>
+    <div class="callout callout-note"><p>This is the same mechanism behind Spring annotations such as <code>@Transactional</code>, <code>@Cacheable</code> and <code>@Async</code>: a proxy intercepts the call, inspects the method's annotations, and decides what extra behavior to apply around the real method.</p></div>
+
+    <div class="subheading">Proxy Pattern in Spring Boot</div>
+    <div class="intro">
+        <p>One of the most important real-world applications of proxies in Java is <strong>Spring AOP (Aspect-Oriented Programming)</strong>.</p>
+        <p>Spring commonly uses proxies to apply cross-cutting behavior to service methods.</p>
+        <p>Examples include:</p>
+    </div>
+    <div class="intro"><ul>
+        <li><code>@Transactional</code> &mdash; transaction management.</li>
+        <li><code>@Cacheable</code> &mdash; caching method results.</li>
+        <li><code>@Async</code> &mdash; asynchronous method execution.</li>
+        <li>Method security annotations such as <code>@PreAuthorize</code> &mdash; access control.</li>
+    </ul></div>
+    <div class="intro">
+        <p><strong>Example: Spring transaction management</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@Service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderService</span> {
+    <span class="code-annotation">@Transactional</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> placeOrder(<span class="code-class">Order</span> order) {
+        orderRepository.save(order);
+        paymentRepository.save(<span class="code-keyword">new</span> <span class="code-class">Payment</span>(order.getId()));
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Assuming Spring transaction management is enabled and this bean is invoked through its Spring proxy, Spring can wrap the method call in a transaction.</p>
+        <p>Conceptually:</p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/proxy-spring-transaction.svg" alt="Controller calls the OrderService proxy, which begins a transaction and calls the real OrderService.placeOrder() to save the order and payment; the proxy then commits on success or rolls back on failure and returns to the controller" style="width:100%;max-width:910px">
+    </div>
+    <div class="intro">
+        <p>You did not manually create the proxy. Spring creates and manages it.</p>
+        <p>A simplified conceptual implementation would look like:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">TransactionalOrderServiceProxy</span> <span class="code-keyword">implements</span> <span class="code-class">OrderService</span> {
+    <span class="code-keyword">private</span> <span class="code-class">OrderService</span> target;
+    <span class="code-keyword">private</span> <span class="code-class">TransactionManager</span> transactionManager;
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> placeOrder(<span class="code-class">Order</span> order) {
+        transactionManager.begin();
+        <span class="code-keyword">try</span> {
+            target.placeOrder(order);
+            transactionManager.commit();
+        } <span class="code-keyword">catch</span> (<span class="code-class">RuntimeException</span> | <span class="code-class">Error</span> e) {
+            transactionManager.rollback();
+            <span class="code-keyword">throw</span> e;
+        }
+    }
+}</code></pre></div>
+    <div class="callout callout-note"><p>This is illustrative pseudocode showing the proxy's responsibility, not a replacement for Spring's transaction implementation.</p></div>
+    <div class="intro">
+        <p><strong>Important: The Spring self-invocation problem</strong></p>
+        <p>One subtle limitation of Spring's proxy-based AOP is that calls made from one method to another method on the same object may bypass the proxy. For example:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@Service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductService</span> {
+    <span class="code-keyword">public</span> <span class="code-class">Product</span> loadProduct(<span class="code-class">Long</span> id) {
+        <span class="code-keyword">return</span> findById(id);
+    }
+
+    <span class="code-annotation">@Cacheable</span>(<span class="code-string">"products"</span>)
+    <span class="code-keyword">public</span> <span class="code-class">Product</span> findById(<span class="code-class">Long</span> id) {
+        <span class="code-keyword">return</span> repository.findById(id).orElseThrow();
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>If another Spring bean calls:</p>
+    </div>
+    <div class="code-block"><pre><code>productService.loadProduct(101L);</code></pre></div>
+    <div class="intro">
+        <p>The call to <code>loadProduct</code> goes through the proxy, but the internal call to <code>findById</code> is made on the target object itself.</p>
+        <p>As a result, the <code>@Cacheable</code> advice on <code>findById</code> is not applied through that internal call.</p>
+    </div>
+    <div class="callout callout-warning"><p>A common solution is to move the cached method into a separate Spring bean, then inject that bean.</p></div>
+    <div class="intro">
+        <p>This illustrates why understanding the Proxy Pattern is useful for understanding how Spring works internally.</p>
+    </div>
+
+    <div class="subheading">Proxy vs Decorator vs Adapter vs Facade</div>
+    <div class="intro">
+        <p>These structural patterns can look similar because they all introduce an intermediate object or interface.<br> Their intentions, however, are different.</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Pattern</th><th>Primary Purpose</th><th>Interface</th></tr></thead>
+            <tbody>
+                <tr><td>Proxy</td><td>Control access to an object</td><td>Generally the same as the real object</td></tr>
+                <tr><td>Decorator</td><td>Add or combine responsibilities dynamically</td><td>Same as the wrapped object</td></tr>
+                <tr><td>Adapter</td><td>Make incompatible interfaces work together</td><td>Exposes a different interface</td></tr>
+                <tr><td>Facade</td><td>Simplify access to a complex subsystem</td><td>Exposes a simplified interface</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p><strong>Proxy vs Decorator</strong></p>
+        <p>This distinction is especially important because both patterns may use nearly identical code.</p>
+        <p>Consider:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">DataService</span> {
+    <span class="code-class">String</span> getData();
+}</code></pre></div>
+    <div class="intro">
+        <p>A caching proxy might look like:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CachingProxy</span> <span class="code-keyword">implements</span> <span class="code-class">DataService</span> {
+    <span class="code-keyword">private</span> <span class="code-class">DataService</span> target;
+    <span class="code-comment"># Intercepts and potentially avoids expensive calls</span>
+}</code></pre></div>
+    <div class="intro">
+        <p>A decorator might look like:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">EncryptionDecorator</span> <span class="code-keyword">implements</span> <span class="code-class">DataService</span> {
+    <span class="code-keyword">private</span> <span class="code-class">DataService</span> target;
+    <span class="code-comment"># Adds encryption-related behavior</span>
+}</code></pre></div>
+    <div class="intro">
+        <p>Both implement <code>DataService</code>, both wrap another object, and both can intercept method calls.</p>
+        <p>The difference is the <strong>intention</strong>:</p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>Proxy:</strong> Controls access to the underlying object. It may avoid invoking the real object entirely, as in caching, or restrict access, as in authorization.</li>
+        <li><strong>Decorator:</strong> Adds responsibilities to an object while preserving its interface. Decorators are often composed to build combinations of functionality.</li>
+    </ul></div>
+    <div class="intro">
+        <p>There is overlap. A logging wrapper, for instance, can reasonably be viewed as a logging proxy or a decorator, depending on its intended role and architecture.</p>
+        <p><strong>Proxy vs Adapter</strong></p>
+        <p>An <strong>Adapter</strong> changes how an interface is presented.</p>
+        <p>For example:</p>
+    </div>
+    <div class="scenario-layout scenario-layout-equal scenario-layout-tight scenario-layout-stretch">
+        <div>
+            <div class="intro"><p><strong>Existing external interface</strong></p></div>
+            <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">LegacyPaymentGateway</span> {
+    <span class="code-keyword">void</span> makeTransaction(<span class="code-keyword">long</span> amount);
+}</code></pre></div>
+        </div>
+        <div>
+            <div class="intro"><p><strong>Interface expected by the client</strong></p></div>
+            <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">PaymentService</span> {
+    <span class="code-keyword">void</span> pay(<span class="code-keyword">long</span> amount);
+}</code></pre></div>
         </div>
     </div>
+    <div class="intro">
+        <p>An Adapter translates <code>pay</code> into <code>makeTransaction</code>.</p>
+        <p>A Proxy, in contrast, would normally implement the <strong>same interface</strong> as the payment service it controls.</p>
+    </div>
+
+    <div class="subheading">Advantages and Disadvantages</div>
+    <div class="intro">
+        <p><strong>Advantages</strong></p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>Separation of concerns:</strong> Business code remains focused on business logic.</li>
+        <li><strong>Lazy initialization:</strong> Expensive objects are created only when needed.</li>
+        <li><strong>Better performance:</strong> Caching can reduce repeated computation and I/O.</li>
+        <li><strong>Improved security:</strong> Sensitive operations can be guarded.</li>
+        <li><strong>Transparency:</strong> Existing clients can often use the proxy without changes.</li>
+        <li><strong>Centralized cross-cutting functionality:</strong> Logging, metrics, authorization and other behaviors can be applied consistently.</li>
+    </ul></div>
+    <div class="intro">
+        <p><strong>Disadvantages</strong></p>
+    </div>
+    <div class="intro"><ul>
+        <li>Adds extra classes or runtime interception mechanisms.</li>
+        <li>May introduce latency or overhead.</li>
+        <li>Makes debugging and tracing call paths more complex.</li>
+        <li>Caching proxies require invalidation and consistency strategies.</li>
+        <li>Lazy initialization can introduce concurrency issues.</li>
+        <li>Remote proxies can make expensive network operations appear deceptively similar to local method calls.</li>
+        <li>Improper proxy configuration may cause security or transactional advice to be bypassed.</li>
+    </ul></div>
+
+    <div class="subheading">When Should You Use the Proxy Pattern</div>
+    <div class="intro">
+        <p>The Proxy Pattern is useful when you want to introduce an intermediate layer between a client and the actual service without requiring the client to handle that intermediate logic.</p>
+        <p>Some practical scenarios:</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Scenario</th><th>Suitable Proxy</th></tr></thead>
+            <tbody>
+                <tr><td>Load a large PDF only when the user opens it</td><td>Virtual Proxy</td></tr>
+                <tr><td>Only admins can delete records</td><td>Protection Proxy</td></tr>
+                <tr><td>Avoid repeatedly querying unchanged data</td><td>Caching Proxy</td></tr>
+                <tr><td>Log execution times of repository methods</td><td>Logging Proxy</td></tr>
+                <tr><td>Make RPC calls through a local Java interface</td><td>Remote Proxy</td></tr>
+                <tr><td>Apply transaction management around service methods</td><td>Dynamic/AOP Proxy</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="callout callout-warning"><p>Do not introduce a proxy simply to add another abstraction. If an ordinary service method or a small helper is sufficient, an extra indirection may increase complexity without providing meaningful benefit.</p></div>
+
+    <div class="subheading">Key Takeaways</div>
+    <div class="intro font-size-17"><ul>
+        <li>The Proxy Pattern is a structural design pattern that introduces a substitute object to control access to a real object.</li>
+        <li>The proxy and the real object generally implement the same interface, allowing the client to interact with either one.</li>
+        <li>A proxy may execute additional operations before or after delegating to the real object, or it may avoid delegation entirely.</li>
+        <li>Common types include Virtual, Protection, Caching, Logging, and Remote proxies.</li>
+        <li>Java supports both manually implemented static proxies and runtime-generated dynamic proxies.</li>
+        <li>Spring AOP is a major practical application of proxy-based interception in Java.</li>
+        <li>Proxy and Decorator may share the same structure, but Proxy emphasizes controlled access while Decorator emphasizes extending responsibilities.</li>
+    </ul></div>
+    <div class="callout callout-note"><p><strong>In one sentence:</strong> The Proxy Pattern provides a controlled intermediary between the client and the real object, allowing us to introduce behaviors such as lazy loading, caching, security, logging, and remote communication without substantially changing how clients interact with the object.</p></div>
 </div>
 </body>
 </html>

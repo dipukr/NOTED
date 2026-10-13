@@ -1,0 +1,14 @@
+<svg width="780" height="80" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 80" role="img" aria-label="With a proxy, the client calls the proxy, which controls access (cache, lazy load, security, logging) and forwards to the real object">
+    <defs><marker id="px2-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#555555"/></marker><marker id="px2-l" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#9A9A9A"/></marker></defs>
+    <path d="M155 39 H228" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#px2-a)"/>
+    <path d="M490 39 H603" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#px2-a)"/>
+    <rect x="15" y="14" width="140" height="50" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="85" y="41.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Client</text>
+    <rect x="230" y="14" width="260" height="50" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="360" y="33" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Proxy</text>
+    <text x="360" y="49" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">cache · lazy load · security · logging</text>
+    <rect x="605" y="14" width="160" height="50" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="685" y="41.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Real Object</text>
+    <text x="191.5" y="32" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555" font-style="italic">request</text>
+    <text x="546.5" y="32" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555" font-style="italic">control access</text>
+</svg>

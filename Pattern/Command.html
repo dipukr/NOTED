@@ -3,118 +3,786 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Command Pattern - Notes</title>
+<title>Command</title>
 <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
 <div class="note">
-    <div class="title">Command Pattern</div>
+    <div class="title">Command</div>
 
     <div class="intro">
-        <p>Command is a behavioral design pattern that turns a request into a stand-alone object containing all information about the request.</p>
-        <p>This encapsulation lets you parameterize methods with different requests, queue or log requests, and support undoable operations.</p>
-        <p>It decouples the object that invokes an operation (the invoker) from the object that knows how to perform it (the receiver).</p>
+        <p>The <strong>Command Pattern</strong> is a behavioral design pattern that encapsulates a request or operation as an object, allowing the request to be parameterized, queued, logged, executed, undone, or redone independently of the object that initiates it. Instead of directly calling a method on an object to perform an operation, the Command pattern<br> wraps the operation inside a separate command object.</p>
+        <p>This creates a separation between:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>The object that requests an operation &mdash; <strong>Invoker</strong>.</li>
+        <li>The object that performs the actual operation &mdash; <strong>Receiver</strong>.</li>
+        <li>The object that encapsulates the operation &mdash; <strong>Command</strong>.</li>
+    </ul></div>
+    <div class="intro">
+        <p>By treating operations as first-class objects, the Command pattern provides greater flexibility in how operations are executed, scheduled, stored, and reversed.</p>
+    </div>
+    <div class="callout callout-note"><p><strong>Key idea:</strong> Encapsulate a request as an object, thereby decoupling the sender of the request from the object responsible for executing it.</p></div>
+
+    <div class="subheading">Understanding the Problem</div>
+    <div class="intro">
+        <p>Imagine we are building a smart home application where a remote control can operate different devices:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>Turn lights on-off.</li>
+        <li>Start-stop a fan.</li>
+        <li>Open-close curtains.</li>
+        <li>Turn a television on-off.</li>
+    </ul></div>
+    <div class="intro">
+        <p><strong>Without the Command Pattern</strong></p>
+        <p>We might implement the remote control like this:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">RemoteControl</span> {
+    <span class="code-keyword">private</span> <span class="code-class">Light</span> light;
+    <span class="code-keyword">private</span> <span class="code-class">Fan</span> fan;
+
+    <span class="code-keyword">public</span> <span class="code-class">RemoteControl</span>(<span class="code-class">Light</span> light, <span class="code-class">Fan</span> fan) {
+        <span class="code-keyword">this</span>.light = light;
+        <span class="code-keyword">this</span>.fan = fan;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> pressButton(<span class="code-class">String</span> action) {
+        <span class="code-keyword">switch</span> (action) {
+            <span class="code-keyword">case</span> <span class="code-string">"LIGHT_ON"</span> -&gt; light.turnOn();
+            <span class="code-keyword">case</span> <span class="code-string">"LIGHT_OFF"</span> -&gt; light.turnOff();
+            <span class="code-keyword">case</span> <span class="code-string">"FAN_ON"</span> -&gt; fan.start();
+            <span class="code-keyword">case</span> <span class="code-string">"FAN_OFF"</span> -&gt; fan.stop();
+            <span class="code-keyword">default</span> -&gt; <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>();
+        }
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>This implementation has several problems.</p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>Tight coupling:</strong> <code>RemoteControl</code> directly depends on <code>Light</code>, <code>Fan</code>, and their methods.</li>
+        <li><strong>Violation of the Open/Closed Principle:</strong> Adding a new device requires modifying the remote control.</li>
+        <li><strong>Difficult undo/redo:</strong> The remote control must know how to reverse every operation.</li>
+        <li><strong>Poor extensibility:</strong> Scheduling, queuing, and logging actions require additional conditional logic.</li>
+    </ul></div>
+    <div class="intro">
+        <p><strong>With the Command Pattern</strong></p>
+        <p>Instead of knowing how to operate every device, the remote control only knows how to execute commands.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">Command</span> {
+    <span class="code-keyword">void</span> execute();
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">LightOnCommand</span> <span class="code-keyword">implements</span> <span class="code-class">Command</span> {
+    <span class="code-keyword">private</span> <span class="code-class">Light</span> light;
+
+    <span class="code-keyword">public</span> <span class="code-class">LightOnCommand</span>(<span class="code-class">Light</span> light) {
+        <span class="code-keyword">this</span>.light = light;
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> execute() {
+        light.turnOn();
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>The remote control becomes extremely simple:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">RemoteControl</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> pressButton(<span class="code-class">Command</span> command) {
+        command.execute();
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Now the remote control doesn't need to know whether the command operates a light, fan, TV, or something else.</p>
+        <p>Any new functionality can be introduced by creating another <code>Command</code> implementation.</p>
     </div>
 
-    <div class="section when-use">
-        <div class="section-title">When to use</div>
-        <div class="section-content">
-            <ul>
-                <li>When you want to parameterize objects with an action to perform.</li>
-                <li>When you need to queue, schedule, or log requests.</li>
-                <li>When you want to support undo/redo functionality.</li>
-                <li>Typical uses: menu items and buttons, task queues, transactional behavior, and macro recording.</li>
-            </ul>
-        </div>
+    <div class="subheading">Structure of the Command Pattern</div>
+    <div class="svg-diagram">
+        <img src="../static/command-structure.svg" alt="The client creates a command and configures the invoker; the invoker calls execute() on the Command interface; ConcreteCommand (LightOnCommand) implements Command and delegates to the Receiver, which performs the work" style="width:100%;max-width:760px">
+    </div>
+    <div class="intro">
+        <p>Conceptual command flow. The client configures the command and passes it to the invoker, which executes it without knowing the receiver's implementation.</p>
+        <p><strong>Main components</strong></p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Component</th><th>Responsibility</th><th>Example</th></tr></thead>
+            <tbody>
+                <tr><td>Command</td><td>Declares an operation</td><td><code>Command</code> interface</td></tr>
+                <tr><td>Concrete Command</td><td>Implements the operation, usually by delegating to a receiver</td><td><code>LightOnCommand</code></td></tr>
+                <tr><td>Receiver</td><td>Contains the actual business logic</td><td><code>Light</code></td></tr>
+                <tr><td>Invoker</td><td>Triggers command execution</td><td><code>RemoteControl</code></td></tr>
+                <tr><td>Client</td><td>Creates and connects the objects</td><td><code>Main</code></td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>The execution flow is:</p>
+    </div>
+    <div class="intro"><ol>
+        <li>The client creates a receiver.</li>
+        <li>The client creates a concrete command containing a reference to the receiver.</li>
+        <li>The client passes the command to the invoker.</li>
+        <li>The invoker calls <code>command.execute()</code>.</li>
+        <li>The concrete command delegates the actual work to its receiver.</li>
+    </ol></div>
+    <div class="intro">
+        <p>The invoker knows only the <code>Command</code> interface, not the internal implementation of the operation.</p>
     </div>
 
-    <div class="subheading">Pros and Cons</div>
-    <div class="pc-grid">
-        <div class="pc-card pro">
-            <div class="pc-title">Decouples Invoker and Receiver</div>
-            <p>It separates the object that invokes an operation from the object that knows how to perform the work.</p>
-        </div>
-        <div class="pc-card pro">
-            <div class="pc-title">First-Class Commands</div>
-            <p>Commands are first-class objects that can be stored, passed around, and queued.</p>
-        </div>
-        <div class="pc-card pro">
-            <div class="pc-title">Easy To Extend</div>
-            <p>You can add new commands without changing existing code, following the Open/Closed Principle.</p>
-        </div>
-        <div class="pc-card pro">
-            <div class="pc-title">Supports Undo and Logging</div>
-            <p>It naturally supports undo/redo and logging of operations.</p>
-        </div>
-    
+    <div class="subheading">Practical Example: Smart Home Remote Control with Undo/Redo</div>
+    <div class="intro">
+        <p>Let's implement a smart home remote control where users can turn lights on/off and undo or redo their actions.</p>
+        <p>This example demonstrates the Command pattern's main advantage: we can treat an operation as an object and maintain a history of executed operations.</p>
+        <p><strong>Define the Command interface</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">Command</span> {
+    <span class="code-keyword">void</span> execute();
+    <span class="code-keyword">void</span> undo();
+}</code></pre></div>
+    <div class="intro">
+        <p>Every command must support two operations:</p>
+    </div>
+    <div class="intro"><ul>
+        <li><code>execute()</code> performs the requested action.</li>
+        <li><code>undo()</code> reverses the effects of that action.</li>
+    </ul></div>
+    <div class="callout callout-note"><p>Note that undo is optional in the Command pattern. We are including it because our application requires undo/redo functionality.</p></div>
+    <div class="intro">
+        <p><strong>Create the Receiver</strong></p>
+        <p>The receiver contains the actual functionality.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Light</span> {
+    <span class="code-keyword">private</span> <span class="code-class">String</span> name;
+    <span class="code-keyword">private</span> <span class="code-keyword">boolean</span> on;
 
-        <div class="pc-card con">
-            <div class="pc-title">More Classes</div>
-            <p>It increases the number of classes, since each command usually needs its own class.</p>
-        </div>
-        <div class="pc-card con">
-            <div class="pc-title">Added Indirection</div>
-            <p>It adds indirection that can make simple actions look more complex.</p>
-        </div>
-        <div class="pc-card con">
-            <div class="pc-title">Complex Undo State</div>
-            <p>Maintaining undo state for complex commands can be difficult.</p>
-        </div>
+    <span class="code-keyword">public</span> <span class="code-class">Light</span>(<span class="code-class">String</span> name) {
+        <span class="code-keyword">this</span>.name = name;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> setOn(<span class="code-keyword">boolean</span> on) {
+        <span class="code-keyword">this</span>.on = on;
+        <span class="code-class">System</span>.out.println(name + <span class="code-string">" -&gt; "</span> + (on ? <span class="code-string">"ON"</span> : <span class="code-string">"OFF"</span>));
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">boolean</span> isOn() {
+        <span class="code-keyword">return</span> on;
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Notice that <code>Light</code> knows nothing about commands, command history, or the remote control.</p>
+        <p>It simply manages the actual light's state.</p>
+        <p><strong>Create the Concrete Command</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">SetLightCommand</span> <span class="code-keyword">implements</span> <span class="code-class">Command</span> {
+    <span class="code-keyword">private</span> <span class="code-class">Light</span> light;
+    <span class="code-keyword">private</span> <span class="code-keyword">boolean</span> targetState;
+    <span class="code-keyword">private</span> <span class="code-keyword">boolean</span> previousState;
+
+    <span class="code-keyword">public</span> <span class="code-class">SetLightCommand</span>(<span class="code-class">Light</span> light, <span class="code-keyword">boolean</span> targetState) {
+        <span class="code-keyword">this</span>.light = light;
+        <span class="code-keyword">this</span>.targetState = targetState;
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> execute() {
+        previousState = light.isOn(); <span class="code-comment"># Capture state before changing it</span>
+        light.setOn(targetState); <span class="code-comment"># Delegate to the receiver</span>
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> undo() {
+        light.setOn(previousState); <span class="code-comment"># Restore the previous state</span>
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Here:</p>
+    </div>
+    <div class="intro"><ul>
+        <li><code>light</code> is the receiver.</li>
+        <li><code>targetState</code> represents the requested operation.</li>
+        <li><code>previousState</code> stores information needed to undo that operation.</li>
+        <li><code>execute()</code> delegates the operation to <code>Light</code>.</li>
+        <li><code>undo()</code> restores the previous state.</li>
+    </ul></div>
+    <div class="intro">
+        <p><strong>Why store <code>previousState</code>?</strong></p>
+        <p>Suppose the light was already on and someone executes a command to turn it on again. Undoing that command should leave the light on, because that was its original state.</p>
+        <p>Simply turning the light off in <code>undo()</code> would be incorrect.</p>
+    </div>
+    <div class="callout callout-note"><p>This illustrates an important principle: <strong>Undo should reverse the effects of a command, not blindly execute its opposite.</strong></p></div>
+    <div class="intro">
+        <p><strong>Create a reusable Command History manager</strong></p>
+        <p>The command history manager will execute commands and maintain two stacks:</p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>Undo stack</strong> &mdash; successfully executed commands.</li>
+        <li><strong>Redo stack</strong> &mdash; commands that have been undone and can be executed again.</li>
+    </ul></div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CommandHistory</span> {
+    <span class="code-keyword">private</span> <span class="code-class">Deque</span>&lt;<span class="code-class">Command</span>&gt; undoStack = <span class="code-keyword">new</span> <span class="code-class">ArrayDeque</span>&lt;&gt;();
+    <span class="code-keyword">private</span> <span class="code-class">Deque</span>&lt;<span class="code-class">Command</span>&gt; redoStack = <span class="code-keyword">new</span> <span class="code-class">ArrayDeque</span>&lt;&gt;();
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> execute(<span class="code-class">Command</span> command) {
+        command.execute();
+        undoStack.push(command);
+        redoStack.clear(); <span class="code-comment"># A new action invalidates the redo history</span>
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> undo() {
+        <span class="code-keyword">if</span> (undoStack.isEmpty()) <span class="code-keyword">return</span>;
+        <span class="code-class">Command</span> command = undoStack.peek();
+        command.undo();
+        undoStack.pop();
+        redoStack.push(command);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> redo() {
+        <span class="code-keyword">if</span> (redoStack.isEmpty()) <span class="code-keyword">return</span>;
+        <span class="code-class">Command</span> command = redoStack.peek();
+        command.execute();
+        redoStack.pop();
+        undoStack.push(command);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Notice that <code>CommandHistory</code> doesn't know anything about lights or other devices.</p>
+        <p>It can execute any object implementing the <code>Command</code> interface.</p>
+    </div>
+    <div class="callout callout-note"><p>The example assumes synchronous, successful operations. A production implementation would additionally define failure handling and command-history limits.</p></div>
+    <div class="intro">
+        <p><strong>Create the Remote Control (Invoker)</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">RemoteControl</span> {
+    <span class="code-keyword">private</span> <span class="code-class">CommandHistory</span> history = <span class="code-keyword">new</span> <span class="code-class">CommandHistory</span>();
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> pressButton(<span class="code-class">Command</span> command) {
+        history.execute(command);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> pressUndo() {
+        history.undo();
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> pressRedo() {
+        history.redo();
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>The remote control has no knowledge of the devices it controls.</p>
+        <p>Its only responsibility is to dispatch the commands and provide undo/redo controls.</p>
+        <p><strong>Client code</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+    <span class="code-class">Light</span> livingRoom = <span class="code-keyword">new</span> <span class="code-class">Light</span>(<span class="code-string">"Living Room"</span>);
+    <span class="code-class">RemoteControl</span> remote = <span class="code-keyword">new</span> <span class="code-class">RemoteControl</span>();
+    remote.pressButton(<span class="code-keyword">new</span> <span class="code-class">SetLightCommand</span>(livingRoom, <span class="code-keyword">true</span>)); <span class="code-comment"># Turn on</span>
+    remote.pressButton(<span class="code-keyword">new</span> <span class="code-class">SetLightCommand</span>(livingRoom, <span class="code-keyword">false</span>)); <span class="code-comment"># Turn off</span>
+    remote.pressUndo(); <span class="code-comment"># Undo turn off</span>
+    remote.pressUndo(); <span class="code-comment"># Undo turn on</span>
+    remote.pressRedo(); <span class="code-comment"># Redo turn on</span>
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Output:</strong></p>
+    </div>
+    <div class="code-block"><pre><code>Living Room -&gt; ON
+Living Room -&gt; OFF
+Living Room -&gt; ON
+Living Room -&gt; OFF
+Living Room -&gt; ON</code></pre></div>
+    <div class="intro">
+        <p><strong>How Undo/Redo works internally</strong></p>
+        <p>Let's visualize the command history after each action.</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table cmp-compact centered cmp-peer">
+            <colgroup><col style="width:6.4%"><col style="width:10.5%"><col style="width:7%"><col style="width:11.8%"><col style="width:11.8%"><col style="width:52.5%"></colgroup>
+            <thead><tr><th>Step</th><th>Action</th><th>Light</th><th>Undo stack<br>(top first)</th><th>Redo stack<br>(top first)</th><th>What happens</th></tr></thead>
+            <tbody>
+                <tr><td>1</td><td>Turn ON</td><td>ON</td><td>ON</td><td>Empty</td><td>The first command executes and enters the undo stack.</td></tr>
+                <tr><td>2</td><td>Turn OFF</td><td>OFF</td><td>OFF, ON</td><td>Empty</td><td>The second command executes and goes on top of the undo stack.</td></tr>
+                <tr><td>3</td><td>Undo</td><td>ON</td><td>ON</td><td>OFF</td><td>The OFF command restores the previous state and moves to the redo stack.</td></tr>
+                <tr><td>4</td><td>Undo again</td><td>OFF</td><td>Empty</td><td>ON, OFF</td><td>The ON command is reversed and moved to the redo stack.</td></tr>
+                <tr><td>5</td><td>Redo</td><td>ON</td><td>ON</td><td>OFF</td><td>The ON command executes again and returns to the undo stack.</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>One important detail: if the user undoes an operation and then executes a completely new command, the redo stack must be cleared. This is because the previous redo history no longer belongs to the current sequence of actions.</p>
+    </div>
+    <div class="callout callout-warning"><p>Also, create a new stateful command object for each user action. Reusing the same mutable command instance for multiple history entries can corrupt undo information.</p></div>
+
+    <div class="subheading">Practical Example: Text Editor with Undo/Redo</div>
+    <div class="intro">
+        <p>A text editor is one of the most practical examples of the Command pattern.</p>
+        <p>Consider operations such as:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>Insert text.</li>
+        <li>Delete text.</li>
+        <li>Replace text.</li>
+        <li>Undo a change.</li>
+        <li>Redo a change.</li>
+    </ul></div>
+    <div class="intro">
+        <p>Text editors benefit from representing each editing operation as a command object, because those commands can be stored in a history.</p>
+        <p><strong>Create the Receiver (Document)</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">TextDocument</span> {
+    <span class="code-keyword">private</span> <span class="code-class">StringBuilder</span> content = <span class="code-keyword">new</span> <span class="code-class">StringBuilder</span>();
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> insert(<span class="code-keyword">int</span> position, <span class="code-class">String</span> text) {
+        content.insert(position, text);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">String</span> delete(<span class="code-keyword">int</span> position, <span class="code-keyword">int</span> length) {
+        <span class="code-class">String</span> removed = content.substring(position, position + length);
+        content.delete(position, position + length);
+        <span class="code-keyword">return</span> removed;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">String</span> getContent() {
+        <span class="code-keyword">return</span> content.toString();
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>The document provides the actual editing operations.</p>
+        <p><strong><code>InsertTextCommand</code></strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">InsertTextCommand</span> <span class="code-keyword">implements</span> <span class="code-class">Command</span> {
+    <span class="code-keyword">private</span> <span class="code-class">TextDocument</span> document;
+    <span class="code-keyword">private</span> <span class="code-keyword">int</span> position;
+    <span class="code-keyword">private</span> <span class="code-class">String</span> text;
+
+    <span class="code-keyword">public</span> <span class="code-class">InsertTextCommand</span>(<span class="code-class">TextDocument</span> document, <span class="code-keyword">int</span> position, <span class="code-class">String</span> text) {
+        <span class="code-keyword">this</span>.document = document;
+        <span class="code-keyword">this</span>.position = position;
+        <span class="code-keyword">this</span>.text = text;
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> execute() {
+        document.insert(position, text);
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> undo() {
+        document.delete(position, text.length());
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>When <code>execute()</code> is called, the command inserts text.</p>
+        <p>When <code>undo()</code> is called, it removes the same text from the same position.</p>
+        <p><strong><code>DeleteTextCommand</code></strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">DeleteTextCommand</span> <span class="code-keyword">implements</span> <span class="code-class">Command</span> {
+    <span class="code-keyword">private</span> <span class="code-class">TextDocument</span> document;
+    <span class="code-keyword">private</span> <span class="code-keyword">int</span> position;
+    <span class="code-keyword">private</span> <span class="code-keyword">int</span> length;
+    <span class="code-keyword">private</span> <span class="code-class">String</span> deletedText;
+
+    <span class="code-keyword">public</span> <span class="code-class">DeleteTextCommand</span>(<span class="code-class">TextDocument</span> document, <span class="code-keyword">int</span> position, <span class="code-keyword">int</span> length) {
+        <span class="code-keyword">this</span>.document = document;
+        <span class="code-keyword">this</span>.position = position;
+        <span class="code-keyword">this</span>.length = length;
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> execute() {
+        deletedText = document.delete(position, length); <span class="code-comment"># Save removed content for undo</span>
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> undo() {
+        document.insert(position, deletedText); <span class="code-comment"># Restore the deleted content</span>
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>This example shows why a command object is useful.</p>
+        <p>A method call such as:</p>
+    </div>
+    <div class="code-block"><pre><code>document.delete(<span class="code-number">5</span>, <span class="code-number">6</span>);</code></pre></div>
+    <div class="intro">
+        <p>doesn't inherently contain the information needed to undo the deletion.</p>
+        <p>However, a <code>DeleteTextCommand</code> can remember the deleted text and restore it later.</p>
+        <p><strong>Client code</strong></p>
+        <p>Reuse the <code>Command</code> interface and <code>CommandHistory</code> implementation from the previous example.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+    <span class="code-class">TextDocument</span> document = <span class="code-keyword">new</span> <span class="code-class">TextDocument</span>();
+    <span class="code-class">CommandHistory</span> history = <span class="code-keyword">new</span> <span class="code-class">CommandHistory</span>();
+    history.execute(<span class="code-keyword">new</span> <span class="code-class">InsertTextCommand</span>(document, <span class="code-number">0</span>, <span class="code-string">"Hello"</span>));
+    history.execute(<span class="code-keyword">new</span> <span class="code-class">InsertTextCommand</span>(document, <span class="code-number">5</span>, <span class="code-string">" World"</span>));
+    <span class="code-class">System</span>.out.println(document.getContent());
+    history.execute(<span class="code-keyword">new</span> <span class="code-class">DeleteTextCommand</span>(document, <span class="code-number">5</span>, <span class="code-number">6</span>));
+    <span class="code-class">System</span>.out.println(document.getContent());
+    history.undo();
+    <span class="code-class">System</span>.out.println(document.getContent());
+    history.undo();
+    <span class="code-class">System</span>.out.println(document.getContent());
+    history.redo();
+    <span class="code-class">System</span>.out.println(document.getContent());
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Output:</strong></p>
+    </div>
+    <div class="code-block"><pre><code>Hello World
+Hello
+Hello World
+Hello
+Hello World</code></pre></div>
+    <div class="intro">
+        <p><strong>Important observation</strong></p>
+        <p>The same <code>CommandHistory</code> class works with both:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>Smart home devices.</li>
+        <li>Text editor operations.</li>
+    </ul></div>
+    <div class="intro">
+        <p>We didn't modify <code>CommandHistory</code> when introducing the text editor.</p>
+        <p>This is one of the most important benefits of the Command pattern: the infrastructure for invoking and managing operations can be reused independently of the operations themselves.</p>
+    </div>
+    <div class="callout callout-note"><p>The editor implementation assumes commands are applied sequentially and that document changes go through the command history. Collaborative editing, external modifications, and concurrent updates require additional conflict-handling logic.</p></div>
+
+    <div class="subheading">Practical Example: Macro Commands (Executing Multiple Operations)</div>
+    <div class="intro">
+        <p>Another powerful use case of the Command pattern is combining multiple commands into a single command.</p>
+        <p>Consider a smart home application with a <strong>Movie Mode</strong> button.</p>
+        <p>When pressed, it should:</p>
+    </div>
+    <div class="intro"><ol>
+        <li>Turn off the living room lights.</li>
+        <li>Turn off the bedroom lights.</li>
+        <li>Perform all operations as one action.</li>
+    </ol></div>
+    <div class="intro">
+        <p>When the user presses Undo, all these operations should be reversed.</p>
+        <p><strong><code>MacroCommand</code> implementation</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">MacroCommand</span> <span class="code-keyword">implements</span> <span class="code-class">Command</span> {
+    <span class="code-keyword">private</span> <span class="code-class">List</span>&lt;<span class="code-class">Command</span>&gt; commands;
+
+    <span class="code-keyword">public</span> <span class="code-class">MacroCommand</span>(<span class="code-class">List</span>&lt;<span class="code-class">Command</span>&gt; commands) {
+        <span class="code-keyword">this</span>.commands = <span class="code-class">List</span>.copyOf(commands);
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> execute() {
+        <span class="code-keyword">for</span> (<span class="code-class">Command</span> command: commands)
+            command.execute();
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> undo() {
+        <span class="code-keyword">for</span> (<span class="code-keyword">int</span> i = commands.size() - <span class="code-number">1</span>; i &gt;= <span class="code-number">0</span>; i--) <span class="code-comment"># Undo in reverse execution order</span>
+            commands.get(i).undo();
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Usage</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">Light</span> livingRoom = <span class="code-keyword">new</span> <span class="code-class">Light</span>(<span class="code-string">"Living Room"</span>);
+<span class="code-class">Light</span> bedroom = <span class="code-keyword">new</span> <span class="code-class">Light</span>(<span class="code-string">"Bedroom"</span>);
+<span class="code-class">RemoteControl</span> remote = <span class="code-keyword">new</span> <span class="code-class">RemoteControl</span>();
+<span class="code-comment"># Initially, turn both lights on</span>
+livingRoom.setOn(<span class="code-keyword">true</span>);
+bedroom.setOn(<span class="code-keyword">true</span>);
+<span class="code-comment"># Define movie mode</span>
+<span class="code-class">Command</span> movieMode = <span class="code-keyword">new</span> <span class="code-class">MacroCommand</span>(<span class="code-class">List</span>.of(<span class="code-keyword">new</span> <span class="code-class">SetLightCommand</span>(livingRoom, <span class="code-keyword">false</span>), <span class="code-keyword">new</span> <span class="code-class">SetLightCommand</span>(bedroom, <span class="code-keyword">false</span>)));
+remote.pressButton(movieMode); <span class="code-comment"># Execute multiple actions with one command</span>
+remote.pressUndo(); <span class="code-comment"># Restore previous state</span></code></pre></div>
+    <div class="intro">
+        <p><strong>Output:</strong></p>
+    </div>
+    <div class="code-block"><pre><code>Living Room -&gt; ON
+Bedroom -&gt; ON
+
+Living Room -&gt; OFF
+Bedroom -&gt; OFF
+
+Bedroom -&gt; ON
+Living Room -&gt; ON</code></pre></div>
+    <div class="intro">
+        <p>The important part is that <code>MacroCommand</code> also implements <code>Command</code>.</p>
+        <p>Therefore, the remote control doesn't need to distinguish between:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>A command that performs one operation.</li>
+        <li>A macro command that performs multiple operations.</li>
+    </ul></div>
+    <div class="intro">
+        <p>This combines the <strong>Command Pattern</strong> with the <strong>Composite Pattern</strong>, because a macro command contains other commands and exposes the same interface.</p>
+        <p><strong>Why undo in reverse order?</strong></p>
+        <p>Suppose a macro executes A, then B, where B depends on A. Undoing B before A is generally necessary to reverse the sequence correctly.</p>
+    </div>
+    <div class="callout callout-warning"><p>One limitation: this simple implementation assumes every subcommand succeeds. Production macro commands need a defined policy for partial failures, such as compensating for already-executed steps. A macro is not automatically an atomic transaction.</p></div>
+
+    <div class="subheading">Practical Example: Command Queuing and Asynchronous Execution</div>
+    <div class="intro">
+        <p>Command objects can also be placed into queues and executed later.</p>
+        <p>Consider a backend service that receives a request to generate a large PDF report.</p>
+        <p>Generating the report might take considerable time. Rather than blocking the API request, the application can enqueue the operation and execute it asynchronously.</p>
+        <p>For this scenario, undo is unnecessary, so let's use a simpler command interface.</p>
+        <p><strong>Define an executable command</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@FunctionalInterface</span>
+<span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">ActionCommand</span> {
+    <span class="code-keyword">void</span> execute();
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Create the receiver</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ReportService</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> generateReport(<span class="code-keyword">long</span> reportId) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Generating report: "</span> + reportId);
+        <span class="code-comment"># Actual PDF generation logic</span>
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Create a concrete command</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">GenerateReportCommand</span> <span class="code-keyword">implements</span> <span class="code-class">ActionCommand</span> {
+    <span class="code-keyword">private</span> <span class="code-class">ReportService</span> reportService;
+    <span class="code-keyword">private</span> <span class="code-keyword">long</span> reportId;
+
+    <span class="code-keyword">public</span> <span class="code-class">GenerateReportCommand</span>(<span class="code-class">ReportService</span> reportService, <span class="code-keyword">long</span> reportId) {
+        <span class="code-keyword">this</span>.reportService = reportService;
+        <span class="code-keyword">this</span>.reportId = reportId;
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> execute() {
+        reportService.generateReport(reportId);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Create the asynchronous Invoker</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CommandExecutor</span> <span class="code-keyword">implements</span> <span class="code-class">AutoCloseable</span> {
+    <span class="code-keyword">private</span> <span class="code-class">ExecutorService</span> executor = <span class="code-class">Executors</span>.newSingleThreadExecutor();
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> submit(<span class="code-class">ActionCommand</span> command) {
+        executor.submit(command::execute);
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> close() {
+        executor.shutdown();
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Usage</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+    <span class="code-class">ReportService</span> reportService = <span class="code-keyword">new</span> <span class="code-class">ReportService</span>();
+    <span class="code-keyword">try</span> (<span class="code-class">CommandExecutor</span> executor = <span class="code-keyword">new</span> <span class="code-class">CommandExecutor</span>()) {
+        executor.submit(<span class="code-keyword">new</span> <span class="code-class">GenerateReportCommand</span>(reportService, <span class="code-number">101</span>));
+        executor.submit(<span class="code-keyword">new</span> <span class="code-class">GenerateReportCommand</span>(reportService, <span class="code-number">102</span>));
+    }
+    <span class="code-class">System</span>.out.println(<span class="code-string">"Main thread continues..."</span>);
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Possible output:</strong></p>
+    </div>
+    <div class="code-block"><pre><code>Main thread continues...
+Generating report: 101
+Generating report: 102</code></pre></div>
+    <div class="intro">
+        <p>The main thread does not execute the report-generation logic. Instead, the executor runs the commands on a worker thread. The exact interleaving of output between threads may vary.</p>
+        <p><strong>Where this becomes useful</strong></p>
+        <p>The same idea appears in backend systems for:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>Background report generation.</li>
+        <li>Image processing.</li>
+        <li>Email sending.</li>
+        <li>Batch processing.</li>
+        <li>Scheduled operations.</li>
+    </ul></div>
+    <div class="callout callout-warning"><p>For production distributed applications, an in-memory Java executor is not a durable queue. If the process crashes, queued commands may be lost.</p></div>
+    <div class="intro">
+        <p>You can instead store serializable command data in a database or send it to a message broker such as Kafka or Rabbit. A worker then reconstructs or dispatches the appropriate operation. Such systems also need retry handling, idempotency, and a clear acknowledgment strategy.</p>
+        <p>Also, a simple <code>Runnable</code> or lambda can act as a command when only deferred execution is needed:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">ActionCommand</span> command = () -&gt; reportService.generateReport(<span class="code-number">101</span>);
+executor.submit(command);</code></pre></div>
+    <div class="intro">
+        <p>Dedicated command classes become more valuable when operations require distinct parameters, validation, metadata, undo behavior, or lifecycle management.</p>
+    </div>
+
+    <div class="subheading">How the Command Pattern Supports Different Capabilities</div>
+    <div class="intro">
+        <p>The Command pattern doesn't automatically provide every feature. Rather, it provides a structure that makes these features easier to build.</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Capability</th><th>How Command helps</th></tr></thead>
+            <tbody>
+                <tr><td>Decoupling</td><td>The invoker depends on a command interface rather than the receiver</td></tr>
+                <tr><td>Undo/Redo</td><td>Command objects can preserve information needed to reverse operations</td></tr>
+                <tr><td>Queuing</td><td>Commands can be stored and executed later</td></tr>
+                <tr><td>Scheduling</td><td>A scheduler can invoke commands at a specified time</td></tr>
+                <tr><td>Logging</td><td>Command identity and parameters can be recorded</td></tr>
+                <tr><td>Macros</td><td>Multiple commands can be combined into one</td></tr>
+                <tr><td>Retry</td><td>A failed command can potentially be re-executed</td></tr>
+                <tr><td>Extensibility</td><td>New operations can be introduced without changing a generic invoker</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>For example, consider a command that transfers money.</p>
+        <p>Retrying that command blindly would be dangerous because a transfer might be processed twice. A production implementation would need an idempotency key or other mechanism to ensure the operation is not duplicated.</p>
+        <p>Likewise, undoing a money transfer would normally require a new compensating business transaction, not simply reversing some in-memory variables.</p>
+    </div>
+
+    <div class="subheading">Command Pattern vs Strategy Pattern</div>
+    <div class="intro">
+        <p>These patterns look similar because both encapsulate behavior behind interfaces. However, their intentions differ.</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Aspect</th><th>Command Pattern</th><th>Strategy Pattern</th></tr></thead>
+            <tbody>
+                <tr><td>Primary purpose</td><td>Encapsulate a request or action</td><td>Encapsulate an interchangeable algorithm</td></tr>
+                <tr><td>Main question</td><td>What operation should be performed?</td><td>How should the operation be performed?</td></tr>
+                <tr><td>Typical method</td><td><code>execute()</code></td><td><code>calculate()</code>, <code>sort()</code>, <code>compress()</code></td></tr>
+                <tr><td>Common usage</td><td>Undo/redo, queues, scheduling, actions</td><td>Selecting algorithms or business policies</td></tr>
+                <tr><td>State</td><td>May remember receiver, parameters and undo information</td><td>Usually holds algorithm configuration</td></tr>
+                <tr><td>Typical examples</td><td><code>DeleteTextCommand</code>, <code>SaveFileCommand</code></td><td><code>QuickSortStrategy</code>, <code>DiscountStrategy</code></td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p><strong>Example: Strategy</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">PaymentStrategy</span> {
+    <span class="code-keyword">void</span> pay(<span class="code-keyword">double</span> amount);
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CardPayment</span> <span class="code-keyword">implements</span> <span class="code-class">PaymentStrategy</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> pay(<span class="code-keyword">double</span> amount) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Paying by card: "</span> + amount);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Here, the Strategy decides <strong>how</strong> payment is performed.</p>
+        <p><strong>Example: Command</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">PayOrderCommand</span> <span class="code-keyword">implements</span> <span class="code-class">ActionCommand</span> {
+    <span class="code-keyword">private</span> <span class="code-class">PaymentService</span> paymentService;
+    <span class="code-keyword">private</span> <span class="code-keyword">long</span> orderId;
+
+    <span class="code-keyword">public</span> <span class="code-class">PayOrderCommand</span>(<span class="code-class">PaymentService</span> paymentService, <span class="code-keyword">long</span> orderId) {
+        <span class="code-keyword">this</span>.paymentService = paymentService;
+        <span class="code-keyword">this</span>.orderId = orderId;
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> execute() {
+        paymentService.payOrder(orderId);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Here, the Command represents a <strong>request</strong> to perform the payment operation.</p>
+        <p>A command can also internally use a strategy to decide how the payment should be performed.</p>
+    </div>
+
+    <div class="subheading">Command Pattern vs CQRS Command</div>
+    <div class="intro">
+        <p><strong>Command</strong> is also a common term in distributed system architectures, it's important to distinguish the two concepts.</p>
+        <p>The <strong>GoF Command Pattern</strong> is an object-oriented behavioral design pattern. Its main concern is encapsulating an operation so that it can be invoked independently from its creator.</p>
+        <p>A <strong>CQRS command</strong>, on the other hand, expresses an intention to change application state.</p>
+        <p>For example:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">CreateOrderCommand</span>(<span class="code-keyword">long</span> customerId, <span class="code-class">String</span> productId, <span class="code-keyword">int</span> quantity) {}</code></pre></div>
+    <div class="intro">
+        <p>This is a data object carrying the information needed to request an order creation.</p>
+        <p>A command handler then processes it:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CreateOrderHandler</span> {
+    <span class="code-keyword">private</span> <span class="code-class">OrderService</span> orderService;
+
+    <span class="code-keyword">public</span> <span class="code-class">CreateOrderHandler</span>(<span class="code-class">OrderService</span> orderService) {
+        <span class="code-keyword">this</span>.orderService = orderService;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> handle(<span class="code-class">CreateOrderCommand</span> command) {
+        orderService.createOrder(command.customerId(), command.productId(), command.quantity());
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>CQRS commands often have no <code>execute()</code> method, and their processing logic lives in a separate handler.</p>
+        <p>The two ideas are related through the concept of representing operations explicitly, but CQRS is an architectural pattern that separates write operations from reads. The GoF Command pattern does not require that separation.</p>
+    </div>
+
+    <div class="subheading">Advantages and Disadvantages</div>
+    <div class="intro">
+        <p><strong>Advantages</strong></p>
+    </div>
+    <div class="intro"><ul>
+        <li>Decouples request senders from the receivers that execute operations.</li>
+        <li>Supports undo/redo through command history and state management.</li>
+        <li>Makes deferred execution, scheduling, and queuing easier.</li>
+        <li>Allows individual commands to be combined into macro commands.</li>
+        <li>Encourages the Open/Closed Principle: a generic invoker can support new commands without modification.</li>
+        <li>Makes individual operations easier to test in isolation.</li>
+    </ul></div>
+    <div class="intro">
+        <p><strong>Disadvantages</strong></p>
+    </div>
+    <div class="intro"><ul>
+        <li>Can introduce many small classes and additional abstraction.</li>
+        <li>Undo/redo can be complicated for operations with external side effects.</li>
+        <li>Command history may consume significant memory.</li>
+        <li>Mutable commands can cause problems when reused, retried, or accessed concurrently.</li>
+        <li>Queuing and logging commands require additional infrastructure for durability, security, and error handling.</li>
+    </ul></div>
+
+    <div class="subheading">When Should You Use the Command Pattern</div>
+    <div class="intro">
+        <p>The Command pattern is especially useful when an application needs to treat operations as independent objects rather than execute them immediately through direct method calls.</p>
+        <p>Typical scenarios include GUI button actions, text editor history, task schedulers, background job processors, workflow engines, transactional compensation, and macro automation.</p>
+        <p>However, if your application only needs a simple one-time method call, using the Command pattern may introduce unnecessary complexity.</p>
+        <p>For instance:</p>
+    </div>
+    <div class="code-block"><pre><code>light.turnOn();</code></pre></div>
+    <div class="intro">
+        <p>is perfectly fine if you have no requirement for undo, queuing, logging, dynamic dispatch, or other forms of command management.</p>
+    </div>
+    <div class="callout callout-note"><p>The design pattern should solve a meaningful problem, not simply add additional layers.</p></div>
+
+    <div class="subheading">Interview Summary</div>
+    <div class="intro">
+        <p>The <strong>Command Design Pattern</strong> is a behavioral design pattern that encapsulates a request or operation as an object, thereby decoupling the object that initiates the request from the object that performs it.</p>
+        <p>The pattern introduces a common <code>Command</code> interface, concrete command implementations, a receiver containing the actual business logic, and an invoker responsible for triggering command execution.</p>
+        <p>By encapsulating operations as objects, it becomes possible to store, queue, schedule, log, combine, undo, and redo operations without tightly coupling the invoker to the receiver.</p>
+        <p>Remember these three fundamental ideas:</p>
+    </div>
+    <div class="intro"><ol>
+        <li><strong>Command</strong> encapsulates an operation.</li>
+        <li><strong>Invoker</strong> triggers the operation without knowing its implementation.</li>
+        <li><strong>Receiver</strong> performs the actual work.</li>
+    </ol></div>
+    <div class="intro">
+        <p>The most recognizable real-world applications are Undo/Redo in text editors, GUI actions, macro commands, and asynchronous task execution.</p>
     </div>
 
     <div class="section realworld">
         <div class="section-title">Real-world example</div>
         <div class="section-content"><ul>
-            <li><strong>java.lang.Runnable</strong> &mdash; each Runnable wraps an action as an object that an executor invokes later without knowing its details.</li>
-            <li><strong>javax.swing.Action</strong> &mdash; Swing binds an Action command to buttons, menu items, and key strokes as the invokers.</li>
-            <li><strong>Spring JdbcTemplate</strong> &mdash; StatementCallback and PreparedStatementCallback encapsulate a database operation passed to the template.</li>
+            <li><strong>Runnable</strong> &mdash; each Runnable wraps an action as an object that an executor invokes later without knowing its details.</li>
+            <li><strong>swing.Action</strong> &mdash; Swing binds an Action command to buttons, menu items, and key strokes as the invokers.</li>
+            <li><strong>JdbcTemplate</strong> &mdash; StatementCallback and PreparedStatementCallback encapsulate a DB operation passed to the template.</li>
             <li><strong>java.util.concurrent Callable and Future</strong> &mdash; a Callable is a queued command whose result is retrieved through its Future.</li>
             <li><strong>Undo and redo in editors</strong> &mdash; each edit is stored as a command object so it can be reversed or replayed.</li>
             <li><strong>Restaurant orders</strong> &mdash; a waiter writes an order (command) that the kitchen (receiver) later executes, decoupling the two.</li>
             <li><strong>Task queues and job schedulers</strong> &mdash; jobs are captured as command objects that workers pull and execute asynchronously.</li>
         </ul></div>
-    </div>
-
-    <div class="section code-section">
-        <div class="section-title">Code</div>
-        <div class="code-layout">
-            <div class="code-wrapper">
-<pre><code><span class="code-keyword">public interface</span> <span class="code-class">Command</span> {
-    <span class="code-keyword">void</span> execute();
-}
-
-<span class="code-keyword">public class</span> <span class="code-class">Light</span> {                       <span class="code-comment"># Receiver</span>
-    <span class="code-keyword">void</span> on()  { System.out.println(<span class="code-string">"Light ON"</span>); }
-    <span class="code-keyword">void</span> off() { System.out.println(<span class="code-string">"Light OFF"</span>); }
-}
-
-<span class="code-keyword">public class</span> <span class="code-class">LightOnCommand</span> <span class="code-keyword">implements</span> Command {
-    <span class="code-keyword">private final</span> Light light;
-    LightOnCommand(Light light) { <span class="code-keyword">this</span>.light = light; }
-    <span class="code-keyword">public void</span> execute() { light.on(); }
-}
-
-<span class="code-keyword">public class</span> <span class="code-class">Remote</span> {                      <span class="code-comment"># Invoker</span>
-    <span class="code-keyword">private</span> Command command;
-    <span class="code-keyword">void</span> setCommand(Command c) { command = c; }
-    <span class="code-keyword">void</span> press() { command.execute(); }
-}
-
-<span class="code-keyword">void</span> main() {
-    Remote remote = <span class="code-keyword">new</span> Remote();
-    remote.setCommand(<span class="code-keyword">new</span> LightOnCommand(<span class="code-keyword">new</span> Light()));
-    remote.press();  <span class="code-comment"># Light ON</span>
-}</code></pre>
-            </div>
-
-            <div class="code-explanation">
-                <div class="code-explanation-title">How the Command works</div>
-                <p><code>Command</code> declares a single <code>execute()</code> method.<br><br>
-                    <code>Light</code> is the receiver that knows how to do the work.<br><br>
-                    <code>LightOnCommand</code> wraps the receiver and the action.<br><br>
-                    <code>Remote</code> triggers commands without knowing their details.</p>
-            </div>
-        </div>
     </div>
 </div>
 </body>

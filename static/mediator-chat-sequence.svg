@@ -1,0 +1,29 @@
+<svg width="840" height="378" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 378" role="img" aria-label="Sequence: Alice broadcasts to the ChatRoom, which validates the sender and delivers to Bob and Charlie; Bob sends a private message, which the ChatRoom validates and delivers to Alice">
+    <defs><marker id="md5-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#555555"/></marker><marker id="md5-l" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#9A9A9A"/></marker></defs>
+    <line x1="100" y1="54" x2="100" y2="368" stroke="#9A9A9A" stroke-width="1.2" stroke-dasharray="5 4"/>
+    <line x1="320" y1="54" x2="320" y2="368" stroke="#9A9A9A" stroke-width="1.2" stroke-dasharray="5 4"/>
+    <line x1="540" y1="54" x2="540" y2="368" stroke="#9A9A9A" stroke-width="1.2" stroke-dasharray="5 4"/>
+    <line x1="740" y1="54" x2="740" y2="368" stroke="#9A9A9A" stroke-width="1.2" stroke-dasharray="5 4"/>
+    <path d="M100 84 H317" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#md5-a)"/>
+    <path d="M320 118 H354 V134 H323" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#md5-a)"/>
+    <path d="M320 168 H537" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#md5-a)"/>
+    <path d="M320 210 H737" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#md5-a)"/>
+    <path d="M540 252 H323" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#md5-a)"/>
+    <path d="M320 286 H354 V302 H323" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#md5-a)"/>
+    <path d="M320 336 H103" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#md5-a)"/>
+    <rect x="25" y="14" width="150" height="40" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="100" y="36" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12" font-weight="600" fill="#222222">Alice</text>
+    <rect x="245" y="14" width="150" height="40" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="320" y="36" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12" font-weight="600" fill="#222222">ChatRoom (Mediator)</text>
+    <rect x="465" y="14" width="150" height="40" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="540" y="36" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12" font-weight="600" fill="#222222">Bob</text>
+    <rect x="665" y="14" width="150" height="40" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="740" y="36" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12" font-weight="600" fill="#222222">Charlie</text>
+    <text x="210" y="78" text-anchor="middle" font-family="Consolas, 'Source Code Pro', monospace" font-size="11" font-weight="400" fill="#222222">broadcast(&quot;Good morning&quot;)</text>
+    <text x="362" y="130" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="11" font-weight="400" fill="#555555" font-style="italic">validate sender</text>
+    <text x="430" y="162" text-anchor="middle" font-family="Consolas, 'Source Code Pro', monospace" font-size="11" font-weight="400" fill="#222222">receive(&quot;Alice&quot;, message)</text>
+    <text x="530" y="204" text-anchor="middle" font-family="Consolas, 'Source Code Pro', monospace" font-size="11" font-weight="400" fill="#222222">receive(&quot;Alice&quot;, message)</text>
+    <text x="430" y="246" text-anchor="middle" font-family="Consolas, 'Source Code Pro', monospace" font-size="11" font-weight="400" fill="#222222">sendPrivate(&quot;Alice&quot;, message)</text>
+    <text x="362" y="298" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="11" font-weight="400" fill="#555555" font-style="italic">validate and find recipient</text>
+    <text x="210" y="330" text-anchor="middle" font-family="Consolas, 'Source Code Pro', monospace" font-size="11" font-weight="400" fill="#222222">receive(&quot;Bob&quot;, message)</text>
+</svg>

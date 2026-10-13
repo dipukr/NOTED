@@ -1,0 +1,27 @@
+<svg width="640" height="262" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 262" role="img" aria-label="With Flyweight: Tree 1, Tree 2 and Tree 3 store only x and y and all reference one shared TreeType holding name Oak, color Green and texture oak.png">
+    <defs><marker id="fw2-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#555555"/></marker><marker id="fw2-l" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#9A9A9A"/></marker></defs>
+    <path d="M110 88 V122 H320 V148" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#fw2-a)"/>
+    <path d="M320 88 V122 H320 V148" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#fw2-a)"/>
+    <path d="M530 88 V122 H320 V148" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#fw2-a)"/>
+    <rect x="20" y="10" width="180" height="78" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="110" y="31" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Tree 1</text>
+    <line x1="20" y1="41" x2="200" y2="41" stroke="#222222" stroke-width="1"/>
+    <text x="36" y="60" text-anchor="start" font-family="Consolas, 'Source Code Pro', monospace" font-size="12" font-weight="400" fill="#222222">x: 10</text>
+    <text x="36" y="79" text-anchor="start" font-family="Consolas, 'Source Code Pro', monospace" font-size="12" font-weight="400" fill="#222222">y: 20</text>
+    <rect x="230" y="10" width="180" height="78" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="320" y="31" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Tree 2</text>
+    <line x1="230" y1="41" x2="410" y2="41" stroke="#222222" stroke-width="1"/>
+    <text x="246" y="60" text-anchor="start" font-family="Consolas, 'Source Code Pro', monospace" font-size="12" font-weight="400" fill="#222222">x: 30</text>
+    <text x="246" y="79" text-anchor="start" font-family="Consolas, 'Source Code Pro', monospace" font-size="12" font-weight="400" fill="#222222">y: 40</text>
+    <rect x="440" y="10" width="180" height="78" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="530" y="31" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Tree 3</text>
+    <line x1="440" y1="41" x2="620" y2="41" stroke="#222222" stroke-width="1"/>
+    <text x="456" y="60" text-anchor="start" font-family="Consolas, 'Source Code Pro', monospace" font-size="12" font-weight="400" fill="#222222">x: 50</text>
+    <text x="456" y="79" text-anchor="start" font-family="Consolas, 'Source Code Pro', monospace" font-size="12" font-weight="400" fill="#222222">y: 60</text>
+    <rect x="210" y="150" width="220" height="97" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="320" y="171" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Shared TreeType</text>
+    <line x1="210" y1="181" x2="430" y2="181" stroke="#222222" stroke-width="1"/>
+    <text x="226" y="200" text-anchor="start" font-family="Consolas, 'Source Code Pro', monospace" font-size="12" font-weight="400" fill="#222222">name: Oak</text>
+    <text x="226" y="219" text-anchor="start" font-family="Consolas, 'Source Code Pro', monospace" font-size="12" font-weight="400" fill="#222222">color: Green</text>
+    <text x="226" y="238" text-anchor="start" font-family="Consolas, 'Source Code Pro', monospace" font-size="12" font-weight="400" fill="#222222">texture: oak.png</text>
+</svg>

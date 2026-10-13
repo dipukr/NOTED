@@ -1,0 +1,22 @@
+<svg width="910" height="94" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 910 94" role="img" aria-label="Controller calls the OrderService proxy, which begins a transaction and calls the real OrderService.placeOrder() to save the order and payment; the proxy then commits on success or rolls back on failure and returns to the controller">
+    <defs><marker id="px8-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#555555"/></marker><marker id="px8-l" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#9A9A9A"/></marker></defs>
+    <path d="M120 47 H148" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#px8-a)"/>
+    <path d="M320 47 H348" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#px8-a)"/>
+    <path d="M540 47 H568" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#px8-a)"/>
+    <path d="M760 47 H788" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#px8-a)"/>
+    <rect x="10" y="12" width="110" height="70" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="65" y="52" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Controller</text>
+    <rect x="150" y="12" width="170" height="70" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="235" y="43.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">OrderService Proxy</text>
+    <text x="235" y="60.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555">begin transaction</text>
+    <rect x="350" y="12" width="190" height="70" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="445" y="36" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Real OrderService</text>
+    <text x="445" y="53" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555">placeOrder()</text>
+    <text x="445" y="68" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555">save order · save payment</text>
+    <rect x="570" y="12" width="190" height="70" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="665" y="36" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">OrderService Proxy</text>
+    <text x="665" y="53" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555">commit on success</text>
+    <text x="665" y="68" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555">roll back on failure</text>
+    <rect x="790" y="12" width="110" height="70" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="845" y="52" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Controller</text>
+</svg>

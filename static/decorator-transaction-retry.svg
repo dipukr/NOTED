@@ -1,0 +1,23 @@
+<svg width="760" height="152" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 152" role="img" aria-label="Retry attempt 1: begin TX1, DAO fails, rollback TX1. Retry attempt 2: begin TX2, DAO succeeds, commit TX2">
+    <defs><marker id="dp3-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#555555"/></marker><marker id="dp3-l" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#9A9A9A"/></marker></defs>
+    <path d="M335 36 H373" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#dp3-a)"/>
+    <path d="M525 36 H563" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#dp3-a)"/>
+    <path d="M335 118 H373" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#dp3-a)"/>
+    <path d="M525 118 H563" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#dp3-a)"/>
+    <path d="M640 58 V82 H260 V94" fill="none" stroke="#9A9A9A" stroke-width="1.5" stroke-dasharray="5 4" stroke-linejoin="miter" marker-end="url(#dp3-l)"/>
+    <text x="20" y="41" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#222222">Retry attempt 1</text>
+    <rect x="185" y="14" width="150" height="44" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="260" y="38.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Begin TX1</text>
+    <rect x="375" y="14" width="150" height="44" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="450" y="38.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">DAO fails</text>
+    <rect x="565" y="14" width="150" height="44" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="640" y="38.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Rollback TX1</text>
+    <text x="20" y="123" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#222222">Retry attempt 2</text>
+    <rect x="185" y="96" width="150" height="44" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="260" y="120.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Begin TX2</text>
+    <rect x="375" y="96" width="150" height="44" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="450" y="120.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">DAO succeeds</text>
+    <rect x="565" y="96" width="150" height="44" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="640" y="120.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Commit TX2</text>
+    <text x="456" y="76" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="11" font-weight="400" fill="#555555" font-style="italic">retry</text>
+</svg>

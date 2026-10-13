@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Facade Pattern</title>
+<title>Facade</title>
 <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
@@ -11,44 +11,638 @@
     <div class="title">Facade</div>
 
     <div class="intro">
+        <p>The Facade Design Pattern is a structural design pattern that provides a simplified, unified interface to a complex system composed of multiple classes, components, or subsystems.</p>
+        <p>Instead of requiring clients to interact directly with several subsystem classes and understand how they work together, the Facade pattern introduces a single class that coordinates these interactions and exposes a simpler, higher-level interface.</p>
+        <p>The main purpose of the Facade pattern is to <strong>hide subsystem complexity and reduce coupling</strong> between clients and<br> the underlying implementation.</p>
         <p>Facade pattern is a structural design pattern that provides a unified interface to a set of interfaces in a subsystem.</p>
         <p>A complex interface to the client is considered as a fault in the design of a system.</p>
         <p>Facade defines a higher-level interface that makes the subsystem easier to use.</p>
-        <p>Facade pattern makes a complex interface easier to use using a Facade class.</p>
+    </div>
+    <div class="callout callout-note"><p>A facade doesn't necessarily replace existing subsystem interfaces. It provides a convenient way to perform common operations while allowing clients to access subsystem classes directly when necessary.</p></div>
+    <div class="intro">
+        <p><strong>Key characteristics</strong></p>
+    </div>
+    <div class="intro font-size-17"><ul>
+        <li><strong>Simplifies complex interactions:</strong> Provides one convenient entry point for operations involving multiple components.</li>
+        <li><strong>Reduces coupling:</strong> Clients depend on the facade rather than the implementation details of multiple subsystems.</li>
+        <li><strong>Encapsulates coordination:</strong> Hides the sequence of method calls required to complete a high-level operation.</li>
+        <li><strong>Provides abstraction:</strong> Exposes business-oriented operations instead of low-level technical steps.</li>
+        <li><strong>Improves maintainability:</strong> Changes to subsystem impl can often be handled inside the facade without modifying clients.</li>
+    </ul></div>
+
+    <div class="subheading">Understanding the problem</div>
+    <div class="intro">
+        <p>Consider an application that plays movies through a home theater system.</p>
+        <p>The system contains four components:</p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>Projector</strong> &mdash; Controls the projector.</li>
+        <li><strong>SoundSystem</strong> &mdash; Controls audio output.</li>
+        <li><strong>StreamingPlayer</strong> &mdash; Plays movies.</li>
+        <li><strong>Lights</strong> &mdash; Controls room lighting.</li>
+    </ul></div>
+    <div class="intro">
+        <p>To watch a movie, the client must perform multiple operations in the correct sequence:</p>
+    </div>
+    <div class="code-block"><pre><code>lights.dim(<span class="code-number">20</span>);
+projector.turnOn();
+soundSystem.turnOn();
+soundSystem.setVolume(<span class="code-number">50</span>);
+streamingPlayer.connect();
+streamingPlayer.play(<span class="code-string">"Inception"</span>);</code></pre></div>
+    <div class="intro">
+        <p>To stop watching, the client must execute another sequence of operations.</p>
+        <p><strong>Without Facade</strong></p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/facade-without.svg" alt="Without a facade, the client calls Lights, Projector, Sound System and Streaming Player directly" style="width:100%;max-width:700px">
+    </div>
+    <div class="intro">
+        <p>Problems:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>The client must understand all four subsystem classes.</li>
+        <li>The client must know the correct execution sequence.</li>
+        <li>If subsystem APIs change, the client may need modification.</li>
+        <li>Multiple clients may duplicate the same coordination logic.</li>
+        <li>The client becomes tightly coupled to subsystem details.</li>
+    </ul></div>
+
+    <div class="subheading">How the Facade Pattern solves this</div>
+    <div class="intro">
+        <p>Introduce a <code>HomeTheaterFacade</code> class that encapsulates the required operations.</p>
+        <p>The client can now simply call:</p>
+    </div>
+    <div class="code-block"><pre><code>homeTheater.watchMovie(<span class="code-string">"Inception"</span>);
+homeTheater.endMovie();</code></pre></div>
+    <div class="intro">
+        <p>Internally, the facade calls the appropriate methods on the underlying components.</p>
+        <p><strong>With Facade</strong></p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/facade-with.svg" alt="With a facade, the client calls HomeTheaterFacade, which coordinates Lights, Projector, Sound System and Streaming Player" style="width:100%;max-width:700px">
+    </div>
+    <div class="intro">
+        <p>Now the client knows only about <code>HomeTheaterFacade</code> and its high-level methods.</p>
+        <p>The facade knows which subsystem methods to call, in what order, and with which parameters.</p>
     </div>
 
-    <div class="section when-use">
-        <div class="section-title">When-to use</div>
-        <div class="section-content">
-            <ul>
-                <li>When you want to simplify the usage of a complex system.</li>
-                <li>When there are multiple subsystems that need to be integrated.</li>
-                <li>To decouple clients from the internal components of a system.</li>
-                <li>When you want to create a layered architecture.</li>
-            </ul>
-        </div>
+    <div class="subheading">Example: Home Theater System</div>
+    <div class="intro">
+        <p>Let's implement the example step by step.</p>
+        <p><strong>Create the subsystem classes</strong></p>
+        <p>Each subsystem is responsible for a specific functionality.</p>
+    </div>
+    <div class="scenario-layout scenario-layout-tight scenario-layout-stretch" style="grid-template-columns:minmax(0,1fr) minmax(0,1fr)">
+        <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Lights</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> dim(<span class="code-keyword">int</span> brightness) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Lights dimmed to "</span> + brightness);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> on() {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Lights turned ON"</span>);
+    }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">SoundSystem</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> on() {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Sound system turned ON"</span>);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> setVolume(<span class="code-keyword">int</span> volume) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Volume set to "</span> + volume);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> off() {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Sound system turned OFF"</span>);
+    }
+}</code></pre></div>
+        <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Projector</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> on() {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Projector turned ON"</span>);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> off() {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Projector turned OFF"</span>);
+    }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">StreamingPlayer</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> connect() {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Streaming player connected"</span>);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> play(<span class="code-class">String</span> movie) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Playing: "</span> + movie);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> stop() {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Playback stopped"</span>);
+    }
+}</code></pre></div>
+    </div>
+    <div class="intro">
+        <p>These classes operate independently and have their own interfaces.</p>
+        <p><strong>Create the Facade</strong></p>
+        <p>The facade maintains references to the subsystems and exposes simple, high-level operations.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">HomeTheaterFacade</span> {
+    <span class="code-keyword">private</span> <span class="code-class">Lights</span> lights;
+    <span class="code-keyword">private</span> <span class="code-class">Projector</span> projector;
+    <span class="code-keyword">private</span> <span class="code-class">SoundSystem</span> soundSystem;
+    <span class="code-keyword">private</span> <span class="code-class">StreamingPlayer</span> player;
+
+    <span class="code-keyword">public</span> <span class="code-class">HomeTheaterFacade</span>(<span class="code-class">Lights</span> lights, <span class="code-class">Projector</span> projector, <span class="code-class">SoundSystem</span> soundSystem, <span class="code-class">StreamingPlayer</span> player) {
+        <span class="code-keyword">this</span>.lights = lights;
+        <span class="code-keyword">this</span>.projector = projector;
+        <span class="code-keyword">this</span>.soundSystem = soundSystem;
+        <span class="code-keyword">this</span>.player = player;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> watchMovie(<span class="code-class">String</span> movie) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Preparing home theater..."</span>);
+        lights.dim(<span class="code-number">20</span>);
+        projector.on();
+        soundSystem.on();
+        soundSystem.setVolume(<span class="code-number">50</span>);
+        player.connect();
+        player.play(movie);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> endMovie() {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Shutting down home theater..."</span>);
+        player.stop();
+        soundSystem.off();
+        projector.off();
+        lights.on();
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p><code>HomeTheaterFacade</code> doesn't implement the actual functionality of the projector, audio system, or streaming player. Instead, it <strong>delegates</strong> responsibilities to the appropriate subsystem classes and coordinates their execution.</p>
+        <p><strong>Client code</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+    <span class="code-class">HomeTheaterFacade</span> homeTheater = <span class="code-keyword">new</span> <span class="code-class">HomeTheaterFacade</span>(<span class="code-keyword">new</span> <span class="code-class">Lights</span>(), <span class="code-keyword">new</span> <span class="code-class">Projector</span>(), <span class="code-keyword">new</span> <span class="code-class">SoundSystem</span>(), <span class="code-keyword">new</span> <span class="code-class">StreamingPlayer</span>());
+    homeTheater.watchMovie(<span class="code-string">"Inception"</span>);
+    <span class="code-class">System</span>.out.println();
+    homeTheater.endMovie();
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Output:</strong></p>
+    </div>
+    <div class="code-block"><pre><code>Preparing home theater...
+Lights dimmed to 20%
+Projector turned ON
+Sound system turned ON
+Volume set to 50
+Streaming player connected
+Playing: Inception
+
+Shutting down home theater...
+Playback stopped
+Sound system turned OFF
+Projector turned OFF
+Lights turned ON</code></pre></div>
+    <div class="intro">
+        <p><strong>What did we achieve?</strong></p>
+        <p>The client doesn't need to know:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>How to initialize the projector.</li>
+        <li>How to configure the audio system.</li>
+        <li>How to connect to the streaming player.</li>
+        <li>In which order these operations must execute.</li>
+    </ul></div>
+    <div class="intro">
+        <p>All it needs to know is:</p>
+    </div>
+    <div class="code-block"><pre><code>homeTheater.watchMovie(<span class="code-string">"Inception"</span>);</code></pre></div>
+    <div class="intro">
+        <p>When the movie setup process changes&mdash;for example, a new surround-sound system is introduced&mdash;we can modify<br> the facade implementation while keeping the existing client code unchanged, provided the facade interface remains<br> the same.</p>
     </div>
 
-    <div class="subheading">Pros and Cons</div>
-    <div class="pc-grid">
-        <div class="pc-card pro">
-            <div class="pc-title">Simplifies Interfaces</div>
-            <p>It provides a single, unified interface that hides the complexity of the underlying subsystems.</p>
-        </div>
-        <div class="pc-card pro">
-            <div class="pc-title">Easier To Use</div>
-            <p>It makes the system easier to use by exposing only the operations clients actually need.</p>
-        </div>
-        <div class="pc-card pro">
-            <div class="pc-title">Promotes Loose Coupling</div>
-            <p>It decouples clients from the internal components, reducing dependencies between them.</p>
-        </div>
-        <div class="pc-card pro">
-            <div class="pc-title">Improves Readability</div>
-            <p>It improves code readability by keeping client code clean and focused on high-level intent.</p>
-        </div>
+    <div class="subheading">Practical Example: E-Commerce Order Details</div>
+    <div class="intro">
+        <p>Let's consider a more realistic enterprise application.</p>
+        <p>An e-commerce application needs to display complete order information to the customer.</p>
+        <p>However, the required information comes from four different services:</p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>OrderService</strong> &mdash; Retrieves order information.</li>
+        <li><strong>CustomerService</strong> &mdash; Retrieves customer information.</li>
+        <li><strong>PaymentService</strong> &mdash; Retrieves payment status.</li>
+        <li><strong>ShippingService</strong> &mdash; Retrieves shipping information.</li>
+    </ul></div>
+    <div class="intro">
+        <p><strong>Without Facade</strong></p>
+        <p>The client (for example, a REST controller) may need to call all these services:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">Order</span> order = orderService.findById(orderId);
+<span class="code-class">Customer</span> customer = customerService.findById(order.customerId());
+<span class="code-class">Payment</span> payment = paymentService.findByOrderId(orderId);
+<span class="code-class">Shipment</span> shipment = shippingService.findByOrderId(orderId);
+<span class="code-class">OrderDetails</span> details = <span class="code-keyword">new</span> <span class="code-class">OrderDetails</span>(order, customer, payment, shipment);</code></pre></div>
+    <div class="intro">
+        <p>Every client requiring complete order details might repeat this sequence.</p>
+        <p>It also needs to understand which service to call and how to combine their results.</p>
+        <p><strong>With Facade</strong></p>
+        <p>Introduce an <code>OrderDetailsFacade</code>:</p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/facade-order-details.svg" alt="The REST controller calls OrderDetailsFacade.getOrderDetails(orderId), which calls the Order, Customer, Payment and Shipping services" style="width:100%;max-width:700px">
+    </div>
+    <div class="intro">
+        <p>Now clients need only:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">OrderDetails</span> details = facade.getOrderDetails(orderId);</code></pre></div>
+    <div class="intro">
+        <p><strong>Define the domain models</strong></p>
+        <p>We will use Java records to represent our domain data.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">Order</span>(<span class="code-keyword">long</span> id, <span class="code-keyword">long</span> customerId, <span class="code-keyword">int</span> totalAmount) {}
+<span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">Customer</span>(<span class="code-keyword">long</span> id, <span class="code-class">String</span> name) {}
+<span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">Payment</span>(<span class="code-keyword">long</span> orderId, <span class="code-class">String</span> status) {}
+<span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">Shipment</span>(<span class="code-keyword">long</span> orderId, <span class="code-class">String</span> status) {}
+<span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">OrderDetails</span>(<span class="code-class">Order</span> order, <span class="code-class">Customer</span> customer, <span class="code-class">Payment</span> payment, <span class="code-class">Shipment</span> shipment) {}</code></pre></div>
+    <div class="intro">
+        <p><strong>Define service interfaces</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">OrderService</span> {
+    <span class="code-class">Order</span> findById(<span class="code-keyword">long</span> orderId);
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">CustomerService</span> {
+    <span class="code-class">Customer</span> findById(<span class="code-keyword">long</span> customerId);
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">PaymentService</span> {
+    <span class="code-class">Payment</span> findByOrderId(<span class="code-keyword">long</span> orderId);
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">ShippingService</span> {
+    <span class="code-class">Shipment</span> findByOrderId(<span class="code-keyword">long</span> orderId);
+}</code></pre></div>
+    <div class="intro">
+        <p>In a real application, these interfaces might be implemented using Spring Data JPA repositories, external REST API clients, or other components.</p>
+        <p><strong>Implement the Facade</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderDetailsFacade</span> {
+    <span class="code-keyword">private</span> <span class="code-class">OrderService</span> orderService;
+    <span class="code-keyword">private</span> <span class="code-class">CustomerService</span> customerService;
+    <span class="code-keyword">private</span> <span class="code-class">PaymentService</span> paymentService;
+    <span class="code-keyword">private</span> <span class="code-class">ShippingService</span> shippingService;
+
+    <span class="code-keyword">public</span> <span class="code-class">OrderDetailsFacade</span>(<span class="code-class">OrderService</span> orderService, <span class="code-class">CustomerService</span> customerService,
+                              <span class="code-class">PaymentService</span> paymentService, <span class="code-class">ShippingService</span> shippingService) {
+        <span class="code-keyword">this</span>.orderService = orderService;
+        <span class="code-keyword">this</span>.customerService = customerService;
+        <span class="code-keyword">this</span>.paymentService = paymentService;
+        <span class="code-keyword">this</span>.shippingService = shippingService;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">OrderDetails</span> getOrderDetails(<span class="code-keyword">long</span> orderId) {
+        <span class="code-class">Order</span> order = orderService.findById(orderId); <span class="code-comment"># 1. Fetch order</span>
+        <span class="code-class">Customer</span> customer = customerService.findById(order.customerId()); <span class="code-comment"># 2. Fetch customer</span>
+        <span class="code-class">Payment</span> payment = paymentService.findByOrderId(orderId); <span class="code-comment"># 3. Fetch payment</span>
+        <span class="code-class">Shipment</span> shipment = shippingService.findByOrderId(orderId); <span class="code-comment"># 4. Fetch shipment</span>
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">OrderDetails</span>(order, customer, payment, shipment); <span class="code-comment"># 5. Combine results</span>
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>The facade coordinates multiple services and returns one consolidated response.</p>
+        <p>Notice that the client is independent of the internal service-call sequence.</p>
+        <p><strong>Execute the example</strong></p>
+        <p>The following demonstrates how to wire the example using simple in-memory implementations.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+    <span class="code-class">OrderService</span> orders = id -&gt; <span class="code-keyword">new</span> <span class="code-class">Order</span>(id, <span class="code-number">101</span>, <span class="code-number">2999</span>);
+    <span class="code-class">CustomerService</span> customers = id -&gt; <span class="code-keyword">new</span> <span class="code-class">Customer</span>(id, <span class="code-string">"Rahul"</span>);
+    <span class="code-class">PaymentService</span> payments = id -&gt; <span class="code-keyword">new</span> <span class="code-class">Payment</span>(id, <span class="code-string">"PAID"</span>);
+    <span class="code-class">ShippingService</span> shipping = id -&gt; <span class="code-keyword">new</span> <span class="code-class">Shipment</span>(id, <span class="code-string">"DISPATCHED"</span>);
+    <span class="code-class">OrderDetailsFacade</span> facade = <span class="code-keyword">new</span> <span class="code-class">OrderDetailsFacade</span>(orders, customers, payments, shipping);
+    <span class="code-class">OrderDetails</span> details = facade.getOrderDetails(<span class="code-number">1001</span>);
+    <span class="code-class">System</span>.out.println(details);
+}</code></pre></div>
+    <div class="callout callout-note"><p>This is runnable with Java 25+ when the records, interfaces, facade, and <code>main</code> method are placed in the same source file.</p></div>
+    <div class="intro">
+        <p>The client only interacts with the facade, not with the individual services.</p>
     </div>
 
+    <div class="subheading">Facade Pattern in Spring Boot</div>
+    <div class="intro">
+        <p>The same pattern is particularly useful in Spring Boot applications where controllers depend on multiple services.</p>
+        <p>Consider a REST endpoint:</p>
+    </div>
+    <div class="code-block"><pre><code>GET /orders/1001/details</code></pre></div>
+    <div class="intro">
+        <p>Instead of injecting four services into the controller and coordinating them there, we can delegate the operation to a facade.</p>
+        <p><strong>Facade implementation</strong></p>
+        <p>Using the same domain models and interfaces from the previous example:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@Service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderDetailsFacade</span> {
+    <span class="code-keyword">private</span> <span class="code-class">OrderService</span> orderService;
+    <span class="code-keyword">private</span> <span class="code-class">CustomerService</span> customerService;
+    <span class="code-keyword">private</span> <span class="code-class">PaymentService</span> paymentService;
+    <span class="code-keyword">private</span> <span class="code-class">ShippingService</span> shippingService;
+
+    <span class="code-keyword">public</span> <span class="code-class">OrderDetailsFacade</span>(<span class="code-class">OrderService</span> orderService, <span class="code-class">CustomerService</span> customerService,
+                              <span class="code-class">PaymentService</span> paymentService, <span class="code-class">ShippingService</span> shippingService) {
+        <span class="code-keyword">this</span>.orderService = orderService;
+        <span class="code-keyword">this</span>.customerService = customerService;
+        <span class="code-keyword">this</span>.paymentService = paymentService;
+        <span class="code-keyword">this</span>.shippingService = shippingService;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">OrderDetails</span> getOrderDetails(<span class="code-keyword">long</span> orderId) {
+        <span class="code-class">Order</span> order = orderService.findById(orderId);
+        <span class="code-class">Customer</span> customer = customerService.findById(order.customerId());
+        <span class="code-class">Payment</span> payment = paymentService.findByOrderId(orderId);
+        <span class="code-class">Shipment</span> shipment = shippingService.findByOrderId(orderId);
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">OrderDetails</span>(order, customer, payment, shipment);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Spring automatically injects the required dependencies through constructor injection, assuming implementations of the four service interfaces are registered as Spring beans.</p>
+        <p><strong>REST Controller</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@RestController</span>
+<span class="code-annotation">@RequestMapping</span>(<span class="code-string">"/orders"</span>)
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderController</span> {
+    <span class="code-keyword">private</span> <span class="code-class">OrderDetailsFacade</span> facade;
+
+    <span class="code-keyword">public</span> <span class="code-class">OrderController</span>(<span class="code-class">OrderDetailsFacade</span> facade) {
+        <span class="code-keyword">this</span>.facade = facade;
+    }
+
+    <span class="code-annotation">@GetMapping</span>(<span class="code-string">"/{orderId}/details"</span>)
+    <span class="code-keyword">public</span> <span class="code-class">OrderDetails</span> getOrderDetails(<span class="code-annotation">@PathVariable</span> <span class="code-keyword">long</span> orderId) {
+        <span class="code-keyword">return</span> facade.getOrderDetails(orderId);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Now the controller has a single dependency: <code>OrderDetailsFacade</code>.</p>
+        <p><strong>Example JSON response</strong></p>
+    </div>
+    <div class="code-block"><pre><code>{
+  "order": {
+    "id": 1001,
+    "customerId": 101,
+    "totalAmount": 2999
+  },
+  "customer": {
+    "id": 101,
+    "name": "Rahul"
+  },
+  "payment": {
+    "orderId": 1001,
+    "status": "PAID"
+  },
+  "shipment": {
+    "orderId": 1001,
+    "status": "DISPATCHED"
+  }
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Why is this useful?</strong></p>
+        <p>Imagine later you introduce:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>A loyalty rewards service.</li>
+        <li>A delivery tracking provider.</li>
+        <li>A tax calculation service.</li>
+    </ul></div>
+    <div class="intro">
+        <p>You can extend the facade's internal impl and response model without moving coordination logic into the controller.</p>
+        <p>This improves separation of concerns:</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered">
+            <thead><tr><th>Component</th><th>Responsibility</th></tr></thead>
+            <tbody>
+                <tr><td>Controller</td><td>Handles HTTP requests and responses</td></tr>
+                <tr><td>Facade</td><td>Provides high-level operations and coordinates subsystems</td></tr>
+                <tr><td>Individual services</td><td>Implement specific domain functionality</td></tr>
+                <tr><td>Repositories/API clients</td><td>Handle persistence or external communication</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="callout callout-warning"><p><strong>Important:</strong> A facade simplifies the code's interface; it does not automatically reduce database queries, network calls, or response time.<br> If these services communicate over the network, you must still consider timeouts, failures, and latency.</p></div>
+
+    <div class="subheading">Structure and Participants of the Facade Pattern</div>
+    <div class="intro">
+        <p>The Facade pattern typically involves three main participants.</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered">
+            <thead><tr><th>Participant</th><th>Role</th></tr></thead>
+            <tbody>
+                <tr><td>Client</td><td>Uses the simplified interface</td></tr>
+                <tr><td>Facade</td><td>Coordinates and delegates operations to subsystems</td></tr>
+                <tr><td>Subsystems</td><td>Perform the actual underlying work</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p><strong>Client</strong></p>
+        <p>The client is any class that needs to use the functionality exposed by the facade.</p>
+        <p>It knows the facade interface but doesn't need to know the details of the subsystems.</p>
+        <p><strong>Facade</strong></p>
+        <p>The facade is responsible for:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>Providing simplified methods.</li>
+        <li>Coordinating the required subsystem calls.</li>
+        <li>Delegating work to appropriate components.</li>
+        <li>Encapsulating the interaction sequence.</li>
+    </ul></div>
+    <div class="intro">
+        <p>A facade generally shouldn't contain the internal implementation of every subsystem.</p>
+        <p><strong>Subsystem classes</strong></p>
+        <p>Subsystem classes implement the actual functionality.</p>
+        <p>They are generally independent of the facade and don't need to know that a facade exists.</p>
+        <p>This is important because the facade depends on the subsystems, but the subsystems need not depend on the facade.</p>
+    </div>
+
+    <div class="subheading">Does Facade Require an Interface</div>
+    <div class="intro">
+        <p>No. The Facade design pattern does not require a Java interface.</p>
+        <p>A simple concrete class is sufficient:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderFacade</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> placeOrder() {
+        <span class="code-comment"># Coordinate order-related services</span>
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>However, an interface may be useful when the facade has multiple implementations, needs to be replaced, or forms an important module boundary.</p>
+        <p>For example:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">OrderFacade</span> {
+    <span class="code-class">OrderDetails</span> getOrderDetails(<span class="code-keyword">long</span> orderId);
+}</code></pre></div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">DefaultOrderFacade</span> <span class="code-keyword">implements</span> <span class="code-class">OrderFacade</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">OrderDetails</span> getOrderDetails(<span class="code-keyword">long</span> orderId) {
+        <span class="code-comment"># Coordinate services and return details</span>
+        <span class="code-keyword">return</span> <span class="code-keyword">null</span>; <span class="code-comment"># Placeholder for implementation</span>
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>An interface is an optional design decision, not a requirement of the pattern.</p>
+    </div>
+
+    <div class="subheading">Facade vs Adapter vs Proxy vs Mediator</div>
+    <div class="intro">
+        <p>These are often confused because all four introduce an intermediate object.</p>
+        <p>However, they solve different problems.</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered">
+            <thead><tr><th>Pattern</th><th>Primary purpose</th><th>Example</th></tr></thead>
+            <tbody>
+                <tr><td>Facade</td><td>Simplify interactions with a complex subsystem</td><td><code>HomeTheaterFacade.watchMovie()</code></td></tr>
+                <tr><td>Adapter</td><td>Convert an incompatible interface into one the client expects</td><td>Convert a third-party payment API to <code>PaymentProcessor</code></td></tr>
+                <tr><td>Proxy</td><td>Control access to another object</td><td>Caching proxy for a remote service</td></tr>
+                <tr><td>Mediator</td><td>Centralize communication among collaborating objects</td><td>Dialog controller coordinating UI widgets</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p><strong>Facade vs Adapter</strong></p>
+        <p>An <strong>Adapter</strong> changes the interface to match what a client expects.</p>
+        <p>A <strong>Facade</strong> provides a simpler interface for using one or more components.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-comment"># Adapter: converts one interface to another</span>
+paymentProcessor.pay(amount);
+<span class="code-comment"># Facade: coordinates multiple components</span>
+checkoutFacade.checkout(cart);</code></pre></div>
+    <div class="intro">
+        <p>An adapter is usually concerned with interface compatibility. A facade is concerned with reducing complexity.</p>
+        <p><strong>Facade vs Proxy</strong></p>
+        <p>A <strong>Proxy</strong> generally exposes the same interface as the object it represents, adding behavior such as access control, caching, or lazy loading.</p>
+        <p>A <strong>Facade</strong> usually provides a new, higher-level interface that simplifies the use of one or more objects.</p>
+        <p><strong>Facade vs Mediator</strong></p>
+        <p>A <strong>Mediator</strong> coordinates communication between collaborating objects, reducing their direct dependencies on one another.</p>
+        <p>A <strong>Facade</strong> primarily provides a simplified entry point for clients.</p>
+        <p>For example, a chat-room mediator manages communication between participants, whereas a facade might offer a convenient <code>sendAnnouncement</code> operation that internally calls messaging, persistence, and notification services.</p>
+    </div>
+
+    <div class="subheading">Facade vs Service Layer in Spring Boot</div>
+    <div class="intro">
+        <p>An important distinction is that the Facade pattern and the Service Layer pattern are related but not identical.</p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>Service Layer</strong> is an architectural pattern that defines an application's available operations and coordinates application-level business logic.</li>
+        <li><strong>Facade</strong> is a structural design pattern that simplifies access to one or more components or subsystems.</li>
+    </ul></div>
+    <div class="intro">
+        <p>For example:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@Service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CheckoutService</span> {
+    <span class="code-keyword">private</span> <span class="code-class">InventoryService</span> inventory;
+    <span class="code-keyword">private</span> <span class="code-class">PaymentService</span> payment;
+    <span class="code-keyword">private</span> <span class="code-class">OrderService</span> orders;
+    <span class="code-comment"># Business workflow and coordination</span>
+}</code></pre></div>
+    <div class="intro">
+        <p>This might be an application service, a facade, or both, depending on its primary purpose and responsibilities.</p>
+        <p>You don't necessarily need a separate <code>CheckoutFacade</code> wrapping <code>CheckoutService</code> if that would only add a redundant delegation layer.</p>
+        <p>The decision should be based on whether a simplified subsystem boundary is genuinely useful, not simply on class naming.</p>
+    </div>
+
+    <div class="subheading">Advantages and Disadvantages</div>
+    <div class="intro">
+        <p><strong>Advantages</strong></p>
+    </div>
+    <div class="intro"><ul>
+        <li>Simplifies client code by hiding complicated interactions.</li>
+        <li>Reduces direct dependencies between clients and subsystems.</li>
+        <li>Centralizes commonly repeated coordination logic.</li>
+        <li>Makes it easier to change subsystem implementations.</li>
+        <li>Can improve testability by giving clients one dependency to mock.</li>
+        <li>Helps establish boundaries between application layers.</li>
+    </ul></div>
+    <div class="intro">
+        <p><strong>Disadvantages</strong></p>
+    </div>
+    <div class="intro"><ul>
+        <li>Adds another abstraction layer.</li>
+        <li>Can become a <strong>God Object</strong> if it takes responsibility for too many unrelated operations.</li>
+        <li>May hide useful subsystem capabilities if the interface is too restrictive.</li>
+        <li>Can introduce unnecessary indirection for simple applications.</li>
+        <li>Doesn't inherently solve transaction management, partial failures, or distributed-system performance problems.</li>
+    </ul></div>
+
+    <div class="subheading">When Should You Use the Facade Pattern?</div>
+    <div class="intro">
+        <p>Use Facade when:</p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>A subsystem is complex:</strong> Clients must interact with several classes to complete a common operation.</li>
+        <li><strong>The same sequence is repeated:</strong> Multiple clients perform identical coordination logic.</li>
+        <li><strong>You want a clean architectural boundary:</strong> For example, between a controller and a group of underlying services.</li>
+        <li><strong>You are integrating third-party libraries:</strong> You want to expose a smaller, stable interface instead of leaking the library's implementation details.</li>
+        <li><strong>You want to isolate subsystem changes:</strong> Clients should not need modification when the internal coordination changes.</li>
+    </ul></div>
+    <div class="callout callout-warning"><p>Avoid introducing a facade when the client already has a simple interface or when the facade would simply forward every method without providing meaningful simplification.</p></div>
+
+    <div class="subheading">Other Real-World Examples</div>
+    <div class="intro">
+        <p>Facades are useful across many areas of software development.</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered">
+            <thead><tr><th>Use case</th><th>Facade operation</th><th>Underlying components</th></tr></thead>
+            <tbody>
+                <tr><td>E-commerce checkout</td><td><code>checkout(cart)</code></td><td>Inventory, payment, order, notification</td></tr>
+                <tr><td>Travel booking</td><td><code>bookTrip(request)</code></td><td>Flight, hotel, transport, payment</td></tr>
+                <tr><td>User registration</td><td><code>registerUser(data)</code></td><td>Validation, account, email, profile</td></tr>
+                <tr><td>File processing</td><td><code>processDocument(file)</code></td><td>Parser, validator, converter, storage</td></tr>
+                <tr><td>Report generation</td><td><code>generateReport(id)</code></td><td>Data retrieval, calculations, PDF generation</td></tr>
+                <tr><td>Cloud storage</td><td><code>uploadFile(file)</code></td><td>Validation, compression, upload, metadata</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="callout callout-warning"><p>For workflows involving payments, reservations, or other state-changing operations, the facade can expose the high-level operation, but the implementation still needs appropriate transaction management, compensation, idempotency, and failure handling. The Facade pattern itself does not provide these guarantees.</p></div>
+
+    <div class="subheading">Important Interview Questions</div>
+    <div class="intro">
+        <p><strong>Does the Facade pattern hide all subsystem classes?</strong><br>No. A facade provides a simplified way to use the subsystem. Clients can still access subsystem classes directly if the architecture permits it.</p>
+        <p><strong>Can a facade contain business logic?</strong><br>Yes, it can coordinate an application operation, but core domain rules are usually better kept in the appropriate domain services or domain objects. This helps prevent the facade from becoming overly complex.</p>
+        <p><strong>Can one system have multiple facades?</strong><br>Yes. A large subsystem can expose multiple facades for different use cases.</p>
+        <p>For example:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">CustomerFacade</span>
+<span class="code-class">OrderFacade</span>
+<span class="code-class">PaymentFacade</span>
+<span class="code-class">ReportingFacade</span></code></pre></div>
+    <div class="intro">
+        <p>Each provides a focused interface to related functionality.</p>
+        <p><strong>Is an API Gateway a Facade?</strong><br>An API Gateway can provide facade-like functionality by aggregating calls to multiple backend services and exposing a simpler client-facing API.</p>
+        <p>However, gateways also handle concerns such as routing, authentication, rate limiting, and request transformation.<br> So an API Gateway isn't automatically an implementation of the Facade pattern.</p>
+        <p><strong>Does using Facade reduce the number of service calls?</strong><br>Not necessarily. It reduces the number of calls and dependencies visible to the client. Internally, the facade may still make several calls to complete the operation.</p>
+    </div>
+
+    <div class="subheading">Final Summary</div>
+    <div class="intro">
+        <p>The Facade Pattern provides a simplified interface to a complex subsystem while preserving the responsibilities of the underlying components.</p>
+    </div>
+    <div class="scenario-layout scenario-layout-equal scenario-layout-tight scenario-layout-stretch">
+        <div>
+            <div class="intro"><p><strong>Without Facade</strong><br>Client handles the sequence</p></div>
+            <div class="code-block"><pre><code>lights.dim(<span class="code-number">20</span>);
+projector.on();
+sound.on();
+player.play(movie);</code></pre></div>
+        </div>
+        <div>
+            <div class="intro"><p><strong>With Facade</strong><br>Facade handles the sequence</p></div>
+            <div class="code-block"><pre><code>homeTheater.watchMovie(movie);</code></pre></div>
+        </div>
+    </div>
+    <div class="callout callout-note"><p><strong>Remember:</strong> The Facade pattern does not eliminate subsystem complexity. It encapsulates that complexity behind a simpler interface so clients can use the system without understanding all its internal interactions.</p></div>
     <div class="section realworld">
         <div class="section-title">Real-world example</div>
         <div class="section-content"><ul>
@@ -60,47 +654,6 @@
             <li><strong>Home theater remote</strong> &mdash; a single button turns on the TV, receiver and player, hiding each device.</li>
             <li><strong>Car ignition</strong> &mdash; turning the key starts fuel, ignition and electrical systems through one action.</li>
         </ul></div>
-    </div>
-
-    <div class="section code-section">
-        <div class="code-layout code-layout-equal">
-            <div class="code-wrapper">
-<pre><code><span class="code-keyword">public class</span> <span class="code-class">PaymentService</span> {
-    <span class="code-keyword">public void</span> processPayment() {
-        System.out.println(<span class="code-string">"Payment processed"</span>);
-    }
-}
-
-<span class="code-keyword">public class</span> <span class="code-class">NotificationService</span> {
-    <span class="code-keyword">public void</span> sendNotification() {
-        System.out.println(<span class="code-string">"Notification sent"</span>);
-    }
-}
-
-<span class="code-keyword">public class</span> <span class="code-class">OrderFacade</span> {
-
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> PaymentService paymentService;
-
-    <span class="code-class">@Autowired</span>
-    <span class="code-keyword">private</span> NotificationService notificationService;
-
-    <span class="code-keyword">public void</span> placeOrder() {
-        paymentService.processPayment();
-        notificationService.sendNotification();
-    }
-}
-</code></pre>
-            </div>
-
-            <div class="code-explanation">
-                <div class="code-explanation-title">How the Facade works</div>
-                <p><code>PaymentService</code> and <code>NotificationService</code> <br> are subsystem classes.<br><br>
-                    <code>OrderFacade</code> provides one simple entry point for the client.<br><br>
-                    The client does not need to call each subsystem directly.<br><br>
-                    <code>placeOrder()</code> coordinates the required subsystem operations.</p>
-            </div>
-        </div>
     </div>
 </div>
 </body>

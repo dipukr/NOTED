@@ -1,0 +1,26 @@
+<svg width="760" height="200" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 200" role="img" aria-label="The client creates a command and configures the invoker; the invoker calls execute() on the Command interface; ConcreteCommand (LightOnCommand) implements Command and delegates to the Receiver, which performs the work">
+    <defs><marker id="cm1-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#555555"/></marker><marker id="cm1-l" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#9A9A9A"/></marker></defs>
+    <path d="M200 40 H288" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#cm1-a)"/>
+    <path d="M470 40 H558" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#cm1-a)"/>
+    <path d="M650 136 V68" fill="none" stroke="#9A9A9A" stroke-width="1.5" stroke-dasharray="5 4" stroke-linejoin="miter" marker-end="url(#cm1-l)"/>
+    <path d="M550 162 H472" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#cm1-a)"/>
+    <rect x="20" y="14" width="180" height="52" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="110" y="34" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Client</text>
+    <text x="110" y="50" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">creates command</text>
+    <rect x="290" y="14" width="180" height="52" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="380" y="34" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Invoker</text>
+    <text x="380" y="50" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">calls execute()</text>
+    <rect x="560" y="14" width="180" height="52" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="650" y="34" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Command</text>
+    <text x="650" y="50" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">«interface» · execute()</text>
+    <rect x="550" y="136" width="200" height="52" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="650" y="156" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">ConcreteCommand</text>
+    <text x="650" y="172" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">LightOnCommand</text>
+    <rect x="290" y="136" width="180" height="52" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="380" y="156" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Receiver</text>
+    <text x="380" y="172" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">performs work</text>
+    <text x="244" y="33" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555" font-style="italic">configures</text>
+    <text x="514" y="33" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555" font-style="italic">execute()</text>
+    <text x="658" y="106" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555" font-style="italic">implements</text>
+    <text x="511" y="155" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555" font-style="italic">delegates</text>
+</svg>

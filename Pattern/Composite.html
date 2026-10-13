@@ -3,50 +3,643 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Composite Pattern - Notes</title>
+<title>Composite</title>
 <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
 <div class="note">
-    <div class="title">Composite Pattern</div>
-
+    <div class="title">Composite</div>
     <div class="intro">
-        <p>Composite: kind of structural design pattern used when we want to treat individual objects and compositions of objects uniformly.</p>
-        <p>This is especially useful when you deal with hierarchical tree structures, such as file systems, DOM tree or UI components.</p>
-        <p>Composite lets clients treat individual objects and compositions of objects uniformly.</p>
+        <p>The Composite Design Pattern is a structural design pattern that allows you to represent individual objects and groups of objects using a common interface, so that clients can treat both uniformly.</p>
+        <p>It is especially useful when your application deals with hierarchical (tree-like) structures, such as file systems, GUI components, organizational hierarchies, menus, and document structures.</p>
     </div>
 
-    <div class="section when-use">
-        <div class="section-title">When-to use</div>
-        <div class="section-content">
-            <ul>
-                <li>When we want to compose objects into tree structures to represent part-whole hierarchies.</li>
-            </ul>
+    <div class="subheading">What is the Composite Design Pattern</div>
+    <div class="intro">
+        <p>The Composite Design Pattern allows you to compose objects into tree structures to represent part-whole hierarchies.</p>
+        <p>It enables clients to treat individual objects (Leaves) and collections of objects (Composites) through the same abstraction (Component), without needing to know whether they are working with a single object or a group.</p>
+        <p>The pattern has three main elements:</p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>Component:</strong> Common interface or abstract class implemented by all objects in the structure.</li>
+        <li><strong>Leaf:</strong> An individual object that doesn't contain child components.</li>
+        <li><strong>Composite:</strong> A container object that holds other Components (Leaves or Composites) and delegates operations to its children.</li>
+    </ul></div>
+    <div class="intro">
+        <p><strong>Basic structure.</strong> A Composite stores children through the Component abstraction, allowing nesting at any depth.</p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/composite-structure.svg" alt="Component at the top with Leaf and Composite below; the Composite contains Component children, which can be Leaves or Composites" style="width:100%;max-width:600px">
+    </div>
+    <div class="callout callout-note"><p><strong>Key idea:</strong> Instead of writing separate logic for an individual object and a group of objects, we create a common abstraction that supports both.</p></div>
+    <div class="intro">
+        <p>For example, imagine a file system:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>A <strong>File</strong> is an individual object.</li>
+        <li>A <strong>Folder</strong> is a collection of files and other folders.</li>
+        <li>Both are file system entries.</li>
+        <li>Both can support operations like <code>getSize()</code> and <code>display()</code>.</li>
+        <li>A folder calculates its size by recursively adding the sizes of its contents.</li>
+    </ul></div>
+
+    <div class="subheading">Why do we need the Composite Pattern</div>
+    <div class="intro">
+        <p>Imagine building a file management application. You have two classes:</p>
+    </div>
+    <div class="scenario-layout scenario-layout-equal scenario-layout-tight scenario-layout-stretch">
+        <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">File</span> {
+    <span class="code-keyword">private</span> <span class="code-class">String</span> name;
+    <span class="code-keyword">private</span> long size;
+
+    <span class="code-keyword">public</span> long getSize() {
+        <span class="code-keyword">return</span> size;
+    }
+}</code></pre></div>
+        <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Folder</span> {
+    <span class="code-keyword">private</span> <span class="code-class">String</span> name;
+    <span class="code-keyword">private</span> <span class="code-class">List</span>&lt;<span class="code-class">Object</span>&gt; items;
+
+    <span class="code-comment"># Calculate total size of contents</span>
+}</code></pre></div>
+    </div>
+    <div class="intro">
+        <p>Without a common interface, the application might calculate size using type checks:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> long calculateSize(<span class="code-class">Object</span> item) {
+    <span class="code-keyword">if</span> (item instanceof <span class="code-class">File</span> file) <span class="code-keyword">return</span> file.getSize();
+    <span class="code-keyword">if</span> (item instanceof <span class="code-class">Folder</span> folder) {
+        long total = <span class="code-number">0</span>;
+        for (<span class="code-class">Object</span> child : folder.getItems())
+            total += calculateSize(child);
+        <span class="code-keyword">return</span> total;
+    }
+    <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>(<span class="code-string">"Unknown type"</span>);
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Problems with this approach</strong></p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>Type checking:</strong> Client code must know the concrete type.</li>
+        <li><strong>Tight coupling:</strong> The calculation explicitly depends on <code>File</code> and <code>Folder</code>.</li>
+        <li><strong>Poor extensibility:</strong> Adding another type may require changing the existing logic.</li>
+        <li><strong>Duplicated logic:</strong> Different clients might independently implement the same recursive traversal.</li>
+        <li><strong>Complex client code:</strong> Clients must distinguish individual objects from collections.</li>
+    </ul></div>
+    <div class="intro">
+        <p>The Composite Pattern solves this by introducing a common abstraction:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">FileSystemNode</span> {
+    <span class="code-keyword">long</span> getSize();
+}</code></pre></div>
+    <div class="intro">
+        <p>Now both <code>File</code> and <code>Folder</code> implement it, and client code becomes:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">void</span> printSize(<span class="code-class">FileSystemNode</span> node) {
+    <span class="code-class">System</span>.out.println(node.getSize());
+}</code></pre></div>
+    <div class="intro">
+        <p>Regardless of whether <code>node</code> represents a file or a folder, the client uses exactly the same method. The recursion happens inside the Composite implementation, not in the client.</p>
+    </div>
+
+    <div class="subheading">How does the Composite Pattern work</div>
+    <div class="intro">
+        <p>Think about the following structure:</p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/composite-folder-tree.svg" alt="Root Folder containing file1.txt and Images Folder; Images Folder contains a.png and b.png" style="width:100%;max-width:600px">
+    </div>
+    <div class="intro">
+        <p>When you call <code>rootFolder.getSize();</code> the following happens:</p>
+    </div>
+    <div class="intro"><ol>
+        <li><code>RootFolder</code> calls <code>getSize()</code> on each child.</li>
+        <li><code>file1.txt</code> returns its own size.</li>
+        <li><code>ImagesFolder</code> calls <code>getSize()</code> on its children.</li>
+        <li><code>a.png</code> and <code>b.png</code> return their sizes.</li>
+        <li><code>ImagesFolder</code> returns the sum.</li>
+        <li><code>RootFolder</code> returns the overall sum.</li>
+    </ol></div>
+    <div class="intro">
+        <p>This is <strong>recursive composition</strong>: composites can contain other composites, so the same operation can process a hierarchy of arbitrary depth.</p>
+    </div>
+
+    <div class="subheading">Complete Java example: File System</div>
+    <div class="intro">
+        <p>This is one of the clearest real-world examples of the Composite Pattern.</p>
+        <p><strong>Define the Component</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">FileSystemNode</span> {
+    <span class="code-class">String</span> getName();
+    <span class="code-keyword">long</span> getSize();
+    <span class="code-keyword">void</span> display(<span class="code-class">String</span> indentation);
+}</code></pre></div>
+    <div class="intro">
+        <p>The interface defines operations supported by both files and folders. Notice that it does not include <code>add</code> or <code>remove</code>.<br> Only folders can contain children, so we'll place those methods directly in <code>Folder</code>.</p>
+        <p><strong>Create the Leaf</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">File</span> <span class="code-keyword">implements</span> <span class="code-class">FileSystemNode</span> {
+    <span class="code-keyword">private</span> <span class="code-class">String</span> name;
+    <span class="code-keyword">private</span> long size;
+
+    <span class="code-keyword">public</span> <span class="code-class">File</span>(<span class="code-class">String</span> name, long size) {
+        <span class="code-keyword">this</span>.name = name;
+        <span class="code-keyword">this</span>.size = size;
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">String</span> getName() {
+        <span class="code-keyword">return</span> name;
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> long getSize() {
+        <span class="code-keyword">return</span> size;
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> display(<span class="code-class">String</span> indentation) {
+        <span class="code-class">System</span>.out.println(indentation + <span class="code-string">"File: "</span> + name + <span class="code-string">" ("</span> + size + <span class="code-string">" KB)"</span>);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>A <code>File</code> is a Leaf because it has no child components. Its <code>getSize()</code> method returns its own size.</p>
+        <p><strong>Create the Composite</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Folder</span> <span class="code-keyword">implements</span> <span class="code-class">FileSystemNode</span> {
+    <span class="code-keyword">private</span> <span class="code-class">String</span> name;
+    <span class="code-keyword">private</span> <span class="code-class">List</span>&lt;<span class="code-class">FileSystemNode</span>&gt; childs = <span class="code-keyword">new</span> <span class="code-class">ArrayList</span>&lt;&gt;();
+
+    <span class="code-keyword">public</span> <span class="code-class">Folder</span>(<span class="code-class">String</span> name) {
+        <span class="code-keyword">this</span>.name = name;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> add(<span class="code-class">FileSystemNode</span> node) {
+        children.add(node);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> remove(<span class="code-class">FileSystemNode</span> node) {
+        children.remove(node);
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">String</span> getName() {
+        <span class="code-keyword">return</span> name;
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> long getSize() {
+        long total = <span class="code-number">0</span>;
+        for (<span class="code-class">FileSystemNode</span> child: childs)
+            total += child.getSize();
+        <span class="code-keyword">return</span> total;
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> display(<span class="code-class">String</span> indentation) {
+        <span class="code-class">System</span>.out.println(indentation + <span class="code-string">"Folder: "</span> + name);
+        for (<span class="code-class">FileSystemNode</span> child: childs)
+            child.display(indentation + <span class="code-string">"    "</span>);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>The folder stores <code>FileSystemNode</code> objects, not just <code>File</code> objects.<br> This means the folder can contain both individual files and other folders.</p>
+        <p><strong>Client code</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+    <span class="code-class">File</span> file1 = <span class="code-keyword">new</span> <span class="code-class">File</span>(<span class="code-string">"notes.txt"</span>, <span class="code-number">10</span>);
+    <span class="code-class">File</span> file2 = <span class="code-keyword">new</span> <span class="code-class">File</span>(<span class="code-string">"photo.jpg"</span>, <span class="code-number">200</span>);
+    <span class="code-class">File</span> file3 = <span class="code-keyword">new</span> <span class="code-class">File</span>(<span class="code-string">"video.mp4"</span>, <span class="code-number">500</span>);
+
+    <span class="code-class">Folder</span> images = <span class="code-keyword">new</span> <span class="code-class">Folder</span>(<span class="code-string">"Images"</span>);
+    images.add(file2);
+
+    <span class="code-class">Folder</span> documents = <span class="code-keyword">new</span> <span class="code-class">Folder</span>(<span class="code-string">"Documents"</span>);
+    documents.add(file1);
+
+    <span class="code-class">Folder</span> root = <span class="code-keyword">new</span> <span class="code-class">Folder</span>(<span class="code-string">"Root"</span>);
+    root.add(documents);
+    root.add(images);
+    root.add(file3);
+
+    root.display(<span class="code-string">""</span>);
+
+    <span class="code-class">System</span>.out.println(<span class="code-string">"Total size: "</span> + root.getSize() + <span class="code-string">" KB"</span>);
+}</code></pre></div>
+    <div class="intro">
+        <p>Output:</p>
+    </div>
+    <div class="code-block"><pre><code>Folder: Root
+    Folder: Documents
+        File: notes.txt (10 KB)
+    Folder: Images
+        File: photo.jpg (200 KB)
+    File: video.mp4 (500 KB)
+
+Total size: 710 KB</code></pre></div>
+    <div class="intro">
+        <p><strong>Client doesn't care whether it's a File or Folder</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-keyword">void</span> printDetails(<span class="code-class">FileSystemNode</span> node) {
+    <span class="code-class">System</span>.out.println(<span class="code-string">"Name: "</span> + node.getName());
+    <span class="code-class">System</span>.out.println(<span class="code-string">"Size: "</span> + node.getSize());
+}</code></pre></div>
+    <div class="intro">
+        <p>Now:</p>
+    </div>
+    <div class="code-block"><pre><code>printDetails(file1);     <span class="code-comment"># Works</span>
+printDetails(images);    <span class="code-comment"># Works</span>
+printDetails(documents); <span class="code-comment"># Works</span>
+printDetails(root);      <span class="code-comment"># Works</span></code></pre></div>
+    <div class="intro">
+        <p>The client handles every object through the same interface. This is the primary benefit of the Composite Pattern.</p>
+    </div>
+
+    <div class="subheading">Real-world scenario: GUI component hierarchy</div>
+    <div class="intro">
+        <p>Modern GUI frameworks often organize UI elements as hierarchical trees. Consider an application screen:</p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/composite-gui-screen.svg" alt="User Registration screen: a Personal Information panel with name and email labels and fields, and an Action panel with Submit and Cancel buttons" style="width:100%;max-width:760px">
+    </div>
+    <div class="intro">
+        <p>A screen consists of nested panels, labels, inputs, and buttons. Here:</p>
+    </div>
+    <div class="intro"><ul>
+        <li><code>Button</code>, <code>Label</code>, and <code>TextField</code> are Leaves.</li>
+        <li><code>Panel</code> is a Composite.</li>
+        <li><code>UIComponent</code> is the common abstraction.</li>
+    </ul></div>
+    <div class="intro">
+        <p>Parent panel can call <code>render</code> on every child without knowing whether it is rendering a button, text field or other panel.</p>
+    </div>
+    <div class="scenario-layout scenario-layout-equal scenario-layout-tight">
+        <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">UIComponent</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> render();
+}
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Button</span> <span class="code-keyword">implements</span> <span class="code-class">UIComponent</span> {
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">String</span> text;
+    <span class="code-keyword">public</span> <span class="code-class">Button</span>(<span class="code-class">String</span> text) {
+        <span class="code-keyword">this</span>.text = text;
+    }
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> render() {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Rendering Button: "</span> + text);
+    }
+}
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Label</span> <span class="code-keyword">implements</span> <span class="code-class">UIComponent</span> {
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">String</span> text;
+    <span class="code-keyword">public</span> <span class="code-class">Label</span>(<span class="code-class">String</span> text) {
+        <span class="code-keyword">this</span>.text = text;
+    }
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> render() {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Rendering Label: "</span> + text);
+    }
+}
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Panel</span> <span class="code-keyword">implements</span> <span class="code-class">UIComponent</span> {
+    <span class="code-keyword">private</span> <span class="code-class">List</span>&lt;<span class="code-class">UIComponent</span>&gt; childs = <span class="code-keyword">new</span> <span class="code-class">ArrayList</span>&lt;&gt;();
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> add(<span class="code-class">UIComponent</span> component) {
+        children.add(component);
+    }
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> remove(<span class="code-class">UIComponent</span> component) {
+        children.remove(component);
+    }
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> render() {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Rendering Panel"</span>);
+        for (<span class="code-class">UIComponent</span> child: childs)
+            child.render();
+    }
+}</code></pre></div>
+        <div>
+            <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+    <span class="code-class">UIComponent</span> label = <span class="code-keyword">new</span> <span class="code-class">Label</span>(<span class="code-string">"Username"</span>);
+    <span class="code-class">UIComponent</span> button = <span class="code-keyword">new</span> <span class="code-class">Button</span>(<span class="code-string">"Login"</span>);
+    <span class="code-class">Panel</span> loginPanel = <span class="code-keyword">new</span> <span class="code-class">Panel</span>();
+    loginPanel.add(label);
+    loginPanel.add(button);
+    <span class="code-class">Panel</span> mainPanel = <span class="code-keyword">new</span> <span class="code-class">Panel</span>();
+    mainPanel.add(<span class="code-keyword">new</span> <span class="code-class">Label</span>(<span class="code-string">"Welcome"</span>));
+    mainPanel.add(loginPanel);
+    mainPanel.render();
+}</code></pre></div>
+            <div class="intro"><p>Output:</p></div>
+            <div class="code-block"><pre><code>Rendering Panel
+Rendering Label: Welcome
+Rendering Panel
+Rendering Label: Username
+Rendering Button: Login</code></pre></div>
+            <div class="intro font-size-16">
+                <p><strong>Why is Composite suitable here?</strong><br> Imagine a window containing 100 individual controls and 20 nested panels. Without Composite, the window may need to understand every control type and every nesting level. With Composite, it simply calls <code>mainPanel.render.</code></p>
+                <p>Every component is responsible for rendering itself or delegating rendering to its children. Same pattern can support operations such as <code>show</code>, <code>hide</code>, <code>enable</code>, <code>disable</code>, <code>validate</code>, and <code>layout</code>.</p>
+            </div>
+        </div>
+    </div>
+    <div class="callout callout-note"><p><strong>Real frameworks:</strong> Java Swing uses a related hierarchical model in which <code>Container</code> can hold components and containers can be nested. The analogy is strong, although Swing's actual API is more complex than this simplified implementation.</p></div>
+    <div class="subheading">Real-world scenario: E-commerce product bundles</div>
+    <div class="intro">
+        <p>Suppose you're building an e-commerce application. A customer can purchase either individual products or bundles containing products and other bundles. For example:</p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/composite-product-bundle.svg" alt="Office Bundle (45,000) containing a Laptop (40,000) and an Accessory Bundle (5,000) with a Mouse (1,000) and a Keyboard (4,000)" style="width:100%;max-width:600px">
+    </div>
+    <div class="intro">
+        <p><strong>Implementation</strong></p>
+    </div>
+    <div class="scenario-layout scenario-layout-equal">
+        <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">CartItem</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">int</span> getPrice();
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Product</span> <span class="code-keyword">implements</span> <span class="code-class">CartItem</span> {
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">String</span> name;
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-keyword">int</span> price;
+
+    <span class="code-keyword">public</span> <span class="code-class">Product</span>(<span class="code-class">String</span> name, <span class="code-keyword">int</span> price) {
+        <span class="code-keyword">this</span>.name = name;
+        <span class="code-keyword">this</span>.price = price;
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">int</span> getPrice() {
+        <span class="code-keyword">return</span> price;
+    }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductBundle</span> <span class="code-keyword">implements</span> <span class="code-class">CartItem</span> {
+    <span class="code-keyword">private</span> <span class="code-class">List</span>&lt;<span class="code-class">CartItem</span>&gt; items = <span class="code-keyword">new</span> <span class="code-class">ArrayList</span>&lt;&gt;();
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> add(<span class="code-class">CartItem</span> item) {
+        items.add(item);
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">int</span> getPrice() {
+        <span class="code-keyword">int</span> total = <span class="code-number">0</span>;
+        for (<span class="code-class">CartItem</span> item: items) 
+            total += item.getPrice();
+        <span class="code-keyword">return</span> total;
+    }
+}</code></pre></div>
+        <div>
+            <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+    <span class="code-class">Product</span> laptop = <span class="code-keyword">new</span> <span class="code-class">Product</span>(<span class="code-string">"Laptop"</span>, <span class="code-number">40000</span>);
+    <span class="code-class">Product</span> mouse = <span class="code-keyword">new</span> <span class="code-class">Product</span>(<span class="code-string">"Mouse"</span>, <span class="code-number">1000</span>);
+    <span class="code-class">Product</span> keyboard = <span class="code-keyword">new</span> <span class="code-class">Product</span>(<span class="code-string">"Keyboard"</span>, <span class="code-number">4000</span>);
+
+    <span class="code-class">ProductBundle</span> accessories = <span class="code-keyword">new</span> <span class="code-class">ProductBundle</span>();
+    accessories.add(mouse);
+    accessories.add(keyboard);
+
+    <span class="code-class">ProductBundle</span> officeBundle = <span class="code-keyword">new</span> <span class="code-class">ProductBundle</span>();
+    officeBundle.add(laptop);
+    officeBundle.add(accessories);
+
+    <span class="code-class">System</span>.out.println(officeBundle.getPrice());
+}</code></pre></div>
+            <div class="intro">
+                <p>Output:</p>
+            </div>
+            <div class="code-block"><pre><code>45000</code></pre></div>
+            <div class="intro">
+                <p>In real e-commerce systems, you could extend this with discounts, taxes, and quantities.</p>
+                <p>The important design property is that both a <code>Product</code> and a <code>ProductBundle</code> implement <code>CartItem</code>, so checkout code can price either one uniformly.</p>
+            </div>
         </div>
     </div>
 
-    <div class="section when-use">
-        <div class="section-title">Components</div>
-        <div class="section-content">
-            <ul>
-                <li>Component: interface or abstract class for all objects in the hierarchy, both composite and leaf.</li>
-                <li>Leaf: represents individual objects (end nodes) which implements the base Component.</li>
-                <li>Composite: a container that holds child Components.</li>
-                <li>Client: uses the Component interface to interact with objects in the hierarchy uniformly.</li>
-            </ul>
+    <div class="subheading">Two ways to implement Composite: Safe vs Transparent</div>
+    <div class="intro">
+        <p>There are two common approaches for designing the Component interface.</p>
+        <p><strong>Safe Composite (recommended in most applications).</strong> Only Composite classes define child-management methods.</p>
+    </div>
+    <div class="scenario-layout scenario-layout-equal scenario-layout-tight scenario-layout-stretch">
+        <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">Component</span> {
+    <span class="code-keyword">void</span> operation();
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Leaf</span> <span class="code-keyword">implements</span> <span class="code-class">Component</span> {
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> operation() {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Leaf operation"</span>);
+    }
+}</code></pre></div>
+        <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Composite</span> <span class="code-keyword">implements</span> <span class="code-class">Component</span> {
+    <span class="code-keyword">private</span> <span class="code-class">List</span>&lt;<span class="code-class">Component</span>&gt; children = <span class="code-keyword">new</span> <span class="code-class">ArrayList</span>&lt;&gt;();
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> add(<span class="code-class">Component</span> child) {
+        children.add(child);
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> operation() {
+        for (<span class="code-class">Component</span> child: children)
+            child.operation();
+    }
+}</code></pre></div>
+    </div>
+    <div class="intro">
+        <p><strong>Advantages:</strong> Type-safe, clean abstractions, and Leaves don't expose meaningless operations.</p>
+        <p><strong>Disadvantage:</strong> Clients cannot call <code>add()</code> through a <code>Component</code> reference.</p>
+        <p><strong>Approach B: Transparent Composite.</strong> The common Component interface declares child-management operations.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">Component</span> {
+    <span class="code-keyword">void</span> operation();
+    <span class="code-keyword">void</span> add(<span class="code-class">Component</span> child);
+}</code></pre></div>
+    <div class="scenario-layout scenario-layout-equal scenario-layout-tight scenario-layout-stretch">
+        <div>
+            <div class="intro"><p>Leaf:</p></div>
+            <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Leaf</span> <span class="code-keyword">implements</span> <span class="code-class">Component</span> {
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> operation() {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Leaf operation"</span>);
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> add(<span class="code-class">Component</span> child) {
+        <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">UnsupportedOperationException</span>(
+            <span class="code-string">"Leaf cannot contain children"</span>
+        );
+    }
+}</code></pre></div>
+        </div>
+        <div>
+            <div class="intro"><p>Composite:</p></div>
+            <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Composite</span> <span class="code-keyword">implements</span> <span class="code-class">Component</span> {
+    <span class="code-keyword">private</span> <span class="code-class">List</span>&lt;<span class="code-class">Component</span>&gt; childs = <span class="code-keyword">new</span> <span class="code-class">ArrayList</span>&lt;&gt;();
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> add(<span class="code-class">Component</span> child) {
+        childs.add(child);
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> operation() {
+        for (<span class="code-class">Component</span> child: childs)
+            child.operation();
+    }
+}</code></pre></div>
         </div>
     </div>
+    <div class="callout callout-note"><p><strong>Recommendation:</strong> Use the Safe Composite approach when you design new Java applications. Place <code>add()</code>, <code>remove()</code>, and other child-management operations in the Composite unless your requirements genuinely justify the alternative.</p></div>
 
-    <div class="section when-use">
-        <div class="section-title">Use cases</div>
-        <div class="section-content">
-            <ul>
-                <li>GUI frameworks (Swing or HTML DOM trees)</li>
-                <li>Organization hierarchy (employees, managers)</li>
-                <li>File system (files and directories)</li>
-                <li>Document structures (paragraphs, sections, characters)</li>
-            </ul>
-        </div>
+    <div class="subheading">When should you use Composite</div>
+    <div class="intro">
+        <p>Use the Composite Pattern when:</p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>Your domain naturally has a tree-like structure.</strong> Examples include directories, organizational units, document elements, UI containers, nested menus, and product bundles.</li>
+        <li><strong>Individual objects and collections share meaningful operations.</strong> For instance, both a file and a folder can report size, and both a product and a bundle can report price.</li>
+        <li><strong>Clients should treat Leaves and Composites uniformly.</strong> A client should be able to call <code>operation()</code> without checking concrete types.</li>
+        <li><strong>You need recursive behavior.</strong> Operations such as aggregate calculation, rendering, validation, or export can naturally propagate through nested components.</li>
+        <li><strong>The hierarchy must be extensible.</strong> New Leaf or Composite implementations can generally be introduced without modifying existing client logic, provided they honor the Component contract.</li>
+    </ul></div>
+    <div class="intro">
+        <p><strong>When NOT to use Composite.</strong> Avoid introducing it merely because one class contains a list of other objects.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Order</span> {
+    <span class="code-class">List</span>&lt;<span class="code-class">OrderItem</span>&gt; items;
+}</code></pre></div>
+    <div class="intro">
+        <p>An <code>Order</code> containing <code>OrderItem</code> objects does not automatically justify Composite. If <code>Order</code> and <code>OrderItem</code> do not share meaningful operations or should not be interchangeable through a common interface, ordinary composition<br> is simpler.</p>
+    </div>
+    <div class="callout callout-note"><p>Composite is not just about containment. It is about <strong>recursive containment combined with a common abstraction and uniform operations</strong>.</p></div>
+
+    <div class="subheading">Composite vs Decorator vs ordinary composition</div>
+    <div class="intro">
+        <p><strong>Composite</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">Component</span> {
+    <span class="code-keyword">void</span> operation();
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Composite</span> <span class="code-keyword">implements</span> <span class="code-class">Component</span> {
+    <span class="code-keyword">private</span> <span class="code-class">List</span>&lt;<span class="code-class">Component</span>&gt; childs;
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> operation() {
+        for (<span class="code-class">Component</span> child: childs)
+            child.operation();
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>The Composite organizes a collection and delegates an operation to its children.</p>
+        <p><strong>Decorator</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">LoggingDecorator</span> <span class="code-keyword">implements</span> <span class="code-class">Component</span> {
+    <span class="code-keyword">private</span> <span class="code-class">Component</span> wrapped;
+
+    <span class="code-keyword">public</span> <span class="code-class">LoggingDecorator</span>(<span class="code-class">Component</span> wrapped) {
+        <span class="code-keyword">this</span>.wrapped = wrapped;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> operation() {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Before"</span>);
+        wrapped.operation();
+        <span class="code-class">System</span>.out.println(<span class="code-string">"After"</span>);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>A Decorator wraps another component to augment its behavior. Although both depend on a common interface and delegation, Composite emphasizes hierarchy, while Decorator emphasizes behavior extension.</p>
+    </div>
+
+    <div class="subheading">Important implementation considerations</div>
+    <div class="intro">
+        <p>The basic examples above are intentionally simple. Production-quality Composite implementations need a few additional safeguards.</p>
+        <p><strong>Prevent circular references.</strong> Suppose you create:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">Folder</span> folderA = <span class="code-keyword">new</span> <span class="code-class">Folder</span>(<span class="code-string">"A"</span>);
+<span class="code-class">Folder</span> folderB = <span class="code-keyword">new</span> <span class="code-class">Folder</span>(<span class="code-string">"B"</span>);
+
+folderA.add(folderB);
+folderB.add(folderA);</code></pre></div>
+    <div class="intro">
+        <p>Now <code>folderA.getSize();</code> will recurse indefinitely until a <code>StackOverflowError</code> occurs. A Composite tree must not contain cycles. You should prevent:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>Adding a Composite as its own child.</li>
+        <li>Adding an ancestor as a descendant.</li>
+        <li>Accidentally creating shared ownership when your business model requires a strict tree.</li>
+    </ul></div>
+    <div class="intro">
+        <p>A common solution is to track parent references and reject modifications that create cycles.</p>
+        <p><strong>Avoid unintended double counting.</strong> Consider:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">Product</span> laptop = <span class="code-keyword">new</span> <span class="code-class">Product</span>(<span class="code-string">"Laptop"</span>, <span class="code-number">40000</span>);
+
+<span class="code-class">ProductBundle</span> bundle = <span class="code-keyword">new</span> <span class="code-class">ProductBundle</span>();
+bundle.add(laptop);
+bundle.add(laptop);</code></pre></div>
+    <div class="intro">
+        <p>The calculated amount becomes 80000. That may be correct if the bundle contains two laptops. But it may be a bug if the second addition was accidental. Decide whether your domain represents a strict tree, a directed acyclic graph, or a collection where repetitions are valid.</p>
+        <p><strong>Consider performance.</strong> Suppose a folder hierarchy contains 100,000 files. Each time you call <code>root.getSize()</code> the recursive implementation visits every descendant. For a tree with <em>n</em> nodes:</p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>Time complexity:</strong> O(n) in the size of the traversed subtree.</li>
+        <li><strong>Extra memory:</strong> O(h) for the recursive call stack, where h is tree height.</li>
+    </ul></div>
+    <div class="intro">
+        <p>For frequently requested aggregated values, caching can help. However, cached results must be invalidated whenever descendants change. For very deep hierarchies, iterative traversal may be preferable to avoid excessive recursion depth.</p>
+        <p><strong>Concurrency and mutability.</strong> If multiple threads can update a Composite while another thread traverses it, you must define thread-safety behavior. Options include synchronization, immutable snapshots, copy-on-write structures, or explicit locking. Simply using an <code>ArrayList</code> does not make concurrent mutation safe.</p>
+    </div>
+
+    <div class="subheading">How Composite relates to the Open/Closed Principle</div>
+    <div class="intro">
+        <p>One of Composite's major strengths is that clients depend on an abstraction rather than concrete implementations. Suppose a file management system originally supports <code>File</code> and <code>Folder</code>. Later, the requirements introduce a new file system node:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CloudFile</span> <span class="code-keyword">implements</span> <span class="code-class">FileSystemNode</span> {
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> <span class="code-class">String</span> name;
+    <span class="code-keyword">private</span> <span class="code-keyword">final</span> long size;
+
+    <span class="code-keyword">public</span> <span class="code-class">CloudFile</span>(<span class="code-class">String</span> name, long size) {
+        <span class="code-keyword">this</span>.name = name;
+        <span class="code-keyword">this</span>.size = size;
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">String</span> getName() {
+        <span class="code-keyword">return</span> name;
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> long getSize() {
+        <span class="code-keyword">return</span> size;
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> display(<span class="code-class">String</span> indentation) {
+        <span class="code-class">System</span>.out.println(indentation + <span class="code-string">"Cloud: "</span> + name);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>You can now add <code>root.add(new CloudFile("backup.zip", 1000));</code> without modifying <code>Folder.getSize()</code>.<br> This works because the folder depends on <code>FileSystemNode</code>, not on <code>File</code> or <code>CloudFile</code>.</p>
+        <p>However, there is a qualification: Composite makes it easier to add new component types, but adding new operations may still require changing the Component interface and its implementations. If your object hierarchy is stable but you frequently need to introduce completely new operations, the Visitor Pattern may be worth considering.</p>
+    </div>
+
+    <div class="subheading">Summary</div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered">
+            <thead><tr><th>Question</th><th>Answer</th></tr></thead>
+            <tbody>
+                <tr><td>What</td><td>A structural design pattern for treating individual objects and groups uniformly.</td></tr>
+                <tr><td>Why</td><td>To simplify client code and support recursive part-whole hierarchies.</td></tr>
+                <tr><td>When</td><td>When your system models directories, GUI components, nested menus, organizational structures, bundles or other trees.</td></tr>
+                <tr><td>How</td><td>Create a common Component abstraction, implement Leaves, and implement Composites containing other Components.</td></tr>
+                <tr><td>Core principle</td><td>Uniform treatment of individual and composite objects.</td></tr>
+                <tr><td>Main benefit</td><td>Client code does not need to distinguish Leaves from Composites for common operations.</td></tr>
+                <tr><td>Main trade-off</td><td>Can make component-specific constraints harder to enforce and requires careful handling of hierarchy invariants.</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="callout callout-note"><p>Composite is not simply a class containing other objects. It is a design in which both an individual object and a collection of objects conform to the same abstraction, allowing the same operations to work recursively across the entire hierarchy.</p></div>
+    <div class="intro">
+        <p>For example:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">FileSystemNode</span> node = ...;
+
+node.getSize();</code></pre></div>
+    <div class="intro">
+        <p>Whether <code>node</code> represents a single file, a folder containing 10 files, or a folder containing thousands of nested folders, the client uses the same interface. That is the essence of the Composite Design Pattern.</p>
     </div>
 
     <div class="section realworld">
@@ -60,54 +653,6 @@
             <li><strong>XML and JSON documents</strong> &mdash; nested elements and objects form part-whole trees that parsers walk recursively.</li>
             <li><strong>Organization charts</strong> &mdash; a manager and an individual employee are both handled as the same unit when totalling headcount or cost.</li>
         </ul></div>
-    </div>
-
-    <div class="section code-section">
-        <div class="section-title">Code</div>
-        <div class="code-layout">
-            <div class="code-wrapper">
-<pre><code><span class="code-keyword">public interface</span> <span class="code-class">FileComponent</span> {
-    <span class="code-keyword">int</span> size();
-}
-
-<span class="code-comment"># Leaf</span>
-<span class="code-keyword">public class</span> <span class="code-class">FileItem</span> <span class="code-keyword">implements</span> <span class="code-class">FileComponent</span> {
-    <span class="code-keyword">private final</span> <span class="code-keyword">int</span> size;
-    <span class="code-keyword">public</span> <span class="code-class">FileItem</span>(<span class="code-keyword">int</span> size) { <span class="code-keyword">this</span>.size = size; }
-    <span class="code-keyword">public int</span> size() { <span class="code-keyword">return</span> size; }
-}
-
-<span class="code-comment"># Composite</span>
-<span class="code-keyword">public class</span> <span class="code-class">Folder</span> <span class="code-keyword">implements</span> <span class="code-class">FileComponent</span> {
-    <span class="code-keyword">private final</span> List&lt;<span class="code-class">FileComponent</span>&gt; children
-            = <span class="code-keyword">new</span> <span class="code-class">ArrayList</span>&lt;&gt;();
-
-    <span class="code-keyword">public void</span> add(<span class="code-class">FileComponent</span> c) { children.add(c); }
-
-    <span class="code-keyword">public int</span> size() {
-        <span class="code-keyword">int</span> total = 0;
-        <span class="code-keyword">for</span> (<span class="code-class">FileComponent</span> c : children)
-            total += c.size();   <span class="code-comment"># recursive</span>
-        <span class="code-keyword">return</span> total;
-    }
-}
-
-<span class="code-keyword">void</span> main() {
-    <span class="code-class">Folder</span> root = <span class="code-keyword">new</span> <span class="code-class">Folder</span>();
-    root.add(<span class="code-keyword">new</span> <span class="code-class">FileItem</span>(10));
-    root.add(<span class="code-keyword">new</span> <span class="code-class">FileItem</span>(20));
-    System.out.println(root.size());  <span class="code-comment"># 30</span>
-}</code></pre>
-            </div>
-
-            <div class="code-explanation">
-                <div class="code-explanation-title">How the Composite works</div>
-                <p><code>FileComponent</code> is the common interface for both leaves and composites.<br><br>
-                    <code>FileItem</code> is a leaf; <code>Folder</code> is a composite holding child components.<br><br>
-                    <code>Folder.size()</code> recurses over its children, so trees of any depth work uniformly.<br><br>
-                    The client calls <code>size()</code> the same way on a single file or a whole folder tree.</p>
-            </div>
-        </div>
     </div>
 </div>
 </body>

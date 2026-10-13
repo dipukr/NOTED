@@ -1,0 +1,24 @@
+<svg width="720" height="330" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 330" role="img" aria-label="Component interface implemented by ConcreteComponent and Decorator; Decorator holds a Component; ConcreteDecorator extends Decorator">
+    <defs><marker id="dc3-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#555555"/></marker><marker id="dc3-l" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#9A9A9A"/></marker></defs>
+    <path d="M180 160 V115 H300 V72" fill="none" stroke="#9A9A9A" stroke-width="1.5" stroke-dasharray="5 4" stroke-linejoin="miter" marker-end="url(#dc3-l)"/>
+    <path d="M480 160 V115 H360 V72" fill="none" stroke="#9A9A9A" stroke-width="1.5" stroke-dasharray="5 4" stroke-linejoin="miter" marker-end="url(#dc3-l)"/>
+    <path d="M480 266 V218" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#dc3-a)"/>
+    <path d="M580 188 H650 V42 H437" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#dc3-a)"/>
+    <rect x="225" y="14" width="210" height="56" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="330" y="36" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Component</text>
+    <text x="330" y="52" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">«interface»</text>
+    <rect x="80" y="160" width="200" height="56" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="180" y="182" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">ConcreteComponent</text>
+    <text x="180" y="198" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">original implementation</text>
+    <rect x="380" y="160" width="200" height="56" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="480" y="182" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Decorator</text>
+    <text x="480" y="198" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">holds a Component</text>
+    <rect x="380" y="266" width="200" height="56" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="480" y="288" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">ConcreteDecorator</text>
+    <text x="480" y="304" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">adds extra behavior</text>
+    <text x="240" y="109" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="11" font-weight="400" fill="#555555" font-style="italic">implements</text>
+    <text x="420" y="109" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="11" font-weight="400" fill="#555555" font-style="italic">implements</text>
+    <text x="488" y="246" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="11" font-weight="400" fill="#555555" font-style="italic">extends</text>
+    <text x="658" y="112" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="11" font-weight="400" fill="#555555" font-style="italic">wraps</text>
+    <text x="658" y="128" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="11" font-weight="400" fill="#555555" font-style="italic">1</text>
+</svg>

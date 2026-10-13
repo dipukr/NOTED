@@ -1,0 +1,20 @@
+<svg width="736" height="154" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 736 154" role="img" aria-label="Report types by export formats: six combination classes">
+    <defs><marker id="br4-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#555555"/></marker><marker id="br4-l" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#9A9A9A"/></marker></defs>
+    <text x="220" y="26" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="700" fill="#222222">PDF</text>
+    <text x="420" y="26" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="700" fill="#222222">HTML</text>
+    <text x="620" y="26" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="700" fill="#222222">CSV</text>
+    <text x="16" y="65" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="700" fill="#222222">Sales</text>
+    <rect x="127" y="40" width="186" height="38" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="220" y="61.25" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#222222">PDFSalesReport</text>
+    <rect x="327" y="40" width="186" height="38" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="420" y="61.25" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#222222">HTMLSalesReport</text>
+    <rect x="527" y="40" width="186" height="38" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="620" y="61.25" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#222222">CSVSalesReport</text>
+    <text x="16" y="117" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="700" fill="#222222">Inventory</text>
+    <rect x="127" y="92" width="186" height="38" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="220" y="113.25" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#222222">PDFInventoryReport</text>
+    <rect x="327" y="92" width="186" height="38" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="420" y="113.25" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#222222">HTMLInventoryReport</text>
+    <rect x="527" y="92" width="186" height="38" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="620" y="113.25" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12.5" font-weight="600" fill="#222222">CSVInventoryReport</text>
+</svg>

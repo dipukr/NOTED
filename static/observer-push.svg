@@ -1,0 +1,10 @@
+<svg width="380" height="150" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 380 150" role="img" aria-label="Push model: the Subject pushes the event data to the Observer, which uses the received data">
+    <defs><marker id="ob2-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#555555"/></marker><marker id="ob2-l" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#9A9A9A"/></marker></defs>
+    <path d="M190 54 V94" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#ob2-a)"/>
+    <rect x="90" y="10" width="200" height="44" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="190" y="34.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Subject</text>
+    <rect x="90" y="96" width="200" height="46" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="190" y="113" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Observer</text>
+    <text x="190" y="129" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">uses received data</text>
+    <text x="198" y="79" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555" font-style="italic">push event data</text>
+</svg>

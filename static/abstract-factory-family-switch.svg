@@ -1,0 +1,27 @@
+<svg width="760" height="148" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 148" role="img" aria-label="Windows supplies WindowsButton, WindowsMenu and WindowsDialog; Mac supplies the Mac versions">
+    <defs><marker id="af19-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#555555"/></marker><marker id="af19-l" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#9A9A9A"/></marker></defs>
+    <path d="M130 39 H176" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#af19-a)"/>
+    <path d="M130 109 H176" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#af19-a)"/>
+    <rect x="10" y="14" width="120" height="50" rx="8" fill="#D6E2FA" stroke="#326CE5" stroke-width="1.5"/>
+    <text x="70" y="33" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Windows</text>
+    <text x="70" y="49" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">family</text>
+    <rect x="188" y="18" width="164" height="42" rx="8" fill="#D6E2FA" stroke="#326CE5" stroke-width="1.5"/>
+    <text x="270" y="41.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">WindowsButton</text>
+    <rect x="368" y="18" width="164" height="42" rx="8" fill="#D6E2FA" stroke="#326CE5" stroke-width="1.5"/>
+    <text x="450" y="41.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">WindowsMenu</text>
+    <text x="360" y="44" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="18" font-weight="700" fill="#94a3b8">+</text>
+    <rect x="548" y="18" width="164" height="42" rx="8" fill="#D6E2FA" stroke="#326CE5" stroke-width="1.5"/>
+    <text x="630" y="41.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">WindowsDialog</text>
+    <text x="540" y="44" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="18" font-weight="700" fill="#94a3b8">+</text>
+    <rect x="10" y="84" width="120" height="50" rx="8" fill="#FECCED" stroke="#D53196" stroke-width="1.5"/>
+    <text x="70" y="103" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Mac</text>
+    <text x="70" y="119" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">family</text>
+    <rect x="188" y="88" width="164" height="42" rx="8" fill="#FECCED" stroke="#D53196" stroke-width="1.5"/>
+    <text x="270" y="111.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">MacButton</text>
+    <rect x="368" y="88" width="164" height="42" rx="8" fill="#FECCED" stroke="#D53196" stroke-width="1.5"/>
+    <text x="450" y="111.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">MacMenu</text>
+    <text x="360" y="114" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="18" font-weight="700" fill="#94a3b8">+</text>
+    <rect x="548" y="88" width="164" height="42" rx="8" fill="#FECCED" stroke="#D53196" stroke-width="1.5"/>
+    <text x="630" y="111.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">MacDialog</text>
+    <text x="540" y="114" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="18" font-weight="700" fill="#94a3b8">+</text>
+</svg>

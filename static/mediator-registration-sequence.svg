@@ -1,0 +1,29 @@
+<svg width="840" height="378" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 378" role="img" aria-label="Sequence: the user sets the password; the password field notifies the RegistrationDialog, which validates all fields and enables the Register button; the user clicks it, the button calls submit(), and the dialog revalidates and submits">
+    <defs><marker id="md6-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#555555"/></marker><marker id="md6-l" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#9A9A9A"/></marker></defs>
+    <line x1="90" y1="54" x2="90" y2="368" stroke="#9A9A9A" stroke-width="1.2" stroke-dasharray="5 4"/>
+    <line x1="300" y1="54" x2="300" y2="368" stroke="#9A9A9A" stroke-width="1.2" stroke-dasharray="5 4"/>
+    <line x1="530" y1="54" x2="530" y2="368" stroke="#9A9A9A" stroke-width="1.2" stroke-dasharray="5 4"/>
+    <line x1="750" y1="54" x2="750" y2="368" stroke="#9A9A9A" stroke-width="1.2" stroke-dasharray="5 4"/>
+    <path d="M90 84 H297" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#md6-a)"/>
+    <path d="M300 126 H527" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#md6-a)"/>
+    <path d="M530 160 H564 V176 H533" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#md6-a)"/>
+    <path d="M530 210 H747" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#md6-a)"/>
+    <path d="M90 252 H747" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#md6-a)"/>
+    <path d="M750 294 H533" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#md6-a)"/>
+    <path d="M530 328 H564 V344 H533" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#md6-a)"/>
+    <rect x="15" y="14" width="150" height="40" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="90" y="36" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12" font-weight="600" fill="#222222">User</text>
+    <rect x="225" y="14" width="150" height="40" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="300" y="36" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12" font-weight="600" fill="#222222">PasswordField</text>
+    <rect x="455" y="14" width="150" height="40" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="530" y="36" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12" font-weight="600" fill="#222222">RegistrationDialog</text>
+    <rect x="675" y="14" width="150" height="40" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="750" y="36" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="12" font-weight="600" fill="#222222">RegisterButton</text>
+    <text x="195" y="78" text-anchor="middle" font-family="Consolas, 'Source Code Pro', monospace" font-size="11" font-weight="400" fill="#222222">setValue(&quot;SecurePass123&quot;)</text>
+    <text x="415" y="120" text-anchor="middle" font-family="Consolas, 'Source Code Pro', monospace" font-size="11" font-weight="400" fill="#222222">componentChanged(this)</text>
+    <text x="572" y="172" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="11" font-weight="400" fill="#555555" font-style="italic">validate all form fields</text>
+    <text x="640" y="204" text-anchor="middle" font-family="Consolas, 'Source Code Pro', monospace" font-size="11" font-weight="400" fill="#222222">setEnabled(true)</text>
+    <text x="420" y="246" text-anchor="middle" font-family="Consolas, 'Source Code Pro', monospace" font-size="11" font-weight="400" fill="#222222">click()</text>
+    <text x="640" y="288" text-anchor="middle" font-family="Consolas, 'Source Code Pro', monospace" font-size="11" font-weight="400" fill="#222222">submit()</text>
+    <text x="572" y="340" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="11" font-weight="400" fill="#555555" font-style="italic">revalidate and submit</text>
+</svg>

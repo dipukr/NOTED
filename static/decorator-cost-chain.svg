@@ -1,0 +1,21 @@
+<svg width="420" height="280" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 280" role="img" aria-label="getCost() is delegated from ExtraShotDecorator (+25) to CreamDecorator (+20) to MilkDecorator (+15) to SimpleCoffee (50), giving 110">
+    <defs><marker id="dc4-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#555555"/></marker><marker id="dc4-l" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#9A9A9A"/></marker></defs>
+    <path d="M210 56 V78" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#dc4-a)"/>
+    <path d="M210 126 V148" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#dc4-a)"/>
+    <path d="M210 196 V218" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#dc4-a)"/>
+    <rect x="90" y="10" width="240" height="46" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="210" y="27" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">ExtraShotDecorator</text>
+    <text x="210" y="43" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">+25</text>
+    <rect x="90" y="80" width="240" height="46" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="210" y="97" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">CreamDecorator</text>
+    <text x="210" y="113" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">+20</text>
+    <rect x="90" y="150" width="240" height="46" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="210" y="167" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">MilkDecorator</text>
+    <text x="210" y="183" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">+15</text>
+    <rect x="90" y="220" width="240" height="46" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="210" y="237" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">SimpleCoffee</text>
+    <text x="210" y="253" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">50</text>
+    <text x="218" y="72" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555" font-style="italic">getCost()</text>
+    <text x="218" y="142" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555" font-style="italic">getCost()</text>
+    <text x="218" y="212" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555" font-style="italic">getCost()</text>
+</svg>

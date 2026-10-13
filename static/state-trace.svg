@@ -1,0 +1,20 @@
+<svg width="760" height="220" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 220" role="img" aria-label="order.pay(): the client calls pay() on Order, which calls pay(this) on CreatedState; CreatedState calls transitionTo(PaidState); future calls use PaidState as the current state">
+    <defs><marker id="st3-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#555555"/></marker><marker id="st3-l" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#9A9A9A"/></marker></defs>
+    <path d="M175 43 H293" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#st3-a)"/>
+    <path d="M465 43 H573" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#st3-a)"/>
+    <path d="M660 66 V104 H410 V68" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#st3-a)"/>
+    <path d="M350 66 V158" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#st3-a)"/>
+    <rect x="25" y="20" width="150" height="46" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="100" y="45.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Client</text>
+    <rect x="295" y="20" width="170" height="46" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="380" y="45.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Order</text>
+    <rect x="575" y="20" width="170" height="46" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="660" y="45.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">CreatedState</text>
+    <text x="234" y="36" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555" font-style="italic">1. pay()</text>
+    <text x="519" y="36" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555" font-style="italic">2. pay(this)</text>
+    <text x="535" y="98" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555" font-style="italic">3. transitionTo(PaidState)</text>
+    <rect x="280" y="160" width="200" height="50" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="380" y="179" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">PaidState</text>
+    <text x="380" y="195" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">current state</text>
+    <text x="342" y="118" text-anchor="end" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555" font-style="italic">4. future calls use PaidState</text>
+</svg>

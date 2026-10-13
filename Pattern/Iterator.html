@@ -3,104 +3,548 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Iterator Pattern - Notes</title>
+<title>Iterator</title>
 <link rel="stylesheet" href="../styles.css">
 </head>
 <body>
 <div class="note">
-    <div class="title">Iterator Pattern</div>
+    <div class="title">Iterator</div>
 
     <div class="intro">
-        <p>Iterator pattern is a behavioral design pattern that provides a way to access the elements of a collection (like a list, tree or graph) sequentially without exposing its underlying representation.</p>
-        <p>Iterator pattern is used to traverse elements in a container.</p>
+        <p><strong>Iterator pattern</strong> is a behavioral design pattern that provides a way to access and traverse the elements of a collection<br> or aggregate object sequentially without exposing its underlying data structure or internal representation.</p>
         <p>Intent is to provide a standard way to traverse through a collection of objects without exposing its internal structure.</p>
-        <p>Iterator pattern decouples container traversal algorithms from containers.</p>
+        <p>Iterator pattern separates the responsibility of <strong>traversing elements</strong> from the collection that <strong>stores them</strong>.<br> Instead of requiring clients to understand how elements are organized internally, the collection provides an iterator object that encapsulates the traversal logic and maintains the current position.</p>
+        <p>The Iterator pattern allows different traversal algorithms to be implemented for the same collection, supports multiple independent traversals, and lets the internal representation of a collection change without affecting client code.</p>
+    </div>
+    <div class="callout callout-note"><p><strong>In simple terms:</strong> The Iterator pattern tells us <strong>how to visit elements</strong> without needing to know <strong>how they are stored</strong>.</p></div>
+
+    <div class="subheading">Real-world analogy</div>
+    <div class="intro">
+        <p>Consider a music playlist containing several songs. A music player needs to play songs one by one, but it should not need to know whether the playlist internally uses an array, linked list, database, or another structure.</p>
+        <p>Playlist provides an iterator that knows which song comes next. The music player simply asks whether another song exists and then requests it.</p>
+        <p>This separates the storage responsibility from the traversal responsibility.</p>
     </div>
 
-    <div class="section when-use">
-        <div class="section-title">Components</div>
-        <div class="section-content">
-            <ul>
-                <li>Iterator (Interface) &ndash; declares the interface for accessing elements.</li>
-                <li>ConcreteIterator &ndash; implements the Iterator interface and keeps track of the current position.</li>
-                <li>Aggregate (Interface) &ndash; declares a method to return an iterator.</li>
-                <li>ConcreteAggregate &ndash; implements the method to return an iterator instance.</li>
-            </ul>
-        </div>
+    <div class="subheading">What problem does the Iterator pattern solve</div>
+    <div class="intro">
+        <p>Suppose we have a collection of songs stored in an <code>ArrayList</code>.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">List</span>&lt;<span class="code-class">String</span>&gt; songs = <span class="code-keyword">new</span> <span class="code-class">ArrayList</span>&lt;&gt;();
+songs.add(<span class="code-string">"Song A"</span>);
+songs.add(<span class="code-string">"Song B"</span>);
+songs.add(<span class="code-string">"Song C"</span>);
+<span class="code-keyword">for</span> (<span class="code-keyword">int</span> i = <span class="code-number">0</span>; i &lt; songs.size(); i++)
+    <span class="code-class">System</span>.out.println(songs.get(i));
+</code></pre></div>
+    <div class="intro">
+        <p>This works, but the client explicitly depends on an index-based traversal approach.</p>
+        <p>Now suppose the playlist changes internally to a linked list, tree, or another custom structure.</p>
+        <p>Different structures can require different traversal algorithms:</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Data structure</th><th>Typical traversal approach</th></tr></thead>
+            <tbody>
+                <tr><td>Array</td><td>Index-based traversal</td></tr>
+                <tr><td>Linked List</td><td>Follow node references</td></tr>
+                <tr><td>Binary Tree</td><td>In-order, pre-order, post-order</td></tr>
+                <tr><td>Graph</td><td>BFS or DFS</td></tr>
+                <tr><td>Database query</td><td>Cursor-based traversal</td></tr>
+                <tr><td>Paginated API</td><td>Fetch successive pages</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>Without an abstraction, clients may need to implement or understand traversal details for each structure.</p>
+        <p>The Iterator pattern solves this by introducing a common interface:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">Iterator</span>&lt;T&gt; iterator = collection.iterator();
+<span class="code-keyword">while</span> (iterator.hasNext()) {
+    T element = iterator.next();
+    <span class="code-comment"># Process element</span>
+}</code></pre></div>
+    <div class="intro">
+        <p>The client now depends on the <code>Iterator</code> abstraction rather than the internal storage or traversal implementation.</p>
     </div>
 
-    <div class="subheading">Advantages</div>
-    <div class="pc-grid">
-        <div class="pc-card pro">
-            <div class="pc-title">Separation of Concerns</div>
-            <p>Separates collection traversal logic from the collection's underlying data structure.</p>
-        </div>
-        <div class="pc-card pro">
-            <div class="pc-title">Uniform Traversal</div>
-            <p>Provides a uniform way to traverse various types of collections.</p>
-        </div>
-        <div class="pc-card pro">
-            <div class="pc-title">Multiple Iterations</div>
-            <p>Supports multiple iterations over the same collection simultaneously.</p>
-        </div>
+    <div class="subheading">Structure of the Iterator pattern</div>
+    <div class="svg-diagram">
+        <img src="../static/iterator-structure.svg" alt="Iterable interface implemented by Playlist with iterator(); Iterator interface with hasNext() and next() implemented by PlaylistIterator with currentIndex; Playlist creates PlaylistIterator" style="width:100%;max-width:720px">
+    </div>
+    <div class="intro">
+        <p>Conceptual structure: the collection creates a concrete iterator implementing a common traversal interface.</p>
+        <p>The pattern has four main participants:</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Participant</th><th>Responsibility</th></tr></thead>
+            <tbody>
+                <tr><td>Iterator</td><td>Defines operations to traverse elements.</td></tr>
+                <tr><td>Concrete Iterator</td><td>Implements traversal and maintains its current position.</td></tr>
+                <tr><td>Aggregate / Iterable</td><td>Defines a method to obtain an iterator.</td></tr>
+                <tr><td>Concrete Aggregate</td><td>Stores elements and provides an appropriate iterator.</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>The client typically interacts only with <code>Iterable</code> and <code>Iterator</code>, without directly accessing the collection's internal representation.</p>
     </div>
 
-    <div class="section realworld">
-        <div class="section-title">Real-world example</div>
-        <div class="section-content"><ul>
-            <li><strong>java.util.Iterator</strong> &mdash; every Collection returns one via iterator() so for-each loops can traverse lists, sets and maps uniformly.</li>
-            <li><strong>java.util.Enumeration</strong> &mdash; the legacy iterator used by Vector, Stack and Hashtable before the Iterator interface.</li>
-            <li><strong>ListIterator</strong> &mdash; extends Iterator to allow bidirectional traversal and element modification while iterating a List.</li>
-            <li><strong>java.util.Scanner</strong> &mdash; walks through tokens or lines of input one at a time without exposing the underlying buffer.</li>
-            <li><strong>Spring Data Pageable/Iterable</strong> &mdash; repository results are exposed as iterables so callers stream rows without knowing the query mechanics.</li>
-            <li><strong>java.util.stream.Stream</strong> &mdash; internally pulls elements through a Spliterator, an iterator variant built for splitting and parallel traversal.</li>
-            <li><strong>TV remote channel button</strong> &mdash; a real-life analogy where you move to the next channel one by one without knowing how channels are stored.</li>
-        </ul></div>
+    <div class="subheading">Java's built-in Iterator and Iterable interfaces</div>
+    <div class="intro">
+        <p>Java already provides these abstractions through <code>java.util</code>.</p>
+        <p><strong><code>Iterator</code> interface</strong></p>
     </div>
-
-    <div class="section code-section">
-        <div class="section-title">Code</div>
-        <div class="code-layout">
-            <div class="code-wrapper">
-<pre><code><span class="code-keyword">public interface</span> <span class="code-class">Iterator</span>&lt;T&gt; {
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">Iterator</span>&lt;E&gt; {
     <span class="code-keyword">boolean</span> hasNext();
-    T next();
+
+    E next();
+
+    <span class="code-keyword">default</span> <span class="code-keyword">void</span> remove() {
+        <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">UnsupportedOperationException</span>();
+    }
+
+    <span class="code-keyword">default</span> <span class="code-keyword">void</span> forEachRemaining(<span class="code-class">Consumer</span>&lt;? <span class="code-keyword">super</span> E&gt; action) {
+        <span class="code-comment"># Default implementation</span>
+    }
+}</code></pre></div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Method</th><th>Purpose</th></tr></thead>
+            <tbody>
+                <tr><td><code>hasNext()</code></td><td>Returns <code>true</code> if another element exists.</td></tr>
+                <tr><td><code>next()</code></td><td>Returns the next element and advances the cursor.</td></tr>
+                <tr><td><code>remove()</code></td><td>Removes the last returned element, if supported.</td></tr>
+                <tr><td><code>forEachRemaining()</code></td><td>Processes all remaining elements using a <code>Consumer</code>.</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="callout callout-note"><p><code>next()</code> should throw <code>NoSuchElementException</code> if no elements remain.</p></div>
+    <div class="intro">
+        <p><strong><code>Iterable</code> interface</strong> - represents something whose elements can be traversed.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">Iterable</span>&lt;T&gt; {
+    <span class="code-class">Iterator</span>&lt;T&gt; iterator();
+}</code></pre></div>
+    <div class="intro">
+        <p>The key relationship is:</p>
+    </div>
+    <div class="intro"><ul>
+        <li><code>Iterable</code> represents the object that <strong>can be traversed</strong>.</li>
+        <li><code>Iterator</code> represents an <strong>individual traversal</strong> with its own state.</li>
+    </ul></div>
+    <div class="intro">
+        <p>A class implementing <code>Iterable</code> can be used with Java's enhanced <code>for</code> loop.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">for</span> (<span class="code-class">String</span> song: playlist)
+    <span class="code-class">System</span>.out.println(song);
+</code></pre></div>
+    <div class="intro">
+        <p>Conceptually, Java translates the enhanced <code>for</code> loop into something similar to:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">Iterator</span>&lt;<span class="code-class">String</span>&gt; iterator = playlist.iterator();
+<span class="code-keyword">while</span> (iterator.hasNext()) {
+    <span class="code-class">String</span> song = iterator.next();
+    <span class="code-class">System</span>.out.println(song);
+}</code></pre></div>
+    <div class="intro">
+        <p>This is why custom classes implementing <code>Iterable</code> can work directly with for-each.</p>
+    </div>
+    <div class="intro">
+        <p>Every invocation creates a <strong>new iterator object</strong> with its own traversal state.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">Iterator</span>&lt;<span class="code-class">Song</span>&gt; it1 = playlist.iterator();
+<span class="code-class">Iterator</span>&lt;<span class="code-class">Song</span>&gt; it2 = playlist.iterator();
+<span class="code-class">System</span>.out.println(it1.next().title()); <span class="code-comment"># Song A</span>
+<span class="code-class">System</span>.out.println(it1.next().title()); <span class="code-comment"># Song B</span>
+<span class="code-class">System</span>.out.println(it2.next().title()); <span class="code-comment"># Song A</span></code></pre></div>
+    <div class="intro">
+        <p>Even though both iterators traverse the same playlist, each maintains its own <code>currentIndex</code>.</p>
+        <p>The important design principle is that the client does not need to access <code>songs.get(index)</code> or manage the index itself.</p>
+    </div>
+    <div class="callout callout-warning"><p><strong>One limitation of this simple implementation:</strong> Structural changes to the playlist during traversal are not detected. Java's standard collections generally have more carefully defined iterator behavior, which we'll discuss later.</p></div>
+
+    <div class="subheading">Practical Example: Binary Tree Iterator</div>
+    <div class="intro">
+        <p>This example demonstrates the real power of the Iterator pattern.</p>
+        <p>Unlike an <code>ArrayList</code>, a binary tree does not store elements in a simple sequential order. Its nodes are connected through left and right references.</p>
+        <p>A tree can be traversed using several algorithms, including <strong>in-order</strong>, <strong>pre-order</strong>, <strong>post-order</strong>, and <strong>level-order</strong>.</p>
+        <p>Iterator pattern allows us to encapsulate these traversal algorithms so that the client does not need to implement them.</p>
+        <p><strong>Binary tree structure</strong></p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/iterator-tree.svg" alt="Binary search tree: root 10; 5 and 15 below it; 2 and 7 under 5; 12 and 20 under 15" style="width:100%;max-width:520px">
+    </div>
+    <div class="intro">
+        <p>Binary search tree used for the traversal examples.</p>
+        <p>For this tree, different iterators can return different sequences.</p>
+        <p><strong>Explore traversal orders</strong></p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Order</th><th>Visit sequence</th></tr></thead>
+            <tbody>
+                <tr><td>In-order</td><td>2, 5, 7, 10, 12, 15, 20</td></tr>
+                <tr><td>Pre-order</td><td>10, 5, 2, 7, 15, 12, 20</td></tr>
+                <tr><td>Post-order</td><td>2, 7, 5, 12, 20, 15, 10</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>We will implement an <code>Iterable</code> binary tree with two different iterator implementations.</p>
+    </div>
+    <div class="scenario-layout scenario-layout-equal scenario-layout-tight scenario-layout-stretch">
+        <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Node</span>&lt;T&gt; {
+    <span class="code-keyword">public</span> T value;
+    <span class="code-keyword">public</span> <span class="code-class">Node</span>&lt;T&gt; left;
+    <span class="code-keyword">public</span> <span class="code-class">Node</span>&lt;T&gt; right;
+    <span class="code-keyword">public</span> <span class="code-class">Node</span>(T value) {
+        <span class="code-keyword">this</span>.value = value;
+    }
 }
 
-<span class="code-keyword">public class</span> <span class="code-class">NameRepository</span> {
-    <span class="code-keyword">private</span> String[] names = { <span class="code-string">"Amit"</span>, <span class="code-string">"Bina"</span>, <span class="code-string">"Chandan"</span> };
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">BinaryTree</span>&lt;T&gt; <span class="code-keyword">implements</span> <span class="code-class">Iterable</span>&lt;T&gt; {
+    <span class="code-keyword">private</span> <span class="code-class">Node</span>&lt;T&gt; root;
 
-    <span class="code-keyword">public</span> Iterator&lt;String&gt; iterator() {
-        <span class="code-keyword">return new</span> Iterator&lt;&gt;() {
-            <span class="code-keyword">private int</span> index = 0;
+    <span class="code-keyword">public</span> <span class="code-class">BinaryTree</span>(<span class="code-class">Node</span>&lt;T&gt; root) {
+        <span class="code-keyword">this</span>.root = root;
+    }
 
-            <span class="code-keyword">public boolean</span> hasNext() {
-                <span class="code-keyword">return</span> index &lt; names.length;
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">Iterator</span>&lt;T&gt; iterator() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">InOrderIterator</span>&lt;&gt;(root);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">Iterator</span>&lt;T&gt; preOrderIterator() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">PreOrderIterator</span>&lt;&gt;(root);
+    }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">InOrderIterator</span>&lt;T&gt; <span class="code-keyword">implements</span> <span class="code-class">Iterator</span>&lt;T&gt; {
+    <span class="code-keyword">private</span> <span class="code-class">Deque</span>&lt;<span class="code-class">Node</span>&lt;T&gt;&gt; stack = <span class="code-keyword">new</span> <span class="code-class">ArrayDeque</span>&lt;&gt;();
+
+    <span class="code-keyword">public</span> <span class="code-class">InOrderIterator</span>(<span class="code-class">Node</span>&lt;T&gt; root) {
+        pushLeft(root);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> pushLeft(<span class="code-class">Node</span>&lt;T&gt; node) {
+        <span class="code-keyword">while</span> (node != <span class="code-keyword">null</span>) {
+            stack.push(node);
+            node = node.left;
+        }
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">boolean</span> hasNext() {
+        <span class="code-keyword">return</span> !stack.isEmpty();
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> T next() {
+        <span class="code-keyword">if</span> (!hasNext()) <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">NoSuchElementException</span>();
+        <span class="code-class">Node</span>&lt;T&gt; node = stack.pop();
+        pushLeft(node.right);
+        <span class="code-keyword">return</span> node.value;
+    }
+}</code></pre></div>
+        <div>
+            <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">PreOrderIterator</span>&lt;T&gt; <span class="code-keyword">implements</span> <span class="code-class">Iterator</span>&lt;T&gt; {
+    <span class="code-keyword">private</span> <span class="code-class">Deque</span>&lt;<span class="code-class">Node</span>&lt;T&gt;&gt; stack = <span class="code-keyword">new</span> <span class="code-class">ArrayDeque</span>&lt;&gt;();
+
+    <span class="code-keyword">public</span> <span class="code-class">PreOrderIterator</span>(<span class="code-class">Node</span>&lt;T&gt; root) {
+        <span class="code-keyword">if</span> (root != <span class="code-keyword">null</span>) {
+            stack.push(root);
+        }
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">boolean</span> hasNext() {
+        <span class="code-keyword">return</span> !stack.isEmpty();
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> T next() {
+        <span class="code-keyword">if</span> (!hasNext()) <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">NoSuchElementException</span>();
+        <span class="code-class">Node</span>&lt;T&gt; node = stack.pop();
+        <span class="code-keyword">if</span> (node.right != <span class="code-keyword">null</span>) stack.push(node.right);
+        <span class="code-keyword">if</span> (node.left != <span class="code-keyword">null</span>) stack.push(node.left);
+        <span class="code-keyword">return</span> node.value;
+    }
+}
+
+<span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+    <span class="code-keyword">var</span> root = <span class="code-keyword">new</span> <span class="code-class">Node</span>&lt;Integer&gt;(<span class="code-number">10</span>);
+    root.left = <span class="code-keyword">new</span> <span class="code-class">Node</span>&lt;Integer&gt;(<span class="code-number">5</span>);
+    root.right = <span class="code-keyword">new</span> <span class="code-class">Node</span>&lt;Integer&gt;(<span class="code-number">15</span>);
+    root.left.left = <span class="code-keyword">new</span> <span class="code-class">Node</span>&lt;Integer&gt;(<span class="code-number">2</span>);
+    root.left.right = <span class="code-keyword">new</span> <span class="code-class">Node</span>&lt;Integer&gt;(<span class="code-number">7</span>);
+    root.right.left = <span class="code-keyword">new</span> <span class="code-class">Node</span>&lt;Integer&gt;(<span class="code-number">12</span>);
+    root.right.right = <span class="code-keyword">new</span> <span class="code-class">Node</span>&lt;Integer&gt;(<span class="code-number">20</span>);
+    <span class="code-keyword">var</span> tree = <span class="code-keyword">new</span> <span class="code-class">BinaryTree</span>&lt;Integer&gt;(root);
+    <span class="code-class">System</span>.out.println(<span class="code-string">"In-order:"</span>);
+    <span class="code-keyword">for</span> (<span class="code-class">Integer</span> val: tree)
+        <span class="code-class">System</span>.out.print(val + <span class="code-string">" "</span>);
+    <span class="code-class">System</span>.out.println(<span class="code-string">"\nPre-order:"</span>);
+    <span class="code-class">Iterator</span>&lt;<span class="code-class">Integer</span>&gt; iterator = tree.preOrderIterator();
+    <span class="code-keyword">while</span> (iterator.hasNext())
+        <span class="code-class">System</span>.out.print(iterator.next() + <span class="code-string">" "</span>);
+}</code></pre></div>
+            <div class="intro"><p><strong>Output:</strong></p></div>
+            <div class="code-block" style="flex:none"><pre><code>In-order:
+2 5 7 10 12 15 20
+
+Pre-order:
+10 5 2 7 15 12 20</code></pre></div>
+        </div>
+    </div>
+    <div class="intro">
+        <p><strong>How the in-order iterator works</strong></p>
+    </div>
+    <div class="intro">
+        <p>Our impl uses a stack instead of recursion, allowing the traversal to be paused and resumed between calls to <code>next</code>.</p>
+    </div>
+    <div class="intro">
+        <p>The important observation is that the client only calls <code>hasNext</code> and <code>next</code>. It does not need to know anything about<br> tree nodes, stacks, recursion, or traversal order.</p>
+        <p><strong>Time and space complexity</strong></p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Operation</th><th>Complexity</th></tr></thead>
+            <tbody>
+                <tr><td>Construct in-order iterator</td><td>O(h)</td></tr>
+                <tr><td><code>hasNext()</code></td><td>O(1)</td></tr>
+                <tr><td><code>next()</code></td><td>O(1) amortized</td></tr>
+                <tr><td>Traverse entire tree</td><td>O(n)</td></tr>
+                <tr><td>Additional iterator space</td><td>O(h)</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>Here, <code>n</code> is the number of nodes, and <code>h</code> is the tree height.</p>
+        <p>These iterators assume the tree is not structurally modified during traversal.</p>
+    </div>
+    <div class="callout callout-note"><p>This example illustrates an important benefit: <strong>The same object structure can support multiple traversal strategies without changing how clients consume its elements.</strong></p></div>
+
+    <div class="subheading">Practical Example: Lazy Pagination with Iterator</div>
+    <div class="intro">
+        <p>A particularly useful application of the Iterator pattern is retrieving large datasets from a paginated REST API, database, or remote service.</p>
+        <p>Suppose an API contains one million users but returns only 100 users per request.</p>
+        <p>Without the Iterator pattern, the client might have to manage page numbers, cursors, and network requests.</p>
+        <p>With an iterator, the client can simply write:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">for</span> (<span class="code-class">User</span> user : paginatedUsers) {
+    process(user);
+}</code></pre></div>
+    <div class="intro">
+        <p>The iterator can fetch subsequent pages automatically, only when needed.</p>
+        <p><strong>How lazy pagination works</strong></p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/iterator-pagination.svg" alt="The client loops with for-each over an iterator that keeps the cursor state and calls the REST API, which returns page 1, page 2 and page 3 only when each is required" style="width:100%;max-width:780px">
+    </div>
+    <div class="intro">
+        <p>We will simulate a paginated API using a functional interface.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-comment"># Represents one API response</span>
+<span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">Page</span>&lt;T&gt;(<span class="code-class">List</span>&lt;T&gt; items, <span class="code-class">String</span> nextCursor) {}
+
+<span class="code-comment"># API abstraction</span>
+<span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">PageFetcher</span>&lt;T&gt; {
+    <span class="code-class">Page</span>&lt;T&gt; fetch(<span class="code-class">String</span> cursor);
+}
+
+<span class="code-comment"># Aggregate</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">PaginatedItems</span>&lt;T&gt; <span class="code-keyword">implements</span> <span class="code-class">Iterable</span>&lt;T&gt; {
+    <span class="code-keyword">private</span> <span class="code-class">PageFetcher</span>&lt;T&gt; fetcher;
+
+    <span class="code-class">PaginatedItems</span>(<span class="code-class">PageFetcher</span>&lt;T&gt; fetcher) {
+        <span class="code-keyword">this</span>.fetcher = fetcher;
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">Iterator</span>&lt;T&gt; iterator() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">Iterator</span>&lt;&gt;() {
+            <span class="code-keyword">private</span> <span class="code-class">Iterator</span>&lt;T&gt; current = <span class="code-class">Collections</span>.emptyIterator();
+            <span class="code-keyword">private</span> <span class="code-class">String</span> nextCursor = <span class="code-keyword">null</span>;
+            <span class="code-keyword">private</span> <span class="code-keyword">boolean</span> hasMorePages = <span class="code-keyword">true</span>;
+
+            <span class="code-annotation">@Override</span>
+            <span class="code-keyword">public</span> <span class="code-keyword">boolean</span> hasNext() {
+                <span class="code-keyword">while</span> (!current.hasNext() &amp;&amp; hasMorePages) { <span class="code-comment"># Fetch another page only when needed</span>
+                    <span class="code-class">Page</span>&lt;T&gt; page = fetcher.fetch(nextCursor);
+                    current = page.items().iterator();
+                    nextCursor = page.nextCursor();
+                    hasMorePages = nextCursor != <span class="code-keyword">null</span>;
+                }
+                <span class="code-keyword">return</span> current.hasNext();
             }
 
-            <span class="code-keyword">public</span> String next() {
-                <span class="code-keyword">return</span> names[index++];
+            <span class="code-annotation">@Override</span>
+            <span class="code-keyword">public</span> T next() {
+                <span class="code-keyword">if</span> (!hasNext()) <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">NoSuchElementException</span>();
+                <span class="code-keyword">return</span> current.next();
             }
         };
     }
 }
 
-<span class="code-keyword">void</span> main() {
-    Iterator&lt;String&gt; it = <span class="code-keyword">new</span> NameRepository().iterator();
-    <span class="code-keyword">while</span> (it.hasNext())
-        System.out.println(it.next());
-}</code></pre>
-            </div>
-
-            <div class="code-explanation">
-                <div class="code-explanation-title">How the Iterator works</div>
-                <p><code>Iterator</code> declares <code>hasNext()</code> and <code>next()</code>.<br><br>
-                    <code>NameRepository</code> is the collection holding the data.<br><br>
-                    The inner iterator tracks its own <code>index</code> position.<br><br>
-                    The client traverses without knowing the array behind it.</p>
-            </div>
-        </div>
+<span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+    <span class="code-class">PageFetcher</span>&lt;<span class="code-class">String</span>&gt; api = cursor -&gt; { <span class="code-comment"># Simulated REST API</span>
+        <span class="code-keyword">int</span> page = cursor == <span class="code-keyword">null</span> ? <span class="code-number">0</span> : <span class="code-class">Integer</span>.parseInt(cursor);
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Fetching page "</span> + (page + <span class="code-number">1</span>));
+        <span class="code-keyword">return</span> <span class="code-keyword">switch</span> (page) {
+            <span class="code-keyword">case</span> <span class="code-number">0</span> -&gt; <span class="code-keyword">new</span> <span class="code-class">Page</span>&lt;&gt;(<span class="code-class">List</span>.of(<span class="code-string">"Alice"</span>, <span class="code-string">"Bob"</span>), <span class="code-string">"1"</span>);
+            <span class="code-keyword">case</span> <span class="code-number">1</span> -&gt; <span class="code-keyword">new</span> <span class="code-class">Page</span>&lt;&gt;(<span class="code-class">List</span>.of(<span class="code-string">"Charlie"</span>, <span class="code-string">"David"</span>), <span class="code-keyword">null</span>);
+            <span class="code-keyword">default</span> -&gt; <span class="code-keyword">new</span> <span class="code-class">Page</span>&lt;&gt;(<span class="code-class">List</span>.of(), <span class="code-keyword">null</span>);
+        };
+    };
+    <span class="code-class">PaginatedItems</span>&lt;<span class="code-class">String</span>&gt; users = <span class="code-keyword">new</span> <span class="code-class">PaginatedItems</span>&lt;&gt;(api);
+    <span class="code-keyword">for</span> (<span class="code-class">String</span> user: users) <span class="code-comment"># Client does not manage pagination</span>
+        <span class="code-class">System</span>.out.println(<span class="code-string">"User: "</span> + user);
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Output:</strong></p>
     </div>
+    <div class="code-block"><pre><code>Fetching page 1
+User: Alice
+User: Bob
+Fetching page 2
+User: Charlie
+User: David</code></pre></div>
+    <div class="intro">
+        <p>Notice that page 2 is not fetched until the iterator runs out of elements from page 1.</p>
+        <p>If the client stops after Alice, page 2 is never fetched.</p>
+        <p><strong>Why this is useful</strong></p>
+        <p>The client does not need to know how pagination works or when API calls must be made.</p>
+        <p>It simply processes individual elements.</p>
+        <p>The iterator encapsulates the pagination cursor, current page and fetching logic.</p>
+        <p>This is valuable for REST API pagination, large database result sets, cloud storage object listings and other sources that produce data incrementally.</p>
+    </div>
+    <div class="callout callout-warning"><p>For production use, a paginated iterator also needs appropriate error handling, retry policies, resource cleanup when applicable, and protection against an API returning a non-progressing cursor. In this implementation, calling <code>hasNext</code> can perform network IO.</p></div>
+
+    <div class="subheading">Iterator vs Iterable</div>
+    <div class="intro">
+        <p>Although these two interfaces are closely related, they have different responsibilities.</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Iterator</th><th>Iterable</th></tr></thead>
+            <tbody>
+                <tr><td>Represents a traversal</td><td>Represents a traversable object</td></tr>
+                <tr><td>Maintains traversal state</td><td>Creates or provides iterators</td></tr>
+                <tr><td>Defines <code>hasNext()</code> and <code>next()</code></td><td>Defines <code>iterator()</code></td></tr>
+                <tr><td>Typically gets exhausted after traversal</td><td>Can generally create a fresh iterator</td></tr>
+                <tr><td>Used to move through elements</td><td>Enables enhanced <code>for</code> loops</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+
+    <div class="subheading">Iterator vs Other Java Traversal APIs</div>
+    <div class="intro">
+        <p>Java provides several traversal mechanisms.</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Mechanism</th><th>Characteristics</th><th>Typical use</th></tr></thead>
+            <tbody>
+                <tr><td><code>Iterator</code></td><td>Forward-only, stateful traversal</td><td>Sequential access</td></tr>
+                <tr><td><code>ListIterator</code></td><td>Forward and backward traversal, optional modifications</td><td>Lists</td></tr>
+                <tr><td><code>Iterable</code></td><td>Supplies iterators</td><td>Enhanced <code>for</code></td></tr>
+                <tr><td><code>Spliterator</code></td><td>Supports splitting traversal work</td><td>Streams, parallel processing</td></tr>
+                <tr><td><code>Stream</code></td><td>Declarative data-processing pipeline</td><td>Filtering, mapping, aggregation</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>For example, with <code>Iterator</code>:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">Iterator</span>&lt;<span class="code-class">String</span>&gt; iterator = names.iterator();
+<span class="code-keyword">while</span> (iterator.hasNext()) {
+    <span class="code-class">System</span>.out.println(iterator.next());
+}</code></pre></div>
+    <div class="intro">
+        <p>With a stream:</p>
+    </div>
+    <div class="code-block"><pre><code>names.stream().filter(name -&gt; name.startsWith(<span class="code-string">"A"</span>)).forEach(<span class="code-class">System</span>.out::println);</code></pre></div>
+    <div class="intro">
+        <p>The difference is mostly in how the client controls processing.</p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>Iterator uses external iteration:</strong> The client explicitly requests each next element and controls when to stop.</li>
+        <li><strong>Stream uses internal iteration:</strong> The client specifies operations, and the stream implementation manages traversal and processing.</li>
+    </ul></div>
+    <div class="intro">
+        <p>Streams generally build on <code>Spliterator</code>, not directly on the traditional <code>Iterator</code> interface.</p>
+    </div>
+
+    <div class="subheading">Advantages and Disadvantages</div>
+    <div class="intro"><p><strong>Advantages</strong></p></div>
+    <div class="intro"><ul>
+        <li><strong>Hides traversal details</strong> &mdash; clients loop over elements without knowing how the collection stores them.</li>
+        <li><strong>Separates traversal from storage</strong> &mdash; the collection keeps the data, while the iterator decides how to visit it.</li>
+        <li><strong>Multiple independent cursors</strong> &mdash; every call to <code>iterator</code> returns a fresh iterator with its own position.</li>
+        <li><strong>Different traversal algorithms</strong> &mdash; the same structure can offer in-order, pre-order or other iterators.</li>
+        <li><strong>Lazy traversal</strong> &mdash; elements, or whole pages of data, can be fetched only when <code>next</code> needs them.</li>
+        <li><strong>Works with the enhanced <code>for</code> loop</strong> &mdash; any <code>Iterable</code> plugs straight into for-each.</li>
+    </ul></div>
+    <div class="intro"><p><strong>Disadvantages</strong></p></div>
+    <div class="intro"><ul>
+        <li><strong>Extra abstraction</strong> &mdash; custom collections need additional iterator classes.</li>
+        <li><strong>Overkill for simple collections</strong> &mdash; standard collections such as <code>ArrayList</code> already provide iterators.</li>
+        <li><strong>Structural changes need care</strong> &mdash; modifying a collection while iterating can corrupt the traversal or fail fast.</li>
+        <li><strong>Forward-only</strong> &mdash; a standard <code>Iterator</code> cannot move backward or reset; that needs <code>ListIterator</code> or a new iterator.</li>
+        <li><strong>May hold state or resources</strong> &mdash; iterators over files, database cursors or remote pages may need cleanup.</li>
+        <li><strong>Not always the most natural fit</strong> &mdash; some traversals read better as streams or recursion.</li>
+    </ul></div>
+    <div class="intro">
+        <p>The Iterator pattern follows the <strong>Single Responsibility Principle</strong> by separating the responsibility of storing elements from the responsibility of traversing them.</p>
+        <p>It also supports the <strong>Open/Closed Principle</strong> because new traversal implementations can often be introduced without modifying existing client logic.</p>
+    </div>
+    <div class="callout callout-note"><p>These benefits depend on how the aggregate is designed; implementing <code>Iterator</code> alone does not guarantee perfect encapsulation or adherence to every design principle.</p></div>
+
+    <div class="subheading">When should you use the Iterator pattern</div>
+    <div class="intro">
+        <p>Use it when clients should traverse a structure without depending on its implementation, when multiple traversal algorithms are needed, or when results must be retrieved incrementally.</p>
+        <p>It is particularly appropriate for custom trees, graphs, hierarchical structures, paginated APIs, database cursors, and<br> file-system traversals.</p>
+    </div>
+    <div class="callout callout-note"><p>For ordinary Java collections, you generally do not need to implement your own iterator. Java already provides suitable implementations for <code>ArrayList</code>, <code>LinkedList</code>, <code>HashSet</code>, <code>TreeSet</code>, and other standard collections.</p></div>
+
+    <div class="subheading">Interview perspective: Iterator vs Composite vs Visitor</div>
+    <div class="intro">
+        <p>These patterns can work together but solve different problems.</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Pattern</th><th>Main responsibility</th></tr></thead>
+            <tbody>
+                <tr><td>Iterator</td><td>Controls how elements in an object structure are traversed</td></tr>
+                <tr><td>Composite</td><td>Organizes individual objects and groups into tree-like structures</td></tr>
+                <tr><td>Visitor</td><td>Defines operations performed on elements, separate from their classes</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>For instance, consider a compiler's Abstract Syntax Tree (AST).</p>
+        <p>A Composite-like structure can represent expressions and statements as tree nodes. An Iterator can traverse those nodes in a particular order. A Visitor can perform semantic analysis or generate code when visiting each node.</p>
+        <p>The patterns are complementary rather than mutually exclusive.</p>
+    </div>
+
+    <div class="subheading">Final Summary</div>
+    <div class="intro">
+        <p>The Iterator design pattern separates <strong>how objects are stored</strong> from <strong>how they are traversed</strong>.</p>
+        <p><strong>Scanner</strong> &mdash; walks through tokens or lines of input one at a time without exposing the underlying buffer.</p>
+        <p>The collection provides an iterator, while the iterator maintains traversal state and determines which element comes next. Clients interact through a common interface rather than manipulating indexes, node references, stacks or pagination cursors themselves.</p>
+        <p>The key Java interfaces are:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">Iterable</span>&lt;T&gt;   <span class="code-comment"># Provides an iterator</span>
+<span class="code-class">Iterator</span>&lt;T&gt;   <span class="code-comment"># Performs traversal</span></code></pre></div>
+    <div class="intro">
+        <p>And their most important methods are:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">Iterator</span>&lt;T&gt; iterator();
+<span class="code-keyword">boolean</span> hasNext();
+T next();</code></pre></div>
+    <div class="callout callout-note"><p><strong>The most important takeaway:</strong> The Iterator pattern becomes especially valuable when traversal is more complex than looping over an array&mdash;for example, traversing a binary tree in different orders or lazily loading records from a remote API&mdash;because it hides that complexity behind a simple, consistent interface.</p></div>
 </div>
 </body>
 </html>

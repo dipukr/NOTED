@@ -1,0 +1,27 @@
+<svg width="720" height="250" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 250" role="img" aria-label="Office Bundle (45,000) containing a Laptop (40,000) and an Accessory Bundle (5,000) with a Mouse (1,000) and a Keyboard (4,000)">
+    <defs><marker id="cs5-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#555555"/></marker><marker id="cs5-l" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#9A9A9A"/></marker></defs>
+    <path d="M360 74 V86 H190 V98" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#cs5-a)"/>
+    <path d="M360 74 V86 H530 V98" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#cs5-a)"/>
+    <path d="M530 162 V173 H440 V184" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#cs5-a)"/>
+    <path d="M530 162 V173 H620 V184" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#cs5-a)"/>
+    <rect x="260" y="12" width="200" height="62" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="360" y="28.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Office Bundle</text>
+    <text x="360" y="45.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">₹45,000</text>
+    <text x="360" y="61.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">bundle · composite</text>
+    <rect x="100" y="100" width="180" height="62" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="190" y="116.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Laptop</text>
+    <text x="190" y="133.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">₹40,000</text>
+    <text x="190" y="149.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">product · leaf</text>
+    <rect x="430" y="100" width="200" height="62" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="530" y="116.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Accessory Bundle</text>
+    <text x="530" y="133.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">₹5,000</text>
+    <text x="530" y="149.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">bundle · composite</text>
+    <rect x="365" y="186" width="150" height="62" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="440" y="202.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Mouse</text>
+    <text x="440" y="219.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">₹1,000</text>
+    <text x="440" y="235.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">product · leaf</text>
+    <rect x="545" y="186" width="150" height="62" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="620" y="202.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Keyboard</text>
+    <text x="620" y="219.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">₹4,000</text>
+    <text x="620" y="235.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">product · leaf</text>
+</svg>

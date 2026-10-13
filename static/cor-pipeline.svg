@@ -1,0 +1,14 @@
+<svg width="560" height="76" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 76" role="img" aria-label="Variation B: Handler A, Handler B and Handler C each process the request and forward it">
+    <defs><marker id="cr4-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#555555"/></marker><marker id="cr4-l" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#9A9A9A"/></marker></defs>
+    <path d="M165 38 H203" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#cr4-a)"/>
+    <path d="M355 38 H393" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#cr4-a)"/>
+    <rect x="15" y="14" width="150" height="48" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="90" y="32" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Handler A ✓</text>
+    <text x="90" y="48" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">processes and forwards</text>
+    <rect x="205" y="14" width="150" height="48" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="280" y="32" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Handler B ✓</text>
+    <text x="280" y="48" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">processes and forwards</text>
+    <rect x="395" y="14" width="150" height="48" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="470" y="32" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Handler C ✓</text>
+    <text x="470" y="48" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">processes and forwards</text>
+</svg>

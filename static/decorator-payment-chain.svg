@@ -1,0 +1,18 @@
+<svg width="440" height="280" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 280" role="img" aria-label="Client calls processPayment() on MetricsPaymentDecorator, which delegates to LoggingPaymentDecorator, which delegates to DefaultPaymentProcessor">
+    <defs><marker id="dc5-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#555555"/></marker><marker id="dc5-l" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#9A9A9A"/></marker></defs>
+    <path d="M220 56 V78" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#dc5-a)"/>
+    <path d="M220 126 V148" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#dc5-a)"/>
+    <path d="M220 196 V218" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#dc5-a)"/>
+    <rect x="85" y="10" width="270" height="46" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="220" y="27" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Client</text>
+    <text x="220" y="43" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">processPayment()</text>
+    <rect x="85" y="80" width="270" height="46" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="220" y="97" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">MetricsPaymentDecorator</text>
+    <text x="220" y="113" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">measures execution time</text>
+    <rect x="85" y="150" width="270" height="46" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="220" y="167" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">LoggingPaymentDecorator</text>
+    <text x="220" y="183" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">records request/result</text>
+    <rect x="85" y="220" width="270" height="46" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="220" y="237" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">DefaultPaymentProcessor</text>
+    <text x="220" y="253" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">executes payment logic</text>
+</svg>

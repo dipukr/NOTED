@@ -72,6 +72,720 @@ Visitor is most suitable when the set of element types is stable, while<br> the 
     </div>
 
     
+
+    <div class="subheading">Visitor Design Pattern in Java: Complete Guide</div>
+    <div class="intro">
+        <p>The <strong>Visitor Design Pattern</strong> is a behavioral design pattern that allows us to define new operations on a group of related objects without modifying their existing classes.</p>
+        <p>It is especially useful when we have a <strong>stable object structure</strong>, but frequently need to introduce <strong>new behaviors or operations</strong> on those objects.</p>
+        <p>The Visitor pattern separates <strong>algorithms (operations)</strong> from the <strong>objects on which they operate</strong>.</p>
+        <p>For example, suppose an application contains different product types, such as Books, Electronics, and Clothing. We might want to perform several operations on these products:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>Calculate prices and taxes.</li>
+        <li>Calculate shipping costs.</li>
+        <li>Generate invoices.</li>
+        <li>Generate product reports.</li>
+        <li>Export product information.</li>
+    </ul></div>
+    <div class="intro">
+        <p>Instead of implementing all these operations inside each product class, we can create separate Visitor classes, each responsible for a particular operation.</p>
+    </div>
+    <div class="callout callout-note"><p>This follows the <strong>Open/Closed Principle</strong> in an important way: we can introduce new operations without modifying the existing product classes, although adding new product types generally requires modifying the visitor implementations.</p></div>
+
+    <div class="subheading">Understanding the problem</div>
+    <div class="intro">
+        <p>Suppose we have an e-commerce application with a common <code>Product</code> interface and multiple product implementations.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">Product</span> {
+    <span class="code-keyword">double</span> calculatePrice();
+
+    <span class="code-keyword">double</span> calculateShipping();
+
+    <span class="code-class">String</span> generateInvoice();
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Book</span> <span class="code-keyword">implements</span> <span class="code-class">Product</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">double</span> calculatePrice() {
+        <span class="code-keyword">return</span> <span class="code-number">500</span>; <span class="code-comment"># Book pricing logic</span>
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">double</span> calculateShipping() {
+        <span class="code-keyword">return</span> <span class="code-number">50</span>; <span class="code-comment"># Book shipping logic</span>
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">String</span> generateInvoice() {
+        <span class="code-keyword">return</span> <span class="code-string">"Book invoice"</span>;
+    }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Electronics</span> <span class="code-keyword">implements</span> <span class="code-class">Product</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">double</span> calculatePrice() {
+        <span class="code-keyword">return</span> <span class="code-number">3000</span>; <span class="code-comment"># Electronics pricing logic</span>
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">double</span> calculateShipping() {
+        <span class="code-keyword">return</span> <span class="code-number">150</span>; <span class="code-comment"># Electronics shipping logic</span>
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">String</span> generateInvoice() {
+        <span class="code-keyword">return</span> <span class="code-string">"Electronics invoice"</span>;
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>What is the problem with this approach?</strong></p>
+        <p>Initially, this design works.</p>
+        <p>However, imagine that the business introduces several new requirements:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>Calculate discounts.</li>
+        <li>Generate tax reports.</li>
+        <li>Export product data as JSON.</li>
+        <li>Generate analytics reports.</li>
+    </ul></div>
+    <div class="intro">
+        <p>Every time a new operation is introduced, we may need to modify the <code>Product</code> interface and every concrete product class.</p>
+        <p>This creates several problems:</p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>Violation of the Open/Closed Principle:</strong> existing classes require changes whenever new operations are added.</li>
+        <li><strong>Poor separation of concerns:</strong> product classes contain pricing, shipping, reporting, and other unrelated business logic.</li>
+        <li><strong>Increased maintenance:</strong> adding or modifying business operations affects multiple product classes.</li>
+        <li><strong>Growing complexity:</strong> product classes become large and difficult to maintain.</li>
+    </ul></div>
+    <div class="intro">
+        <p>The Visitor Pattern solves this problem by moving these operations into separate visitor classes.</p>
+    </div>
+
+    <div class="subheading">How the Visitor Pattern works</div>
+    <div class="intro">
+        <p>Instead of directly calling operations on product objects, we introduce a <strong>Visitor</strong> interface that declares a separate method for each concrete product type.</p>
+        <p>Each product supports an <code>accept()</code> method, which receives a visitor and invokes the appropriate <code>visit()</code> method.</p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/visitor-structure.svg" alt="Book and Electronics implement Product with accept(visitor); each dispatches to ProductVisitor, which declares visit(Book book) and visit(Electronics item)" style="width:100%;max-width:780px">
+    </div>
+    <div class="intro">
+        <p>Each product delegates the requested operation to a visitor that knows its concrete type.</p>
+        <p><strong>Main components</strong></p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Component</th><th>Responsibility</th></tr></thead>
+            <tbody>
+                <tr><td>Visitor</td><td>Declares operations for each concrete element type.</td></tr>
+                <tr><td>Concrete Visitor</td><td>Implements a particular operation, such as pricing or shipping.</td></tr>
+                <tr><td>Element</td><td>Declares the <code>accept(Visitor)</code> method.</td></tr>
+                <tr><td>Concrete Element</td><td>Implements <code>accept()</code> and passes itself to the visitor.</td></tr>
+                <tr><td>Client / Object Structure</td><td>Holds the elements and applies visitors to them.</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>The most important concept is:</p>
+    </div>
+    <div class="callout callout-note"><p>Objects retain responsibility for their core data and structure, while visitors provide additional operations on those objects.</p></div>
+
+    <div class="subheading">Practical Example 1: E-Commerce Pricing and Shipping</div>
+    <div class="intro">
+        <p>Consider an online shopping application that sells Books and Electronics.</p>
+        <p>Each product has its own pricing and shipping rules.</p>
+        <p><strong>Requirements:</strong></p>
+    </div>
+    <div class="intro"><ul>
+        <li>Books have no additional tax.</li>
+        <li>Electronics have an 18% tax.</li>
+        <li>Books are shipped based on their weight.</li>
+        <li>Electronics have a fixed packaging charge plus weight-based shipping.</li>
+        <li>We should be able to add new operations without changing the existing product classes.</li>
+    </ul></div>
+    <div class="intro">
+        <p>We will implement this example using the Visitor Pattern.</p>
+        <p><strong>Step 1: Create the Visitor interface</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">ItemVisitor</span>&lt;R&gt; {
+    R visit(<span class="code-class">Book</span> book);
+
+    R visit(<span class="code-class">Electronics</span> electronics);
+}</code></pre></div>
+    <div class="intro">
+        <p>The <code>ItemVisitor&lt;R&gt;</code> interface declares a different <code>visit()</code> method for each product type.</p>
+        <p>The generic parameter <code>R</code> represents the return type of the operation.</p>
+        <p>For example:</p>
+    </div>
+    <div class="intro"><ul>
+        <li><code>ItemVisitor&lt;Double&gt;</code> can calculate prices.</li>
+        <li><code>ItemVisitor&lt;String&gt;</code> can generate descriptions.</li>
+        <li><code>ItemVisitor&lt;Boolean&gt;</code> can validate products.</li>
+        <li><code>ItemVisitor&lt;Void&gt;</code> can perform an operation without returning a value.</li>
+    </ul></div>
+    <div class="intro">
+        <p>This makes the visitor interface reusable for different operations.</p>
+        <p><strong>Step 2: Create the Element interface</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">CartItem</span> {
+    &lt;R&gt; R accept(<span class="code-class">ItemVisitor</span>&lt;R&gt; visitor);
+}</code></pre></div>
+    <div class="intro">
+        <p>Every product must implement the <code>accept()</code> method.</p>
+        <p>The method accepts a visitor and delegates the operation to it.</p>
+        <p>Notice that <code>CartItem</code> doesn't contain methods such as <code>calculateTax()</code>, <code>calculateShipping()</code>, or <code>generateInvoice()</code>.</p>
+        <p>Instead, we implement these operations using separate visitors.</p>
+        <p><strong>Step 3: Implement the concrete elements</strong></p>
+        <p>We'll use Java records to keep the example concise.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">Book</span>(<span class="code-class">String</span> title, <span class="code-keyword">double</span> unitPrice, <span class="code-keyword">int</span> quantity, <span class="code-keyword">double</span> weightKg) <span class="code-keyword">implements</span> <span class="code-class">CartItem</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> &lt;R&gt; R accept(<span class="code-class">ItemVisitor</span>&lt;R&gt; visitor) {
+        <span class="code-keyword">return</span> visitor.visit(<span class="code-keyword">this</span>);
+    }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">Electronics</span>(<span class="code-class">String</span> name, <span class="code-keyword">double</span> unitPrice, <span class="code-keyword">int</span> quantity, <span class="code-keyword">double</span> weightKg) <span class="code-keyword">implements</span> <span class="code-class">CartItem</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> &lt;R&gt; R accept(<span class="code-class">ItemVisitor</span>&lt;R&gt; visitor) {
+        <span class="code-keyword">return</span> visitor.visit(<span class="code-keyword">this</span>);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>The key statement is:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">return</span> visitor.visit(<span class="code-keyword">this</span>);</code></pre></div>
+    <div class="intro">
+        <p>When a <code>Book</code> receives a visitor, it invokes:</p>
+    </div>
+    <div class="code-block"><pre><code>visitor.visit(<span class="code-keyword">this</span>); <span class="code-comment"># visit(Book)</span></code></pre></div>
+    <div class="intro">
+        <p>When an <code>Electronics</code> object receives a visitor, it invokes:</p>
+    </div>
+    <div class="code-block"><pre><code>visitor.visit(<span class="code-keyword">this</span>); <span class="code-comment"># visit(Electronics)</span></code></pre></div>
+    <div class="intro">
+        <p>This mechanism is called <strong>Double Dispatch</strong>, which we will examine shortly.</p>
+        <p><strong>Step 4: Implement a Price Visitor</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">PriceVisitor</span> <span class="code-keyword">implements</span> <span class="code-class">ItemVisitor</span>&lt;<span class="code-class">Double</span>&gt; {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">Double</span> visit(<span class="code-class">Book</span> book) {
+        <span class="code-keyword">return</span> book.unitPrice() * book.quantity(); <span class="code-comment"># Books are tax-exempt</span>
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">Double</span> visit(<span class="code-class">Electronics</span> electronics) {
+        <span class="code-keyword">double</span> basePrice = electronics.unitPrice() * electronics.quantity();
+        <span class="code-keyword">double</span> tax = basePrice * <span class="code-number">0</span>.<span class="code-number">18</span>;
+        <span class="code-keyword">return</span> basePrice + tax;
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p><code>PriceVisitor</code> implements the pricing logic for each product.</p>
+        <p>Notice that different product types have different pricing rules.</p>
+        <p>The <code>Book</code> and <code>Electronics</code> classes don't know how pricing is calculated.</p>
+        <p>If the pricing rules change, we can update the <code>PriceVisitor</code> without modifying the product classes.</p>
+        <p><strong>Step 5: Implement a Shipping Visitor</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ShippingVisitor</span> <span class="code-keyword">implements</span> <span class="code-class">ItemVisitor</span>&lt;<span class="code-class">Double</span>&gt; {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">Double</span> visit(<span class="code-class">Book</span> book) {
+        <span class="code-keyword">return</span> book.weightKg() * book.quantity() * <span class="code-number">50</span>; <span class="code-comment"># ₹50 per kilogram</span>
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">Double</span> visit(<span class="code-class">Electronics</span> electronics) {
+        <span class="code-comment"># ₹100 packaging + ₹80 per kilogram</span>
+        <span class="code-keyword">double</span> packaging = <span class="code-number">100</span>;
+        <span class="code-keyword">double</span> weightCharge = electronics.weightKg() * electronics.quantity() * <span class="code-number">80</span>;
+        <span class="code-keyword">return</span> packaging + weightCharge;
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>We now have two independent visitors:</p>
+    </div>
+    <div class="intro"><ul>
+        <li><code>PriceVisitor</code> handles pricing.</li>
+        <li><code>ShippingVisitor</code> handles shipping.</li>
+    </ul></div>
+    <div class="intro">
+        <p>Both operate on the same product classes, without requiring any changes to those classes.</p>
+        <p><strong>Step 6: Create the client</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+    <span class="code-class">List</span>&lt;<span class="code-class">CartItem</span>&gt; cart = <span class="code-class">List</span>.of(<span class="code-keyword">new</span> <span class="code-class">Book</span>(<span class="code-string">"Clean Code"</span>, <span class="code-number">500</span>, <span class="code-number">2</span>, <span class="code-number">0</span>.<span class="code-number">5</span>),
+                                  <span class="code-keyword">new</span> <span class="code-class">Electronics</span>(<span class="code-string">"Headphones"</span>, <span class="code-number">3000</span>, <span class="code-number">1</span>, <span class="code-number">0</span>.<span class="code-number">4</span>));
+    <span class="code-class">PriceVisitor</span> priceVisitor = <span class="code-keyword">new</span> <span class="code-class">PriceVisitor</span>();
+    <span class="code-class">ShippingVisitor</span> shippingVisitor = <span class="code-keyword">new</span> <span class="code-class">ShippingVisitor</span>();
+    <span class="code-keyword">double</span> totalPrice = cart.stream().mapToDouble(item -&gt; item.accept(priceVisitor)).sum();
+    <span class="code-keyword">double</span> totalShipping = cart.stream().mapToDouble(item -&gt; item.accept(shippingVisitor)).sum();
+    <span class="code-class">System</span>.out.println(<span class="code-string">"Total Price: "</span> + totalPrice);
+    <span class="code-class">System</span>.out.println(<span class="code-string">"Shipping: "</span> + totalShipping);
+    <span class="code-class">System</span>.out.println(<span class="code-string">"Grand Total: "</span> + (totalPrice + totalShipping));
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Output</strong></p>
+    </div>
+    <div class="code-block"><pre><code>Total Price: 4540.0
+Shipping: 182.0
+Grand Total: 4722.0</code></pre></div>
+    <div class="callout callout-warning"><p>These pricing and shipping rules are illustrative. For production monetary calculations, prefer <code>BigDecimal</code> or a dedicated Money type rather than <code>double</code>.</p></div>
+    <div class="intro">
+        <p><strong>Step 7: Understanding the execution flow</strong></p>
+        <p>Let's trace what happens when the application executes:</p>
+    </div>
+    <div class="code-block"><pre><code>item.accept(priceVisitor);</code></pre></div>
+    <div class="intro">
+        <p>Suppose <code>item</code> refers to a <code>Book</code> object.</p>
+    </div>
+    <div class="steps">
+        <div class="step"><div class="step-title">Client invokes <code>accept()</code></div><div class="step-body"><code>item.accept(priceVisitor)</code></div></div>
+        <div class="step"><div class="step-title"><code>Book.accept()</code> executes</div><div class="step-body">The runtime type of <code>item</code> is <code>Book</code></div></div>
+        <div class="step"><div class="step-title">Book delegates to the visitor</div><div class="step-body"><code>visitor.visit(this)</code></div></div>
+        <div class="step"><div class="step-title"><code>PriceVisitor.visit(Book)</code> executes</div><div class="step-body">Book pricing logic is applied</div></div>
+        <div class="step"><div class="step-title">The calculated price is returned</div><div class="step-body">500 × 2 = 1000.0</div></div>
+    </div>
+    <div class="intro">
+        <p>The same product can be processed using a different visitor:</p>
+    </div>
+    <div class="code-block"><pre><code>item.accept(shippingVisitor);</code></pre></div>
+    <div class="intro">
+        <p>Now, instead of calculating the price, the application calculates shipping.</p>
+        <p>This demonstrates the central idea:</p>
+    </div>
+    <div class="callout callout-note"><p>The data object stays the same, but the operation performed on it changes depending on the visitor.</p></div>
+
+    <div class="subheading">Understanding Double Dispatch</div>
+    <div class="intro">
+        <p><strong>Double Dispatch</strong> is one of the most important concepts behind the Visitor Pattern.</p>
+        <p>Java normally uses <strong>single dispatch</strong> for overridden instance methods.</p>
+        <p>That means Java chooses an overridden method based on the runtime type of the receiver object.</p>
+        <p>However, Java chooses overloaded methods based on compile-time argument types.</p>
+        <p><strong>Example: Single dispatch</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Animal</span> {
+    <span class="code-keyword">void</span> speak() {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Animal speaks"</span>);
+    }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Dog</span> <span class="code-keyword">extends</span> <span class="code-class">Animal</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">void</span> speak() {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Dog barks"</span>);
+    }
+}
+
+<span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+    <span class="code-class">Animal</span> animal = <span class="code-keyword">new</span> <span class="code-class">Dog</span>();
+    animal.speak(); <span class="code-comment"># Dog barks</span>
+}</code></pre></div>
+    <div class="intro">
+        <p>Here, the method implementation is selected using the runtime type <code>Dog</code>, even though the reference type is <code>Animal</code>.</p>
+        <p><strong>Why method overloading alone is insufficient</strong></p>
+        <p>Consider:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Animal</span> {}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Dog</span> <span class="code-keyword">extends</span> <span class="code-class">Animal</span> {}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">AnimalVisitor</span> {
+    <span class="code-keyword">void</span> visit(<span class="code-class">Animal</span> animal) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Visiting Animal"</span>);
+    }
+
+    <span class="code-keyword">void</span> visit(<span class="code-class">Dog</span> dog) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Visiting Dog"</span>);
+    }
+}
+
+<span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+    <span class="code-class">Animal</span> animal = <span class="code-keyword">new</span> <span class="code-class">Dog</span>();
+    <span class="code-class">AnimalVisitor</span> visitor = <span class="code-keyword">new</span> <span class="code-class">AnimalVisitor</span>();
+    visitor.visit(animal);
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Output:</strong></p>
+    </div>
+    <div class="code-block"><pre><code>Visiting Animal</code></pre></div>
+    <div class="intro">
+        <p>Why?</p>
+        <p>Because Java resolves overloaded methods based on the <strong>compile-time type</strong> of the argument.</p>
+        <p>The variable <code>animal</code> has the declared type <code>Animal</code>, so Java selects:</p>
+    </div>
+    <div class="code-block"><pre><code>visit(<span class="code-class">Animal</span> animal)</code></pre></div>
+    <div class="intro">
+        <p>It does not select <code>visit(Dog dog)</code>, despite the object being a <code>Dog</code> at runtime.</p>
+        <p><strong>How Visitor achieves Double Dispatch</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">Animal</span> {
+    <span class="code-keyword">void</span> accept(<span class="code-class">AnimalVisitor</span> visitor);
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Dog</span> <span class="code-keyword">implements</span> <span class="code-class">Animal</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> accept(<span class="code-class">AnimalVisitor</span> visitor) {
+        visitor.visit(<span class="code-keyword">this</span>);
+    }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Cat</span> <span class="code-keyword">implements</span> <span class="code-class">Animal</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> accept(<span class="code-class">AnimalVisitor</span> visitor) {
+        visitor.visit(<span class="code-keyword">this</span>);
+    }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">AnimalVisitor</span> {
+    <span class="code-keyword">void</span> visit(<span class="code-class">Dog</span> dog) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Visiting Dog"</span>);
+    }
+
+    <span class="code-keyword">void</span> visit(<span class="code-class">Cat</span> cat) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Visiting Cat"</span>);
+    }
+}
+
+<span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+    <span class="code-class">Animal</span> animal = <span class="code-keyword">new</span> <span class="code-class">Dog</span>();
+    animal.accept(<span class="code-keyword">new</span> <span class="code-class">AnimalVisitor</span>());
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Output:</strong></p>
+    </div>
+    <div class="code-block"><pre><code>Visiting Dog</code></pre></div>
+    <div class="intro">
+        <p>The method selection now happens in two stages:</p>
+        <p><strong>First dispatch &mdash; element selection</strong></p>
+    </div>
+    <div class="code-block"><pre><code>animal.accept(visitor);</code></pre></div>
+    <div class="intro">
+        <p>Java selects <code>Dog.accept()</code> based on the runtime type of <code>animal</code>.</p>
+        <p><strong>Second dispatch &mdash; visitor operation selection</strong></p>
+    </div>
+    <div class="code-block"><pre><code>visitor.visit(<span class="code-keyword">this</span>);</code></pre></div>
+    <div class="intro">
+        <p>Inside <code>Dog.accept()</code>, the compile-time type of <code>this</code> is <code>Dog</code>. Therefore, Java selects the <code>visit(Dog)</code> overload.</p>
+        <p>If the visitor has overridden that method, Java then dispatches to the concrete visitor implementation.</p>
+        <p>This combination of <strong>method overriding</strong> and <strong>method overloading</strong> achieves Double Dispatch.</p>
+    </div>
+    <div class="callout callout-note"><p>Strictly speaking, Java hasn't gained native multiple dispatch. The Visitor Pattern simulates dispatch based on both the element type and visitor type through two ordinary method calls.</p></div>
+
+    <div class="subheading">Practical Example 2: Visitor Pattern in a Compiler (AST)</div>
+    <div class="intro">
+        <p>One of the most important real-world applications of the Visitor Pattern is in compilers and interpreters.</p>
+        <p>Compilers commonly represent source code using an <strong>Abstract Syntax Tree (AST)</strong>.</p>
+        <p>Consider the mathematical expression:</p>
+    </div>
+    <div class="code-block"><pre><code>(2 + 3) * 4</code></pre></div>
+    <div class="intro">
+        <p>Its abstract syntax tree looks like this:</p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/visitor-ast.svg" alt="Expression tree for (2 + 3) * 4: a multiplication node with an addition node (2 and 3) on the left and the number 4 on the right" style="width:100%;max-width:360px">
+    </div>
+    <div class="intro">
+        <p>An expression tree containing Number, Addition, and Multiplication nodes.</p>
+        <p>Now imagine that our compiler needs to perform several operations on this tree:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>Evaluate the expression.</li>
+        <li>Print the expression.</li>
+        <li>Validate the expression.</li>
+        <li>Perform optimization.</li>
+        <li>Generate machine code.</li>
+    </ul></div>
+    <div class="intro">
+        <p>We could implement all these operations directly inside each AST node.</p>
+        <p>However, that would tightly couple the AST structure with compiler operations.</p>
+        <p>With the Visitor Pattern, we can create separate visitors for evaluation, printing, validation, and optimization.</p>
+        <p><strong>Complete Java implementation</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-comment"># 1. Element interface</span>
+<span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">Expr</span> {
+    &lt;R&gt; R accept(<span class="code-class">ExprVisitor</span>&lt;R&gt; visitor);
+}
+
+<span class="code-comment"># 2. Visitor interface</span>
+<span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">ExprVisitor</span>&lt;R&gt; {
+    R visit(<span class="code-class">NumberExpr</span> expr);
+
+    R visit(<span class="code-class">AddExpr</span> expr);
+
+    R visit(<span class="code-class">MultiplyExpr</span> expr);
+}
+
+<span class="code-comment"># 3. Concrete AST elements</span>
+<span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">NumberExpr</span>(<span class="code-keyword">int</span> value) <span class="code-keyword">implements</span> <span class="code-class">Expr</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> &lt;R&gt; R accept(<span class="code-class">ExprVisitor</span>&lt;R&gt; visitor) {
+        <span class="code-keyword">return</span> visitor.visit(<span class="code-keyword">this</span>);
+    }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">AddExpr</span>(<span class="code-class">Expr</span> left, <span class="code-class">Expr</span> right) <span class="code-keyword">implements</span> <span class="code-class">Expr</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> &lt;R&gt; R accept(<span class="code-class">ExprVisitor</span>&lt;R&gt; visitor) {
+        <span class="code-keyword">return</span> visitor.visit(<span class="code-keyword">this</span>);
+    }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">MultiplyExpr</span>(<span class="code-class">Expr</span> left, <span class="code-class">Expr</span> right) <span class="code-keyword">implements</span> <span class="code-class">Expr</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> &lt;R&gt; R accept(<span class="code-class">ExprVisitor</span>&lt;R&gt; visitor) {
+        <span class="code-keyword">return</span> visitor.visit(<span class="code-keyword">this</span>);
+    }
+}
+
+<span class="code-comment"># 4. Concrete Visitor: Evaluation</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">EvaluationVisitor</span> <span class="code-keyword">implements</span> <span class="code-class">ExprVisitor</span>&lt;<span class="code-class">Integer</span>&gt; {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">Integer</span> visit(<span class="code-class">NumberExpr</span> expr) {
+        <span class="code-keyword">return</span> expr.value();
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">Integer</span> visit(<span class="code-class">AddExpr</span> expr) {
+        <span class="code-keyword">return</span> expr.left().accept(<span class="code-keyword">this</span>) + expr.right().accept(<span class="code-keyword">this</span>);
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">Integer</span> visit(<span class="code-class">MultiplyExpr</span> expr) {
+        <span class="code-keyword">return</span> expr.left().accept(<span class="code-keyword">this</span>) * expr.right().accept(<span class="code-keyword">this</span>);
+    }
+}
+
+<span class="code-comment"># 5. Concrete Visitor: Pretty Printing</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">PrintingVisitor</span> <span class="code-keyword">implements</span> <span class="code-class">ExprVisitor</span>&lt;<span class="code-class">String</span>&gt; {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">String</span> visit(<span class="code-class">NumberExpr</span> expr) {
+        <span class="code-keyword">return</span> <span class="code-class">Integer</span>.toString(expr.value());
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">String</span> visit(<span class="code-class">AddExpr</span> expr) {
+        <span class="code-keyword">return</span> <span class="code-string">"("</span> + expr.left().accept(<span class="code-keyword">this</span>) + <span class="code-string">" + "</span> + expr.right().accept(<span class="code-keyword">this</span>) + <span class="code-string">")"</span>;
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">String</span> visit(<span class="code-class">MultiplyExpr</span> expr) {
+        <span class="code-keyword">return</span> <span class="code-string">"("</span> + expr.left().accept(<span class="code-keyword">this</span>) + <span class="code-string">" * "</span> + expr.right().accept(<span class="code-keyword">this</span>) + <span class="code-string">")"</span>;
+    }
+}
+
+<span class="code-comment"># 6. Client</span>
+<span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+    <span class="code-comment"># Represents: (2 + 3) * 4</span>
+    <span class="code-class">Expr</span> expression = <span class="code-keyword">new</span> <span class="code-class">MultiplyExpr</span>(<span class="code-keyword">new</span> <span class="code-class">AddExpr</span>(<span class="code-keyword">new</span> <span class="code-class">NumberExpr</span>(<span class="code-number">2</span>), <span class="code-keyword">new</span> <span class="code-class">NumberExpr</span>(<span class="code-number">3</span>)), <span class="code-keyword">new</span> <span class="code-class">NumberExpr</span>(<span class="code-number">4</span>));
+    <span class="code-keyword">int</span> result = expression.accept(<span class="code-keyword">new</span> <span class="code-class">EvaluationVisitor</span>());
+    <span class="code-class">String</span> output = expression.accept(<span class="code-keyword">new</span> <span class="code-class">PrintingVisitor</span>());
+    <span class="code-class">System</span>.out.println(<span class="code-string">"Expression: "</span> + output);
+    <span class="code-class">System</span>.out.println(<span class="code-string">"Result: "</span> + result);
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Output:</strong></p>
+    </div>
+    <div class="code-block"><pre><code>Expression: ((2 + 3) * 4)
+Result: 20</code></pre></div>
+    <div class="intro">
+        <p><strong>How does recursive visiting work?</strong></p>
+        <p>Consider this part of <code>EvaluationVisitor</code>:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@Override</span>
+<span class="code-keyword">public</span> <span class="code-class">Integer</span> visit(<span class="code-class">AddExpr</span> expr) {
+    <span class="code-keyword">return</span> expr.left().accept(<span class="code-keyword">this</span>) + expr.right().accept(<span class="code-keyword">this</span>);
+}</code></pre></div>
+    <div class="intro">
+        <p>When the visitor encounters an <code>AddExpr</code>, it recursively visits the left and right child expressions.</p>
+        <p>The execution works as follows:</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Node</th><th>Value</th></tr></thead>
+            <tbody>
+                <tr><td><code>MultiplyExpr</code></td><td>2 operands</td></tr>
+                <tr><td>Left: <code>AddExpr</code></td><td>2 + 3 = 5</td></tr>
+                <tr><td>Right: <code>NumberExpr</code></td><td>4</td></tr>
+                <tr><td>Evaluation result</td><td>5 × 4 = 20</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>Here, the visitor recursively traverses the expression tree while performing its specific operation.</p>
+    </div>
+    <div class="callout callout-note"><p>Importantly, the Visitor Pattern itself does not automatically traverse a tree. In this implementation, traversal happens because the concrete visitor explicitly calls <code>accept(this)</code> on child nodes.</p></div>
+    <div class="intro">
+        <p>This is also why the Visitor Pattern is frequently used together with the <strong>Composite Pattern</strong>.</p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>Composite Pattern:</strong> represents the hierarchical tree structure.</li>
+        <li><strong>Visitor Pattern:</strong> defines operations performed on the elements of the tree.</li>
+    </ul></div>
+    <div class="intro">
+        <p>In compiler design, the AST often uses a Composite-like object structure, while visitors implement operations such as semantic analysis, optimization, or code generation.</p>
+    </div>
+
+    <div class="subheading">What happens when we add a new operation?</div>
+    <div class="intro">
+        <p>Suppose we now need to count the number of nodes in our AST.</p>
+        <p>With the Visitor Pattern, we can simply introduce a new visitor:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">NodeCountVisitor</span> <span class="code-keyword">implements</span> <span class="code-class">ExprVisitor</span>&lt;<span class="code-class">Integer</span>&gt; {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">Integer</span> visit(<span class="code-class">NumberExpr</span> expr) {
+        <span class="code-keyword">return</span> <span class="code-number">1</span>;
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">Integer</span> visit(<span class="code-class">AddExpr</span> expr) {
+        <span class="code-keyword">return</span> <span class="code-number">1</span> + expr.left().accept(<span class="code-keyword">this</span>) + expr.right().accept(<span class="code-keyword">this</span>);
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">Integer</span> visit(<span class="code-class">MultiplyExpr</span> expr) {
+        <span class="code-keyword">return</span> <span class="code-number">1</span> + expr.left().accept(<span class="code-keyword">this</span>) + expr.right().accept(<span class="code-keyword">this</span>);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Usage:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">int</span> count = expression.accept(<span class="code-keyword">new</span> <span class="code-class">NodeCountVisitor</span>());
+<span class="code-class">System</span>.out.println(count); <span class="code-comment"># 5</span></code></pre></div>
+    <div class="intro">
+        <p>We have added a completely new operation without modifying <code>NumberExpr</code>, <code>AddExpr</code>, or <code>MultiplyExpr</code>.</p>
+    </div>
+    <div class="callout callout-note"><p>This is the primary advantage of the Visitor Pattern.</p></div>
+
+    <div class="subheading">What happens when we add a new element type?</div>
+    <div class="intro">
+        <p>Now suppose the compiler needs to support division.</p>
+        <p>We introduce:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">DivideExpr</span>(<span class="code-class">Expr</span> left, <span class="code-class">Expr</span> right) <span class="code-keyword">implements</span> <span class="code-class">Expr</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> &lt;R&gt; R accept(<span class="code-class">ExprVisitor</span>&lt;R&gt; visitor) {
+        <span class="code-keyword">return</span> visitor.visit(<span class="code-keyword">this</span>);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>However, our existing visitor interface doesn't contain:</p>
+    </div>
+    <div class="code-block"><pre><code>R visit(<span class="code-class">DivideExpr</span> expr);</code></pre></div>
+    <div class="intro">
+        <p>We must introduce this method in <code>ExprVisitor&lt;R&gt;</code> and update every concrete visitor:</p>
+    </div>
+    <div class="intro"><ul>
+        <li><code>EvaluationVisitor</code></li>
+        <li><code>PrintingVisitor</code></li>
+        <li><code>NodeCountVisitor</code></li>
+    </ul></div>
+    <div class="intro">
+        <p>Otherwise, the new <code>DivideExpr.accept()</code> won't compile, and concrete visitors will fail to implement the expanded interface.</p>
+        <p>This reveals the Visitor Pattern's fundamental tradeoff:</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Change</th><th>Effort</th><th>What to do</th></tr></thead>
+            <tbody>
+                <tr><td>New operation</td><td>Easy to add.</td><td>Create a new visitor implementing the existing interface.</td></tr>
+                <tr><td>New element type</td><td>More expensive to add.</td><td>Extend the visitor interface and update existing visitors.</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="callout callout-note"><p>Therefore, the Visitor Pattern is most appropriate when the element hierarchy changes infrequently but the operations performed on it change frequently.</p></div>
+
+    <div class="subheading">Visitor Pattern vs Strategy Pattern</div>
+    <div class="intro">
+        <p>Both Visitor and Strategy separate behavior from the objects using it, but they solve different problems.</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Aspect</th><th>Visitor</th><th>Strategy</th></tr></thead>
+            <tbody>
+                <tr><td>Main purpose</td><td>Add operations to an object structure</td><td>Make algorithms interchangeable</td></tr>
+                <tr><td>Focus</td><td>Different operations across element types</td><td>Different implementations of one behavior</td></tr>
+                <tr><td>Key method</td><td><code>accept(visitor)</code> / <code>visit(element)</code></td><td><code>execute()</code> or a domain-specific method</td></tr>
+                <tr><td>Double Dispatch</td><td>Central mechanism</td><td>Generally not used</td></tr>
+                <tr><td>New behavior</td><td>Add a new visitor</td><td>Add a new strategy</td></tr>
+                <tr><td>New element type</td><td>Usually requires updating visitors</td><td>Usually unrelated</td></tr>
+                <tr><td>Typical use</td><td>AST processing, reports, serialization</td><td>Payment methods, sorting, pricing algorithms</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>For example, in an e-commerce system:</p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>Strategy Pattern:</strong> Choose between UPI, credit card, and PayPal as payment algorithms at runtime.</li>
+        <li><strong>Visitor Pattern:</strong> Apply tax calculation, shipping calculation, and reporting operations across multiple product types.</li>
+    </ul></div>
+    <div class="intro">
+        <p>A Strategy focuses on <strong>which algorithm</strong> should be used.</p>
+        <p>A Visitor focuses on <strong>which operation</strong> should be performed on each concrete element type.</p>
+    </div>
+
+    <div class="subheading">Advantages and disadvantages</div>
+    <div class="intro">
+        <p><strong>Advantages</strong></p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>Open/Closed Principle for new operations:</strong> introduce new visitor classes without modifying existing concrete elements.</li>
+        <li><strong>Separation of concerns:</strong> business operations are separated from the element classes.</li>
+        <li><strong>Single Responsibility Principle:</strong> each visitor can focus on one operation, such as pricing or reporting.</li>
+        <li><strong>Type-specific processing:</strong> visitor methods operate directly on concrete element types without repeated <code>instanceof</code> checks or casts.</li>
+        <li><strong>Centralized operations:</strong> related logic for multiple element types can be maintained within one visitor.</li>
+        <li><strong>Works well with hierarchical structures:</strong> particularly ASTs, document models, and composite object trees.</li>
+    </ul></div>
+    <div class="intro">
+        <p><strong>Disadvantages</strong></p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>Difficult to add new element types:</strong> the visitor interface and its concrete implementations typically require modification.</li>
+        <li><strong>Increased boilerplate:</strong> requires interfaces, visitor classes, and <code>accept()</code> methods.</li>
+        <li><strong>Potential encapsulation concerns:</strong> visitors may need access to element data that would otherwise remain private.</li>
+        <li><strong>Tight coupling to concrete types:</strong> the visitor interface depends on concrete element classes.</li>
+        <li><strong>Can be excessive for simple applications:</strong> straightforward polymorphism or a service class may be clearer.</li>
+    </ul></div>
+    <div class="callout callout-warning"><p>Also note that a visitor object can store mutable state (such as a running total). Such visitors should not be shared between threads without appropriate synchronization.</p></div>
+
+    <div class="subheading">When should you use the Visitor Pattern?</div>
+    <div class="intro">
+        <p>The following scenarios are especially suitable:</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Scenario</th><th>Why Visitor fits</th></tr></thead>
+            <tbody>
+                <tr><td>Compiler AST</td><td>Perform interpretation, validation, printing, and code generation on the same syntax tree</td></tr>
+                <tr><td>Document processing</td><td>Render, export, validate, or analyze paragraphs, tables, and images</td></tr>
+                <tr><td>File system representation</td><td>Calculate size, collect statistics, or build reports for file and directory objects</td></tr>
+                <tr><td>E-commerce</td><td>Apply specialized pricing, tax, shipping, and reporting logic across stable product types</td></tr>
+                <tr><td>UI component trees</td><td>Perform inspections or analysis across different component types</td></tr>
+                <tr><td>Data transformation</td><td>Convert structured objects into multiple output formats</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>However, Visitor isn't automatically better than ordinary polymorphism.</p>
+        <p>If an operation is fundamental to an object, such as <code>BankAccount.withdraw()</code>, it usually belongs in the object's own abstraction.</p>
+    </div>
+    <div class="callout callout-warning"><p>If there are only a few elements and one or two operations, introducing visitors may unnecessarily complicate the design.</p></div>
+
+    <div class="subheading">Key takeaways</div>
+    <div class="intro"><ul>
+        <li>Visitor is a behavioral design pattern that separates operations from the objects they operate on.</li>
+        <li>It is particularly useful when the object structure is stable but new operations are frequently introduced.</li>
+        <li>The Visitor interface declares an operation for every supported concrete element type.</li>
+        <li>Each element implements an <code>accept()</code> method that delegates to <code>visitor.visit(this)</code>.</li>
+        <li>Visitor uses <strong>Double Dispatch</strong> to select behavior based on both the concrete element and the concrete visitor.</li>
+        <li>New operations are generally easy to introduce by adding new visitors.</li>
+        <li>New element types are generally harder to introduce because existing visitors need to be updated.</li>
+        <li>Visitor is commonly combined with Composite, especially for ASTs and other tree structures.</li>
+        <li>It promotes the Open/Closed Principle along the operation dimension, not necessarily along the element-type dimension.</li>
+    </ul></div>
+    <div class="callout callout-note"><p><strong>In one sentence:</strong> The Visitor Pattern allows us to add new operations to an existing object structure without changing its element classes, by encapsulating those operations in separate visitor objects and using Double Dispatch to invoke the correct type-specific behavior.</p></div>
+
     <div class="section code-section">
         <div class="code-wrapper"><pre><code><span class="code-keyword">public interface</span> <span class="code-class">Visitor</span>&lt;R&gt; {
     R visit(Num n);

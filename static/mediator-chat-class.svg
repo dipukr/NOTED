@@ -1,0 +1,31 @@
+<svg width="800" height="300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 300" role="img" aria-label="ChatRoom implements ChatMediator (register, broadcast, sendPrivate) and holds a map of users; ChatUser holds a name and a ChatMediator and can join, send, sendPrivate and receive">
+    <defs><marker id="md4-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#555555"/></marker><marker id="md4-l" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#9A9A9A"/></marker></defs>
+    <path d="M190 170 V109" fill="none" stroke="#9A9A9A" stroke-width="1.5" stroke-dasharray="5 4" stroke-linejoin="miter" marker-end="url(#md4-l)"/>
+    <path d="M460 80 H352" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#md4-a)"/>
+    <path d="M350 196 H458" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#md4-a)"/>
+    <rect x="30" y="10" width="320" height="97" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="190" y="31" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">ChatMediator «interface»</text>
+    <line x1="30" y1="41" x2="350" y2="41" stroke="#222222" stroke-width="1"/>
+    <text x="44" y="60" text-anchor="start" font-family="Consolas, 'Source Code Pro', monospace" font-size="11.5" font-weight="400" fill="#222222">+register(ChatUser)</text>
+    <text x="44" y="79" text-anchor="start" font-family="Consolas, 'Source Code Pro', monospace" font-size="11.5" font-weight="400" fill="#222222">+broadcast(String, ChatUser)</text>
+    <text x="44" y="98" text-anchor="start" font-family="Consolas, 'Source Code Pro', monospace" font-size="11.5" font-weight="400" fill="#222222">+sendPrivate(String, String, ChatUser)</text>
+    <rect x="30" y="170" width="320" height="116" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="190" y="191" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">ChatRoom</text>
+    <line x1="30" y1="201" x2="350" y2="201" stroke="#222222" stroke-width="1"/>
+    <text x="44" y="220" text-anchor="start" font-family="Consolas, 'Source Code Pro', monospace" font-size="11.5" font-weight="400" fill="#222222">-users: Map&lt;String, ChatUser&gt;</text>
+    <text x="44" y="239" text-anchor="start" font-family="Consolas, 'Source Code Pro', monospace" font-size="11.5" font-weight="400" fill="#222222">+register(ChatUser)</text>
+    <text x="44" y="258" text-anchor="start" font-family="Consolas, 'Source Code Pro', monospace" font-size="11.5" font-weight="400" fill="#222222">+broadcast(String, ChatUser)</text>
+    <text x="44" y="277" text-anchor="start" font-family="Consolas, 'Source Code Pro', monospace" font-size="11.5" font-weight="400" fill="#222222">+sendPrivate(String, String, ChatUser)</text>
+    <rect x="460" y="50" width="300" height="154" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="610" y="71" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">ChatUser</text>
+    <line x1="460" y1="81" x2="760" y2="81" stroke="#222222" stroke-width="1"/>
+    <text x="474" y="100" text-anchor="start" font-family="Consolas, 'Source Code Pro', monospace" font-size="11.5" font-weight="400" fill="#222222">-name: String</text>
+    <text x="474" y="119" text-anchor="start" font-family="Consolas, 'Source Code Pro', monospace" font-size="11.5" font-weight="400" fill="#222222">-mediator: ChatMediator</text>
+    <text x="474" y="138" text-anchor="start" font-family="Consolas, 'Source Code Pro', monospace" font-size="11.5" font-weight="400" fill="#222222">+join()</text>
+    <text x="474" y="157" text-anchor="start" font-family="Consolas, 'Source Code Pro', monospace" font-size="11.5" font-weight="400" fill="#222222">+send(String)</text>
+    <text x="474" y="176" text-anchor="start" font-family="Consolas, 'Source Code Pro', monospace" font-size="11.5" font-weight="400" fill="#222222">+sendPrivate(String, String)</text>
+    <text x="474" y="195" text-anchor="start" font-family="Consolas, 'Source Code Pro', monospace" font-size="11.5" font-weight="400" fill="#222222">+receive(String, String)</text>
+    <text x="198" y="144" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555" font-style="italic">implements</text>
+    <text x="406" y="73" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555" font-style="italic">uses</text>
+    <text x="404" y="189" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555" font-style="italic">delivers to</text>
+</svg>

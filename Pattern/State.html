@@ -75,6 +75,724 @@
         </ul></div>
     </div>
 
+
+    <div class="subheading">What is the State Design Pattern?</div>
+    <div class="intro">
+        <p>The <strong>State Design Pattern</strong> is a behavioral design pattern that allows an object to change its behavior dynamically when its internal state changes, making it appear as though the object has changed its class.</p>
+        <p>Instead of implementing state-dependent behavior using large <code>if-else</code> or <code>switch</code> statements, the State Pattern encapsulates the behavior associated with each state into separate classes.</p>
+        <p>The object, called the <strong>Context</strong>, maintains a reference to its current state object and delegates state-dependent operations to it. As the internal state changes, the Context switches to a different state object, automatically changing how it responds to operations.</p>
+    </div>
+    <div class="callout callout-note"><p><strong>Key idea:</strong> An object's behavior depends on its current state, and this behavior can change at runtime without modifying the object's class.</p></div>
+    <div class="intro">
+        <p><strong>Real-world example: Order management system</strong></p>
+        <p>Consider an e-commerce application where an order moves through several states:</p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/state-order-lifecycle.svg" alt="Order lifecycle: CREATED to PAID to SHIPPED to DELIVERED; an order can also go from CREATED to CANCELLED" style="width:100%;max-width:760px">
+    </div>
+    <div class="intro">
+        <p>Conceptual order lifecycle. Cancellation is allowed from CREATED; the normal path proceeds through payment, shipping, and delivery.</p>
+        <p>An order supports operations like <code>pay()</code>, <code>ship()</code>, <code>deliver()</code>, and <code>cancel()</code>.</p>
+        <p>However, the same operation may behave differently depending on the current state.</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Current state</th><th>Operation</th><th>Result</th></tr></thead>
+            <tbody>
+                <tr><td>CREATED</td><td><code>pay()</code></td><td>Transition to PAID</td></tr>
+                <tr><td>CREATED</td><td><code>ship()</code></td><td>Not allowed</td></tr>
+                <tr><td>CREATED</td><td><code>cancel()</code></td><td>Transition to CANCELLED</td></tr>
+                <tr><td>PAID</td><td><code>ship()</code></td><td>Transition to SHIPPED</td></tr>
+                <tr><td>SHIPPED</td><td><code>deliver()</code></td><td>Transition to DELIVERED</td></tr>
+                <tr><td>DELIVERED</td><td><code>cancel()</code></td><td>Not allowed</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>Without the State Pattern, we would typically use conditional statements to handle these rules.</p>
+    </div>
+
+    <div class="subheading">The Problem Without State Pattern</div>
+    <div class="intro">
+        <p>Consider this simple Java implementation:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Order</span> {
+    <span class="code-keyword">private</span> <span class="code-class">String</span> state = <span class="code-string">"CREATED"</span>;
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> pay() {
+        <span class="code-keyword">if</span> (state.equals(<span class="code-string">"CREATED"</span>)) {
+            state = <span class="code-string">"PAID"</span>;
+            <span class="code-class">System</span>.out.println(<span class="code-string">"Payment successful"</span>);
+        } <span class="code-keyword">else</span> {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalStateException</span>(<span class="code-string">"Cannot pay in state: "</span> + state);
+        }
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> ship() {
+        <span class="code-keyword">if</span> (state.equals(<span class="code-string">"PAID"</span>)) {
+            state = <span class="code-string">"SHIPPED"</span>;
+            <span class="code-class">System</span>.out.println(<span class="code-string">"Order shipped"</span>);
+        } <span class="code-keyword">else</span> {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalStateException</span>(<span class="code-string">"Cannot ship in state: "</span> + state);
+        }
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> cancel() {
+        <span class="code-keyword">if</span> (state.equals(<span class="code-string">"CREATED"</span>)) {
+            state = <span class="code-string">"CANCELLED"</span>;
+        } <span class="code-keyword">else</span> {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalStateException</span>(<span class="code-string">"Cannot cancel in state: "</span> + state);
+        }
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>This works, but imagine an order system with 15 states and 20 operations.</p>
+        <p><strong>Problems:</strong></p>
+    </div>
+    <div class="intro"><ul>
+        <li>Every operation requires multiple state checks.</li>
+        <li>All state-specific behavior is concentrated in one class.</li>
+        <li>Adding a new state may require modifying many existing methods.</li>
+        <li>Complex transitions become difficult to understand and maintain.</li>
+        <li>State-specific rules are difficult to test independently.</li>
+    </ul></div>
+    <div class="intro">
+        <p>The State Pattern addresses these problems by moving the behavior associated with each state into a separate class.</p>
+    </div>
+
+    <div class="subheading">Structure of the State Pattern</div>
+    <div class="intro">
+        <p>The State Pattern usually consists of three main components.</p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/state-structure.svg" alt="Context holds currentState and request() delegates to the State interface, which declares handle(Context); ConcreteStateA and ConcreteStateB implement handle(Context)" style="width:100%;max-width:720px">
+    </div>
+    <div class="intro">
+        <p><strong>Component 1: State interface</strong></p>
+        <p>The State interface declares operations that depend on the current state.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">State</span> {
+    <span class="code-keyword">void</span> handle(<span class="code-class">Context</span> context);
+}</code></pre></div>
+    <div class="intro">
+        <p>Each concrete state provides its own implementation.</p>
+        <p><strong>Component 2: Concrete states</strong></p>
+        <p>Concrete states implement the state interface and define the behavior specific to each state.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ConcreteStateA</span> <span class="code-keyword">implements</span> <span class="code-class">State</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> handle(<span class="code-class">Context</span> context) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Behavior of State A"</span>);
+        context.setState(<span class="code-keyword">new</span> <span class="code-class">ConcreteStateB</span>());
+    }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ConcreteStateB</span> <span class="code-keyword">implements</span> <span class="code-class">State</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> handle(<span class="code-class">Context</span> context) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Behavior of State B"</span>);
+        context.setState(<span class="code-keyword">new</span> <span class="code-class">ConcreteStateA</span>());
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Notice that concrete state objects can also initiate state transitions.</p>
+        <p><strong>Component 3: Context</strong></p>
+        <p>The Context holds a reference to the current State object and delegates requests to it.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Context</span> {
+    <span class="code-keyword">private</span> <span class="code-class">State</span> state = <span class="code-keyword">new</span> <span class="code-class">ConcreteStateA</span>();
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> setState(<span class="code-class">State</span> state) {
+        <span class="code-keyword">this</span>.state = state;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> request() {
+        state.handle(<span class="code-keyword">this</span>);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>The Context doesn't need to know the detailed behavior of every state. It delegates the operation to the current state.</p>
+    </div>
+
+    <div class="subheading">Practical Java Example #1: E-commerce Order Management</div>
+    <div class="intro">
+        <p>Let's implement the order management system using the State Pattern.</p>
+        <p><strong>Step 1: Define the State interface</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">OrderState</span> {
+    <span class="code-class">String</span> name();
+
+    <span class="code-keyword">default</span> <span class="code-keyword">void</span> pay(<span class="code-class">Order</span> order) {
+        <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalStateException</span>(<span class="code-string">"Cannot pay when order is "</span> + name());
+    }
+
+    <span class="code-keyword">default</span> <span class="code-keyword">void</span> ship(<span class="code-class">Order</span> order) {
+        <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalStateException</span>(<span class="code-string">"Cannot ship when order is "</span> + name());
+    }
+
+    <span class="code-keyword">default</span> <span class="code-keyword">void</span> deliver(<span class="code-class">Order</span> order) {
+        <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalStateException</span>(<span class="code-string">"Cannot deliver when order is "</span> + name());
+    }
+
+    <span class="code-keyword">default</span> <span class="code-keyword">void</span> cancel(<span class="code-class">Order</span> order) {
+        <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalStateException</span>(<span class="code-string">"Cannot cancel when order is "</span> + name());
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Here, Java's default methods provide a common implementation for invalid operations.</p>
+        <p>Each concrete state only overrides the operations allowed in that state.</p>
+        <p><strong>Step 2: Implement concrete states</strong></p>
+        <p><code>CreatedState</code></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CreatedState</span> <span class="code-keyword">implements</span> <span class="code-class">OrderState</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">String</span> name() {
+        <span class="code-keyword">return</span> <span class="code-string">"CREATED"</span>;
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> pay(<span class="code-class">Order</span> order) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Payment completed"</span>);
+        order.transitionTo(<span class="code-keyword">new</span> <span class="code-class">PaidState</span>());
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> cancel(<span class="code-class">Order</span> order) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Order cancelled"</span>);
+        order.transitionTo(<span class="code-keyword">new</span> <span class="code-class">CancelledState</span>());
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>An order in the <code>CREATED</code> state can either be paid for or cancelled.</p>
+        <p><code>PaidState</code></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">PaidState</span> <span class="code-keyword">implements</span> <span class="code-class">OrderState</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">String</span> name() {
+        <span class="code-keyword">return</span> <span class="code-string">"PAID"</span>;
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> ship(<span class="code-class">Order</span> order) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Preparing shipment"</span>);
+        order.transitionTo(<span class="code-keyword">new</span> <span class="code-class">ShippedState</span>());
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Only the <code>ship()</code> operation is allowed in this simplified <code>PAID</code> state.</p>
+        <p><code>ShippedState</code></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ShippedState</span> <span class="code-keyword">implements</span> <span class="code-class">OrderState</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">String</span> name() {
+        <span class="code-keyword">return</span> <span class="code-string">"SHIPPED"</span>;
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> deliver(<span class="code-class">Order</span> order) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Order delivered"</span>);
+        order.transitionTo(<span class="code-keyword">new</span> <span class="code-class">DeliveredState</span>());
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p><code>DeliveredState</code></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">DeliveredState</span> <span class="code-keyword">implements</span> <span class="code-class">OrderState</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">String</span> name() {
+        <span class="code-keyword">return</span> <span class="code-string">"DELIVERED"</span>;
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p><code>CancelledState</code></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CancelledState</span> <span class="code-keyword">implements</span> <span class="code-class">OrderState</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">String</span> name() {
+        <span class="code-keyword">return</span> <span class="code-string">"CANCELLED"</span>;
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>The last two states are <strong>terminal states</strong> in this example.</p>
+        <p>Since they don't override any operations, every attempted operation is rejected automatically.</p>
+        <p><strong>Step 3: Implement the Context</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Order</span> {
+    <span class="code-keyword">private</span> <span class="code-class">String</span> orderId;
+    <span class="code-keyword">private</span> <span class="code-class">OrderState</span> state = <span class="code-keyword">new</span> <span class="code-class">CreatedState</span>();
+
+    <span class="code-keyword">public</span> <span class="code-class">Order</span>(<span class="code-class">String</span> orderId) {
+        <span class="code-keyword">this</span>.orderId = orderId;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> pay() {
+        state.pay(<span class="code-keyword">this</span>);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> ship() {
+        state.ship(<span class="code-keyword">this</span>);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> deliver() {
+        state.deliver(<span class="code-keyword">this</span>);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> cancel() {
+        state.cancel(<span class="code-keyword">this</span>);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">String</span> getStatus() {
+        <span class="code-keyword">return</span> state.name();
+    }
+
+    <span class="code-comment"># Intended for use by state implementations.</span>
+    <span class="code-comment"># Keep state transitions inside the order's domain logic.</span>
+    <span class="code-keyword">void</span> transitionTo(<span class="code-class">OrderState</span> newState) {
+        <span class="code-class">System</span>.out.printf(<span class="code-string">"Order %s: %s -&gt; %s%n"</span>, orderId, state.name(), newState.name());
+        <span class="code-keyword">this</span>.state = newState;
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>This is the most important part of the implementation.</p>
+        <p>Notice that:</p>
+    </div>
+    <div class="intro"><ul>
+        <li><code>Order</code> maintains its current state through the <code>OrderState</code> reference.</li>
+        <li><code>Order</code> delegates operations to the current state.</li>
+        <li>Each state determines how to handle an operation.</li>
+        <li>Concrete states initiate transitions using <code>order.transitionTo(...)</code>.</li>
+        <li>No large <code>switch</code> or <code>if-else</code> statements are necessary.</li>
+    </ul></div>
+    <div class="intro">
+        <p><strong>Step 4: Client code</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+    <span class="code-class">Order</span> order = <span class="code-keyword">new</span> <span class="code-class">Order</span>(<span class="code-string">"ORD-101"</span>);
+    order.pay();
+    order.ship();
+    order.deliver();
+    <span class="code-class">System</span>.out.println(<span class="code-string">"Final status: "</span> + order.getStatus());
+    <span class="code-keyword">try</span> {
+        order.cancel();
+    } <span class="code-keyword">catch</span> (<span class="code-class">IllegalStateException</span> e) {
+        <span class="code-class">System</span>.out.println(e.getMessage());
+    }
+    <span class="code-class">Order</span> secondOrder = <span class="code-keyword">new</span> <span class="code-class">Order</span>(<span class="code-string">"ORD-102"</span>); <span class="code-comment"># Another order follows a different path.</span>
+    secondOrder.cancel();
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Output</strong></p>
+    </div>
+    <div class="code-block"><pre><code>Payment completed
+Order ORD-101: CREATED -&gt; PAID
+
+Preparing shipment
+Order ORD-101: PAID -&gt; SHIPPED
+
+Order delivered
+Order ORD-101: SHIPPED -&gt; DELIVERED
+
+Final status: DELIVERED
+Cannot cancel when order is DELIVERED
+
+Order cancelled
+Order ORD-102: CREATED -&gt; CANCELLED</code></pre></div>
+    <div class="intro">
+        <p><strong>Step 5: Understanding how it works internally</strong></p>
+        <p>Let's trace <code>order.pay()</code>:</p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/state-trace.svg" alt="order.pay(): the client calls pay() on Order, which calls pay(this) on CreatedState; CreatedState calls transitionTo(PaidState); future calls use PaidState as the current state" style="width:100%;max-width:760px">
+    </div>
+    <div class="intro"><ol>
+        <li>The client calls <code>order.pay()</code>.</li>
+        <li><code>Order</code> delegates the call to the current <code>CreatedState</code>.</li>
+        <li><code>CreatedState.pay()</code> executes its state-specific behavior.</li>
+        <li>The state object changes the Context's current state to <code>PaidState</code>.</li>
+        <li>Subsequent calls are handled by <code>PaidState</code>, not <code>CreatedState</code>.</li>
+    </ol></div>
+    <div class="callout callout-note"><p><strong>Important observation:</strong> The <code>Order</code> instance remains the same object throughout the process. Only the object referenced by its <code>state</code> field changes.</p></div>
+    <div class="intro">
+        <p>This is exactly what makes the State Pattern useful.</p>
+    </div>
+
+    <div class="subheading">Practical Java Example #2: Media Player</div>
+    <div class="intro">
+        <p>A media player is another excellent example because the same user action can produce different behavior depending on the player's current state.</p>
+        <p>Consider three states:</p>
+    </div>
+    <div class="intro"><ul>
+        <li><code>StoppedState</code></li>
+        <li><code>PlayingState</code></li>
+        <li><code>PausedState</code></li>
+    </ul></div>
+    <div class="intro">
+        <p>The media player provides three operations: <code>play()</code>, <code>pause()</code>, and <code>stop()</code>.</p>
+        <p><strong>State transitions</strong></p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/state-media.svg" alt="Media player states: start in Stopped; play() goes to Playing; pause() goes to Paused; play() from Paused resumes Playing; stop() from Playing or Paused returns to Stopped" style="width:100%;max-width:700px">
+    </div>
+    <div class="intro">
+        <p><strong>Complete Java implementation</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">PlaybackState</span> {
+    <span class="code-keyword">void</span> play(<span class="code-class">AudioPlayer</span> player);
+
+    <span class="code-keyword">void</span> pause(<span class="code-class">AudioPlayer</span> player);
+
+    <span class="code-keyword">void</span> stop(<span class="code-class">AudioPlayer</span> player);
+
+    <span class="code-class">String</span> name();
+}
+
+<span class="code-comment"># Context</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">AudioPlayer</span> {
+    <span class="code-keyword">private</span> <span class="code-class">PlaybackState</span> state = <span class="code-keyword">new</span> <span class="code-class">StoppedState</span>();
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> play() {
+        state.play(<span class="code-keyword">this</span>);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> pause() {
+        state.pause(<span class="code-keyword">this</span>);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> stop() {
+        state.stop(<span class="code-keyword">this</span>);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">String</span> getState() {
+        <span class="code-keyword">return</span> state.name();
+    }
+
+    <span class="code-keyword">void</span> changeState(<span class="code-class">PlaybackState</span> newState) {
+        <span class="code-class">System</span>.out.println(state.name() + <span class="code-string">" -&gt; "</span> + newState.name());
+        <span class="code-keyword">this</span>.state = newState;
+    }
+}
+
+<span class="code-comment"># Concrete State 1</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">StoppedState</span> <span class="code-keyword">implements</span> <span class="code-class">PlaybackState</span> {
+    <span class="code-keyword">public</span> <span class="code-class">String</span> name() {
+        <span class="code-keyword">return</span> <span class="code-string">"STOPPED"</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> play(<span class="code-class">AudioPlayer</span> player) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Starting audio"</span>);
+        player.changeState(<span class="code-keyword">new</span> <span class="code-class">PlayingState</span>());
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> pause(<span class="code-class">AudioPlayer</span> player) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Cannot pause stopped audio"</span>);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> stop(<span class="code-class">AudioPlayer</span> player) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Already stopped"</span>);
+    }
+}
+
+<span class="code-comment"># Concrete State 2</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">PlayingState</span> <span class="code-keyword">implements</span> <span class="code-class">PlaybackState</span> {
+    <span class="code-keyword">public</span> <span class="code-class">String</span> name() {
+        <span class="code-keyword">return</span> <span class="code-string">"PLAYING"</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> play(<span class="code-class">AudioPlayer</span> player) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Already playing"</span>);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> pause(<span class="code-class">AudioPlayer</span> player) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Pausing audio"</span>);
+        player.changeState(<span class="code-keyword">new</span> <span class="code-class">PausedState</span>());
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> stop(<span class="code-class">AudioPlayer</span> player) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Stopping audio"</span>);
+        player.changeState(<span class="code-keyword">new</span> <span class="code-class">StoppedState</span>());
+    }
+}
+
+<span class="code-comment"># Concrete State 3</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">PausedState</span> <span class="code-keyword">implements</span> <span class="code-class">PlaybackState</span> {
+    <span class="code-keyword">public</span> <span class="code-class">String</span> name() {
+        <span class="code-keyword">return</span> <span class="code-string">"PAUSED"</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> play(<span class="code-class">AudioPlayer</span> player) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Resuming audio"</span>);
+        player.changeState(<span class="code-keyword">new</span> <span class="code-class">PlayingState</span>());
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> pause(<span class="code-class">AudioPlayer</span> player) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Already paused"</span>);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> stop(<span class="code-class">AudioPlayer</span> player) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Stopping audio"</span>);
+        player.changeState(<span class="code-keyword">new</span> <span class="code-class">StoppedState</span>());
+    }
+}
+
+<span class="code-comment"># Client</span>
+<span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+    <span class="code-class">AudioPlayer</span> player = <span class="code-keyword">new</span> <span class="code-class">AudioPlayer</span>();
+    player.play();   <span class="code-comment"># STOPPED -&gt; PLAYING</span>
+    player.pause();  <span class="code-comment"># PLAYING -&gt; PAUSED</span>
+    player.play();   <span class="code-comment"># PAUSED -&gt; PLAYING</span>
+    player.play();   <span class="code-comment"># Already playing</span>
+    player.stop();   <span class="code-comment"># PLAYING -&gt; STOPPED</span>
+    player.pause();  <span class="code-comment"># Cannot pause stopped audio</span>
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>What's interesting here?</strong></p>
+        <p>Look at the <code>play()</code> method.</p>
+        <p>When the player is stopped:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">void</span> play(<span class="code-class">AudioPlayer</span> player) {
+    <span class="code-class">System</span>.out.println(<span class="code-string">"Starting audio"</span>);
+    player.changeState(<span class="code-keyword">new</span> <span class="code-class">PlayingState</span>());
+}</code></pre></div>
+    <div class="intro">
+        <p>When the player is paused:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">void</span> play(<span class="code-class">AudioPlayer</span> player) {
+    <span class="code-class">System</span>.out.println(<span class="code-string">"Resuming audio"</span>);
+    player.changeState(<span class="code-keyword">new</span> <span class="code-class">PlayingState</span>());
+}</code></pre></div>
+    <div class="intro">
+        <p>When the player is already playing:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">void</span> play(<span class="code-class">AudioPlayer</span> player) {
+    <span class="code-class">System</span>.out.println(<span class="code-string">"Already playing"</span>);
+}</code></pre></div>
+    <div class="intro">
+        <p>The client always invokes the same method:</p>
+    </div>
+    <div class="code-block"><pre><code>player.play();</code></pre></div>
+    <div class="intro">
+        <p>But the behavior depends entirely on the current state object.</p>
+    </div>
+    <div class="callout callout-note"><p>The media player example simulates playback with messages. A real implementation would also delegate to an audio playback engine.</p></div>
+
+    <div class="subheading">Who Should Control State Transitions?</div>
+    <div class="intro">
+        <p>There are two common approaches to controlling state transitions.</p>
+        <p><strong>Approach A: Concrete states control transitions</strong></p>
+        <p>This is the approach used in our examples.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">StoppedState</span> <span class="code-keyword">implements</span> <span class="code-class">PlaybackState</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> play(<span class="code-class">AudioPlayer</span> player) {
+        player.changeState(<span class="code-keyword">new</span> <span class="code-class">PlayingState</span>());
+    }
+    <span class="code-comment"># Other methods omitted</span>
+}</code></pre></div>
+    <div class="intro">
+        <p>The concrete state knows what state should come next.</p>
+        <p><strong>Advantages:</strong> State-specific transition logic stays together, making it easier to understand the lifecycle of individual states.</p>
+        <p><strong>Disadvantages:</strong> Concrete states become coupled to other concrete state classes.</p>
+        <p><strong>Approach B: Context controls transitions</strong></p>
+        <p>Another approach is to let the Context decide when to switch states.</p>
+        <p>For example:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">AudioPlayer</span> {
+    <span class="code-keyword">private</span> <span class="code-class">PlaybackState</span> state;
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> play() {
+        state.play(<span class="code-keyword">this</span>);
+        <span class="code-keyword">if</span> (state <span class="code-keyword">instanceof</span> <span class="code-class">StoppedState</span>) { <span class="code-comment"># Context decides the next state.</span>
+            state = <span class="code-keyword">new</span> <span class="code-class">PlayingState</span>();
+        }
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>This simplified example demonstrates the ownership difference, but it reintroduces conditional logic and doesn't handle every playback state.</p>
+        <p>A more structured Context can coordinate transitions from events, while individual states remain responsible for behavior.</p>
+    </div>
+    <div class="callout callout-note"><p><strong>Which approach is better?</strong> When transition rules are naturally associated with the states themselves, Approach A is often simpler. When transitions must be centrally coordinated or audited, Context-controlled transitions or a dedicated state machine may be preferable.</p></div>
+
+    <div class="subheading">State Pattern vs Strategy Pattern</div>
+    <div class="intro">
+        <p>These two patterns have very similar structures. Both use composition, interfaces, and runtime polymorphism.</p>
+        <p>However, their intentions are different.</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Feature</th><th>State Pattern</th><th>Strategy Pattern</th></tr></thead>
+            <tbody>
+                <tr><td>Purpose</td><td>Change behavior based on internal state</td><td>Switch between algorithms or policies</td></tr>
+                <tr><td>Behavior changes</td><td>As the object's lifecycle progresses</td><td>Based on a selected strategy</td></tr>
+                <tr><td>Switching</td><td>Often initiated internally by states</td><td>Often selected by client or configuration</td></tr>
+                <tr><td>Concrete implementations</td><td>May know about transitions to other states</td><td>Usually independent of one another</td></tr>
+                <tr><td>Example</td><td>CREATED → PAID → SHIPPED</td><td><code>CreditCardPayment</code> vs <code>UPIPayment</code></td></tr>
+                <tr><td>Main focus</td><td>State-dependent behavior</td><td>Algorithm interchangeability</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p><strong>Strategy example</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">PaymentStrategy</span> {
+    <span class="code-keyword">void</span> pay(<span class="code-keyword">double</span> amount);
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CreditCardPayment</span> <span class="code-keyword">implements</span> <span class="code-class">PaymentStrategy</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> pay(<span class="code-keyword">double</span> amount) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Paying with credit card"</span>);
+    }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">UpiPayment</span> <span class="code-keyword">implements</span> <span class="code-class">PaymentStrategy</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> pay(<span class="code-keyword">double</span> amount) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Paying with UPI"</span>);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Here, we select <strong>how</strong> to perform a payment. One algorithm is substituted for another.</p>
+        <p><strong>State example</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">OrderState</span> {
+    <span class="code-keyword">void</span> pay(<span class="code-class">Order</span> order);
+}</code></pre></div>
+    <div class="intro">
+        <p>Here, how the operation behaves depends on the order's current lifecycle state.</p>
+        <p>A payment might be allowed in one state and forbidden in another.</p>
+        <p>The difference can be summarized as:</p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>Strategy:</strong> How should this operation be performed?</li>
+        <li><strong>State:</strong> What should this operation do in the object's current condition?</li>
+    </ul></div>
+    <div class="callout callout-note"><p>These are conceptual distinctions, not absolute rules. Strategies can be changed internally, and States can sometimes be selected externally.</p></div>
+
+    <div class="subheading">State Pattern vs Finite State Machine</div>
+    <div class="intro">
+        <p>The State Pattern is closely related to the concept of a <strong>Finite State Machine (FSM)</strong>, but the two aren't exactly the same.</p>
+        <p>A finite state machine is a behavioral model consisting of:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>A finite collection of states.</li>
+        <li>Events or inputs.</li>
+        <li>Rules describing valid transitions.</li>
+        <li>Optionally, actions associated with transitions.</li>
+    </ul></div>
+    <div class="intro">
+        <p>The State Pattern is an object-oriented design technique that can be used to implement the behavior of such a machine.</p>
+        <p>For example, our order lifecycle is a finite state machine, while the <code>OrderState</code> implementations are its object-oriented implementation.</p>
+    </div>
+    <div class="callout callout-note"><p>For complicated workflows, such as loan approvals or payment processing, a declarative state machine framework may be easier to manage than dozens of interconnected concrete state classes.</p></div>
+
+    <div class="subheading">Advantages and Disadvantages</div>
+    <div class="intro">
+        <p><strong>Advantages</strong></p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>Single Responsibility Principle:</strong> Each class handles behavior associated with one state.</li>
+        <li><strong>Open/Closed Principle:</strong> Many new states or behaviors can be introduced with less modification to the Context, although existing transitions may still need changes.</li>
+        <li><strong>Eliminates complex conditionals:</strong> Reduces large state-dependent <code>if-else</code> and <code>switch</code> statements.</li>
+        <li><strong>Better maintainability:</strong> State-specific logic is easier to locate.</li>
+        <li><strong>Runtime flexibility:</strong> Behavior changes dynamically as the state object changes.</li>
+        <li><strong>Improved testing:</strong> Individual state classes can be tested independently.</li>
+    </ul></div>
+    <div class="intro">
+        <p><strong>Disadvantages</strong></p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>More classes:</strong> Each state generally requires a separate class.</li>
+        <li><strong>Additional complexity:</strong> Can be excessive for very simple workflows.</li>
+        <li><strong>Transition coupling:</strong> Concrete states may depend on each other.</li>
+        <li><strong>Harder navigation:</strong> Understanding the whole lifecycle may require inspecting several classes.</li>
+    </ul></div>
+
+    <div class="subheading">Practical Considerations for Production Applications</div>
+    <div class="intro">
+        <p>There are a few important differences between our educational implementations and a production system.</p>
+        <p><strong>A. Persisting the current state</strong></p>
+        <p>In a Spring Boot order service, the state would typically be persisted to a database.</p>
+        <p>For example:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@Entity</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderEntity</span> {
+    <span class="code-annotation">@Id</span>
+    <span class="code-keyword">private</span> <span class="code-class">Long</span> id;
+    <span class="code-annotation">@Enumerated</span>(<span class="code-class">EnumType</span>.STRING)
+    <span class="code-keyword">private</span> <span class="code-class">OrderStatus</span> status;
+    <span class="code-annotation">@Version</span>
+    <span class="code-keyword">private</span> <span class="code-class">Long</span> version;
+}</code></pre></div>
+    <div class="intro">
+        <p>The <code>OrderStatus</code> enum represents the stored state name, while State Pattern classes implement the corresponding behavior.</p>
+        <p>When loading the entity, the application can map the stored status to its respective state implementation.</p>
+        <p><strong>B. Handling concurrency</strong></p>
+        <p>Imagine two requests arriving simultaneously:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>Request A tries to ship the order.</li>
+        <li>Request B tries to cancel the order.</li>
+    </ul></div>
+    <div class="intro">
+        <p>An in-memory State Pattern implementation doesn't automatically protect against race conditions.</p>
+        <p>In a distributed Spring Boot application, you still need transactional consistency, such as optimistic locking using <code>@Version</code>, to ensure conflicting state transitions cannot both commit.</p>
+        <p><strong>C. External side effects</strong></p>
+        <p>In our example:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">void</span> pay(<span class="code-class">Order</span> order) {
+    <span class="code-class">System</span>.out.println(<span class="code-string">"Payment completed"</span>);
+    order.transitionTo(<span class="code-keyword">new</span> <span class="code-class">PaidState</span>());
+}</code></pre></div>
+    <div class="intro">
+        <p>A real application must confirm that payment succeeded before treating the order as paid.</p>
+        <p>For workflows involving external services, consider idempotency, retry handling, and the transactional outbox pattern where appropriate.</p>
+    </div>
+    <div class="callout callout-warning"><p>The State Pattern organizes business behavior; it does not replace transaction management or distributed consistency mechanisms.</p></div>
+    <div class="intro">
+        <p><strong>D. Reusing state objects</strong></p>
+        <p>When states are stateless, they can be shared rather than repeatedly allocated.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">States</span> {
+    <span class="code-keyword">static</span> <span class="code-keyword">final</span> <span class="code-class">OrderState</span> CREATED = <span class="code-keyword">new</span> <span class="code-class">CreatedState</span>();
+    <span class="code-keyword">static</span> <span class="code-keyword">final</span> <span class="code-class">OrderState</span> PAID = <span class="code-keyword">new</span> <span class="code-class">PaidState</span>();
+}</code></pre></div>
+    <div class="intro">
+        <p>This works because these state objects contain no order-specific mutable fields. Each <code>Order</code> still keeps its own reference to its current state.</p>
+    </div>
+
+    <div class="subheading">When Should You Use the State Pattern?</div>
+    <div class="intro">
+        <p>Use it when an object has several well-defined states and its behavior changes significantly depending on the active state.</p>
+        <p>Some practical examples:</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Application</th><th>States</th></tr></thead>
+            <tbody>
+                <tr><td>E-commerce order</td><td>Created, Paid, Shipped, Delivered</td></tr>
+                <tr><td>Media player</td><td>Stopped, Playing, Paused</td></tr>
+                <tr><td>TCP connection</td><td>Closed, Listening, Established</td></tr>
+                <tr><td>Document approval</td><td>Draft, Submitted, Approved, Rejected</td></tr>
+                <tr><td>ATM</td><td>Idle, CardInserted, Authenticated, Dispensing</td></tr>
+                <tr><td>Vending machine</td><td>Idle, MoneyInserted, ProductSelected, Dispensing</td></tr>
+                <tr><td>Job scheduler</td><td>Pending, Running, Completed, Failed</td></tr>
+                <tr><td>Subscription</td><td>Trial, Active, Suspended, Expired</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="callout callout-warning"><p>However, if you only have two or three simple states, a handful of operations, and straightforward transition rules, using an <code>enum</code> with a <code>switch</code> may be more readable.</p></div>
+
+    <div class="subheading">Key Takeaways</div>
+    <div class="intro">
+        <p>The State Pattern is based on a simple principle: <strong>encapsulate state-dependent behavior in separate objects and delegate operations to the object representing the current state</strong>.</p>
+        <p>Remember these four ideas:</p>
+    </div>
+    <div class="intro"><ol>
+        <li><strong>Context</strong> maintains the current State object.</li>
+        <li><strong>State interface</strong> defines the common operations.</li>
+        <li><strong>Concrete states</strong> implement behavior specific to each state.</li>
+        <li><strong>State transitions</strong> replace the active State object, changing future behavior at runtime.</li>
+    </ol></div>
+    <div class="callout callout-note"><p>Most importantly, the State Pattern doesn't merely store the object's state in another class. It moves the <strong>behavior</strong> associated with that state into a separate class. That is what distinguishes it from simply keeping a status variable or enum in an object.</p></div>
+
     <div class="section code-section">
         <div class="section-title">Code</div>
         <div class="code-layout">

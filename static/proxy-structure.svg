@@ -1,0 +1,22 @@
+<svg width="720" height="224" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 224" role="img" aria-label="Subject interface implemented by RealSubject and Proxy; Proxy holds a RealSubject and delegates to it; Client uses Subject">
+    <defs><marker id="px3-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#555555"/></marker><marker id="px3-l" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#9A9A9A"/></marker></defs>
+    <path d="M200 156 V113 H350 V72" fill="none" stroke="#9A9A9A" stroke-width="1.5" stroke-dasharray="5 4" stroke-linejoin="miter" marker-end="url(#px3-l)"/>
+    <path d="M560 156 V113 H410 V72" fill="none" stroke="#9A9A9A" stroke-width="1.5" stroke-dasharray="5 4" stroke-linejoin="miter" marker-end="url(#px3-l)"/>
+    <path d="M455 184 H302" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#px3-a)"/>
+    <path d="M155 42 H273" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#px3-a)"/>
+    <rect x="275" y="14" width="210" height="56" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="380" y="36" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Subject</text>
+    <text x="380" y="52" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">«interface» · request()</text>
+    <rect x="100" y="156" width="200" height="56" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="200" y="178" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">RealSubject</text>
+    <text x="200" y="194" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">request()</text>
+    <rect x="455" y="156" width="210" height="56" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="560" y="178" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Proxy</text>
+    <text x="560" y="194" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">- realSubject · request()</text>
+    <rect x="25" y="20" width="130" height="44" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="90" y="44.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Client</text>
+    <text x="270" y="107" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="11" font-weight="400" fill="#555555" font-style="italic">implements</text>
+    <text x="490" y="107" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="11" font-weight="400" fill="#555555" font-style="italic">implements</text>
+    <text x="380" y="177" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="11" font-weight="400" fill="#555555" font-style="italic">delegates</text>
+    <text x="214" y="35" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="11" font-weight="400" fill="#555555" font-style="italic">uses</text>
+</svg>

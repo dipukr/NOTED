@@ -1,0 +1,25 @@
+<svg width="860" height="220" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 220" role="img" aria-label="The client selects a strategy for the Context (Checkout), which delegates to the PaymentStrategy interface with pay(amount); UPI, Card and COD strategies implement it">
+    <defs><marker id="sg1-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#555555"/></marker><marker id="sg1-l" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#9A9A9A"/></marker></defs>
+    <path d="M140 45 H238" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#sg1-a)"/>
+    <path d="M440 45 H481.5 V48 H523" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#sg1-a)"/>
+    <path d="M470 160 V122 H610 V78" fill="none" stroke="#9A9A9A" stroke-width="1.5" stroke-dasharray="5 4" stroke-linejoin="miter" marker-end="url(#sg1-l)"/>
+    <path d="M640 160 V122 H640 V78" fill="none" stroke="#9A9A9A" stroke-width="1.5" stroke-dasharray="5 4" stroke-linejoin="miter" marker-end="url(#sg1-l)"/>
+    <path d="M810 160 V122 H670 V78" fill="none" stroke="#9A9A9A" stroke-width="1.5" stroke-dasharray="5 4" stroke-linejoin="miter" marker-end="url(#sg1-l)"/>
+    <rect x="20" y="20" width="120" height="50" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="80" y="47.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Client</text>
+    <rect x="240" y="20" width="200" height="50" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="340" y="39" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Context</text>
+    <text x="340" y="55" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">Checkout</text>
+    <rect x="525" y="20" width="230" height="56" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="640" y="42" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">PaymentStrategy</text>
+    <text x="640" y="58" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">«interface» · pay(amount)</text>
+    <text x="189" y="38" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555" font-style="italic">selects strategy</text>
+    <text x="481.5" y="38" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555" font-style="italic">delegates</text>
+    <rect x="395" y="160" width="150" height="46" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="470" y="185.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">UPI Strategy</text>
+    <rect x="565" y="160" width="150" height="46" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="640" y="185.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Card Strategy</text>
+    <rect x="735" y="160" width="150" height="46" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="810" y="185.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">COD Strategy</text>
+    <text x="530" y="114" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555" font-style="italic">implements</text>
+</svg>

@@ -1,0 +1,17 @@
+<svg width="780" height="170" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 170" role="img" aria-label="Remote base class with one subclass per remote and device combination">
+    <defs><marker id="br1-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#555555"/></marker><marker id="br1-l" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#9A9A9A"/></marker></defs>
+    <path d="M390 54 V81 H100 V108" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#br1-a)"/>
+    <path d="M390 54 V81 H293 V108" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#br1-a)"/>
+    <path d="M390 54 V81 H486 V108" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#br1-a)"/>
+    <path d="M390 54 V81 H679 V108" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#br1-a)"/>
+    <rect x="315" y="12" width="150" height="42" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="390" y="35.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Remote</text>
+    <rect x="12" y="110" width="176" height="42" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="100" y="133.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">BasicTVRemote</text>
+    <rect x="205" y="110" width="176" height="42" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="293" y="133.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">AdvancedTVRemote</text>
+    <rect x="398" y="110" width="176" height="42" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="486" y="133.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">BasicRadioRemote</text>
+    <rect x="591" y="110" width="176" height="42" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="679" y="133.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">AdvancedRadioRemote</text>
+</svg>

@@ -1,0 +1,25 @@
+<svg width="780" height="196" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 196" role="img" aria-label="The client loops with for-each over an iterator that keeps the cursor state and calls the REST API, which returns page 1, page 2 and page 3 only when each is required">
+    <defs><marker id="it4-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#555555"/></marker><marker id="it4-l" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#9A9A9A"/></marker></defs>
+    <path d="M165 92 H213" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#it4-a)"/>
+    <path d="M385 92 H423" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#it4-a)"/>
+    <path d="M595 92 H617 V35 H638" fill="none" stroke="#9A9A9A" stroke-width="1.5" stroke-dasharray="5 4" stroke-linejoin="miter" marker-end="url(#it4-l)"/>
+    <path d="M595 92 H617 V93 H638" fill="none" stroke="#9A9A9A" stroke-width="1.5" stroke-dasharray="5 4" stroke-linejoin="miter" marker-end="url(#it4-l)"/>
+    <path d="M595 92 H617 V151 H638" fill="none" stroke="#9A9A9A" stroke-width="1.5" stroke-dasharray="5 4" stroke-linejoin="miter" marker-end="url(#it4-l)"/>
+    <rect x="15" y="66" width="150" height="52" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="90" y="86" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Client</text>
+    <text x="90" y="102" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">for-each</text>
+    <rect x="215" y="66" width="170" height="52" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="300" y="86" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Iterator</text>
+    <text x="300" y="102" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">cursor state</text>
+    <rect x="425" y="66" width="170" height="52" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="510" y="86" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">REST API</text>
+    <text x="510" y="102" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">paged data</text>
+    <text x="404" y="85" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555" font-style="italic">fetch</text>
+    <rect x="640" y="14" width="120" height="42" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="700" y="37.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Page 1</text>
+    <rect x="640" y="72" width="120" height="42" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="700" y="95.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Page 2</text>
+    <rect x="640" y="130" width="120" height="42" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="700" y="153.5" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Page 3</text>
+    <text x="540" y="188" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555" font-style="italic">only when required</text>
+</svg>

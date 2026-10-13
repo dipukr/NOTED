@@ -1,0 +1,15 @@
+<svg width="520" height="250" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 250" role="img" aria-label="ExtraShotDecorator wraps CreamDecorator, which wraps MilkDecorator, which wraps SimpleCoffee">
+    <defs><marker id="dc2-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#555555"/></marker><marker id="dc2-l" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#9A9A9A"/></marker></defs>
+    <rect x="10" y="8" width="500" height="234" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="260" y="30" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">ExtraShotDecorator</text>
+    <text x="260" y="46" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555">adds ₹25</text>
+    <rect x="44" y="60" width="432" height="168" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="260" y="82" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">CreamDecorator</text>
+    <text x="260" y="98" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555">adds ₹20</text>
+    <rect x="78" y="112" width="364" height="102" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="260" y="134" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">MilkDecorator</text>
+    <text x="260" y="150" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555">adds ₹15</text>
+    <rect x="136" y="162" width="248" height="42" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="260" y="177" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">SimpleCoffee</text>
+    <text x="260" y="193" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">base ₹50</text>
+</svg>

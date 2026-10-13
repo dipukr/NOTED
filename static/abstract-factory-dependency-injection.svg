@@ -1,0 +1,16 @@
+<svg width="700" height="96" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 96" role="img" aria-label="Configuration supplies the CloudFactory, which OrderService uses">
+    <defs><marker id="af12-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#555555"/></marker><marker id="af12-l" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#9A9A9A"/></marker></defs>
+    <path d="M200 48 H258" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#af12-a)"/>
+    <path d="M440 48 H498" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#af12-a)"/>
+    <rect x="20" y="22" width="180" height="52" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="110" y="42" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Configuration</text>
+    <text x="110" y="58" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">@Configuration / @Bean</text>
+    <rect x="260" y="22" width="180" height="52" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="350" y="42" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">CloudFactory</text>
+    <text x="350" y="58" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">chosen family</text>
+    <rect x="500" y="22" width="180" height="52" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="590" y="42" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">OrderService</text>
+    <text x="590" y="58" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">business code</text>
+    <text x="229" y="41" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555" font-style="italic">provides</text>
+    <text x="469" y="41" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555" font-style="italic">injected into</text>
+</svg>

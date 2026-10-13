@@ -68,6 +68,866 @@
         </ul></div>
     </div>
 
+
+    <div class="subheading">What is the Mediator Design Pattern?</div>
+    <div class="intro">
+        <p>The <strong>Mediator Pattern</strong> is a behavioral design pattern that defines a central object (called the <strong>Mediator</strong>) to manage and coordinate communication between multiple objects without requiring those objects to communicate directly with one another.</p>
+        <p>Instead of objects referencing and interacting with each other directly, they communicate through a mediator, which encapsulates the rules and logic governing their interactions.</p>
+        <p>This promotes <strong>loose coupling</strong>, reduces dependencies between objects, and makes complex interactions easier to manage, modify, and maintain.</p>
+        <p>The main idea is:</p>
+    </div>
+    <div class="callout callout-note"><p>Objects should not need to know how to communicate with every other object. Instead, they communicate through a mediator that coordinates their interactions.</p></div>
+    <div class="intro">
+        <p><strong>Real-world analogy: Air Traffic Control</strong></p>
+        <p>Consider an airport with multiple airplanes.</p>
+        <p>Without a mediator, each airplane would have to communicate directly with other airplanes to coordinate takeoffs, landings, runway availability, and collision avoidance.</p>
+        <p>With a mediator, an <strong>Air Traffic Control (ATC) Tower</strong> coordinates these activities.</p>
+    </div>
+    <div class="intro"><ul>
+        <li>Each airplane communicates with ATC.</li>
+        <li>ATC maintains information about runway availability and aircraft movements.</li>
+        <li>ATC decides which airplane can take off or land.</li>
+        <li>Airplanes do not have to coordinate their movements directly with every other airplane.</li>
+    </ul></div>
+    <div class="intro">
+        <p>The ATC tower acts as a mediator, centralizing communication and coordination rules.</p>
+    </div>
+
+    <div class="subheading">What problem does the Mediator Pattern solve?</div>
+    <div class="intro">
+        <p>Imagine a GUI application with several components:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>Username TextField</li>
+        <li>Password TextField</li>
+        <li>Remember Me Checkbox</li>
+        <li>Login Button</li>
+        <li>Status Label</li>
+    </ul></div>
+    <div class="intro">
+        <p>These components depend on one another.</p>
+        <p>For example, the <strong>Login Button</strong> should become enabled only when both username and password contain valid values.</p>
+        <p><strong>Without Mediator</strong></p>
+        <p>Each component might directly reference other components to coordinate behavior.</p>
+        <p><strong>Direct communication &mdash; tight coupling</strong></p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/mediator-tight.svg" alt="Username, Password, Checkbox and Login Button each connected directly to every other component" style="width:100%;max-width:520px">
+    </div>
+    <div class="intro">
+        <p>Components know about and depend on other components.</p>
+        <p>This approach creates several problems:</p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>Tight coupling:</strong> Components directly depend on one another.</li>
+        <li><strong>Difficult maintenance:</strong> Changing one component may require changes in multiple others.</li>
+        <li><strong>Poor reusability:</strong> A component cannot easily be reused in another form because it assumes the existence of specific components.</li>
+        <li><strong>Complex communication:</strong> As more components are added, dependencies become difficult to understand and manage.</li>
+        <li><strong>Difficult testing:</strong> Testing one component may require creating several related components.</li>
+    </ul></div>
+    <div class="intro">
+        <p><strong>With Mediator</strong></p>
+        <p>We introduce a <code>LoginDialogMediator</code> that coordinates all the components.</p>
+        <p><strong>Centralized coordination &mdash; loose coupling</strong></p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/mediator-loose.svg" alt="Username, Password, Checkbox and Login each connect only to the central Mediator, which coordinates interactions" style="width:100%;max-width:560px">
+    </div>
+    <div class="intro">
+        <p>Components communicate through a mediator rather than depending directly on one another.</p>
+        <p>Now:</p>
+    </div>
+    <div class="intro"><ol>
+        <li>The Username TextField informs the mediator when its value changes.</li>
+        <li>The Password TextField does the same.</li>
+        <li>The mediator checks whether the form is valid.</li>
+        <li>The mediator enables or disables the Login Button accordingly.</li>
+    </ol></div>
+    <div class="intro">
+        <p>The individual components no longer need to know about one another.</p>
+    </div>
+    <div class="callout callout-note"><p><strong>Important:</strong> The Mediator Pattern does not eliminate dependencies entirely. It replaces many direct object-to-object dependencies with dependencies on a common mediator interface.</p></div>
+
+    <div class="subheading">Structure of the Mediator Pattern</div>
+    <div class="intro">
+        <p>The Mediator Pattern typically contains four participants.</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Participant</th><th>Responsibility</th></tr></thead>
+            <tbody>
+                <tr><td>Mediator</td><td>Defines the interface through which colleagues communicate</td></tr>
+                <tr><td>ConcreteMediator</td><td>Implements coordination and interaction rules</td></tr>
+                <tr><td>Colleague</td><td>Represents a participating object that communicates through the mediator</td></tr>
+                <tr><td>ConcreteColleague</td><td>Implements the behavior of a specific participating object</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p><strong>UML-style class diagram</strong></p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/mediator-structure.svg" alt="ConcreteMediator implements the Mediator interface; ConcreteColleagueA and B extend the abstract Colleague, which notifies the Mediator; ConcreteMediator coordinates both colleagues" style="width:100%;max-width:820px">
+    </div>
+    <div class="intro">
+        <p><strong>How the pattern works</strong></p>
+    </div>
+    <div class="intro"><ol>
+        <li>A colleague performs an action or changes its internal state.</li>
+        <li>It notifies the mediator about that event.</li>
+        <li>The mediator determines how other colleagues should respond.</li>
+        <li>The mediator invokes the appropriate behavior on those colleagues.</li>
+        <li>Colleagues remain unaware of each other's internal implementation.</li>
+    </ol></div>
+    <div class="callout callout-note"><p>The key architectural principle is that <strong>interaction logic belongs to the mediator</strong> instead of being distributed across participating objects.</p></div>
+
+    <div class="subheading">Practical Example 1: Chat Room Application</div>
+    <div class="intro">
+        <p>Let's implement a chat application using the Mediator Pattern.</p>
+        <p><strong>Requirements</strong></p>
+        <p>Our application has multiple users: Alice, Bob, and Charlie.</p>
+        <p>Each user should be able to:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>Join a chat room.</li>
+        <li>Send a message to everyone.</li>
+        <li>Send a private message to a specific user.</li>
+        <li>Receive messages from other users.</li>
+    </ul></div>
+    <div class="intro">
+        <p><strong>Important:</strong> A user should not need references to other users to communicate.</p>
+        <p>The chat room will act as the mediator.</p>
+        <p><strong>Class structure</strong></p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/mediator-chat-class.svg" alt="ChatRoom implements ChatMediator (register, broadcast, sendPrivate) and holds a map of users; ChatUser holds a name and a ChatMediator and can join, send, sendPrivate and receive" style="width:100%;max-width:800px">
+    </div>
+    <div class="intro">
+        <p><strong>Step 1: Define the Mediator interface</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">ChatMediator</span> {
+    <span class="code-keyword">void</span> register(<span class="code-class">ChatUser</span> user);
+
+    <span class="code-keyword">void</span> broadcast(<span class="code-class">String</span> message, <span class="code-class">ChatUser</span> sender);
+
+    <span class="code-keyword">void</span> sendPrivate(<span class="code-class">String</span> recipient, <span class="code-class">String</span> message, <span class="code-class">ChatUser</span> sender);
+}</code></pre></div>
+    <div class="intro">
+        <p>The mediator interface defines how users communicate.</p>
+        <p>Notice that the interface does not tell us how messages are delivered. Different implementations can provide different communication policies.</p>
+        <p><strong>Step 2: Create the Colleague class</strong></p>
+        <p>Each <code>ChatUser</code> represents a colleague participating in the system.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ChatUser</span> {
+    <span class="code-keyword">private</span> <span class="code-class">String</span> name;
+    <span class="code-keyword">private</span> <span class="code-class">ChatMediator</span> mediator;
+
+    <span class="code-keyword">public</span> <span class="code-class">ChatUser</span>(<span class="code-class">String</span> name, <span class="code-class">ChatMediator</span> mediator) {
+        <span class="code-keyword">this</span>.name = name;
+        <span class="code-keyword">this</span>.mediator = mediator;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">String</span> getName() {
+        <span class="code-keyword">return</span> name;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> join() {
+        mediator.register(<span class="code-keyword">this</span>);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> send(<span class="code-class">String</span> message) {
+        <span class="code-class">System</span>.out.println(name + <span class="code-string">" broadcasts: "</span> + message);
+        mediator.broadcast(message, <span class="code-keyword">this</span>);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> sendPrivate(<span class="code-class">String</span> recipient, <span class="code-class">String</span> message) {
+        <span class="code-class">System</span>.out.println(name + <span class="code-string">" sends a private message to "</span> + recipient);
+        mediator.sendPrivate(recipient, message, <span class="code-keyword">this</span>);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> receive(<span class="code-class">String</span> sender, <span class="code-class">String</span> message) {
+        <span class="code-class">System</span>.out.println(name + <span class="code-string">" received from "</span> + sender + <span class="code-string">": "</span> + message);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Observe this declaration:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">private</span> <span class="code-class">ChatMediator</span> mediator;</code></pre></div>
+    <div class="intro">
+        <p>Each user knows only the mediator.</p>
+        <p>A <code>ChatUser</code> does not maintain references to other users. It delegates message delivery to the mediator.</p>
+        <p><strong>Step 3: Implement the Concrete Mediator</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ChatRoom</span> <span class="code-keyword">implements</span> <span class="code-class">ChatMediator</span> {
+    <span class="code-keyword">private</span> <span class="code-class">Map</span>&lt;<span class="code-class">String</span>, <span class="code-class">ChatUser</span>&gt; users = <span class="code-keyword">new</span> <span class="code-class">LinkedHashMap</span>&lt;&gt;();
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> register(<span class="code-class">ChatUser</span> user) {
+        <span class="code-keyword">if</span> (users.putIfAbsent(user.getName(), user) != <span class="code-keyword">null</span>) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>(<span class="code-string">"Username already exists: "</span> + user.getName());
+        }
+        <span class="code-class">System</span>.out.println(user.getName() + <span class="code-string">" joined the room"</span>);
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> broadcast(<span class="code-class">String</span> message, <span class="code-class">ChatUser</span> sender) {
+        validateSender(sender);
+        <span class="code-keyword">for</span> (<span class="code-class">ChatUser</span> user : users.values()) {
+            <span class="code-keyword">if</span> (user != sender) {
+                user.receive(sender.getName(), message);
+            }
+        }
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> sendPrivate(<span class="code-class">String</span> recipient, <span class="code-class">String</span> message, <span class="code-class">ChatUser</span> sender) {
+        validateSender(sender);
+        <span class="code-class">ChatUser</span> receiver = users.get(recipient);
+        <span class="code-keyword">if</span> (receiver == <span class="code-keyword">null</span>) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>(<span class="code-string">"Recipient not found: "</span> + recipient);
+        }
+        receiver.receive(sender.getName(), message);
+    }
+
+    <span class="code-keyword">private</span> <span class="code-keyword">void</span> validateSender(<span class="code-class">ChatUser</span> sender) {
+        <span class="code-keyword">if</span> (users.get(sender.getName()) != sender) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalStateException</span>(<span class="code-string">"Sender has not joined the room"</span>);
+        }
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>The <code>ChatRoom</code> contains the coordination logic.</p>
+        <p>It decides:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>Who is allowed to send messages.</li>
+        <li>Which users receive broadcast messages.</li>
+        <li>Which user receives a private message.</li>
+        <li>Whether a recipient exists.</li>
+    </ul></div>
+    <div class="intro">
+        <p>The users themselves don't implement these communication rules.</p>
+        <p><strong>Step 4: Client code</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+    <span class="code-class">ChatMediator</span> chatRoom = <span class="code-keyword">new</span> <span class="code-class">ChatRoom</span>();
+    <span class="code-class">ChatUser</span> alice = <span class="code-keyword">new</span> <span class="code-class">ChatUser</span>(<span class="code-string">"Alice"</span>, chatRoom);
+    <span class="code-class">ChatUser</span> bob = <span class="code-keyword">new</span> <span class="code-class">ChatUser</span>(<span class="code-string">"Bob"</span>, chatRoom);
+    <span class="code-class">ChatUser</span> charlie = <span class="code-keyword">new</span> <span class="code-class">ChatUser</span>(<span class="code-string">"Charlie"</span>, chatRoom);
+    alice.join();
+    bob.join();
+    charlie.join();
+    <span class="code-class">System</span>.out.println();
+    alice.send(<span class="code-string">"Good morning, everyone!"</span>);
+    <span class="code-class">System</span>.out.println();
+    bob.sendPrivate(<span class="code-string">"Alice"</span>, <span class="code-string">"Can we review the code?"</span>);
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Output</strong></p>
+    </div>
+    <div class="code-block"><pre><code>Alice joined the room
+Bob joined the room
+Charlie joined the room
+
+Alice broadcasts: Good morning, everyone!
+Bob received from Alice: Good morning, everyone!
+Charlie received from Alice: Good morning, everyone!
+
+Bob sends a private message to Alice
+Alice received from Bob: Can we review the code?</code></pre></div>
+    <div class="intro">
+        <p><strong>Communication flow</strong></p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/mediator-chat-sequence.svg" alt="Sequence: Alice broadcasts to the ChatRoom, which validates the sender and delivers to Bob and Charlie; Bob sends a private message, which the ChatRoom validates and delivers to Alice" style="width:100%;max-width:840px">
+    </div>
+    <div class="intro">
+        <p><strong>Why is this the Mediator Pattern?</strong></p>
+        <p>Consider this code inside <code>ChatUser</code>:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">void</span> sendPrivate(<span class="code-class">String</span> recipient, <span class="code-class">String</span> message) {
+    mediator.sendPrivate(recipient, message, <span class="code-keyword">this</span>);
+}</code></pre></div>
+    <div class="intro">
+        <p>The user does not know which object represents the recipient or how to locate it.</p>
+        <p>That knowledge belongs to <code>ChatRoom</code>.</p>
+        <p>If we introduce new rules, such as blocking users, muting participants, or restricting private messages, we can implement the coordination logic inside the mediator without changing how <code>ChatUser</code> sends messages.</p>
+        <p>This is the main benefit of the Mediator Pattern: <strong>the communication policy can evolve independently of the participants</strong>.</p>
+    </div>
+    <div class="callout callout-note"><p>Note that this implementation is an in-memory, synchronous demonstration. A production chat application would also need to handle concurrency, persistence, authentication, and network delivery.</p></div>
+
+    <div class="subheading">Practical Example 2: Registration Form Using Mediator</div>
+    <div class="intro">
+        <p>This example demonstrates a more important aspect of the Mediator Pattern: coordinating the behavior of multiple components based on their states.</p>
+        <p>Consider a registration dialog containing:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>Username field</li>
+        <li>Password field</li>
+        <li>Accept Terms checkbox</li>
+        <li>Register button</li>
+    </ul></div>
+    <div class="intro">
+        <p><strong>Business rules</strong></p>
+        <p>The Register button should be enabled only when:</p>
+    </div>
+    <div class="intro"><ol>
+        <li>Username is not empty.</li>
+        <li>Password contains at least 8 characters.</li>
+        <li>User has accepted the terms and conditions.</li>
+    </ol></div>
+    <div class="intro">
+        <p>Instead of letting each control directly interact with the Register button, we will introduce a <code>RegistrationDialog</code> mediator.</p>
+        <p><strong>Step 1: Define the mediator interface</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">FormMediator</span> {
+    <span class="code-keyword">void</span> componentChanged(<span class="code-class">FormControl</span> source);
+
+    <span class="code-keyword">void</span> submit();
+}</code></pre></div>
+    <div class="intro">
+        <p>This interface supports two interactions.</p>
+    </div>
+    <div class="intro"><ul>
+        <li><code>componentChanged()</code> is called whenever a form control changes its state.</li>
+        <li><code>submit()</code> is called when the user clicks the Register button.</li>
+    </ul></div>
+    <div class="intro">
+        <p><strong>Step 2: Create a base Colleague class</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">abstract</span> <span class="code-keyword">class</span> <span class="code-class">FormControl</span> {
+    <span class="code-keyword">private</span> <span class="code-class">FormMediator</span> mediator;
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> setMediator(<span class="code-class">FormMediator</span> mediator) {
+        <span class="code-keyword">this</span>.mediator = mediator;
+    }
+
+    <span class="code-keyword">protected</span> <span class="code-keyword">void</span> notifyChanged() {
+        <span class="code-keyword">if</span> (mediator != <span class="code-keyword">null</span>) {
+            mediator.componentChanged(<span class="code-keyword">this</span>);
+        }
+    }
+
+    <span class="code-keyword">protected</span> <span class="code-class">FormMediator</span> getMediator() {
+        <span class="code-keyword">return</span> mediator;
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>All components inherit from <code>FormControl</code>.</p>
+        <p>Notice that components only know the <code>FormMediator</code> interface.</p>
+        <p><strong>Step 3: Create concrete form components</strong></p>
+        <p><code>TextField</code></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">TextField</span> <span class="code-keyword">extends</span> <span class="code-class">FormControl</span> {
+    <span class="code-keyword">private</span> <span class="code-class">String</span> value = <span class="code-string">""</span>;
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> setValue(<span class="code-class">String</span> value) {
+        <span class="code-keyword">this</span>.value = <span class="code-class">Objects</span>.requireNonNull(value);
+        notifyChanged();
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">String</span> getValue() {
+        <span class="code-keyword">return</span> value;
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>When the value changes, <code>TextField</code> notifies the mediator.</p>
+        <p>The text field does not know whether the Register button exists or what validation rules apply.</p>
+        <p><code>CheckBox</code></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CheckBox</span> <span class="code-keyword">extends</span> <span class="code-class">FormControl</span> {
+    <span class="code-keyword">private</span> <span class="code-keyword">boolean</span> checked;
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> setChecked(<span class="code-keyword">boolean</span> checked) {
+        <span class="code-keyword">this</span>.checked = checked;
+        notifyChanged();
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">boolean</span> isChecked() {
+        <span class="code-keyword">return</span> checked;
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Again, the checkbox only reports its state changes to the mediator.</p>
+        <p><code>Button</code></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Button</span> <span class="code-keyword">extends</span> <span class="code-class">FormControl</span> {
+    <span class="code-keyword">private</span> <span class="code-keyword">boolean</span> enabled;
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> setEnabled(<span class="code-keyword">boolean</span> enabled) {
+        <span class="code-keyword">if</span> (<span class="code-keyword">this</span>.enabled != enabled) {
+            <span class="code-keyword">this</span>.enabled = enabled;
+            <span class="code-class">System</span>.out.println(<span class="code-string">"Register button "</span> + (enabled ? <span class="code-string">"enabled"</span> : <span class="code-string">"disabled"</span>));
+        }
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">boolean</span> isEnabled() {
+        <span class="code-keyword">return</span> enabled;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> click() {
+        <span class="code-keyword">if</span> (!enabled) {
+            <span class="code-class">System</span>.out.println(<span class="code-string">"Button is disabled. Cannot submit."</span>);
+            <span class="code-keyword">return</span>;
+        }
+        getMediator().submit();
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>The button doesn't validate the username, password, or checkbox.</p>
+        <p>It delegates the submission action to the mediator.</p>
+        <p><strong>Step 4: Implement the Concrete Mediator</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">RegistrationDialog</span> <span class="code-keyword">implements</span> <span class="code-class">FormMediator</span> {
+    <span class="code-keyword">private</span> <span class="code-class">TextField</span> username = <span class="code-keyword">new</span> <span class="code-class">TextField</span>();
+    <span class="code-keyword">private</span> <span class="code-class">TextField</span> password = <span class="code-keyword">new</span> <span class="code-class">TextField</span>();
+    <span class="code-keyword">private</span> <span class="code-class">CheckBox</span> terms = <span class="code-keyword">new</span> <span class="code-class">CheckBox</span>();
+    <span class="code-keyword">private</span> <span class="code-class">Button</span> registerButton = <span class="code-keyword">new</span> <span class="code-class">Button</span>();
+
+    <span class="code-keyword">public</span> <span class="code-class">RegistrationDialog</span>() {
+        <span class="code-keyword">for</span> (<span class="code-class">FormControl</span> control : <span class="code-class">List</span>.of(username, password, terms, registerButton)) {
+            control.setMediator(<span class="code-keyword">this</span>);
+        }
+        updateRegisterButton();
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> componentChanged(<span class="code-class">FormControl</span> source) {
+        updateRegisterButton();
+    }
+
+    <span class="code-keyword">private</span> <span class="code-keyword">void</span> updateRegisterButton() {
+        <span class="code-keyword">boolean</span> validUsername = !username.getValue().isBlank();
+        <span class="code-keyword">boolean</span> validPassword = password.getValue().length() &gt;= <span class="code-number">8</span>;
+        <span class="code-keyword">boolean</span> termsAccepted = terms.isChecked();
+        <span class="code-keyword">boolean</span> formValid = validUsername &amp;&amp; validPassword &amp;&amp; termsAccepted;
+        registerButton.setEnabled(formValid);
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> submit() {
+        <span class="code-keyword">if</span> (!isFormValid()) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalStateException</span>(<span class="code-string">"Invalid form"</span>);
+        }
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Registration submitted for: "</span> + username.getValue());
+    }
+
+    <span class="code-keyword">private</span> <span class="code-keyword">boolean</span> isFormValid() {
+        <span class="code-keyword">return</span> !username.getValue().isBlank() &amp;&amp; password.getValue().length() &gt;= <span class="code-number">8</span> &amp;&amp; terms.isChecked();
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">TextField</span> username() {
+        <span class="code-keyword">return</span> username;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">TextField</span> password() {
+        <span class="code-keyword">return</span> password;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">CheckBox</span> terms() {
+        <span class="code-keyword">return</span> terms;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">Button</span> registerButton() {
+        <span class="code-keyword">return</span> registerButton;
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>This is where all the interaction logic lives.</p>
+        <p>The mediator:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>Observes state-change notifications from controls.</li>
+        <li>Reads the current form values.</li>
+        <li>Evaluates validation rules.</li>
+        <li>Updates the Register button.</li>
+        <li>Handles submission requests.</li>
+    </ul></div>
+    <div class="intro">
+        <p>No individual component needs to know about another component.</p>
+        <p>The <code>source</code> parameter also allows the mediator to respond differently to particular controls when necessary.</p>
+        <p><strong>Step 5: Client code</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+    <span class="code-class">RegistrationDialog</span> dialog = <span class="code-keyword">new</span> <span class="code-class">RegistrationDialog</span>();
+    dialog.registerButton().click();
+    dialog.username().setValue(<span class="code-string">"Alice"</span>);
+    dialog.password().setValue(<span class="code-string">"123"</span>);
+    dialog.terms().setChecked(<span class="code-keyword">true</span>);
+    dialog.password().setValue(<span class="code-string">"SecurePass123"</span>);
+    dialog.registerButton().click();
+    dialog.terms().setChecked(<span class="code-keyword">false</span>);
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Output</strong></p>
+    </div>
+    <div class="code-block"><pre><code>Button is disabled. Cannot submit.
+Register button enabled
+Registration submitted for: Alice
+Register button disabled</code></pre></div>
+    <div class="intro">
+        <p><strong>Understanding the execution</strong></p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/mediator-registration-sequence.svg" alt="Sequence: the user sets the password; the password field notifies the RegistrationDialog, which validates all fields and enables the Register button; the user clicks it, the button calls submit(), and the dialog revalidates and submits" style="width:100%;max-width:840px">
+    </div>
+    <div class="intro">
+        <p>Without Mediator, a password field might have to know about the username field, checkbox, and Register button.</p>
+        <p>With Mediator, the password field only says:</p>
+    </div>
+    <div class="code-block"><pre><code>notifyChanged();</code></pre></div>
+    <div class="intro">
+        <p>It doesn't need to understand what happens afterward.</p>
+        <p>The mediator decides what should happen.</p>
+        <p>This approach is particularly useful in complex GUI forms involving dynamic visibility, conditional controls, dependent dropdowns, multi-step workflows, and validation rules.</p>
+    </div>
+    <div class="callout callout-note"><p><strong>Note:</strong> This example simulates UI controls. In an actual registration application, form validation must also happen on the server. The submission method would normally call an application service instead of printing a message.</p></div>
+
+    <div class="subheading">How Mediator Reduces Coupling</div>
+    <div class="intro">
+        <p>Suppose a system has five interacting components:</p>
+    </div>
+    <div class="code-block"><pre><code>A, B, C, D, E</code></pre></div>
+    <div class="intro">
+        <p>Without a mediator, each component may require references to several others.</p>
+        <p>With a mediator:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ComponentA</span> {
+    <span class="code-keyword">private</span> <span class="code-class">Mediator</span> mediator;
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ComponentB</span> {
+    <span class="code-keyword">private</span> <span class="code-class">Mediator</span> mediator;
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ComponentC</span> {
+    <span class="code-keyword">private</span> <span class="code-class">Mediator</span> mediator;
+}</code></pre></div>
+    <div class="intro">
+        <p>All components depend on a common interface instead of depending directly on each other.</p>
+        <p>In a fully connected system containing <code>n</code> components, the maximum number of unique direct relationships is:</p>
+    </div>
+    <div class="code-block"><pre><code>n(n − 1) / 2</code></pre></div>
+    <div class="intro">
+        <p>With a single mediator connecting to each component, there are <code>n</code> component-to-mediator relationships, although the mediator must still coordinate those participants.</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Number of components</th><th>Maximum direct relationships</th><th>Mediator connections</th></tr></thead>
+            <tbody>
+                <tr><td>5</td><td>10</td><td>5</td></tr>
+                <tr><td>10</td><td>45</td><td>10</td></tr>
+                <tr><td>20</td><td>190</td><td>20</td></tr>
+                <tr><td>50</td><td>1,225</td><td>50</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="callout callout-note"><p>Illustrative maximum for pairwise connections, not a measured complexity or performance comparison. Actual systems may have far fewer direct dependencies.</p></div>
+    <div class="intro">
+        <p>This reduces the number of relationships that participating objects need to manage themselves.</p>
+        <p>However, complexity does not disappear. Much of the interaction complexity moves into the mediator.</p>
+    </div>
+
+    <div class="subheading">Mediator vs Observer Design Pattern</div>
+    <div class="intro">
+        <p>Mediator and Observer are both behavioral patterns that manage communication between objects, but they solve different problems.</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Mediator</th><th>Observer</th></tr></thead>
+            <tbody>
+                <tr><td>Centralizes coordination among objects</td><td>Establishes a subscription-based notification mechanism</td></tr>
+                <tr><td>Mediator decides what interactions should occur</td><td>Subject notifies observers of events</td></tr>
+                <tr><td>Coordinates behavior and interactions</td><td>Primarily communicates state changes or events</td></tr>
+                <tr><td>May reference and invoke multiple colleagues</td><td>Subject normally maintains a collection of observers</td></tr>
+                <tr><td>Useful for complex interactions</td><td>Useful for event notifications and reactive updates</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p><strong>Observer example</strong></p>
+        <p>Suppose an order status changes.</p>
+    </div>
+    <div class="code-block"><pre><code>order.notifyObservers();</code></pre></div>
+    <div class="intro">
+        <p>Observers such as <code>EmailNotifier</code>, <code>SmsNotifier</code>, and <code>AuditLogger</code> are notified.</p>
+        <p>They independently react to the event.</p>
+        <p>The order does not coordinate the behavior of these observers.</p>
+        <p><strong>Mediator example</strong></p>
+        <p>In a checkout application:</p>
+    </div>
+    <div class="code-block"><pre><code>checkoutMediator.placeOrder(order);</code></pre></div>
+    <div class="intro">
+        <p>The mediator may coordinate:</p>
+    </div>
+    <div class="ascii-diagram">Check inventory
+      ↓
+Reserve stock
+      ↓
+Process payment
+      ↓
+Confirm order</div>
+    <div class="intro">
+        <p>Unlike simple event notifications, the mediator determines the sequence and rules governing interactions among components.</p>
+    </div>
+    <div class="callout callout-note"><p><strong>Key distinction:</strong> Observer focuses on notifying interested objects about events, whereas Mediator focuses on coordinating how objects interact.</p></div>
+    <div class="intro">
+        <p>They can also be used together. A mediator may subscribe to events from components using the Observer Pattern and then coordinate other components in response.</p>
+    </div>
+
+    <div class="subheading">Mediator vs Facade Design Pattern</div>
+    <div class="intro">
+        <p>Mediator is sometimes confused with Facade because both introduce an object that sits between other objects.</p>
+        <p>However, their intentions are different.</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Mediator</th><th>Facade</th></tr></thead>
+            <tbody>
+                <tr><td>Coordinates communication among colleagues</td><td>Provides a simplified interface to a subsystem</td></tr>
+                <tr><td>Focuses on interactions between participating objects</td><td>Focuses on simplifying client access</td></tr>
+                <tr><td>Colleagues communicate with the mediator</td><td>Clients invoke facade operations</td></tr>
+                <tr><td>Often supports interactions in multiple directions</td><td>Typically provides an entry point into lower-level operations</td></tr>
+                <tr><td>Reduces colleague-to-colleague coupling</td><td>Reduces client-to-subsystem coupling</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p><strong>Facade</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ComputerFacade</span> {
+    <span class="code-keyword">private</span> CPU cpu;
+    <span class="code-keyword">private</span> <span class="code-class">Memory</span> memory;
+    <span class="code-keyword">private</span> <span class="code-class">HardDrive</span> hardDrive;
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> startComputer() {
+        cpu.start();
+        memory.initialize();
+        hardDrive.loadOS();
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Here, a client uses one simple method instead of interacting with several subsystem components.</p>
+        <p>The CPU, Memory, and HardDrive do not necessarily communicate back through the facade or treat it as their coordinator.</p>
+        <p><strong>Mediator</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ComputerMediator</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> onTemperatureChanged(<span class="code-keyword">int</span> temperature) {
+        <span class="code-keyword">if</span> (temperature &gt; <span class="code-number">80</span>) {
+            coolingFan.increaseSpeed();
+            cpu.reduceFrequency();
+        }
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Here, the mediator coordinates how components react to a change in another component.</p>
+        <p>The cooling fan doesn't need to know about the CPU or temperature sensor.</p>
+        <p>The same class can sometimes resemble both patterns, so the important factor is its intended responsibility rather than simply the number of classes it references.</p>
+    </div>
+
+    <div class="subheading">Mediator vs MVC Controller</div>
+    <div class="intro">
+        <p>A question that often arises in application development is whether an MVC Controller is a Mediator.</p>
+        <p>They can look similar, but they aren't automatically the same.</p>
+        <p>For example, consider a Spring Boot controller:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@RestController</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderController</span> {
+    <span class="code-keyword">private</span> <span class="code-class">OrderService</span> orderService;
+
+    <span class="code-class">OrderController</span>(<span class="code-class">OrderService</span> orderService) {
+        <span class="code-keyword">this</span>.orderService = orderService;
+    }
+
+    <span class="code-annotation">@PostMapping</span>(<span class="code-string">"/orders"</span>)
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> placeOrder(<span class="code-annotation">@RequestBody</span> <span class="code-class">OrderRequest</span> request) {
+        orderService.placeOrder(request);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>This is not necessarily an implementation of the Mediator Pattern.</p>
+        <p>The controller is primarily responsible for handling HTTP requests and translating them into application operations.</p>
+        <p>A mediator, on the other hand, coordinates interactions between participating objects and encapsulates the rules governing those interactions.</p>
+        <p>An application controller can perform mediation-like coordination, but MVC Controller and Mediator are different concepts with different primary purposes.</p>
+    </div>
+
+    <div class="subheading">Advantages of the Mediator Pattern</div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Advantage</th><th>Explanation</th></tr></thead>
+            <tbody>
+                <tr><td>Loose coupling</td><td>Objects depend on a mediator interface instead of one another</td></tr>
+                <tr><td>Single Responsibility Principle</td><td>Interaction rules are separated from individual component behavior</td></tr>
+                <tr><td>Open/Closed Principle</td><td>Some interaction policies can be changed by introducing new mediators without changing colleagues</td></tr>
+                <tr><td>Reusability</td><td>Colleagues can be reused with other mediator implementations</td></tr>
+                <tr><td>Centralized coordination</td><td>Interaction behavior is easier to locate and reason about</td></tr>
+                <tr><td>Testability</td><td>The mediator and individual colleagues can be tested separately</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p><strong>Example: Switching mediator implementations</strong></p>
+        <p>Suppose we have:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">ChatMediator</span> chatRoom = <span class="code-keyword">new</span> <span class="code-class">ChatRoom</span>();</code></pre></div>
+    <div class="intro">
+        <p>Later, we might implement:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ModeratedChatRoom</span> <span class="code-keyword">implements</span> <span class="code-class">ChatMediator</span> {
+    <span class="code-comment"># Enforces moderation and permission rules</span>
+}</code></pre></div>
+    <div class="intro">
+        <p>Then a user can be constructed with either mediator:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">ChatUser</span> alice = <span class="code-keyword">new</span> <span class="code-class">ChatUser</span>(<span class="code-string">"Alice"</span>, chatRoom);</code></pre></div>
+    <div class="intro">
+        <p>or:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">ChatMediator</span> moderatedRoom = <span class="code-keyword">new</span> <span class="code-class">ModeratedChatRoom</span>();
+<span class="code-class">ChatUser</span> alice = <span class="code-keyword">new</span> <span class="code-class">ChatUser</span>(<span class="code-string">"Alice"</span>, moderatedRoom);</code></pre></div>
+    <div class="intro">
+        <p>The <code>ChatUser</code> class does not need changes, provided the new mediator supports the same interface contract.</p>
+        <p>This demonstrates how the mediator allows coordination policies to change independently of participating objects.</p>
+    </div>
+
+    <div class="subheading">Disadvantages of the Mediator Pattern</div>
+    <div class="intro">
+        <p><strong>Mediator can become a God Object</strong></p>
+        <p>This is the most significant drawback.</p>
+        <p>As more interactions are introduced, the mediator may accumulate excessive responsibilities.</p>
+        <p>For example:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ApplicationMediator</span> {
+    <span class="code-keyword">void</span> handleUserRegistration() {}
+
+    <span class="code-keyword">void</span> processPayment() {}
+
+    <span class="code-keyword">void</span> sendEmail() {}
+
+    <span class="code-keyword">void</span> updateInventory() {}
+
+    <span class="code-keyword">void</span> generateInvoice() {}
+
+    <span class="code-keyword">void</span> scheduleDelivery() {}
+
+    <span class="code-keyword">void</span> calculateTax() {}
+}</code></pre></div>
+    <div class="intro">
+        <p>This class is handling too many unrelated concerns.</p>
+        <p>It becomes difficult to understand, maintain, and test.</p>
+        <p>A better solution is to introduce smaller mediators with clearly defined responsibilities.</p>
+        <p>For example:</p>
+    </div>
+    <div class="code-block"><pre><code>RegistrationMediator
+CheckoutMediator
+NotificationMediator</code></pre></div>
+    <div class="intro">
+        <p>Each mediator should coordinate a cohesive set of interactions.</p>
+        <p><strong>Additional abstraction</strong></p>
+        <p>Small systems with only two objects may not need a mediator.</p>
+        <p>For example:</p>
+    </div>
+    <div class="code-block"><pre><code>button.setOnClickListener(() -&gt; label.setText(<span class="code-string">"Clicked"</span>));</code></pre></div>
+    <div class="intro">
+        <p>Introducing a mediator solely for this single relationship may add unnecessary complexity.</p>
+        <p><strong>Centralization of interaction logic</strong></p>
+        <p>Changes to collaboration rules often require changing the concrete mediator.</p>
+        <p>Although this simplifies the individual colleagues, an overly complex mediator may become a maintenance bottleneck.</p>
+        <p><strong>Potential runtime bottleneck</strong></p>
+        <p>In a concurrent or distributed implementation, a single mediator instance or service may become a throughput bottleneck if all requests are serialized through it.</p>
+        <p>The design pattern itself doesn't require a single-threaded implementation or even a network service. Thread safety, concurrency, and availability need separate consideration.</p>
+    </div>
+
+    <div class="subheading">When should you use Mediator?</div>
+    <div class="intro">
+        <p>The Mediator Pattern is especially appropriate when several objects interact in complex ways, and those interactions are difficult to maintain because of direct dependencies.</p>
+        <p>Examples include:</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Scenario</th><th>Mediator's responsibility</th></tr></thead>
+            <tbody>
+                <tr><td>Chat application</td><td>Route messages and enforce communication rules</td></tr>
+                <tr><td>GUI form</td><td>Coordinate dependent fields, buttons, and validation</td></tr>
+                <tr><td>Air traffic control simulation</td><td>Coordinate runway access between aircraft</td></tr>
+                <tr><td>Multiplayer game lobby</td><td>Coordinate player readiness and game start</td></tr>
+                <tr><td>Workflow engine</td><td>Coordinate transitions between participating workflow steps</td></tr>
+                <tr><td>Auction system</td><td>Coordinate bids between registered bidders</td></tr>
+                <tr><td>Smart home controller</td><td>Coordinate devices based on sensor events</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p><strong>When to avoid it</strong></p>
+    </div>
+    <div class="callout callout-warning"><p>Avoid introducing a mediator when interactions are simple, objects are already loosely coupled, or the mediator would merely forward every method call without adding meaningful coordination.</p></div>
+    <div class="intro">
+        <p>Also, do not introduce a single application-wide mediator for every subsystem. Prefer mediators around specific collaborations.</p>
+    </div>
+
+    <div class="subheading">How to recognize Mediator in existing Java code</div>
+    <div class="intro">
+        <p>When reviewing Java code, look for these characteristics:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>Multiple collaborating objects depend on a shared coordinator interface.</li>
+        <li>Colleagues report actions or state changes to that coordinator.</li>
+        <li>The coordinator contains rules deciding which colleague should do what.</li>
+        <li>Colleagues rarely reference one another directly.</li>
+        <li>Interaction behavior can be changed without rewriting the internal behavior of each participant.</li>
+    </ul></div>
+    <div class="intro">
+        <p>For example:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">Mediator</span> {
+    <span class="code-keyword">void</span> notify(<span class="code-class">Component</span> sender, <span class="code-class">String</span> event);
+}</code></pre></div>
+    <div class="intro">
+        <p>And a component might look like:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ComponentA</span> {
+    <span class="code-keyword">private</span> <span class="code-class">Mediator</span> mediator;
+
+    <span class="code-class">ComponentA</span>(<span class="code-class">Mediator</span> mediator) {
+        <span class="code-keyword">this</span>.mediator = mediator;
+    }
+
+    <span class="code-keyword">void</span> performAction() {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Action performed"</span>);
+        mediator.notify(<span class="code-keyword">this</span>, <span class="code-string">"ACTION_COMPLETED"</span>);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>This structure is a common indication of the Mediator Pattern, although the presence of a class named <code>Mediator</code> alone does not guarantee that the pattern is being used meaningfully.</p>
+    </div>
+
+    <div class="subheading">Summary</div>
+    <div class="intro">
+        <p>The Mediator Pattern replaces complex direct communication between objects with a central coordination mechanism.</p>
+    </div>
+    <div class="scenario-layout scenario-layout-equal">
+        <div>
+            <div class="intro"><p><strong>Without Mediator</strong><br>Many direct dependencies</p></div>
+            <div class="svg-diagram"><img src="../static/mediator-without.svg" alt="Without a mediator: five components, each connected directly to every other component" style="width:100%;max-width:260px"></div>
+        </div>
+        <div>
+            <div class="intro"><p><strong>With Mediator</strong><br>Centralized coordination</p></div>
+            <div class="svg-diagram"><img src="../static/mediator-with.svg" alt="With a mediator: five components, each connected only to the central Mediator" style="width:100%;max-width:260px"></div>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Remember these key points:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>Mediator is a <strong>behavioral</strong> design pattern.</li>
+        <li>It centralizes interaction and communication rules.</li>
+        <li>Colleagues communicate through the mediator instead of directly depending on one another.</li>
+        <li>It improves loose coupling, reusability, and maintainability when object interactions are complex.</li>
+        <li>It is particularly useful in GUIs, chat systems, and multi-object coordination.</li>
+        <li>Its major drawback is the risk of creating an overly complex mediator.</li>
+    </ul></div>
+    <div class="callout callout-note"><p><strong>In one sentence:</strong> The Mediator Pattern encapsulates how a group of objects interact, allowing those objects to collaborate without being tightly coupled to one another.</p></div>
+
     <div class="section code-section">
         <div class="section-title">Code</div>
         <div class="code-layout">

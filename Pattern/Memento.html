@@ -75,6 +75,654 @@
         </ul></div>
     </div>
 
+
+    <div class="subheading">What is the Memento Design Pattern?</div>
+    <div class="intro">
+        <p>The <strong>Memento Pattern</strong> is a behavioral design pattern that allows an object to capture and save its internal state at a particular point in time so that it can be restored to that state later, <strong>without exposing the object's internal implementation details</strong>.</p>
+        <p>It provides a way to implement functionality such as Undo, Redo, Save, Restore, Checkpoints, and Rollback while preserving encapsulation.</p>
+        <p>The basic idea is:</p>
+    </div>
+    <div class="intro"><ol>
+        <li>An object performs some operations that change its internal state.</li>
+        <li>Before changing its state, a snapshot of its current state is created.</li>
+        <li>This snapshot is stored externally without exposing its internal data.</li>
+        <li>Whenever required, the original object can restore its internal state using the previously saved snapshot.</li>
+    </ol></div>
+    <div class="callout callout-note"><p><strong>In simple terms:</strong> Memento allows an object to remember its previous state and return to it later.</p></div>
+    <div class="intro">
+        <p><strong>Real-world analogy: Text editor</strong></p>
+        <p>Imagine working in a text editor.</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>State</th><th>Snapshot</th><th>Document text</th></tr></thead>
+            <tbody>
+                <tr><td>1 of 3</td><td>S0</td><td>(empty)</td></tr>
+                <tr><td>2 of 3</td><td>S1</td><td>Hello</td></tr>
+                <tr><td>3 of 3</td><td>S2</td><td>Hello World</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>Each Undo or Redo restores a previously captured document state.</p>
+        <p>Suppose the following changes occur:</p>
+    </div>
+    <div class="intro"><ol>
+        <li><strong>Initial state:</strong> Empty document.</li>
+        <li><strong>First modification:</strong> User types <code>Hello</code>.</li>
+        <li><strong>Second modification:</strong> User types <code> World</code>.</li>
+        <li><strong>Undo:</strong> Document returns to <code>Hello</code>.</li>
+        <li><strong>Redo:</strong> Document returns to <code>Hello World</code>.</li>
+    </ol></div>
+    <div class="intro">
+        <p>The editor needs to remember previous states. One way to implement this is by saving immutable snapshots of the document whenever changes are made.</p>
+        <p>This is where the Memento Pattern becomes useful.</p>
+    </div>
+
+    <div class="subheading">Why do we need the Memento Pattern?</div>
+    <div class="intro">
+        <p>Consider a <code>TextEditor</code> class containing several internal fields:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">TextEditor</span> {
+    <span class="code-keyword">private</span> <span class="code-class">StringBuilder</span> content;
+    <span class="code-keyword">private</span> <span class="code-keyword">int</span> cursorPosition;
+    <span class="code-keyword">private</span> <span class="code-class">String</span> fontFamily;
+    <span class="code-keyword">private</span> <span class="code-keyword">int</span> fontSize;
+}</code></pre></div>
+    <div class="intro">
+        <p>Suppose we want to implement undo functionality.</p>
+        <p>A naive implementation might expose the internal fields using getters and setters, allowing a separate <code>HistoryManager</code> to capture and restore each property.</p>
+        <p>However, this causes several problems:</p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>Encapsulation violation:</strong> The history manager needs to know the editor's internal structure.</li>
+        <li><strong>Tight coupling:</strong> Whenever the editor's internal representation changes, the history manager might also need modification.</li>
+        <li><strong>Incomplete restoration:</strong> Newly added fields may be forgotten during undo.</li>
+        <li><strong>Mutability problems:</strong> Storing references to mutable objects may not preserve the original state.</li>
+    </ul></div>
+    <div class="intro">
+        <p>The Memento Pattern solves these problems by making the editor responsible for creating and restoring its own snapshots.</p>
+        <p>The history manager simply stores these snapshots without understanding their contents.</p>
+    </div>
+
+    <div class="subheading">Main components of the Memento Pattern</div>
+    <div class="intro">
+        <p>The Memento Pattern typically involves three participants:</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Component</th><th>Responsibility</th></tr></thead>
+            <tbody>
+                <tr><td>Originator</td><td>The object whose internal state needs to be saved and restored.</td></tr>
+                <tr><td>Memento</td><td>An immutable snapshot representing the Originator's state at a particular moment.</td></tr>
+                <tr><td>Caretaker</td><td>Stores and manages Mementos, deciding when to save or restore states.</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p><strong>Class interaction diagram</strong></p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/memento-structure.svg" alt="The Caretaker (undo and redo stacks) calls the Originator (internal state, save and restore); the Originator creates Mementos (immutable snapshots of saved state), which the Caretaker stores" style="width:100%;max-width:760px">
+    </div>
+    <div class="intro">
+        <p><strong>Originator</strong></p>
+        <p>The Originator is the actual object whose state is changing.</p>
+        <p>For example, in a text editor, the <code>TextEditor</code> class is the Originator.</p>
+        <p>Its responsibilities include capturing its current state, creating a Memento containing that state, and restoring its internal fields using an existing Memento.</p>
+        <p><strong>Memento</strong></p>
+        <p>A Memento is a snapshot of the Originator's internal state.</p>
+        <p>Ideally, a Memento should be immutable, and its internal fields should not be accessible to the Caretaker.</p>
+        <p>For example, a snapshot could contain:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">private</span> <span class="code-keyword">record</span> <span class="code-class">Snapshot</span>(<span class="code-class">String</span> text, <span class="code-keyword">int</span> cursorPosition) <span class="code-keyword">implements</span> <span class="code-class">Memento</span> {}</code></pre></div>
+    <div class="intro">
+        <p>Because this is a private record, external components cannot directly access its implementation. Since both fields are immutable types, this particular snapshot is immutable.</p>
+        <p><strong>Caretaker</strong></p>
+        <p>The Caretaker manages the lifecycle of saved snapshots.</p>
+        <p>For example, an <code>EditorHistory</code> class may maintain two stacks:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">Deque</span>&lt;<span class="code-class">Memento</span>&gt; undoStack;
+<span class="code-class">Deque</span>&lt;<span class="code-class">Memento</span>&gt; redoStack;</code></pre></div>
+    <div class="intro">
+        <p>The Caretaker knows <strong>when</strong> to save or restore a state, but it does not need to know <strong>how</strong> the state is represented internally.</p>
+    </div>
+    <div class="callout callout-note"><p><strong>Important distinction:</strong> The Originator understands the Memento's contents. The Caretaker treats the Memento as an opaque object.</p></div>
+
+    <div class="subheading">Practical Example 1: Text Editor with Undo and Redo</div>
+    <div class="intro">
+        <p>Let's implement a text editor that supports:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>Typing text at the current cursor position.</li>
+        <li>Moving the cursor.</li>
+        <li>Saving document snapshots.</li>
+        <li>Undoing the last modification.</li>
+        <li>Redoing an undone modification.</li>
+        <li>Clearing redo history when a new modification is made.</li>
+    </ul></div>
+    <div class="intro">
+        <p>We'll use Java 25+, including records and pattern matching for <code>instanceof</code>.</p>
+        <p><strong>Complete runnable Java implementation</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+    <span class="code-class">TextEditor</span> editor = <span class="code-keyword">new</span> <span class="code-class">TextEditor</span>();
+    <span class="code-class">EditorHistory</span> history = <span class="code-keyword">new</span> <span class="code-class">EditorHistory</span>(editor);
+    history.execute(e -&gt; e.type(<span class="code-string">"Hello"</span>)); <span class="code-comment"># First modification</span>
+    history.execute(e -&gt; e.type(<span class="code-string">" World"</span>)); <span class="code-comment"># Second modification</span>
+    <span class="code-class">System</span>.out.println(editor.getText()); <span class="code-comment"># Hello World</span>
+    history.undo(); <span class="code-comment"># Undo the last modification</span>
+    <span class="code-class">System</span>.out.println(editor.getText()); <span class="code-comment"># Hello</span>
+    history.redo(); <span class="code-comment"># Redo the last undone modification</span>
+    <span class="code-class">System</span>.out.println(editor.getText()); <span class="code-comment"># Hello World</span>
+    history.undo(); <span class="code-comment"># Undo again</span>
+    history.execute(e -&gt; e.type(<span class="code-string">" Java"</span>)); <span class="code-comment"># Make a different modification</span>
+    <span class="code-class">System</span>.out.println(editor.getText()); <span class="code-comment"># Hello Java</span>
+    <span class="code-class">System</span>.out.println(history.redo()); <span class="code-comment"># false: redo is no longer available</span>
+}
+
+<span class="code-comment"># =====================================</span>
+<span class="code-comment"># ORIGINATOR</span>
+<span class="code-comment"># =====================================</span>
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">TextEditor</span> {
+    <span class="code-comment"># Opaque type exposed to the caretaker</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">Memento</span> {}
+
+    <span class="code-comment"># Actual snapshot implementation is private</span>
+    <span class="code-keyword">private</span> <span class="code-keyword">record</span> <span class="code-class">Snapshot</span>(<span class="code-class">String</span> text, <span class="code-keyword">int</span> cursorPosition) <span class="code-keyword">implements</span> <span class="code-class">Memento</span> {}
+
+    <span class="code-keyword">private</span> <span class="code-class">StringBuilder</span> text = <span class="code-keyword">new</span> <span class="code-class">StringBuilder</span>();
+    <span class="code-keyword">private</span> <span class="code-keyword">int</span> cursorPosition = <span class="code-number">0</span>;
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> type(<span class="code-class">String</span> value) {
+        <span class="code-class">Objects</span>.requireNonNull(value);
+        text.insert(cursorPosition, value);
+        cursorPosition += value.length();
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> moveCursor(<span class="code-keyword">int</span> position) {
+        <span class="code-keyword">if</span> (position &lt; <span class="code-number">0</span> || position &gt; text.length()) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>(<span class="code-string">"Invalid cursor position"</span>);
+        }
+        cursorPosition = position;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">String</span> getText() {
+        <span class="code-keyword">return</span> text.toString();
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">int</span> getCursorPosition() {
+        <span class="code-keyword">return</span> cursorPosition;
+    }
+
+    <span class="code-comment"># Create a snapshot of the current state</span>
+    <span class="code-keyword">public</span> <span class="code-class">Memento</span> save() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">Snapshot</span>(text.toString(), cursorPosition);
+    }
+
+    <span class="code-comment"># Restore state from a previous snapshot</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> restore(<span class="code-class">Memento</span> memento) {
+        <span class="code-keyword">if</span> (!(memento <span class="code-keyword">instanceof</span> <span class="code-class">Snapshot</span> snapshot)) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>(<span class="code-string">"Invalid memento"</span>);
+        }
+        <span class="code-keyword">this</span>.text = <span class="code-keyword">new</span> <span class="code-class">StringBuilder</span>(snapshot.text());
+        <span class="code-keyword">this</span>.cursorPosition = snapshot.cursorPosition();
+    }
+}
+
+<span class="code-comment"># =====================================</span>
+<span class="code-comment"># CARETAKER</span>
+<span class="code-comment"># =====================================</span>
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">EditorHistory</span> {
+    <span class="code-keyword">private</span> <span class="code-class">TextEditor</span> editor;
+    <span class="code-keyword">private</span> <span class="code-class">Deque</span>&lt;<span class="code-class">TextEditor</span>.<span class="code-class">Memento</span>&gt; undoStack = <span class="code-keyword">new</span> <span class="code-class">ArrayDeque</span>&lt;&gt;();
+    <span class="code-keyword">private</span> <span class="code-class">Deque</span>&lt;<span class="code-class">TextEditor</span>.<span class="code-class">Memento</span>&gt; redoStack = <span class="code-keyword">new</span> <span class="code-class">ArrayDeque</span>&lt;&gt;();
+
+    <span class="code-keyword">public</span> <span class="code-class">EditorHistory</span>(<span class="code-class">TextEditor</span> editor) {
+        <span class="code-keyword">this</span>.editor = <span class="code-class">Objects</span>.requireNonNull(editor);
+    }
+
+    <span class="code-comment"># Execute a modification and record the old state</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> execute(<span class="code-class">Consumer</span>&lt;<span class="code-class">TextEditor</span>&gt; operation) {
+        <span class="code-class">Objects</span>.requireNonNull(operation);
+        <span class="code-class">TextEditor</span>.<span class="code-class">Memento</span> before = editor.save();
+        <span class="code-keyword">try</span> {
+            operation.accept(editor);
+        } <span class="code-keyword">catch</span> (<span class="code-class">RuntimeException</span> | <span class="code-class">Error</span> ex) {
+            editor.restore(before);
+            <span class="code-keyword">throw</span> ex;
+        }
+        undoStack.push(before);
+        redoStack.clear(); <span class="code-comment"># New modification invalidates redo history</span>
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">boolean</span> undo() {
+        <span class="code-keyword">if</span> (undoStack.isEmpty()) {
+            <span class="code-keyword">return</span> <span class="code-keyword">false</span>;
+        }
+        redoStack.push(editor.save()); <span class="code-comment"># Save current state for redo</span>
+        editor.restore(undoStack.pop()); <span class="code-comment"># Restore previous state</span>
+        <span class="code-keyword">return</span> <span class="code-keyword">true</span>;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">boolean</span> redo() {
+        <span class="code-keyword">if</span> (redoStack.isEmpty()) {
+            <span class="code-keyword">return</span> <span class="code-keyword">false</span>;
+        }
+        undoStack.push(editor.save()); <span class="code-comment"># Save current state for undo</span>
+        editor.restore(redoStack.pop()); <span class="code-comment"># Restore the undone state</span>
+        <span class="code-keyword">return</span> <span class="code-keyword">true</span>;
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Understanding the implementation</strong></p>
+        <p><strong>Step 1: The editor captures its state</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-class">Memento</span> save() {
+    <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">Snapshot</span>(text.toString(), cursorPosition);
+}</code></pre></div>
+    <div class="intro">
+        <p>The editor captures both its content and cursor position.</p>
+        <p>Notice that it converts <code>StringBuilder</code> into <code>String</code>. This creates an independent, immutable representation of the text rather than retaining a reference to the mutable <code>StringBuilder</code>.</p>
+        <p><strong>Step 2: The history manager stores the snapshot</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">TextEditor</span>.<span class="code-class">Memento</span> before = editor.save();
+operation.accept(editor);
+undoStack.push(before);</code></pre></div>
+    <div class="intro">
+        <p>Before applying an operation, the Caretaker obtains a snapshot. It then performs the modification and stores the previous state.</p>
+        <p>The Caretaker never needs to know whether the saved state contains a string, cursor position, formatting, or any other information.</p>
+        <p><strong>Step 3: Undo restores an older state</strong></p>
+    </div>
+    <div class="code-block"><pre><code>redoStack.push(editor.save());
+editor.restore(undoStack.pop());</code></pre></div>
+    <div class="intro">
+        <p>Undo first saves the current state to the redo stack, then restores the most recent state from the undo stack.</p>
+        <p><strong>Step 4: Redo restores the undone state</strong></p>
+    </div>
+    <div class="code-block"><pre><code>undoStack.push(editor.save());
+editor.restore(redoStack.pop());</code></pre></div>
+    <div class="intro">
+        <p>Redo does the opposite: it stores the current state for future undo and restores the previously undone state.</p>
+        <p><strong>How the Undo and Redo stacks work internally</strong></p>
+        <p><strong>History timeline</strong></p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Step</th><th>Action</th><th>Editor text</th><th>Undo stack (top first)</th><th>Redo stack (top first)</th><th>What happens</th></tr></thead>
+            <tbody>
+                <tr><td>1</td><td>Initial</td><td>(empty)</td><td>&mdash;</td><td>&mdash;</td><td>The document is empty; no snapshots have been stored.</td></tr>
+                <tr><td>2</td><td>Type Hello</td><td>Hello</td><td>(empty)</td><td>&mdash;</td><td>Save the empty state before inserting Hello.</td></tr>
+                <tr><td>3</td><td>Type World</td><td>Hello World</td><td>Hello, (empty)</td><td>&mdash;</td><td>Save Hello before adding World.</td></tr>
+                <tr><td>4</td><td>Undo</td><td>Hello</td><td>(empty)</td><td>Hello World</td><td>Restore Hello and save Hello World for redo.</td></tr>
+                <tr><td>5</td><td>Redo</td><td>Hello World</td><td>Hello, (empty)</td><td>&mdash;</td><td>Restore Hello World and put Hello back on undo history.</td></tr>
+                <tr><td>6</td><td>Undo again</td><td>Hello</td><td>(empty)</td><td>Hello World</td><td>Return to Hello before branching to a new edit.</td></tr>
+                <tr><td>7</td><td>Type Java</td><td>Hello Java</td><td>Hello, (empty)</td><td>&mdash;</td><td>New editing branch: discard all redo states.</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>The important distinction is that Undo and Redo are not fundamentally different operations. Both restore a previously captured state. Their difference lies in which stack supplies the snapshot and where the current state gets saved.</p>
+        <p><strong>Why clear the redo stack after a new modification?</strong></p>
+        <p>Consider:</p>
+    </div>
+    <div class="ascii-diagram">Hello
+   |
+   v
+Hello World
+   |
+  Undo
+   |
+   v
+Hello
+   |
+New edit
+   |
+   v
+Hello Java</div>
+    <div class="intro">
+        <p>If the user types <code> Java</code> after undoing <code> World</code>, the previous redo path is no longer valid for a conventional linear undo history.</p>
+        <p>Therefore:</p>
+    </div>
+    <div class="code-block"><pre><code>redoStack.clear();</code></pre></div>
+    <div class="callout callout-note"><p>This is an undo/redo history policy implemented by the Caretaker, not a requirement of the Memento Pattern itself. More sophisticated systems can retain branches of history.</p></div>
+
+    <div class="subheading">Practical Example 2: Game Checkpoint and Restore</div>
+    <div class="intro">
+        <p>Another common application of the Memento Pattern is a game checkpoint system.</p>
+        <p>Imagine a player with the following internal state:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>Health: 100</li>
+        <li>Level: 1</li>
+        <li>Inventory: Sword</li>
+    </ul></div>
+    <div class="intro">
+        <p>Before entering a dangerous area, the game saves a checkpoint. The player then takes damage, collects additional items, and advances to the next level.</p>
+        <p>If the player wants to restart from the checkpoint, the entire previous state should be restored.</p>
+        <p><strong>Java implementation</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+    <span class="code-class">Game</span> game = <span class="code-keyword">new</span> <span class="code-class">Game</span>();
+    game.collectItem(<span class="code-string">"Sword"</span>); <span class="code-comment"># Player picks up a weapon</span>
+    <span class="code-class">Game</span>.<span class="code-class">Memento</span> checkpoint = game.save(); <span class="code-comment"># Save checkpoint</span>
+    <span class="code-comment"># Player continues playing</span>
+    game.takeDamage(<span class="code-number">60</span>);
+    game.collectItem(<span class="code-string">"Shield"</span>);
+    game.completeLevel();
+    <span class="code-class">System</span>.out.println(<span class="code-string">"After playing:"</span>);
+    game.printStatus();
+    game.restore(checkpoint); <span class="code-comment"># Restore previous checkpoint</span>
+    <span class="code-class">System</span>.out.println(<span class="code-string">"After restoring checkpoint:"</span>);
+    game.printStatus();
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Game</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">Memento</span> {}
+
+    <span class="code-keyword">private</span> <span class="code-keyword">record</span> <span class="code-class">Snapshot</span>(<span class="code-keyword">int</span> health, <span class="code-keyword">int</span> level, <span class="code-class">List</span>&lt;<span class="code-class">String</span>&gt; inventory) <span class="code-keyword">implements</span> <span class="code-class">Memento</span> {}
+
+    <span class="code-keyword">private</span> <span class="code-keyword">int</span> health = <span class="code-number">100</span>;
+    <span class="code-keyword">private</span> <span class="code-keyword">int</span> level = <span class="code-number">1</span>;
+    <span class="code-keyword">private</span> <span class="code-class">List</span>&lt;<span class="code-class">String</span>&gt; inventory = <span class="code-keyword">new</span> <span class="code-class">ArrayList</span>&lt;&gt;();
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> takeDamage(<span class="code-keyword">int</span> damage) {
+        health = <span class="code-class">Math</span>.max(<span class="code-number">0</span>, health - damage);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> collectItem(<span class="code-class">String</span> item) {
+        inventory.add(item);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> completeLevel() {
+        level++;
+    }
+
+    <span class="code-comment"># Create checkpoint</span>
+    <span class="code-keyword">public</span> <span class="code-class">Memento</span> save() {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">Snapshot</span>(health, level, <span class="code-class">List</span>.copyOf(inventory));
+    }
+
+    <span class="code-comment"># Restore checkpoint</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> restore(<span class="code-class">Memento</span> memento) {
+        <span class="code-keyword">if</span> (!(memento <span class="code-keyword">instanceof</span> <span class="code-class">Snapshot</span> state)) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>(<span class="code-string">"Invalid checkpoint"</span>);
+        }
+        health = state.health();
+        level = state.level();
+        inventory.clear();
+        inventory.addAll(state.inventory());
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> printStatus() {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Health: "</span> + health);
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Level: "</span> + level);
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Inventory: "</span> + inventory);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Output</strong></p>
+    </div>
+    <div class="code-block"><pre><code>After playing:
+Health: 40
+Level: 2
+Inventory: [Sword, Shield]
+
+After restoring checkpoint:
+Health: 100
+Level: 1
+Inventory: [Sword]</code></pre></div>
+    <div class="intro">
+        <p><strong>Important: Deep copying mutable state</strong></p>
+        <p>Notice this statement:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">List</span>.copyOf(inventory)</code></pre></div>
+    <div class="intro">
+        <p>We create an independent list for the snapshot.</p>
+        <p>If we had simply stored a mutable list reference, future changes to the inventory could accidentally alter the saved state.</p>
+        <p>For example, the following is dangerous:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">new</span> <span class="code-class">Snapshot</span>(health, level, inventory); <span class="code-comment"># Bad when the snapshot must remain independent</span></code></pre></div>
+    <div class="intro">
+        <p><code>List.copyOf()</code> gives us an unmodifiable snapshot of the list structure.</p>
+    </div>
+    <div class="callout callout-warning"><p>However, this is only a <strong>shallow copy</strong> of its elements. It is safe here because <code>String</code> is immutable. If the inventory contained mutable <code>Item</code> objects, we would also need to copy those items, or represent them with immutable values.</p></div>
+    <div class="intro">
+        <p>This is one of the most important considerations in implementing the Memento Pattern correctly.</p>
+    </div>
+
+    <div class="subheading">How Memento preserves encapsulation</div>
+    <div class="intro">
+        <p>The key design principle behind Memento is that the <strong>Caretaker should not have direct access to the Originator's private state</strong>.</p>
+        <p>Consider our implementation:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">TextEditor</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">Memento</span> {}
+
+    <span class="code-keyword">private</span> <span class="code-keyword">record</span> <span class="code-class">Snapshot</span>(<span class="code-class">String</span> text, <span class="code-keyword">int</span> cursorPosition) <span class="code-keyword">implements</span> <span class="code-class">Memento</span> {}
+
+    <span class="code-keyword">public</span> <span class="code-class">Memento</span> save() {
+        <span class="code-comment"># ...</span>
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> restore(<span class="code-class">Memento</span> memento) {
+        <span class="code-comment"># ...</span>
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>The Caretaker sees only:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">TextEditor</span>.<span class="code-class">Memento</span> snapshot = editor.save();</code></pre></div>
+    <div class="intro">
+        <p>It cannot access:</p>
+    </div>
+    <div class="code-block"><pre><code>snapshot.text();           <span class="code-comment"># Not accessible</span>
+snapshot.cursorPosition(); <span class="code-comment"># Not accessible</span></code></pre></div>
+    <div class="intro">
+        <p>Why? Because the public <code>Memento</code> interface exposes no operations, and <code>Snapshot</code> is private to <code>TextEditor</code>.</p>
+        <p>Only <code>TextEditor</code> knows how to interpret its internal snapshot representation.</p>
+        <p>This ensures that if the editor later adds new fields, such as text alignment, font properties, or selection information, the Caretaker does not need to change.</p>
+    </div>
+    <div class="callout callout-note"><p>The Originator controls <strong>what</strong> is captured and how restoration works. The Caretaker controls <strong>when</strong> snapshots are stored and restored.</p></div>
+
+    <div class="subheading">Memento vs Command Pattern</div>
+    <div class="intro">
+        <p>Both the Memento pattern and Command pattern can implement undo functionality, but their mechanisms differ.</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Aspect</th><th>Memento</th><th>Command</th></tr></thead>
+            <tbody>
+                <tr><td>Main purpose</td><td>Capture and restore object state</td><td>Encapsulate an operation as an object</td></tr>
+                <tr><td>Undo approach</td><td>Restore a previous snapshot</td><td>Execute an inverse operation or use saved undo information</td></tr>
+                <tr><td>Stores</td><td>State</td><td>Operations and their parameters</td></tr>
+                <tr><td>Dependencies</td><td>Originator understands snapshots</td><td>Commands understand how to perform operations</td></tr>
+                <tr><td>Memory usage</td><td>Potentially high for full snapshots</td><td>Often lower for small operations</td></tr>
+                <tr><td>Best suited for</td><td>Complex state restoration, checkpoints</td><td>Reversible operations, command histories</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p><strong>Example: Undo typing</strong></p>
+        <p><strong>Memento approach</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">Memento</span> before = editor.save();
+editor.type(<span class="code-string">"Hello"</span>);
+editor.restore(before); <span class="code-comment"># Undo</span></code></pre></div>
+    <div class="intro">
+        <p>We don't need to know exactly how typing modified the document. We only need to restore the saved state.</p>
+        <p><strong>Command approach</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">Command</span> {
+    <span class="code-keyword">void</span> execute();
+
+    <span class="code-keyword">void</span> undo();
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">InsertTextCommand</span> <span class="code-keyword">implements</span> <span class="code-class">Command</span> {
+    <span class="code-keyword">private</span> <span class="code-class">TextEditor</span> editor;
+    <span class="code-keyword">private</span> <span class="code-class">String</span> text;
+
+    <span class="code-keyword">public</span> <span class="code-class">InsertTextCommand</span>(<span class="code-class">TextEditor</span> editor, <span class="code-class">String</span> text) {
+        <span class="code-keyword">this</span>.editor = editor;
+        <span class="code-keyword">this</span>.text = text;
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> execute() {
+        editor.insert(text);
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> undo() {
+        editor.deleteInsertedText(text.length());
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>The Command Pattern tries to reverse the effect of an operation. A real implementation would also record the insertion position and other information necessary to undo correctly.</p>
+        <p>In contrast, Memento simply restores the previously captured state.</p>
+        <p><strong>Can Command and Memento be used together?</strong></p>
+        <p>Yes. They complement each other.</p>
+        <p>For example, a command can save a Memento before it executes:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">UpdateDocumentCommand</span> <span class="code-keyword">implements</span> <span class="code-class">Command</span> {
+    <span class="code-keyword">private</span> <span class="code-class">Document</span> document;
+    <span class="code-keyword">private</span> <span class="code-class">Document</span>.<span class="code-class">Memento</span> previousState;
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> execute() {
+        previousState = document.save();
+        document.update();
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> undo() {
+        document.restore(previousState);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>This combines the benefits of both patterns:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>Command encapsulates the <strong>operation</strong>.</li>
+        <li>Memento encapsulates the <strong>state</strong> required to undo it.</li>
+        <li>The command does not need to implement the inverse of every internal modification.</li>
+    </ul></div>
+    <div class="intro">
+        <p>This is especially useful for complex operations where manually reversing each change would be error-prone. Such a simple single-snapshot command assumes it is executed once before being undone; reusable commands need more careful lifecycle handling.</p>
+    </div>
+
+    <div class="subheading">Memento vs Event Sourcing</div>
+    <div class="intro">
+        <p>Since both patterns preserve historical information, it is useful to understand how they differ.</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Memento</th><th>Event Sourcing</th></tr></thead>
+            <tbody>
+                <tr><td>Stores snapshots of state</td><td>Stores events representing state changes</td></tr>
+                <tr><td>Restores an object from a snapshot</td><td>Reconstructs state by replaying events</td></tr>
+                <tr><td>Usually focused on local object restoration</td><td>Often used for business state history and auditability</td></tr>
+                <tr><td>Doesn't explain why state changed</td><td>Events describe what happened</td></tr>
+                <tr><td>Can support undo and checkpoints</td><td>Supports reconstruction, projections, and audit trails</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>For example:</p>
+        <p><strong>Memento snapshots:</strong></p>
+    </div>
+    <div class="code-block"><pre><code>State 1: Balance = 100
+State 2: Balance = 150
+State 3: Balance = 120</code></pre></div>
+    <div class="intro">
+        <p><strong>Event Sourcing:</strong></p>
+    </div>
+    <div class="code-block"><pre><code>AccountCreated(balance=100)
+MoneyDeposited(amount=50)
+MoneyWithdrawn(amount=30)</code></pre></div>
+    <div class="intro">
+        <p>Memento stores the <strong>resulting state</strong>, whereas Event Sourcing records the <strong>operations or domain events</strong> that led to the state.</p>
+        <p>A system can combine both approaches. In an event-sourced application, snapshots can accelerate recovery by avoiding the need to replay the entire event history.</p>
+    </div>
+    <div class="callout callout-warning"><p>However, arbitrary restoration of a snapshot is not equivalent to reversing completed business transactions. For example, restoring an old account balance cannot safely undo an actual bank transfer.</p></div>
+
+    <div class="subheading">Advantages and disadvantages</div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Advantages</th><th>Disadvantages</th></tr></thead>
+            <tbody>
+                <tr><td>Preserves encapsulation</td><td>Full snapshots may consume substantial memory</td></tr>
+                <tr><td>Simplifies undo/redo</td><td>Capturing large states can be expensive</td></tr>
+                <tr><td>Separates state management from history management</td><td>Deep copying mutable objects may be complex</td></tr>
+                <tr><td>Supports checkpoints and restoration</td><td>Old snapshots may become incompatible after structural changes</td></tr>
+                <tr><td>Avoids implementing inverse operations</td><td>Snapshot lifecycle and retention need management</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p><strong>Performance considerations</strong></p>
+        <p>Suppose a document contains 10 MB of text and we save a complete snapshot after every keystroke.</p>
+        <p>If we retain 100 snapshots, we could consume approximately 1 GB just for the saved text copies, depending on representation and sharing.</p>
+        <p>For large objects, possible optimizations include incremental snapshots, structural sharing, storing only changed portions, limiting undo history, and periodically consolidating old history.</p>
+        <p>For example, a sophisticated text editor may use a persistent data structure or piece table instead of copying the complete document after every keystroke.</p>
+    </div>
+    <div class="callout callout-note"><p>The Memento Pattern does not require full copying; it requires that each saved state can be used to restore the intended earlier state correctly.</p></div>
+
+    <div class="subheading">Best practices when implementing Memento</div>
+    <div class="intro"><ol>
+        <li><strong>Prefer immutable snapshots.</strong> Once captured, the saved state should not change. Java records work well when their components are immutable or defensively copied.</li>
+        <li><strong>Do not expose snapshot internals to the Caretaker.</strong> Use an opaque interface or another visibility mechanism that lets the Originator control state access.</li>
+        <li><strong>Capture all relevant state.</strong> If the editor stores content, cursor position, and formatting, restoring only content may result in inconsistent behavior.</li>
+        <li><strong>Manage history size.</strong> An unbounded undo stack can lead to excessive memory consumption. Use history limits or more efficient representations where necessary.</li>
+        <li><strong>Treat multi-threaded access carefully.</strong> If several threads can modify an Originator, saving and restoring snapshots must be coordinated so that a snapshot represents a consistent state.</li>
+        <li><strong>Distinguish in-memory undo from durable persistence.</strong> A Memento object held in memory disappears when the process terminates. For crash recovery, snapshots need durable storage and potentially schema-versioning support.</li>
+        <li><strong>Track all relevant modifications.</strong> In the text editor implementation, changes should go through <code>EditorHistory.execute()</code>. Changes made directly through <code>editor.type()</code> will not automatically become undoable history entries.</li>
+    </ol></div>
+
+    <div class="subheading">When should you use the Memento Pattern?</div>
+    <div class="intro">
+        <p>Memento is particularly suitable when an object's state must be restored later, the state is complicated, and external components should not manipulate its internal representation directly.</p>
+        <p>Common applications include:</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Application</th><th>Memento usage</th></tr></thead>
+            <tbody>
+                <tr><td>Text editors and IDEs</td><td>Restore previous document states</td></tr>
+                <tr><td>Image editing software</td><td>Undo previous editing states</td></tr>
+                <tr><td>Video games</td><td>Save and restore checkpoints</td></tr>
+                <tr><td>Drawing applications</td><td>Restore shapes, positions, and styles</td></tr>
+                <tr><td>Multi-step forms</td><td>Preserve draft states or restore earlier input</td></tr>
+                <tr><td>Configuration editors</td><td>Revert to previously saved configuration</td></tr>
+                <tr><td>Simulations</td><td>Return to an earlier simulation state</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="callout callout-warning"><p>It may not be ideal for high-frequency changes to very large state objects when complete snapshots are prohibitively expensive. It is also not a substitute for database transactions or distributed consistency mechanisms.</p></div>
+
+    <div class="subheading">Final summary</div>
+    <div class="intro">
+        <p><strong>The Memento Pattern in one diagram</strong></p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/memento-summary.svg" alt="The Originator owns and saves its state into a Memento; the Caretaker stores the snapshots and restores a snapshot through the Originator" style="width:100%;max-width:760px">
+    </div>
+    <div class="intro">
+        <p>The Memento Design Pattern separates state ownership, state representation, and state history management into three responsibilities:</p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>Originator:</strong> Creates snapshots of its internal state and knows how to restore them.</li>
+        <li><strong>Memento:</strong> Holds the captured state, ideally immutably and without exposing implementation details.</li>
+        <li><strong>Caretaker:</strong> Manages saved snapshots and decides when to restore them.</li>
+    </ul></div>
+    <div class="intro">
+        <p>The most important concept is that the Caretaker does not need to understand the Originator's internal state.</p>
+    </div>
+    <div class="callout callout-note"><p><strong>Remember:</strong> Memento is about restoring an earlier state, whereas Command is primarily about encapsulating an operation. Both can support undo/redo, and they can work together.</p></div>
+
     <div class="section code-section">
         <div class="section-title">Code</div>
         <div class="code-layout">
