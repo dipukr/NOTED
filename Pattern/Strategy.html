@@ -11,79 +11,12 @@
     <div class="title">Strategy</div>
 
     <div class="intro">
-        <p>Strategy is a behavioral design pattern that defines a family of related algorithms or behaviors, encapsulates each one in a separate class, and makes them interchangeable. It allows the algorithm used by an object to vary independently from the client that uses it. Instead of implementing multiple variations of a behavior directly inside the client or Context class using large if-else or switch statements, each variation is extracted into a separate Strategy implementation that follows a common interface.</p>
-        <p>Context is the class that needs some behavior or algorithm to perform its job, but does not implement that algorithm itself. The context holds a reference to a strategy object and delegates the work to it, so the behavior can be swapped at runtime.</p><br>
+        <p>The <strong>Strategy Design Pattern</strong> is a behavioral design pattern that defines a family of algorithms, encapsulates each algorithm in a separate class, and makes them interchangeable.</p>
+        <p>Instead of implementing multiple algorithms directly inside a class using <code>if-else</code> or <code>switch</code> statements,<br> the Strategy pattern moves each algorithm into its own class behind a common interface.</p>
+        <p>The client, often called the <strong>Context</strong>, holds a reference to a strategy object and delegates the actual work to it.<br> The strategy can be selected or replaced at runtime without changing the Context's implementation.</p>
         <p><strong>Context</strong> = the object that uses an algorithm.</p>
         <p><strong>Strategy</strong> = the interface that defines the algorithm or behavior.</p>
         <p><strong>Concrete Strategy</strong> = the class that implements a particular version of that algorithm.</p>
-    </div>
-
-    <div class="section when-use">
-        <div class="section-title">When to use</div>
-        <div class="section-content">
-            <ul>
-                <li>When you have several variants of an algorithm and want to switch between them.</li>
-                <li>When you want to choose an algorithm's behavior at runtime.</li>
-                <li>When many related classes differ only in their behavior.</li>
-                <li>Typical uses: sorting strategies, payment methods, compression algorithms, and routing.</li>
-            </ul>
-        </div>
-    </div>
-
-    <div class="subheading">Pros and Cons</div>
-    <div class="pc-grid">
-        <div class="pc-card pro">
-            <div class="pc-title">Runtime Swapping</div>
-            <p>Algorithms can be swapped at runtime without changing the context.</p>
-        </div>
-        <div class="pc-card pro">
-            <div class="pc-title">Encapsulated Details</div>
-            <p>Isolates algorithm implementation details from the code that uses it.</p>
-        </div>
-        <div class="pc-card pro">
-            <div class="pc-title">Removes Conditionals</div>
-            <p>Replaces conditional logic for selecting behavior with polymorphism.</p>
-        </div>
-        <div class="pc-card pro">
-            <div class="pc-title">Open/Closed Principle</div>
-            <p>Follows the Open/Closed Principle, so new strategies add cleanly.</p>
-        </div>
-    
-
-        <div class="pc-card con">
-            <div class="pc-title">More Classes</div>
-            <p>Increases the number of objects and classes in the application.</p>
-        </div>
-        <div class="pc-card con">
-            <div class="pc-title">Client Awareness</div>
-            <p>Clients must be aware of the differences to choose the right strategy.</p>
-        </div>
-        <div class="pc-card con">
-            <div class="pc-title">Possible Overkill</div>
-            <p>Overkill if the algorithm rarely changes or has only one variant.</p>
-        </div>
-    </div>
-
-    <div class="section realworld">
-        <div class="section-title">Real-world example</div>
-        <div class="section-content"><ul>
-            <li><strong>Comparator</strong> &mdash; passing different Comparator objects to Collections.sort or List.sort swaps the ordering algorithm.</li>
-            <li><strong>Java layout managers</strong> &mdash; Swing containers delegate positioning to interchangeable LayoutManager strategies like BorderLayout and GridLayout.</li>
-            <li><strong>Spring Resource loading</strong> &mdash; ResourceLoader picks different Resource strategies (classpath, file, URL) based on the location prefix.</li>
-            <li><strong>Spring PlatformTransactionManager</strong> &mdash; the transaction behavior varies by implementation (JPA, JDBC, JTA) behind one interface.</li>
-            <li><strong>Payment checkout</strong> &mdash; an online store applies card, UPI, or wallet payment strategies chosen at runtime.</li>
-            <li><strong>Compression tools</strong> &mdash; an archiver selects ZIP, GZIP, or RAR compression strategies for the same file operation.</li>
-            <li><strong>Navigation apps</strong> &mdash; a maps app switches between driving, walking, and transit route-calculation strategies.</li>
-        </ul></div>
-    </div>
-
-
-    <div class="subheading">What is the Strategy Design Pattern?</div>
-    <div class="intro">
-        <p>The <strong>Strategy Design Pattern</strong> is a behavioral design pattern that defines a family of algorithms, encapsulates each algorithm in a separate class, and makes them interchangeable.</p>
-        <p>It allows the algorithm to vary independently of the client that uses it.</p>
-        <p>Instead of implementing multiple algorithms directly inside a class using <code>if-else</code> or <code>switch</code> statements, the Strategy pattern moves each algorithm into its own class behind a common interface.</p>
-        <p>The client, often called the <strong>Context</strong>, holds a reference to a strategy object and delegates the actual work to it. The strategy can be selected or replaced at runtime without changing the Context's implementation.</p>
     </div>
     <div class="callout callout-note"><p><strong>Key idea:</strong> Separate <strong>what</strong> needs to be done from <strong>how</strong> it is done.</p></div>
     <div class="intro">
@@ -117,7 +50,7 @@ service.pay(<span class="code-string">"CARD"</span>, <span class="code-number">2
     </div>
     <div class="intro"><ul>
         <li><strong>Violates Open/Closed Principle:</strong> Adding a new payment method requires modifying the existing <code>PaymentService</code>.</li>
-        <li><strong>Violates Single Responsibility Principle:</strong> The class manages both checkout coordination and individual payment algorithms.</li>
+        <li><strong>Violates SRP:</strong> The class manages both checkout coordination and individual payment algorithms.</li>
         <li><strong>Tight coupling:</strong> <code>PaymentService</code> depends on the implementation of every payment method.</li>
         <li><strong>Difficult testing:</strong> Each payment algorithm cannot be tested as independently as a separate class.</li>
         <li><strong>Growing conditional logic:</strong> As payment methods increase, the code becomes harder to maintain.</li>
@@ -128,7 +61,7 @@ service.pay(<span class="code-string">"CARD"</span>, <span class="code-number">2
 
     <div class="subheading">Structure of the Strategy Pattern</div>
     <div class="svg-diagram">
-        <img src="../static/strategy-structure.svg" alt="The client selects a strategy for the Context (Checkout), which delegates to the PaymentStrategy interface with pay(amount); UPI, Card and COD strategies implement it" style="width:100%;max-width:860px">
+        <img src="../static/strategy-structure.svg" alt="The client chooses a payment strategy and gives it to Checkout, the context, which delegates pay(amount) to the PaymentStrategy interface; UpiPayment, CardPayment and CashOnDeliveryPayment implement that interface" style="width:100%;max-width:880px">
     </div>
     <div class="intro">
         <p>The Context delegates to a common Strategy interface. Each concrete strategy implements its own algorithm.</p>
@@ -146,13 +79,14 @@ service.pay(<span class="code-string">"CARD"</span>, <span class="code-number">2
         </table>
     </div></div>
     <div class="intro">
-        <p>The Context does not need to know the internal implementation of any concrete strategy. It only knows the Strategy interface.</p>
+        <p>The Context does not need to know the internal implementation of any concrete strategy.</p>
+        <p>The Context only knows the Strategy interface.</p>
     </div>
 
-    <div class="subheading">Practical Example 1: Payment Processing in Java</div>
+    <div class="subheading">Practical Example: Payment Processing</div>
     <div class="intro">
         <p>We will implement the payment system using Strategy.</p>
-        <p><strong>Step 1: Create the Strategy interface</strong></p>
+        <p><strong>Create the Strategy interface</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">PaymentStrategy</span> {
     <span class="code-keyword">void</span> pay(<span class="code-class">BigDecimal</span> amount);
@@ -160,8 +94,7 @@ service.pay(<span class="code-string">"CARD"</span>, <span class="code-number">2
     <div class="intro">
         <p>The <code>PaymentStrategy</code> interface defines the contract that every payment method must follow.</p>
         <p>Notice that it does not specify how a payment should be processed.</p>
-        <p><strong>Step 2: Create Concrete Strategies</strong></p>
-        <p><strong>UPI Payment Strategy</strong></p>
+        <p><strong>Create Concrete Strategies</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">UpiPayment</span> <span class="code-keyword">implements</span> <span class="code-class">PaymentStrategy</span> {
     <span class="code-keyword">private</span> <span class="code-class">String</span> upiId;
@@ -170,14 +103,10 @@ service.pay(<span class="code-string">"CARD"</span>, <span class="code-number">2
         <span class="code-keyword">this</span>.upiId = upiId;
     }
 
-    <span class="code-annotation">@Override</span>
     <span class="code-keyword">public</span> <span class="code-keyword">void</span> pay(<span class="code-class">BigDecimal</span> amount) {
         <span class="code-class">System</span>.out.println(<span class="code-string">"Processing UPI payment of Rs. "</span> + amount + <span class="code-string">" using "</span> + upiId);
     }
 }</code></pre></div>
-    <div class="intro">
-        <p><strong>Credit Card Payment Strategy</strong></p>
-    </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CardPayment</span> <span class="code-keyword">implements</span> <span class="code-class">PaymentStrategy</span> {
     <span class="code-keyword">private</span> <span class="code-class">String</span> cardToken;
 
@@ -185,17 +114,11 @@ service.pay(<span class="code-string">"CARD"</span>, <span class="code-number">2
         <span class="code-keyword">this</span>.cardToken = cardToken;
     }
 
-    <span class="code-annotation">@Override</span>
     <span class="code-keyword">public</span> <span class="code-keyword">void</span> pay(<span class="code-class">BigDecimal</span> amount) {
         <span class="code-class">System</span>.out.println(<span class="code-string">"Processing credit card payment of Rs. "</span> + amount);
-        <span class="code-comment"># In production, use cardToken with a payment gateway.</span>
     }
 }</code></pre></div>
-    <div class="intro">
-        <p><strong>Cash on Delivery Strategy</strong></p>
-    </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CashOnDeliveryPayment</span> <span class="code-keyword">implements</span> <span class="code-class">PaymentStrategy</span> {
-    <span class="code-annotation">@Override</span>
     <span class="code-keyword">public</span> <span class="code-keyword">void</span> pay(<span class="code-class">BigDecimal</span> amount) {
         <span class="code-class">System</span>.out.println(<span class="code-string">"Cash on delivery selected. Amount: Rs. "</span> + amount);
     }
@@ -206,7 +129,7 @@ service.pay(<span class="code-string">"CARD"</span>, <span class="code-number">2
     </div>
     <div class="callout callout-note"><p>These classes demonstrate the pattern; they simulate payment processing rather than execute real financial transactions.</p></div>
     <div class="intro">
-        <p><strong>Step 3: Create the Context class</strong></p>
+        <p><strong>Create the Context class</strong></p>
         <p>The Context is the class that uses a Strategy.</p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Checkout</span> {
@@ -221,9 +144,8 @@ service.pay(<span class="code-string">"CARD"</span>, <span class="code-number">2
     }
 
     <span class="code-keyword">public</span> <span class="code-keyword">void</span> checkout(<span class="code-class">BigDecimal</span> amount) {
-        <span class="code-keyword">if</span> (amount == <span class="code-keyword">null</span> || amount.signum() &lt;= <span class="code-number">0</span>) {
+        <span class="code-keyword">if</span> (amount == <span class="code-keyword">null</span> || amount.signum() &lt;= <span class="code-number">0</span>)
             <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>(<span class="code-string">"Invalid amount"</span>);
-        }
         paymentStrategy.pay(amount);
     }
 }</code></pre></div>
@@ -232,13 +154,13 @@ service.pay(<span class="code-string">"CARD"</span>, <span class="code-number">2
     </div>
     <div class="intro"><ul>
         <li><code>Checkout</code> holds a reference to the <code>PaymentStrategy</code> interface, not to a concrete payment class.</li>
-        <li>When <code>checkout()</code> is invoked, it delegates payment processing to the currently configured strategy:</li>
+        <li>When <code>checkout</code> is invoked, it delegates payment processing to the currently configured strategy:</li>
     </ul></div>
     <div class="code-block"><pre><code>paymentStrategy.pay(amount);</code></pre></div>
     <div class="intro">
-        <p>The <code>Checkout</code> class does not know whether the payment is processed through UPI, credit card, or cash on delivery.</p>
+        <p>The <code>Checkout</code> class does not know whether the payment is processed through UPI, credit card or cash on delivery.</p>
         <p>This is an example of <strong>composition</strong> and <strong>polymorphism</strong> working together.</p>
-        <p><strong>Step 4: Client code</strong></p>
+        <p><strong>Client code</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
     <span class="code-class">Checkout</span> checkout = <span class="code-keyword">new</span> <span class="code-class">Checkout</span>(<span class="code-keyword">new</span> <span class="code-class">UpiPayment</span>(<span class="code-string">"customer@upi"</span>));
@@ -255,35 +177,21 @@ service.pay(<span class="code-string">"CARD"</span>, <span class="code-number">2
 Processing credit card payment of Rs. 2000
 Cash on delivery selected. Amount: Rs. 1500</code></pre></div>
     <div class="intro">
-        <p><strong>How does it work internally?</strong></p>
-        <p><strong>Runtime strategy selection</strong></p>
-    </div>
-    <div class="section cmp"><div class="section-content">
-        <table class="cmp-table centered cmp-peer">
-            <thead><tr><th>Selected</th><th>Context</th><th>Strategy interface</th><th>Concrete strategy</th><th>Behavior</th></tr></thead>
-            <tbody>
-                <tr><td>UPI</td><td><code>Checkout.checkout(amount)</code></td><td><code>PaymentStrategy.pay(amount)</code></td><td><code>UpiPayment</code></td><td>Processing UPI payment</td></tr>
-                <tr><td>Card</td><td><code>Checkout.checkout(amount)</code></td><td><code>PaymentStrategy.pay(amount)</code></td><td><code>CardPayment</code></td><td>Processing card payment</td></tr>
-                <tr><td>COD</td><td><code>Checkout.checkout(amount)</code></td><td><code>PaymentStrategy.pay(amount)</code></td><td><code>CashOnDeliveryPayment</code></td><td>Cash on delivery selected</td></tr>
-            </tbody>
-        </table>
-    </div></div>
-    <div class="intro">
         <p>Only the concrete strategy changes; <code>Checkout</code> and <code>PaymentStrategy</code> remain the same.</p>
         <p>When the client configures:</p>
     </div>
     <div class="code-block"><pre><code>checkout.setPaymentStrategy(<span class="code-keyword">new</span> <span class="code-class">CardPayment</span>(<span class="code-string">"token"</span>));</code></pre></div>
     <div class="intro">
         <p>the <code>Checkout</code> object now references <code>CardPayment</code>.</p>
-        <p>Subsequently, calling:</p>
+        <p>Subsequently calling:</p>
     </div>
     <div class="code-block"><pre><code>checkout.checkout(<span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"2000"</span>));</code></pre></div>
     <div class="intro">
-        <p>results in Java's runtime polymorphism dispatching the <code>pay()</code> call to <code>CardPayment.pay()</code>.</p>
+        <p>results in Java's runtime polymorphism dispatching the <code>pay</code> call to <code>CardPayment.pay</code>.</p>
         <p>The algorithm changes without requiring any modification to <code>Checkout</code>.</p>
     </div>
 
-    <div class="subheading">Practical Example 2: Shipping Cost Calculation</div>
+    <div class="subheading">Practical Example: Shipping Cost Calculation</div>
     <div class="intro">
         <p>The previous example demonstrated interchangeable behaviors. Let's consider a case where different strategies implement actual calculation algorithms.</p>
         <p>Suppose an e-commerce application offers different shipping options:</p>
@@ -309,21 +217,18 @@ Cash on delivery selected. Amount: Rs. 1500</code></pre></div>
         <p><strong>Concrete strategies</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">StandardShipping</span> <span class="code-keyword">implements</span> <span class="code-class">ShippingStrategy</span> {
-    <span class="code-annotation">@Override</span>
     <span class="code-keyword">public</span> <span class="code-class">BigDecimal</span> calculateCost(<span class="code-class">BigDecimal</span> weightInKg) {
         <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"40"</span>).add(weightInKg.multiply(<span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"10"</span>)));
     }
 }
 
 <span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ExpressShipping</span> <span class="code-keyword">implements</span> <span class="code-class">ShippingStrategy</span> {
-    <span class="code-annotation">@Override</span>
     <span class="code-keyword">public</span> <span class="code-class">BigDecimal</span> calculateCost(<span class="code-class">BigDecimal</span> weightInKg) {
         <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"90"</span>).add(weightInKg.multiply(<span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"25"</span>)));
     }
 }
 
 <span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">StorePickup</span> <span class="code-keyword">implements</span> <span class="code-class">ShippingStrategy</span> {
-    <span class="code-annotation">@Override</span>
     <span class="code-keyword">public</span> <span class="code-class">BigDecimal</span> calculateCost(<span class="code-class">BigDecimal</span> weightInKg) {
         <span class="code-keyword">return</span> <span class="code-class">BigDecimal</span>.ZERO;
     }
@@ -379,7 +284,7 @@ Cash on delivery selected. Amount: Rs. 1500</code></pre></div>
         </table>
     </div></div>
     <div class="intro">
-        <p>This illustrates why the pattern is useful: the calculator stays unchanged even though shipping calculations vary significantly.</p>
+        <p>Illustrates why the pattern is useful: the calculator stays unchanged even though shipping calculations vary significantly.</p>
     </div>
 
     <div class="subheading">Strategy Pattern Using Java Lambdas</div>
@@ -411,80 +316,58 @@ calculator.setStrategy(express); <span class="code-comment"># Switch algorithm a
 
     <div class="subheading">Real-World Example: Strategy Pattern in Spring Boot</div>
     <div class="intro">
-        <p>In Spring Boot, Strategy is commonly used for business rules such as pricing, discounts, payment processing, tax calculations, and notification delivery.</p>
+        <p>In Spring Boot, Strategy is commonly used for business rules such as pricing, discounts, payment processing, tax calculations and notification delivery.</p>
         <p>Consider a pricing application where discounts depend on customer membership.</p>
         <p>Regular customers receive no discount, while premium customers receive a 10% discount.</p>
-        <p>A useful Spring Boot implementation is to register every strategy as a Spring bean, inject all available strategies into a service, and select the appropriate one per request.</p>
-        <p><strong>Step 1: Define membership types</strong></p>
+        <p>A useful Spring Boot implementation is to register every strategy as a Spring bean, inject all available strategies into<br> a service and select the appropriate one per request.</p>
+        <p><strong>Define membership types</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">enum</span> <span class="code-class">CustomerTier</span> {
     REGULAR, PREMIUM
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Step 2: Define the Strategy interface</strong></p>
+        <p><strong>Define the Strategy interface</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">DiscountStrategy</span> {
     <span class="code-class">CustomerTier</span> type();
-
     <span class="code-class">BigDecimal</span> applyDiscount(<span class="code-class">BigDecimal</span> amount);
 }</code></pre></div>
     <div class="intro">
-        <p>The <code>type()</code> method tells us which membership tier the strategy supports.</p>
-        <p><strong>Step 3: Implement Concrete Strategies</strong></p>
-        <p><code>RegularDiscountStrategy.java</code></p>
+        <p>The <code>type</code> method tells us which membership tier the strategy supports.</p>
+        <p><strong>Implement Concrete Strategies</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-annotation">@Component</span>
 <span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">RegularDiscountStrategy</span> <span class="code-keyword">implements</span> <span class="code-class">DiscountStrategy</span> {
-    <span class="code-annotation">@Override</span>
-    <span class="code-keyword">public</span> <span class="code-class">CustomerTier</span> type() {
-        <span class="code-keyword">return</span> <span class="code-class">CustomerTier</span>.REGULAR;
-    }
-
-    <span class="code-annotation">@Override</span>
-    <span class="code-keyword">public</span> <span class="code-class">BigDecimal</span> applyDiscount(<span class="code-class">BigDecimal</span> amount) {
-        <span class="code-keyword">return</span> amount;
-    }
+    <span class="code-keyword">public</span> <span class="code-class">CustomerTier</span> type() {<span class="code-keyword">return</span> <span class="code-class">CustomerTier</span>.REGULAR;}
+    <span class="code-keyword">public</span> <span class="code-class">BigDecimal</span> applyDiscount(<span class="code-class">BigDecimal</span> amount) {<span class="code-keyword">return</span> amount;}
 }</code></pre></div>
     <div class="intro">
-        <p><code>PremiumDiscountStrategy.java</code></p>
     </div>
     <div class="code-block"><pre><code><span class="code-annotation">@Component</span>
 <span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">PremiumDiscountStrategy</span> <span class="code-keyword">implements</span> <span class="code-class">DiscountStrategy</span> {
-    <span class="code-annotation">@Override</span>
-    <span class="code-keyword">public</span> <span class="code-class">CustomerTier</span> type() {
-        <span class="code-keyword">return</span> <span class="code-class">CustomerTier</span>.PREMIUM;
-    }
-
-    <span class="code-annotation">@Override</span>
-    <span class="code-keyword">public</span> <span class="code-class">BigDecimal</span> applyDiscount(<span class="code-class">BigDecimal</span> amount) {
-        <span class="code-keyword">return</span> amount.multiply(<span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"0.90"</span>));
-    }
+    <span class="code-keyword">public</span> <span class="code-class">CustomerTier</span> type() {<span class="code-keyword">return</span> <span class="code-class">CustomerTier</span>.PREMIUM;}
+    <span class="code-keyword">public</span> <span class="code-class">BigDecimal</span> applyDiscount(<span class="code-class">BigDecimal</span> amount) {<span class="code-keyword">return</span> amount.multiply(<span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"0.90"</span>));}
 }</code></pre></div>
     <div class="intro">
-        <p>Each concrete strategy is annotated with <code>@Component</code>, allowing Spring Boot to discover and manage it.</p>
-        <p><strong>Step 4: Create the Context service</strong></p>
+        <p>Each concrete strategy is annotated with <code>Component</code>, allowing Spring Boot to discover and manage it.</p>
+        <p><strong>Create the Context service</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-annotation">@Service</span>
 <span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">PricingService</span> {
     <span class="code-keyword">private</span> <span class="code-class">Map</span>&lt;<span class="code-class">CustomerTier</span>, <span class="code-class">DiscountStrategy</span>&gt; strategies;
 
     <span class="code-keyword">public</span> <span class="code-class">PricingService</span>(<span class="code-class">List</span>&lt;<span class="code-class">DiscountStrategy</span>&gt; discountStrategies) {
-        <span class="code-keyword">this</span>.strategies = discountStrategies.stream().collect(<span class="code-class">Collectors</span>.toUnmodifiableMap(<span class="code-class">DiscountStrategy</span>::type,
-                                                                                           <span class="code-class">Function</span>.identity()));
+        <span class="code-keyword">this</span>.strategies = discountStrategies.stream()
+                .collect(<span class="code-class">Collectors</span>.toUnmodifiableMap(<span class="code-class">DiscountStrategy</span>::type, <span class="code-class">Function</span>.identity()));
     }
 
     <span class="code-keyword">public</span> <span class="code-class">BigDecimal</span> calculatePrice(<span class="code-class">CustomerTier</span> tier, <span class="code-class">BigDecimal</span> amount) {
-        <span class="code-keyword">if</span> (amount == <span class="code-keyword">null</span> || amount.signum() &lt; <span class="code-number">0</span>) {
-            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>(<span class="code-string">"Invalid amount"</span>);
-        }
+        <span class="code-keyword">if</span> (amount == <span class="code-keyword">null</span> || amount.signum() &lt; <span class="code-number">0</span>) <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>(<span class="code-string">"Invalid amount"</span>);
         <span class="code-class">DiscountStrategy</span> strategy = strategies.get(tier);
-        <span class="code-keyword">if</span> (strategy == <span class="code-keyword">null</span>) {
-            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>(<span class="code-string">"Unsupported customer tier: "</span> + tier);
-        }
+        <span class="code-keyword">if</span> (strategy == <span class="code-keyword">null</span>) <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>(<span class="code-string">"Unsupported customer tier: "</span> + tier);
         <span class="code-keyword">return</span> strategy.applyDiscount(amount).setScale(<span class="code-number">2</span>, <span class="code-class">RoundingMode</span>.HALF_UP);
     }
 }</code></pre></div>
-    <div class="callout callout-note"><p>Required imports for these snippets include <code>java.math.BigDecimal</code>, <code>java.math.RoundingMode</code>, <code>java.util.List</code>, <code>java.util.Map</code>, <code>java.util.function.Function</code>, <code>java.util.stream.Collectors</code>, and the corresponding Spring annotations.</p></div>
     <div class="intro">
         <p><strong>What's happening here?</strong></p>
         <p>Spring Boot automatically discovers the beans implementing <code>DiscountStrategy</code>:</p>
@@ -511,7 +394,7 @@ PREMIUM  → PremiumDiscountStrategy</code></pre></div>
     <div class="code-block"><pre><code>strategy.applyDiscount(amount);</code></pre></div>
     <div class="intro">
         <p>This eliminates the need to maintain an <code>if-else</code> chain containing separate discount algorithms.</p>
-        <p><strong>Step 5: Expose a REST API</strong></p>
+        <p><strong>Expose a REST API</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-annotation">@RestController</span>
 <span class="code-annotation">@RequestMapping</span>(<span class="code-string">"/prices"</span>)
@@ -538,7 +421,7 @@ PREMIUM  → PremiumDiscountStrategy</code></pre></div>
     <div class="intro">
         <p>The controller does not know how the discount is calculated. The service does not implement the discount calculation itself. The selected <code>DiscountStrategy</code> handles it.</p>
         <p><strong>Why is this approach useful in Spring Boot?</strong></p>
-        <p>A Spring <code>@Service</code> bean is generally a singleton by default. If we stored a mutable strategy field and changed it for every incoming request, concurrent requests could interfere with one another.</p>
+        <p>A Spring <code>Service</code> bean is generally a singleton by default. If we stored a mutable strategy field and changed it for every incoming request, concurrent requests could interfere with one another.</p>
         <p>For example, this approach is problematic:</p>
     </div>
     <div class="code-block"><pre><code><span class="code-comment"># Avoid request-specific mutation in a singleton service</span>
@@ -572,8 +455,8 @@ PREMIUM  → PremiumDiscountStrategy</code></pre></div>
         </table>
     </div></div>
     <div class="intro">
-        <p>For example, selecting UPI or a credit card is a <strong>Strategy</strong> concern because both are different methods of performing payment.</p>
-        <p>An order moving from <code>CREATED</code> to <code>PAID</code> to <code>SHIPPED</code> is a <strong>State</strong> concern because its behavior depends on its lifecycle state.</p>
+        <p>Selecting UPI or a credit card is a <strong>Strategy</strong> concern because both are different methods of performing payment.</p>
+        <p>An order moving from <code>CREATED</code> to <code>PAID</code> to <code>SHIPPED</code> is a <strong>State</strong> concern as its behavior depends on its lifecycle state.</p>
     </div>
 
     <div class="subheading">Strategy vs Template Method</div>
@@ -613,10 +496,9 @@ PREMIUM  → PremiumDiscountStrategy</code></pre></div>
     </div></div>
     <div class="callout callout-note"><p><strong>One important distinction:</strong> the Strategy pattern does not mean all conditional statements disappear. A selection mechanism may still be required, such as a factory, registry, configuration map, or user preference. The important improvement is that the algorithm implementations are no longer embedded in the Context.</p></div>
 
-    <div class="subheading">When Should You Use Strategy?</div>
+    <div class="subheading">When Should You Use Strategy</div>
     <div class="intro">
-        <p>Strategy is especially useful when a system has multiple ways to accomplish the same task, and those ways need to evolve independently.</p>
-        <p>Common real-world uses include:</p>
+        <p>Strategy is especially useful when a system has multiple ways to accomplish the same task, and those ways need to evolve independently. Common real-world uses include:</p>
     </div>
     <div class="section cmp"><div class="section-content">
         <table class="cmp-table centered cmp-peer">
@@ -642,10 +524,10 @@ PREMIUM  → PremiumDiscountStrategy</code></pre></div>
         <p>The Strategy pattern illustrates several important object-oriented design principles.</p>
     </div>
     <div class="intro"><ul>
-        <li><strong>Single Responsibility Principle (SRP):</strong> Each concrete strategy is responsible for one particular algorithm, while the Context coordinates its use.</li>
-        <li><strong>Open/Closed Principle (OCP):</strong> New algorithms can be introduced through additional implementations without modifying the Context's algorithm-execution logic. Some selection mechanisms may still require configuration changes.</li>
-        <li><strong>Dependency Inversion Principle (DIP):</strong> The Context depends on an abstraction such as <code>PaymentStrategy</code>, rather than depending directly on <code>UpiPayment</code> or <code>CardPayment</code>.</li>
-        <li><strong>Composition over Inheritance:</strong> The Context composes a strategy object instead of inheriting and overriding behavior for every possible algorithm variation.</li>
+        <li><strong>Single Responsibility Principle (SRP)</strong><br> Each concrete strategy is responsible for one particular algorithm, while the Context coordinates its use.</li>
+        <li><strong>Open/Closed Principle (OCP)</strong><br> New algorithms can be introduced through additional implementations without modifying the Context's algorithm execution logic. Some selection mechanisms may still require configuration changes.</li>
+        <li><strong>Dependency Inversion Principle (DIP)</strong><br> The Context depends on an abstraction such as <code>PaymentStrategy</code>, rather than depending directly on <code>UpiPayment</code> or <code>CardPayment</code>.</li>
+        <li><strong>Composition over Inheritance</strong><br> The Context composes a strategy object instead of inheriting and overriding behavior for every possible algorithm variation.</li>
     </ul></div>
 
     <div class="subheading">Important Design Consideration: Strategy vs Factory</div>
@@ -664,112 +546,37 @@ checkout.checkout(<span class="code-keyword">new</span> <span class="code-class"
 
     <div class="subheading">Summary</div>
     <div class="intro">
-        <p>The Strategy Design Pattern allows an object to delegate an operation to one of several interchangeable algorithms rather than implementing all possible algorithms itself.</p>
-        <p>The central structure is:</p>
+        <p>The Strategy Design Pattern allows an object to delegate an operation to one of several interchangeable algorithms rather than implementing all possible algorithms itself. 
+            The Context delegates behavior to an abstraction and Java's runtime polymorphism determines which implementation executes.</p>
     </div>
-    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">Strategy</span> {
-    <span class="code-keyword">void</span> execute();
-}
-
-<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ConcreteStrategyA</span> <span class="code-keyword">implements</span> <span class="code-class">Strategy</span> {
-    <span class="code-keyword">public</span> <span class="code-keyword">void</span> execute() {
-        <span class="code-comment"># Algorithm A</span>
-    }
-}
-
-<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ConcreteStrategyB</span> <span class="code-keyword">implements</span> <span class="code-class">Strategy</span> {
-    <span class="code-keyword">public</span> <span class="code-keyword">void</span> execute() {
-        <span class="code-comment"># Algorithm B</span>
-    }
-}
-
-<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Context</span> {
-    <span class="code-keyword">private</span> <span class="code-class">Strategy</span> strategy;
-
-    <span class="code-class">Context</span>(<span class="code-class">Strategy</span> strategy) {
-        <span class="code-keyword">this</span>.strategy = strategy;
-    }
-
-    <span class="code-keyword">void</span> performOperation() {
-        strategy.execute();
-    }
-}</code></pre></div>
     <div class="intro">
-        <p>The most important line is:</p>
-    </div>
-    <div class="code-block"><pre><code>strategy.execute();</code></pre></div>
-    <div class="intro">
-        <p>The Context delegates behavior to an abstraction, and Java's runtime polymorphism determines which implementation executes.</p>
         <p>Remember the distinction:</p>
     </div>
     <div class="intro"><ul>
         <li><strong>Strategy:</strong> Different algorithms for the same operation.</li>
         <li><strong>State:</strong> Different behavior depending on the object's current state.</li>
         <li><strong>Template Method:</strong> Different implementations of specific steps within a fixed algorithm structure.</li>
-        <li><strong>Factory:</strong> Different ways to create or select objects.</li>
     </ul></div>
     <div class="callout callout-note"><p>The biggest benefit of Strategy is that the algorithm can change without requiring the code that uses the algorithm to change.</p></div>
 
     <div class="subheading">Key Takeaways: Strategy Design Pattern</div>
-    <div class="intro"><ol>
-        <li><strong>Behavioral Design Pattern:</strong> Strategy defines a family of algorithms, encapsulates each algorithm in a separate class, and makes them interchangeable.</li>
-        <li><strong>Encapsulates Algorithms:</strong> Each concrete strategy implements a specific algorithm behind a common interface, allowing algorithms to evolve independently.</li>
-        <li><strong>Composition over Inheritance:</strong> The Context holds a reference to a Strategy interface and delegates operations to it instead of implementing algorithms itself.</li>
-        <li><strong>Runtime Flexibility:</strong> Strategies can be selected or replaced dynamically at runtime without modifying the Context's implementation.</li>
-        <li><strong>Loose Coupling:</strong> The Context depends on the Strategy abstraction rather than concrete implementations, making the system easier to extend, maintain, and test.</li>
-        <li><strong>Open/Closed Principle:</strong> New algorithms can be introduced by adding new Strategy implementations without changing the Context's algorithm-execution logic.</li>
-        <li><strong>Eliminates Complex Conditionals:</strong> Replaces large <code>if-else</code> or <code>switch</code> blocks containing different algorithms with polymorphic method calls. Strategy selection may still require conditional logic.</li>
-        <li><strong>Context vs Strategy:</strong><ul>
+    <div class="intro"><ul>
+        <li><strong>Behavioral Design Pattern</strong><br> Strategy defines a family of algorithms, encapsulates each algorithm in a separate class and makes them interchangeable.</li>
+        <li><strong>Encapsulates Algorithms</strong><br> Each concrete strategy implements a specific algorithm behind a common interface, allowing algorithms to evolve independently.</li>
+        <li><strong>Composition over Inheritance</strong><br> The Context holds a reference to a Strategy interface and delegates operations to it instead of implementing algorithms itself.</li>
+        <li><strong>Runtime Flexibility</strong><br> Strategies can be selected or replaced dynamically at runtime without modifying the Context's implementation.</li>
+        <li><strong>Loose Coupling</strong><br> The Context depends on the Strategy abstraction rather than concrete implementations, making the system easier to extend, maintain, and test.</li>
+        <li><strong>Open/Closed Principle</strong><br> New algorithms can be introduced by adding new Strategy implementations without changing the Context's algorithm-execution logic.</li>
+        <li><strong>Eliminates Complex Conditionals</strong><br> Replaces large <code>if-else</code> or <code>switch</code> blocks containing different algorithms with polymorphic method calls.<br> Strategy selection may still require conditional logic.</li>
+        <li><strong>Context vs Strategy</strong><ul>
             <li><strong>Context:</strong> Defines <em>what</em> operation needs to be performed and delegates its execution.</li>
             <li><strong>Strategy:</strong> Defines <em>how</em> that operation is performed.</li>
             <li><strong>Concrete Strategies:</strong> Provide different implementations of the operation.</li>
         </ul></li>
-        <li><strong>Strategy vs State:</strong> Strategy focuses on selecting different algorithms, whereas State focuses on changing an object's behavior based on its internal state and lifecycle transitions.</li>
-        <li><strong>Real-World Applications:</strong> Payment processing, discount calculation, shipping methods, authentication, compression, sorting, notification delivery, and retry policies.</li>
+        <li><strong>Strategy vs State</strong><br> Strategy focuses on selecting different algorithms, whereas State focuses on changing an object's behavior based on its internal state and lifecycle transitions.</li>
+        <li><strong>Real-World Applications</strong><br> Payment processing, discount calculation, shipping methods, authentication, compression, sorting, notification delivery and retry policies.</li>
     </ol></div>
-    <div class="callout callout-note"><p><strong>Core principle:</strong> The Strategy pattern separates <strong>what needs to be done</strong> from <strong>how it is done</strong>, allowing behavior to vary independently of the Context that uses it.</p></div>
-
-    <div class="section code-section">
-        <div class="code-layout code-layout-equal">
-            <div class="code-wrapper">
-<pre><code><span class="code-keyword">public interface</span> <span class="code-class">PaymentStrategy</span> {
-    <span class="code-keyword">void</span> pay(<span class="code-keyword">int</span> amount);
-}
-
-<span class="code-keyword">public class</span> <span class="code-class">CardPayment</span> <span class="code-keyword">implements</span> PaymentStrategy {
-    <span class="code-keyword">public void</span> pay(<span class="code-keyword">int</span> amount) {
-        System.out.println(<span class="code-string">"Paid "</span> + amount + <span class="code-string">" by card"</span>);
-    }
-}
-
-<span class="code-keyword">public class</span> <span class="code-class">UpiPayment</span> <span class="code-keyword">implements</span> PaymentStrategy {
-    <span class="code-keyword">public void</span> pay(<span class="code-keyword">int</span> amount) {
-        System.out.println(<span class="code-string">"Paid "</span> + amount + <span class="code-string">" by UPI"</span>);
-    }
-}
-
-<span class="code-keyword">public class</span> <span class="code-class">Checkout</span> {                   <span class="code-comment"># Context</span>
-    <span class="code-keyword">private</span> PaymentStrategy strategy;
-    <span class="code-keyword">public void</span> setStrategy(PaymentStrategy s) {strategy = s;}
-    <span class="code-keyword">public void</span> checkout(<span class="code-keyword">int</span> amount) {strategy.pay(amount);}
-}
-
-<span class="code-keyword">void</span> main() {
-    Checkout checkout = <span class="code-keyword">new</span> Checkout();
-    checkout.setStrategy(<span class="code-keyword">new</span> UpiPayment());
-    checkout.checkout(500);  <span class="code-comment"># Paid 500 by UPI</span>
-}</code></pre>
-            </div>
-
-            <div class="code-explanation">
-                <div class="code-explanation-title">How the Strategy works</div>
-                <p><code>PaymentStrategy</code> is the common algorithm interface.<br><br>
-                    <code>CardPayment</code> and <code>UpiPayment</code> are interchangeable strategies.<br><br>
-                    <code>Checkout</code> delegates to whichever strategy it holds.<br><br>
-                    The behavior can be swapped at runtime with <code>setStrategy</code>.</p>
-            </div>
-        </div>
-    </div>
+    <div class="callout callout-note"><p><strong>Core principle:</strong>The Strategy pattern separates <strong>what needs to be done</strong> from <strong>how it is done</strong>, allowing behavior to vary independently of the Context that uses it.</p></div>
 </div>
 </body>
 </html>
