@@ -1,0 +1,20 @@
+<svg viewBox="-8 -8 211 345" xmlns="http://www.w3.org/2000/svg" width="211" height="345" font-family="Segoe UI, -apple-system, Roboto, Arial, sans-serif" font-size="14">
+<defs><marker id="arrow" orient="auto" markerHeight="12" markerWidth="12" markerUnits="userSpaceOnUse" refY="5" refX="6" viewBox="0 0 10 10"><path d="M 0 0 L 10 5 L 0 10 z" fill="#8a8a8a"/></marker></defs>
+<g stroke="#8a8a8a" stroke-width="2" fill="none" marker-end="url(#arrow)">
+<path d="M97.28,37 V67.7"/><path d="M97.28,110 V140.7"/><path d="M97.28,183 V213.7"/><path d="M97.28,256 V286.7"/>
+</g>
+<g stroke-width="1">
+<rect x="12.97" y="0" width="168.61" height="37" rx="8" fill="#e9f2ff" stroke="#5283cf"/>
+<rect x="29.89" y="73" width="134.78" height="37" rx="8" fill="#e3f4e8" stroke="#4a9c68"/>
+<rect x="28.09" y="146" width="138.37" height="37" rx="8" fill="#e9f2ff" stroke="#5283cf"/>
+<rect x="14.70" y="219" width="165.15" height="37" rx="8" fill="#e9f2ff" stroke="#5283cf"/>
+<rect x="0" y="292" width="194.56" height="37" rx="8" fill="#e3f4e8" stroke="#4a9c68"/>
+</g>
+<g text-anchor="middle" dominant-baseline="central">
+<text x="97.28" y="18.5" fill="#183d70">Fetch customer by email</text>
+<text x="97.28" y="91.5" fill="#16452c">Customer returned</text>
+<text x="97.28" y="164.5" fill="#183d70">Extract customer ID</text>
+<text x="97.28" y="237.5" fill="#183d70">Fetch customer's orders</text>
+<text x="97.28" y="310.5" fill="#16452c">Complete with List of Orders</text>
+</g>
+</svg>

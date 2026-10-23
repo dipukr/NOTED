@@ -1,0 +1,23 @@
+<svg width="760" height="230" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 230" role="img" aria-label="The Saga Orchestrator owns the workflow and failure handling; it sends commands to the Inventory, Payment and Shipping services, each of which runs a local transaction and returns its result to the orchestrator">
+    <defs><marker id="sg3-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#555555"/></marker><marker id="sg3-l" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#9A9A9A"/></marker></defs>
+    <path d="M289.5 68 L138 166" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#sg3-a)"/>
+    <path d="M162 168 L309.5 70" fill="none" stroke="#9A9A9A" stroke-width="1.5" stroke-dasharray="5 4" stroke-linejoin="miter" marker-end="url(#sg3-l)"/>
+    <path d="M370 68 L368 166" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#sg3-a)"/>
+    <path d="M392 168 L390 70" fill="none" stroke="#9A9A9A" stroke-width="1.5" stroke-dasharray="5 4" stroke-linejoin="miter" marker-end="url(#sg3-l)"/>
+    <path d="M450.5 68 L598 166" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#sg3-a)"/>
+    <path d="M622 168 L470.5 70" fill="none" stroke="#9A9A9A" stroke-width="1.5" stroke-dasharray="5 4" stroke-linejoin="miter" marker-end="url(#sg3-l)"/>
+    <rect x="240" y="14" width="280" height="54" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="380" y="35" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Saga Orchestrator</text>
+    <text x="380" y="51" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">workflow and failure handling</text>
+    <rect x="55" y="168" width="190" height="50" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="150" y="187" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Inventory Service</text>
+    <text x="150" y="203" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">local transaction</text>
+    <rect x="285" y="168" width="190" height="50" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="380" y="187" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Payment Service</text>
+    <text x="380" y="203" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">local transaction</text>
+    <rect x="515" y="168" width="190" height="50" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="610" y="187" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Shipping Service</text>
+    <text x="610" y="203" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" fill="#555555">local transaction</text>
+    <text x="360" y="122" text-anchor="end" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555" font-style="italic">command</text>
+    <text x="400" y="122" text-anchor="start" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555" font-style="italic">result</text>
+</svg>

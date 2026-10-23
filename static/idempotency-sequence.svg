@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="847" height="717" viewBox="0 0 847 717" role="img" aria-labelledby="title desc">
+<title id="title">Concurrent idempotent requests with PostgreSQL</title>
+<desc id="desc">Request A claims the key, creates an order, stores its response and commits. Request B waits, detects the conflict, and retrieves the original response.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 Z" fill="#999999" stroke="#777777" stroke-width="0.7"/></marker></defs>
+<rect width="847" height="717" fill="#f8f8f7"/>
+<g font-family="Segoe UI, Arial, sans-serif" font-size="18" fill="#333333" text-anchor="middle">
+<g stroke="#999999" stroke-width="2"><path d="M98 90V628"/><path d="M420 90V628"/><path d="M744 90V628"/></g>
+<rect x="15.5" y="18" width="166" height="72" rx="3" fill="#dbe8f5" stroke="#5599ff"/><text x="98.5" y="62">Request A</text>
+<rect x="15.5" y="628" width="166" height="72" rx="3" fill="#dbe8f5" stroke="#5599ff"/><text x="98.5" y="672">Request A</text>
+<rect x="337" y="18" width="166" height="72" rx="3" fill="#dbe8f5" stroke="#5599ff"/><text x="420" y="62">PostgreSQL</text>
+<rect x="337" y="628" width="166" height="72" rx="3" fill="#dbe8f5" stroke="#5599ff"/><text x="420" y="672">PostgreSQL</text>
+<rect x="660.5" y="18" width="166" height="72" rx="3" fill="#dbe8f5" stroke="#5599ff"/><text x="743.5" y="62">Request B</text>
+<rect x="660.5" y="628" width="166" height="72" rx="3" fill="#dbe8f5" stroke="#5599ff"/><text x="743.5" y="672">Request B</text>
+<text x="258.0" y="128.5">Insert key in transaction A</text><line x1="98" y1="147.5" x2="418" y2="147.5" stroke="#999999" stroke-width="1.6" marker-end="url(#arrow)"/>
+<text x="260.0" y="186">Inserted: A owns key</text><line x1="420" y1="205" x2="100" y2="205" stroke="#999999" stroke-width="1.6" stroke-dasharray="3.5 3.5" marker-end="url(#arrow)"/>
+<text x="583.0" y="243.5">Insert same key in transaction B</text><line x1="744" y1="262.5" x2="422" y2="262.5" stroke="#999999" stroke-width="1.6" marker-end="url(#arrow)"/>
+<text x="258.0" y="357">Insert order and store response</text><line x1="98" y1="376" x2="418" y2="376" stroke="#999999" stroke-width="1.6" marker-end="url(#arrow)"/>
+<text x="258.0" y="414.5">Commit transaction A</text><line x1="98" y1="433.5" x2="418" y2="433.5" stroke="#999999" stroke-width="1.6" marker-end="url(#arrow)"/>
+<text x="581.0" y="472">Conflict: inserted zero rows</text><line x1="420" y1="491" x2="742" y2="491" stroke="#999999" stroke-width="1.6" stroke-dasharray="3.5 3.5" marker-end="url(#arrow)"/>
+<text x="583.0" y="529.5">Select stored result</text><line x1="744" y1="548.5" x2="422" y2="548.5" stroke="#999999" stroke-width="1.6" marker-end="url(#arrow)"/>
+<text x="581.0" y="587">Original response</text><line x1="420" y1="606" x2="742" y2="606" stroke="#999999" stroke-width="1.6" stroke-dasharray="3.5 3.5" marker-end="url(#arrow)"/>
+<rect x="392" y="273.5" width="379.5" height="45" fill="#f8f8f7" fill-opacity="0.97" stroke="#54cc6d"/><text x="581.75" y="301">B waits for A to finish</text></g></svg>

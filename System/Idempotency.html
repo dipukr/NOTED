@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Idempotency</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Idempotency</div>
+
+    <div class="intro">
+        <p><strong>Idempotency means repeating the same operation has the same intended effect as performing it once.</strong></p>
+        <p>For an API, this matters because clients often retry requests after timeouts or network failures. An idempotent API prevents those retries from accidentally creating duplicate orders, deducting money twice, or processing the same operation multiple times.</p>
+        <p>Let us build up the concept and then implement an idempotent order-creation API using <strong>Spring Boot</strong>.</p>
+    </div>
+
+    <div class="subheading">Understanding idempotency</div>
+    <div class="intro">
+        <p>Consider these two operations:</p>
+    </div>
+    <div class="code-block"><pre><code>balance = <span class="code-number">1000</span>;</code></pre></div>
+    <div class="intro">
+        <p>Repeating this assignment leaves the balance at <code>1000</code>. It is idempotent.</p>
+    </div>
+    <div class="code-block"><pre><code>balance = balance + <span class="code-number">1000</span>;</code></pre></div>
+    <div class="intro">
+        <p>Repeating this operation increases the balance each time. It is not idempotent.</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Operation</th><th>Once</th><th>Three times</th><th>Idempotent?</th></tr></thead>
+            <tbody>
+                <tr><td>Set status to <code>CANCELLED</code></td><td>Cancelled</td><td>Cancelled</td><td>Yes</td></tr>
+                <tr><td>Set quantity to <code>5</code></td><td>5</td><td>5</td><td>Yes</td></tr>
+                <tr><td>Increase quantity by <code>5</code></td><td>Original + 5</td><td>Original + 15</td><td>No</td></tr>
+                <tr><td>Create a new order with a generated ID</td><td>One order</td><td>Three orders</td><td>No, unless protected</td></tr>
+                <tr><td>Delete an identified resource</td><td>Resource absent</td><td>Resource absent</td><td>Yes</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>The important phrase is <strong>same intended effect</strong>. It does not mean the server must execute identical instructions or return an identical response every time.</p>
+        <p>For example:</p>
+    </div>
+    <div class="code-block"><pre><code>DELETE /orders/123</code></pre></div>
+    <div class="intro">
+        <p>The first request might return <code>204 No Content</code>; a subsequent request might return <code>404 NOT_FOUND</code>.</p>
+        <p>The intended effect remains the same: order <code>123</code> is absent.</p>
+        <p>HTTP defines idempotency in terms of the intended server-side effect.</p>
+        <p>Logging each request or returning a different response does not automatically violate it.</p>
+    </div>
+
+    <div class="subheading">Why APIs need idempotency</div>
+    <div class="intro">
+        <p>Imagine an order API without duplicate protection:</p>
+    </div>
+    <div class="code-block"><pre><code>POST /orders
+Content-Type: application/json
+
+{
+  "productId": 101,
+  "quantity": 2
+}</code></pre></div>
+    <div class="intro">
+        <p>The following sequence occurs:</p>
+    </div>
+    <div class="intro"><ol>
+        <li>The client sends the request.</li>
+        <li>The server creates order <code>5001</code>.</li>
+        <li>The server commits the database transaction.</li>
+        <li>The response is lost because the connection drops.</li>
+        <li>The client sees a timeout.</li>
+        <li>The client retries.</li>
+        <li>The server creates order <code>5002</code>.</li>
+    </ol></div>
+    <div class="intro">
+        <p>The user intended to create <strong>one order</strong> but the database now contains <strong>two</strong>.</p>
+        <p><strong>A timeout does not tell the client whether the server completed the operation.</strong></p>
+        <p>The server could have failed before doing anything or succeeded and failed only while returning the response.</p>
+        <p>Idempotency allows the client to retry safely despite this uncertainty.</p>
+    </div>
+
+    <div class="subheading">Idempotency and HTTP methods</div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>HTTP method</th><th>Idempotent by HTTP semantics?</th><th>Example</th></tr></thead>
+            <tbody>
+                <tr><td><code>GET</code></td><td>Yes</td><td>Read an order</td></tr>
+                <tr><td><code>HEAD</code></td><td>Yes</td><td>Read response metadata</td></tr>
+                <tr><td><code>OPTIONS</code></td><td>Yes</td><td>Discover communication options</td></tr>
+                <tr><td><code>PUT</code></td><td>Yes</td><td>Replace a resource at a known URI</td></tr>
+                <tr><td><code>DELETE</code></td><td>Yes</td><td>Remove a resource at a known URI</td></tr>
+                <tr><td><code>POST</code></td><td>Not guaranteed</td><td>Create a new order</td></tr>
+                <tr><td><code>PATCH</code></td><td>Not guaranteed</td><td>Apply a partial change</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>Safe methods, <code>PUT</code> and <code>DELETE</code> are idempotent under HTTP semantics. A server must implement those semantics correctly; using the method name alone does not make faulty application logic idempotent.</p>
+        <p>A particular <code>PATCH</code> operation can be idempotent:</p>
+    </div>
+    <div class="code-block"><pre><code>PATCH /products/101
+
+{
+  "stock": 50
+}</code></pre></div>
+    <div class="intro">
+        <p>Setting stock to <code>50</code> repeatedly has the same effect.</p>
+        <p>This operation is not naturally idempotent:</p>
+    </div>
+    <div class="code-block"><pre><code>PATCH /products/101
+
+{
+  "increaseStockBy": 50
+}</code></pre></div>
+    <div class="intro">
+        <p>Likewise, we can deliberately make a particular <code>POST</code> endpoint idempotent using an <strong>idempotency key</strong>.</p>
+    </div>
+
+    <div class="subheading">How an idempotency key works</div>
+    <div class="intro">
+        <p>The client generates a unique key for one logical operation:</p>
+    </div>
+    <div class="code-block"><pre><code>POST /orders
+Idempotency-Key: 63462ee0-8c92-40b1-b598-3fd631b48462
+Content-Type: application/json
+
+{
+  "productId": 101,
+  "quantity": 2
+}</code></pre></div>
+    <div class="intro">
+        <p>The server stores the key together with the request fingerprint and the result.</p>
+        <p>When the same key arrives again:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>When the request matches, the server returns the original result.</li>
+        <li>When the request differs, the server rejects the request.</li>
+        <li>When the original request is still running, the server waits or returns a documented in-progress response.</li>
+    </ul></div>
+    <div class="intro">
+        <p>For our implementation:</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Request</th><th>Result</th></tr></thead>
+            <tbody>
+                <tr><td>New key + valid body</td><td>Create order and store response</td></tr>
+                <tr><td>Existing key + same body</td><td>Return stored response</td></tr>
+                <tr><td>Existing key + different body</td><td>Return <code>409 Conflict</code></td></tr>
+                <tr><td>Concurrent requests with the same key</td><td>One creates the order; the other waits and replays</td></tr>
+                <tr><td>Transaction fails before commit</td><td>Roll back everything; retry may execute again</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p><strong>The client must reuse the same key for retries.</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">String</span> key = UUID.randomUUID().toString(); <span class="code-comment">Every retry of THIS operation must reuse key.</span></code></pre></div>
+    <div class="intro">
+        <p>Generating a new key on every retry defeats the mechanism.</p>
+        <p>Two intentional purchases of the same product should use <strong>different keys</strong>, even when the request bodies are identical.</p>
+    </div>
+
+    <div class="subheading">What the server needs to store</div>
+    <div class="intro">
+        <p>A useful idempotency record contains:</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Field</th><th>Purpose</th></tr></thead>
+            <tbody>
+                <tr><td>Caller or tenant ID</td><td>Prevent different users from sharing the same key scope</td></tr>
+                <tr><td>Operation</td><td>Distinguish order creation from other operations</td></tr>
+                <tr><td>Idempotency key</td><td>Identify this logical request</td></tr>
+                <tr><td>Request hash</td><td>Detect reuse of a key with different input</td></tr>
+                <tr><td>HTTP status</td><td>Replay the original result status</td></tr>
+                <tr><td>Response body</td><td>Replay the original result body</td></tr>
+                <tr><td>Relevant response headers</td><td>For example, <code>Location</code></td></tr>
+                <tr><td>Creation time</td><td>Support retention and cleanup</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>The uniqueness boundary should usually be:</p>
+    </div>
+    <div class="code-block"><pre><code>(caller, operation, idempotency_key)</code></pre></div>
+    <div class="intro">
+        <p>Using only the key globally can cause unintended collisions between users or endpoints.</p>
+    </div>
+
+    <div class="subheading">Why “check first, then insert” is unsafe</div>
+    <div class="intro">
+        <p>This code looks reasonable but contains a race condition:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">if</span> (!repository.existsByKey(key)) {
+    <span class="code-class">Order</span> order = createOrder(request);
+    repository.saveResult(key, order);
+}</code></pre></div>
+    <div class="intro">
+        <p>Two application instances can execute it simultaneously:</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Time</th><th>Instance A</th><th>Instance B</th></tr></thead>
+            <tbody>
+                <tr><td>1</td><td>Checks key: absent |</td></tr>
+                <tr><td>2</td><td></td><td>Checks key: absent</td></tr>
+                <tr><td>3</td><td>Creates order A |</td></tr>
+                <tr><td>4</td><td></td><td>Creates order B</td></tr>
+                <tr><td>5</td><td>Stores result</td><td>Tries to store duplicate key</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>Even if the final insert fails, the duplicate business effect may already have happened—especially if it involved another service.</p>
+        <p>The solution is to <strong>atomically claim the key before performing the business operation</strong>, and coordinate the claim and database changes in one transaction.</p>
+        <p>A Java <code>synchronized</code> block is insufficient when the application runs on multiple instances.</p>
+    </div>
+
+    <div class="subheading">Spring Boot implementation</div>
+    <div class="intro">
+        <p>We will implement:</p>
+    </div>
+    <div class="code-block"><pre><code>POST /orders
+Idempotency-Key: &lt;unique-key&gt;</code></pre></div>
+    <div class="intro">
+        <p>The example uses:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>Java 17+.</li>
+        <li>Spring Boot 3.x with Spring MVC.</li>
+        <li>Spring JDBC.</li>
+        <li>PostgreSQL.</li>
+        <li>Bean Validation.</li>
+        <li><code>application.properties</code>.</li>
+    </ul></div>
+    <div class="intro">
+        <p>Using JDBC makes the transaction and SQL behavior explicit. The same architecture can be implemented using JPA.</p>
+        <p><strong>Scope:</strong> this example creates an order entirely within one database. It does not call a payment provider or another remote service.</p>
+        <p>Package declarations and routine imports are omitted.</p>
+    </div>
+    <div class="intro">
+        <p><strong>Dependencies</strong></p>
+        <p>Add these dependencies to an existing Spring Boot 3.x Maven project:</p>
+    </div>
+    <div class="code-block"><pre><code>&lt;dependencies&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-jdbc&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-validation&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.postgresql&lt;/groupId&gt;
+        &lt;artifactId&gt;postgresql&lt;/artifactId&gt;
+        &lt;scope&gt;runtime&lt;/scope&gt;
+    &lt;/dependency&gt;
+&lt;/dependencies&gt;</code></pre></div>
+    <div class="intro">
+        <p><strong>Configuration</strong></p>
+    </div>
+    <div class="code-block"><pre><code>spring.datasource.url=jdbc:postgresql://localhost:5432/orders_db
+spring.datasource.username=${DB_USERNAME}
+spring.datasource.password=${DB_PASSWORD}
+
+# Convenient for this example.
+# Use managed database migrations in production.
+spring.sql.init.mode=always</code></pre></div>
+    <div class="intro">
+        <p>Create <code>orders_db</code> before starting the application.</p>
+    </div>
+    <div class="intro">
+        <p><strong>Database schema</strong></p>
+        <p>Create <code>src/main/resources/schema.sql</code>:</p>
+    </div>
+    <div class="code-block"><pre><code>CREATE TABLE IF NOT EXISTS orders (
+    id UUID PRIMARY KEY,
+    caller_id VARCHAR(100) NOT NULL,
+    product_id BIGINT NOT NULL,
+    quantity INTEGER NOT NULL CHECK (quantity &gt; 0),
+    status VARCHAR(30) NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS idempotency_records (
+    caller_id VARCHAR(100) NOT NULL,
+    operation VARCHAR(100) NOT NULL,
+    idempotency_key VARCHAR(100) NOT NULL,
+
+    request_hash CHAR(64) NOT NULL,
+
+    response_status INTEGER,
+    response_body TEXT,
+    response_location TEXT,
+
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (
+        caller_id,
+        operation,
+        idempotency_key
+    )
+);</code></pre></div>
+    <div class="intro">
+        <p>The primary key is the database-level concurrency safeguard.</p>
+        <p>The response fields are initially empty inside the transaction. They are filled before commit, so another request should never observe a committed incomplete record through this code path.</p>
+    </div>
+    <div class="intro">
+        <p><strong>Request and response models</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">CreateOrderRequest</span>(<span class="code-annotation">@NotNull</span> <span class="code-annotation">@Positive</span> <span class="code-class">Long</span> productId, <span class="code-annotation">@Min</span>(<span class="code-number">1</span>) <span class="code-keyword">int</span> quantity) {}</code></pre></div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">OrderResponse</span>(UUID orderId, <span class="code-class">Long</span> productId, <span class="code-keyword">int</span> quantity, <span class="code-class">String</span> status) {}</code></pre></div>
+    <div class="intro">
+        <p>The service returns the actual serialized response:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">StoredHttpResponse</span>(<span class="code-keyword">int</span> status, <span class="code-class">String</span> body, <span class="code-class">String</span> location, <span class="code-keyword">boolean</span> replayed) {}</code></pre></div>
+    <div class="intro">
+        <p>Storing the serialized body avoids rebuilding the response from an order that may have changed since creation.</p>
+    </div>
+    <div class="intro">
+        <p><strong>Request fingerprint</strong></p>
+        <p>We need to detect this misuse:</p>
+    </div>
+    <div class="code-block"><pre><code>Key: abc
+First request: product 101, quantity 2
+
+Key: abc
+Second request: product 101, quantity 10</code></pre></div>
+    <div class="intro">
+        <p>Those are different operations, so the second request must not silently reuse the first result.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@Component</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">RequestFingerprint</span> {
+
+    <span class="code-keyword">public</span> <span class="code-class">String</span> hash(<span class="code-class">CreateOrderRequest</span> request) {
+        <span class="code-class">String</span> canonical = <span class="code-string">"create-order:v1"</span> + <span class="code-string">"|productId="</span> + request.productId()
+                         + <span class="code-string">"|quantity="</span> + request.quantity(); <span class="code-comment"># Canonical representation for this specific request model.</span>
+        <span class="code-keyword">try</span> {
+            <span class="code-class">MessageDigest</span> digest = <span class="code-class">MessageDigest</span>.getInstance(<span class="code-string">"SHA-256"</span>);
+            <span class="code-keyword">byte</span>[] bytes = digest.digest(canonical.getBytes(<span class="code-class">StandardCharsets</span>.UTF_8));
+            <span class="code-keyword">return</span> <span class="code-class">HexFormat</span>.of().formatHex(bytes);
+        } <span class="code-keyword">catch</span> (<span class="code-class">NoSuchAlgorithmException</span> ex) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalStateException</span>(<span class="code-string">"SHA-256 is unavailable"</span>, ex);
+        }
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>This uses parsed fields instead of raw JSON, so different whitespace or JSON field ordering does not change the hash.</p>
+        <p>For complex payloads, define a canonical representation carefully. Include every field that changes the operation, including relevant path parameters and semantic headers. Do not blindly concatenate arbitrary strings with delimiters.</p>
+    </div>
+    <div class="intro">
+        <p><strong>Transactional service</strong></p>
+        <p>This is the core implementation:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@Service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderService</span> {
+
+    <span class="code-keyword">private</span> <span class="code-keyword">static</span> <span class="code-keyword">final</span> <span class="code-class">String</span> OPERATION = <span class="code-string">"CREATE_ORDER_V1"</span>;
+
+    <span class="code-keyword">private</span> <span class="code-class">JdbcTemplate</span> jdbc;
+    <span class="code-keyword">private</span> <span class="code-class">ObjectMapper</span> objectMapper;
+    <span class="code-keyword">private</span> <span class="code-class">RequestFingerprint</span> fingerprint;
+
+    <span class="code-keyword">public</span> <span class="code-class">OrderService</span>(<span class="code-class">JdbcTemplate</span> jdbc, <span class="code-class">ObjectMapper</span> objectMapper, <span class="code-class">RequestFingerprint</span> fingerprint) {
+        <span class="code-keyword">this</span>.jdbc = jdbc;
+        <span class="code-keyword">this</span>.objectMapper = objectMapper;
+        <span class="code-keyword">this</span>.fingerprint = fingerprint;
+    }
+
+    <span class="code-annotation">@Transactional</span>(isolation = <span class="code-class">Isolation</span>.READ_COMMITTED, rollbackFor = <span class="code-class">Exception</span>.<span class="code-keyword">class</span>, timeout = <span class="code-number">10</span>)
+    <span class="code-keyword">public</span> <span class="code-class">StoredHttpResponse</span> createOrder(<span class="code-class">String</span> callerId, <span class="code-class">String</span> key, <span class="code-class">CreateOrderRequest</span> request) {
+        <span class="code-class">String</span> requestHash = fingerprint.hash(request);
+        <span class="code-comment"># 1. Atomically attempt to claim this logical operation.</span>
+        <span class="code-keyword">int</span> inserted = jdbc.update(<span class="code-string">"""
+                INSERT INTO idempotency_records (
+                    caller_id,
+                    operation,
+                    idempotency_key,
+                    request_hash
+                )
+                VALUES (?, ?, ?, ?)
+                ON CONFLICT (
+                    caller_id,
+                    operation,
+                    idempotency_key
+                ) DO NOTHING
+                """</span>, callerId, OPERATION, key, requestHash);
+        <span class="code-comment"># 2. A committed result already exists.</span>
+        <span class="code-keyword">if</span> (inserted == <span class="code-number">0</span>) {
+            <span class="code-class">ExistingResult</span> existing = jdbc.queryForObject(<span class="code-string">"""
+                    SELECT request_hash,
+                           response_status,
+                           response_body,
+                           response_location
+                    FROM idempotency_records
+                    WHERE caller_id = ?
+                      AND operation = ?
+                      AND idempotency_key = ?
+                    """</span>,
+                    (rs, rowNum) -&gt; <span class="code-keyword">new</span> <span class="code-class">ExistingResult</span>(rs.getString(<span class="code-string">"request_hash"</span>),
+                                                       rs.getObject(<span class="code-string">"response_status"</span>, <span class="code-class">Integer</span>.<span class="code-keyword">class</span>),
+                                                       rs.getString(<span class="code-string">"response_body"</span>),
+                                                       rs.getString(<span class="code-string">"response_location"</span>)),
+                    callerId, OPERATION, key);
+            <span class="code-keyword">if</span> (existing == <span class="code-keyword">null</span>) {
+                <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalStateException</span>(<span class="code-string">"Idempotency record disappeared"</span>);
+            }
+            <span class="code-keyword">if</span> (!existing.requestHash().equals(requestHash)) {
+                <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">ResponseStatusException</span>(<span class="code-class">HttpStatus</span>.CONFLICT,
+                                                  <span class="code-string">"Idempotency key was already used with a different request"</span>);
+            }
+            <span class="code-keyword">if</span> (existing.status() == <span class="code-keyword">null</span> || existing.body() == <span class="code-keyword">null</span> || existing.location() == <span class="code-keyword">null</span>) {
+                <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalStateException</span>(<span class="code-string">"Committed idempotency result is incomplete"</span>);
+            }
+            <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">StoredHttpResponse</span>(existing.status(), existing.body(), existing.location(), <span class="code-keyword">true</span>);
+        }
+        <span class="code-comment"># 3. We own this operation. Perform the database change.</span>
+        UUID orderId = UUID.randomUUID();
+        jdbc.update(<span class="code-string">"""
+                INSERT INTO orders (
+                    id,
+                    caller_id,
+                    product_id,
+                    quantity,
+                    status
+                )
+                VALUES (?, ?, ?, ?, ?)
+                """</span>, orderId, callerId, request.productId(), request.quantity(), <span class="code-string">"CREATED"</span>);
+        <span class="code-comment"># 4. Serialize the result before committing.</span>
+        <span class="code-class">OrderResponse</span> response = <span class="code-keyword">new</span> <span class="code-class">OrderResponse</span>(orderId, request.productId(), request.quantity(), <span class="code-string">"CREATED"</span>);
+        <span class="code-class">String</span> responseBody = toJson(response);
+        <span class="code-class">String</span> location = <span class="code-string">"/orders/"</span> + orderId;
+        <span class="code-comment"># 5. Save the result in the SAME database transaction.</span>
+        <span class="code-keyword">int</span> updated = jdbc.update(<span class="code-string">"""
+                UPDATE idempotency_records
+                SET response_status = ?,
+                    response_body = ?,
+                    response_location = ?
+                WHERE caller_id = ?
+                  AND operation = ?
+                  AND idempotency_key = ?
+                """</span>, <span class="code-number">201</span>, responseBody, location, callerId, OPERATION, key);
+        <span class="code-keyword">if</span> (updated != <span class="code-number">1</span>) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalStateException</span>(<span class="code-string">"Could not store idempotency result"</span>);
+        }
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">StoredHttpResponse</span>(<span class="code-number">201</span>, responseBody, location, <span class="code-keyword">false</span>);
+    }
+
+    <span class="code-keyword">private</span> <span class="code-class">String</span> toJson(<span class="code-class">OrderResponse</span> response) {
+        <span class="code-keyword">try</span> {
+            <span class="code-keyword">return</span> objectMapper.writeValueAsString(response);
+        } <span class="code-keyword">catch</span> (<span class="code-class">JsonProcessingException</span> ex) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalStateException</span>(<span class="code-string">"Could not serialize order response"</span>, ex);
+        }
+    }
+
+    <span class="code-keyword">private</span> <span class="code-keyword">record</span> <span class="code-class">ExistingResult</span>(<span class="code-class">String</span> requestHash, <span class="code-class">Integer</span> status, <span class="code-class">String</span> body, <span class="code-class">String</span> location) {}
+}</code></pre></div>
+    <div class="intro">
+        <p>The transaction includes all three steps:</p>
+    </div>
+    <div class="code-block"><pre><code>Claim key + create order + store response</code></pre></div>
+    <div class="intro">
+        <p>They commit together or roll back together.</p>
+        <p>Spring applies <code>Transactional</code> through a proxy. Calling the service from the controller goes through that proxy; calling an annotated method from another method on the same object generally does not. The explicit rollback rule also covers checked exceptions.</p>
+    </div>
+    <div class="intro">
+        <p><strong>Controller</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@RestController</span>
+<span class="code-annotation">@RequestMapping</span>(<span class="code-string">"/orders"</span>)
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderController</span> {
+
+    <span class="code-keyword">private</span> <span class="code-class">OrderService</span> orderService;
+
+    <span class="code-keyword">public</span> <span class="code-class">OrderController</span>(<span class="code-class">OrderService</span> orderService) {
+        <span class="code-keyword">this</span>.orderService = orderService;
+    }
+
+    <span class="code-annotation">@PostMapping</span>
+    <span class="code-keyword">public</span> <span class="code-class">ResponseEntity</span>&lt;<span class="code-class">String</span>&gt; create(<span class="code-annotation">@RequestHeader</span>(<span class="code-string">"Idempotency-Key"</span>) <span class="code-class">String</span> key,
+                                         <span class="code-annotation">@Valid</span> <span class="code-annotation">@RequestBody</span> <span class="code-class">CreateOrderRequest</span> request) {
+        <span class="code-keyword">if</span> (!key.matches(<span class="code-string">"[A-Za-z0-9._:-]{1,100}"</span>)) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">ResponseStatusException</span>(<span class="code-class">HttpStatus</span>.BAD_REQUEST, <span class="code-string">"Invalid Idempotency-Key"</span>);
+        }
+        <span class="code-class">String</span> callerId = <span class="code-string">"demo-customer"</span>; <span class="code-comment"># Demo only. In production, derive this from authenticated identity.</span>
+        <span class="code-class">StoredHttpResponse</span> result = orderService.createOrder(callerId, key, request);
+        <span class="code-keyword">return</span> <span class="code-class">ResponseEntity</span>
+                .status(result.status())
+                .contentType(<span class="code-class">MediaType</span>.APPLICATION_JSON)
+                .header(<span class="code-class">HttpHeaders</span>.LOCATION, result.location())
+                .header(<span class="code-string">"Idempotency-Replayed"</span>, <span class="code-class">Boolean</span>.toString(result.replayed()))
+                .body(result.body());
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p><code>Idempotency-Replayed</code> is a custom diagnostic header for this example.</p>
+        <p>In production, derive <code>callerId</code> from a trusted authentication context. Authentication and authorization must run for retries too.</p>
+    </div>
+
+    <div class="subheading">What happens when two requests arrive together?</div>
+    <div class="intro">
+        <p>Suppose requests A and B have the same caller, operation, and key.</p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/idempotency-sequence.svg" alt="Two requests with the same key: A inserts the key and owns it; B&#x27;s insert waits for A to finish; A inserts the order, stores the response and commits; B&#x27;s insert then inserts zero rows, so B selects the stored result and gets the original response" style="width:100%;max-width:600px">
+    </div>
+    <div class="intro">
+        <p>The primary key prevents both requests from owning the same key.</p>
+        <p>PostgreSQL’s <code>ON CONFLICT DO NOTHING</code> can resolve a conflict against a concurrent transaction even when that row was not visible in the insert statement’s original snapshot. At <code>READ COMMITTED</code>, the following <code>SELECT</code> gets a fresh snapshot and can read the committed result. This is why the example uses a <strong>separate insert and select</strong>.</p>
+        <p>If A rolls back, B can successfully insert the key and perform the operation itself.</p>
+        <p>If waiting exceeds the configured timeout, B fails and can retry using the same key.</p>
+        <p>This design assumes retained records are not deleted concurrently with requests that still fall within the supported retry period.</p>
+    </div>
+
+    <div class="subheading">Try the API</div>
+    <div class="intro">
+        <p>First request:</p>
+    </div>
+    <div class="code-block"><pre><code>curl -i -X POST http://localhost:8080/orders \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: order-request-001" \
+  -d '{"productId":101,"quantity":2}'</code></pre></div>
+    <div class="intro">
+        <p>Example result:</p>
+    </div>
+    <div class="code-block"><pre><code>HTTP/1.1 201 Created
+Content-Type: application/json
+Location: /orders/7da2d7cf-4a12-4448-b24b-16e19408deaa
+Idempotency-Replayed: false</code></pre></div>
+    <div class="code-block"><pre><code>{
+  "orderId": "7da2d7cf-4a12-4448-b24b-16e19408deaa",
+  "productId": 101,
+  "quantity": 2,
+  "status": "CREATED"
+}</code></pre></div>
+    <div class="intro">
+        <p>Run the same command again.</p>
+        <p>You receive the <strong>same order ID, status, body, and location</strong>, with:</p>
+    </div>
+    <div class="code-block"><pre><code>Idempotency-Replayed: true</code></pre></div>
+    <div class="intro">
+        <p>Now change the quantity while keeping the same key:</p>
+    </div>
+    <div class="code-block"><pre><code>curl -i -X POST http://localhost:8080/orders \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: order-request-001" \
+  -d '{"productId":101,"quantity":10}'</code></pre></div>
+    <div class="intro">
+        <p>Result:</p>
+    </div>
+    <div class="code-block"><pre><code>HTTP/1.1 409 Conflict</code></pre></div>
+    <div class="intro">
+        <p>Use a new key for a genuinely new order.</p>
+    </div>
+
+    <div class="subheading">What happens when failures occur?</div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Failure point</th><th>Database outcome</th><th>Behavior on retry</th></tr></thead>
+            <tbody>
+                <tr><td>Before claiming the key</td><td>No changes</td><td>Execute normally</td></tr>
+                <tr><td>After claiming, before inserting the order</td><td>Transaction rolls back</td><td>Execute normally</td></tr>
+                <tr><td>After inserting order, before storing response</td><td>Both inserts roll back</td><td>Execute normally</td></tr>
+                <tr><td>After storing response, before commit</td><td>Entire transaction rolls back</td><td>Execute normally</td></tr>
+                <tr><td>After commit, before client receives response</td><td>Order and response remain saved</td><td>Replay saved response</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>The critical case is the last one: <strong>the business operation succeeded, but the client does not know it</strong>.</p>
+        <p>Because the response was saved in the same transaction, a retry can recover the result.</p>
+        <p>A process crash may leave the database transaction open briefly until the connection failure is detected. Competing requests can wait during that interval; they must still respect timeouts.</p>
+    </div>
+
+    <div class="subheading">Why this does not automatically solve remote payments</div>
+    <div class="intro">
+        <p>Consider adding this inside the transaction:</p>
+    </div>
+    <div class="code-block"><pre><code>paymentProvider.charge(request);</code></pre></div>
+    <div class="intro">
+        <p>A dangerous sequence is:</p>
+    </div>
+    <div class="intro"><ol>
+        <li>The payment provider charges the customer.</li>
+        <li>Your application crashes.</li>
+        <li>Your local transaction rolls back.</li>
+        <li>A retry finds no idempotency record.</li>
+        <li>Your application calls the payment provider again.</li>
+    </ol></div>
+    <div class="intro">
+        <p><strong>A local database rollback cannot undo an external HTTP request.</strong></p>
+        <p>For remote effects, additional coordination is needed:</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Technique</th><th>Purpose</th></tr></thead>
+            <tbody>
+                <tr><td>Provider-side idempotency key</td><td>Prevent duplicate remote charges</td></tr>
+                <tr><td>Transactional outbox</td><td>Atomically store local changes and an intent to send a message</td></tr>
+                <tr><td>Idempotent consumer</td><td>Prevent duplicate message deliveries from repeating database effects</td></tr>
+                <tr><td>Persistent workflow state</td><td>Track progress and recover uncertain outcomes</td></tr>
+                <tr><td>Reconciliation</td><td>Ask the provider what actually happened after a timeout</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>A payment provider key should identify the same logical payment across every retry and recovery attempt.</p>
+        <p>An outbox alone does not guarantee that a remote effect happens once.<br>Dispatch can repeat, so the recipient must also deduplicate or support idempotency.</p>
+    </div>
+
+    <div class="subheading">Short operations versus long-running operations</div>
+    <div class="intro">
+        <p>The implementation above holds one database transaction open until order creation finishes which is appropriate for short, local database work.</p>
+        <p>Long-running operations often use a persisted state machine:</p>
+    </div>
+    <div class="code-block"><pre><code>IN_PROGRESS
+COMPLETED
+FAILED</code></pre></div>
+    <div class="intro">
+        <p>The initial claim is committed separately and workers continue processing.</p>
+        <p>However, this introduces additional questions:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>What happens when the worker crashes after claiming the key?</li>
+        <li>How do we distinguish a slow worker from a dead worker?</li>
+        <li>Can another worker take over?</li>
+        <li>How do we prevent the original worker from continuing after takeover?</li>
+        <li>What if the external operation succeeded but its result was never recorded?</li>
+    </ul></div>
+    <div class="intro">
+        <p>Such systems may need leases, ownership tokens, fencing, provider idempotency, and reconciliation.</p>
+        <p>Simply inserting <code>IN_PROGRESS</code> in one transaction and completing the work in another does not provide the same atomic guarantee as our local database example.</p>
+    </div>
+
+    <div class="subheading">Important design decisions</div>
+    <div class="intro">
+        <p><strong>Which errors should be stored?</strong></p>
+        <p>Our example stores successful results only.</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Outcome</th><th>Example policy</th></tr></thead>
+            <tbody>
+                <tr><td>Invalid request body</td><td>Reject before claiming; do not store</td></tr>
+                <tr><td>Successful order creation</td><td>Store and replay</td></tr>
+                <tr><td>Key reused with different input</td><td>Reject with conflict</td></tr>
+                <tr><td>Temporary database failure</td><td>Roll back and allow retry</td></tr>
+                <tr><td>Final business rejection</td><td>Decide whether to store and replay</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>For example, “insufficient balance” could be treated as a final result for that key, or as a retryable failure. Define the contract explicitly.</p>
+        <p>If you want to retain a business rejection, store that response and commit it deliberately. Throwing an exception that rolls back the transaction would also remove the result.</p>
+    </div>
+    <div class="intro">
+        <p><strong>How long should keys be retained?</strong></p>
+        <p>Retention must cover the period during which clients, queues, or recovery jobs might retry.</p>
+        <p>After deleting the record, the same key can create another order. Therefore, retention limits the duration of the deduplication guarantee.</p>
+        <p>For business operations that must never repeat, also consider a durable domain constraint, such as:</p>
+    </div>
+    <div class="code-block"><pre><code>UNIQUE (merchant_id, merchant_order_reference)</code></pre></div>
+    <div class="intro">
+        <p><strong>Is idempotency the same as caching?</strong></p>
+        <p>No.</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Aspect</th><th>Caching</th><th>Idempotency</th></tr></thead>
+            <tbody>
+                <tr><td>Main purpose</td><td>Improve performance</td><td>Prevent repeated effects</td></tr>
+                <tr><td>Cache miss</td><td>Usually recompute</td><td>May execute the business operation</td></tr>
+                <tr><td>Losing stored data</td><td>Usually affects performance</td><td>Can permit duplicate execution</td></tr>
+                <tr><td>Key identity</td><td>Data being requested</td><td>One logical operation</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>An idempotency result store may resemble a cache, but it is part of the correctness mechanism.</p>
+    </div>
+    <div class="intro">
+        <p><strong>Does idempotency prevent all concurrency problems?</strong></p>
+        <p>No. It coordinates requests with the <strong>same operation identity</strong>.</p>
+        <p>Two different keys can still try to purchase the last unit of stock. Inventory correctness needs its own controls, such as an atomic conditional update:</p>
+    </div>
+    <div class="code-block"><pre><code>UPDATE inventory
+SET available = available - :quantity
+WHERE product_id = :productId
+  AND available &gt;= :quantity;</code></pre></div>
+    <div class="intro">
+        <p>Check that exactly one row was updated.</p>
+    </div>
+    <div class="intro">
+        <p><strong>Does idempotency mean exactly-once execution?</strong></p>
+        <p>No. The server may receive and begin handling a request many times.</p>
+        <p>The goal here is <strong>at most one committed order creation for a retained caller-operation-key combination</strong>, with retries returning the saved result.</p>
+    </div>
+
+    <div class="subheading">Tests that matter</div>
+    <div class="intro">
+        <p>Test this implementation against real PostgreSQL, particularly its concurrency behavior.</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Test</th><th>Expected result</th></tr></thead>
+            <tbody>
+                <tr><td>Same key and body repeated sequentially</td><td>One order; identical result</td></tr>
+                <tr><td>Same key and body sent concurrently</td><td>One order; successful calls share the result</td></tr>
+                <tr><td>Same key with different body</td><td>Conflict; no second order</td></tr>
+                <tr><td>Different keys with identical body</td><td>Two orders</td></tr>
+                <tr><td>Failure after order insert but before commit</td><td>No committed order or key</td></tr>
+                <tr><td>Retry after successful commit with lost response</td><td>Original result replayed</td></tr>
+                <tr><td>Same key used by different callers</td><td>Independent operations</td></tr>
+                <tr><td>Lock wait timeout followed by retry</td><td>No duplicate committed order</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>The essential implementation rule is: <strong>claim the key atomically, perform the local business change, and save the result in one transaction.</strong> For external effects, extend that protection across the service boundary.</p>
+    </div>
+</div>
+</body>
+</html>

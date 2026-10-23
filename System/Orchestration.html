@@ -1,0 +1,1870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orchestration</title>
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    if (!window.katex) return; // offline: keep the styled fallback
+    document.querySelectorAll("[data-tex]").forEach(function (el) {
+        katex.render(el.dataset.tex, el, {displayMode: el.dataset.display === "1", throwOnError: false});
+    });
+});
+</script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.9.1/mermaid.min.js"></script>
+<script>
+function orthoEdges(svg) { // re-route edges as right-angle lines ending straight down on the target box (ChatGPT look)
+    const box = {};
+    svg.querySelectorAll("g.node").forEach(n => {
+        const [, x, y] = n.getAttribute("transform").match(/translate\(([-\d.]+),\s*([-\d.]+)\)/).map(Number);
+        const r = n.querySelector("rect"), w = +r.getAttribute("width"), h = +r.getAttribute("height");
+        box[n.id.split("-").slice(-2, -1)[0]] = {l: x - w / 2, r: x + w / 2, t: y - h / 2, b: y + h / 2, cx: x};
+    });
+    const labels = [...svg.querySelectorAll("g.edgeLabel")];
+    svg.querySelectorAll("path.flowchart-link").forEach((p, i) => {
+        const s = box[p.className.baseVal.match(/LS-(\S+)/)[1]], t = box[p.className.baseVal.match(/LE-(\S+)/)[1]];
+        const m = (labels[i] && labels[i].textContent.trim() && labels[i].getAttribute("transform") || "").match(/translate\(([-\d.]+)/);
+        const lx = m ? +m[1] : t.cx; // the edge passes through its label
+        const pick = (b, x) => (x >= b.l + 8 && x <= b.r - 8) ? x : Math.min(Math.max(x, b.l + 16), b.r - 16);
+        const sx = pick(s, lx), tx = pick(t, lx), j1 = s.b + 14, j2 = t.t - 14;
+        let d = `M${sx},${s.b}`;
+        if (sx !== lx) d += ` V${j1} H${lx}`;
+        if (tx !== lx) d += ` V${j2} H${tx}`;
+        p.setAttribute("d", d + ` V${t.t}`);
+    });
+    svg.querySelectorAll("marker[id$=pointEnd]").forEach(mk => mk.setAttribute("refX", "10")); // arrow tip exactly on the box edge
+}
+document.addEventListener("DOMContentLoaded", async function () {
+    if (!window.mermaid) return; // offline: keep the static fallback image
+    mermaid.initialize({ // ChatGPT look: light-blue rounded boxes, thin grey step edges, pill edge labels
+        startOnLoad: false, theme: "base",
+        themeVariables: {fontFamily: '-apple-system, "Segoe UI", Roboto, Arial, sans-serif', fontSize: "14px",
+                         primaryColor: "#e6f1fc", primaryBorderColor: "#cfe1f6", primaryTextColor: "#1d4e89",
+                         lineColor: "#a6a6a6", edgeLabelBackground: "#ffffff"},
+        flowchart: {curve: "linear", padding: 26, nodeSpacing: 44, rankSpacing: 52},
+        themeCSS: ".node rect { rx: 11px; ry: 11px; stroke-width: 1px; }"
+                + " .nodeLabel { font-weight: 600; line-height: 1.3; }"
+                + " .flowchart-link { stroke-width: 1px !important; }"
+                + " span.edgeLabel { display: inline-block; padding: 2px 9px; color: #1f5fa8; background: #fff;"
+                + " border: 1px solid #cfe1f6; border-radius: 999px; font-size: 13px; font-weight: 500; }"
+                + " .edgeLabel rect { opacity: 0; } span.edgeLabel:empty { display: none; }"
+    });
+    const root = document.documentElement, zoom = root.style.zoom;
+    root.style.zoom = "1"; // measure labels unzoomed (styles.css zooms html to 0.9)
+    let n = 0;
+    for (const box of document.querySelectorAll(".mermaid-diagram")) {
+        const src = box.querySelector(".mermaid-src").textContent;
+        try {
+            const {svg} = await mermaid.render("mermaid-diagram-" + (n++), src);
+            const fallback = box.querySelector(".mermaid-fallback");
+            fallback.insertAdjacentHTML("afterend", svg);
+            fallback.remove();
+            orthoEdges(box.querySelector("svg"));
+            box.querySelectorAll("marker").forEach(m => { m.setAttribute("markerWidth", "8"); m.setAttribute("markerHeight", "8"); }); // small arrowheads
+        } catch (e) { /* keep the fallback image */ }
+    }
+    root.style.zoom = zoom;
+});
+</script>
+</head>
+<body>
+<div class="note">
+    <div class="title">Orchestration</div>
+
+    <div class="intro">
+        <p>The <strong>Saga Orchestration Pattern</strong> is a distributed transaction management pattern used in microservices where a single business operation spans multiple independently deployed services, each owning its own database.</p>
+        <p>Instead of using one large database transaction, Saga breaks the business operation into multiple smaller, locally committed transactions. A central component called the <strong>Saga Orchestrator</strong> coordinates these transactions, determines their execution order, handles failures, and initiates compensating transactions when necessary.</p>
+        <p>We will cover the architecture, internal working, state management, failure scenarios and a practical implementation using <strong>Java, Spring Boot, Spring Data JPA, REST APIs and separate databases</strong>.</p>
+    </div>
+
+    <div class="subheading">Why do we need the Saga Pattern</div>
+    <div class="intro">
+        <p>Consider an e-commerce application that contains four microservices:</p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>Order Service:</strong> Manages customer orders.</li>
+        <li><strong>Inventory Service:</strong> Manages available product stock.</li>
+        <li><strong>Payment Service:</strong> Processes customer payments.</li>
+        <li><strong>Shipping Service:</strong> Creates shipments.</li>
+    </ul></div>
+    <div class="intro">
+        <p>When a customer places an order, the application must perform several operations:</p>
+    </div>
+    <div class="intro"><ol>
+        <li>Create an order.</li>
+        <li>Reserve the requested inventory.</li>
+        <li>Charge the customer's payment method.</li>
+        <li>Create a shipment.</li>
+        <li>Confirm the order.</li>
+    </ol></div>
+    <div class="intro">
+        <p>All these steps together represent one business transaction.</p>
+    </div>
+    <div class="intro">
+        <p><strong>In a monolithic application</strong></p>
+        <p>Imagine all these operations use the same database.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@Service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderService</span> {
+
+    <span class="code-annotation">@Transactional</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> placeOrder(<span class="code-class">OrderRequest</span> request) {
+        orderRepository.save(createOrder(request));
+        inventoryRepository.reserveStock(request.productId(), request.quantity());
+        paymentRepository.save(createPayment(request));
+        shippingRepository.save(createShipment(request));
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Because all repositories participate in the same database transaction, Spring's <code>Transactional</code> can provide atomicity.</p>
+        <p>When creating a shipment fails, the database transaction can roll back the previous operations.</p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/orchestration-monolith.svg" alt="In a monolith, Order, Inventory, Payment and Shipping operations run inside one database transaction, so a failure rolls back all database operations" style="width:100%;max-width:760px">
+    </div>
+    <div class="intro">
+        <p>Illustration assumes all operations are in one ACID transaction and no external irreversible side effects have occurred.</p>
+    </div>
+    <div class="intro">
+        <p><strong>In a microservices architecture</strong></p>
+        <p>Now imagine every service owns a separate database.</p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/orchestration-microservices.svg" alt="In microservices, the Order, Inventory, Payment and Shipping services each commit their own local transaction to their own database" style="width:100%;max-width:760px">
+    </div>
+    <div class="intro">
+        <p>Suppose execution produces these results:</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Step</th><th>Operation</th><th>Result</th></tr></thead>
+            <tbody>
+                <tr><td>1</td><td>Create order</td><td>Committed</td></tr>
+                <tr><td>2</td><td>Reserve inventory</td><td>Committed</td></tr>
+                <tr><td>3</td><td>Charge payment</td><td>Committed</td></tr>
+                <tr><td>4</td><td>Create shipment</td><td>Failed</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>The problem is that the order, inventory reservation and payment were already committed in different databases.</p>
+        <p>A failure in the Shipping Service cannot automatically roll back the Payment Service's database transaction.</p>
+    </div>
+    <div class="intro">
+        <p>The <code>Transactional</code> annotation does not make the REST calls part of the Order Service's database transaction.</p>
+        <p>It normally manages transactions only for the resources enlisted in that transaction manager.</p>
+        <p>Consequently, we could end up with:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>A customer who has been charged.</li>
+        <li>Inventory reserved for the order.</li>
+        <li>No shipment.</li>
+        <li>An order that cannot be fulfilled.</li>
+    </ul></div>
+    <div class="intro">
+        <p>This is precisely the kind of problem that the Saga Pattern addresses.</p>
+    </div>
+
+    <div class="subheading">What is the Saga Pattern</div>
+    <div class="intro">
+        <p>A Saga is a sequence of local ACID transactions, where each transaction is executed by an individual service.</p>
+        <p>The overall business operation is completed by coordinating these local transactions.</p>
+        <p>If a step fails, the system performs <strong>compensating transactions</strong> to reverse or semantically undo the effects of previously completed steps.</p>
+        <p>Mathematically, we can represent the forward transactions as:</p>
+    </div>
+    <div class="intro"><p class="math-display"><span class="math" data-tex="Saga=T_1 \rightarrow T_2 \rightarrow T_3 \rightarrow \cdots \rightarrow T_n" data-display="1"><i>Saga</i> = <i>T</i><sub>1</sub> → <i>T</i><sub>2</sub> → <i>T</i><sub>3</sub> → ⋯ → <i>T</i><sub><i>n</i></sub></span></p></div>
+    <div class="intro">
+        <p>Each <span class="math" data-tex="T_i"><i>T</i><sub><i>i</i></sub></span> is a local transaction performed by one microservice.</p>
+        <p>For transactions that require compensation, define a corresponding action <span class="math" data-tex="C_i"><i>C</i><sub><i>i</i></sub></span>.</p>
+        <p>If transaction <span class="math" data-tex="T_3"><i>T</i><sub>3</sub></span> fails after <span class="math" data-tex="T_1"><i>T</i><sub>1</sub></span> and <span class="math" data-tex="T_2"><i>T</i><sub>2</sub></span> have succeeded, the Saga may execute:</p>
+    </div>
+    <div class="intro"><p class="math-display"><span class="math" data-tex="T_1 \rightarrow T_2 \rightarrow T_3(\text{Failure})" data-display="1"><i>T</i><sub>1</sub> → <i>T</i><sub>2</sub> → <i>T</i><sub>3</sub>(Failure)</span></p></div>
+    <div class="intro"><p class="math-display"><span class="math" data-tex="\Downarrow" data-display="1">⇓</span></p></div>
+    <div class="intro"><p class="math-display"><span class="math" data-tex="C_2 \rightarrow C_1" data-display="1"><i>C</i><sub>2</sub> → <i>C</i><sub>1</sub></span></p></div>
+    <div class="intro">
+        <p>In our e-commerce example:</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Forward transaction</th><th>Service</th><th>Compensation</th></tr></thead>
+            <tbody>
+                <tr><td>Create pending order</td><td>Order</td><td>Cancel order</td></tr>
+                <tr><td>Reserve inventory</td><td>Inventory</td><td>Release inventory</td></tr>
+                <tr><td>Charge payment</td><td>Payment</td><td>Refund payment</td></tr>
+                <tr><td>Create shipment</td><td>Shipping</td><td>Cancel shipment, if created</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>A compensation is a new business transaction, not a database-level rollback. For example, a refund does not erase the original payment from financial records; it creates a separate reversing financial operation.</p>
+    </div>
+    <div class="intro">
+        <p><strong>Important characteristics</strong></p>
+        <p><strong>Local atomicity:</strong> Every service uses its own database transaction.</p>
+        <p><strong>Eventual consistency:</strong> The overall system can temporarily contain intermediate states, but should eventually reach an accepted business outcome if all required actions can complete.</p>
+        <p><strong>Compensation:</strong> Completed operations are reversed using domain-specific logic.</p>
+        <p><strong>No global ACID transaction:</strong> One transaction does not lock or control all the service databases.</p>
+        <p><strong>Failure recovery:</strong> A reliable Saga must remember its current state so execution can resume after process crashes.</p>
+        <p>Saga orchestration does not automatically provide isolation between concurrent business operations and it does not guarantee that every real-world action can be undone.</p>
+    </div>
+
+    <div class="subheading">Types of Saga Patterns</div>
+    <div class="intro">
+        <p>There are two primary approaches to coordinating a Saga:</p>
+    </div>
+    <div class="intro"><ol>
+        <li>Choreography-based Saga.</li>
+        <li>Orchestration-based Saga.</li>
+    </ol></div>
+    <div class="intro">
+        <p><strong>Choreography-based Saga</strong></p>
+        <p>In choreography, there is no central workflow coordinator. Services react to events emitted by other services.</p>
+        <p>For example:</p>
+    </div>
+    <div class="code-block"><pre><code>Order Service
+    |
+    | OrderCreated event
+    v
+Inventory Service
+    |
+    | InventoryReserved event
+    v
+Payment Service
+    |
+    | PaymentCompleted event
+    v
+Shipping Service
+    |
+    | ShipmentCreated event
+    v
+Order Service
+    |
+    v
+Order Confirmed</code></pre></div>
+    <div class="intro">
+        <p>Each participant needs to know which events to consume and which subsequent events to publish.</p>
+    </div>
+    <div class="intro">
+        <p><strong>Orchestration-based Saga</strong></p>
+        <p>In orchestration, a central component called the <strong>Saga Orchestrator</strong> explicitly tells participants what to do.</p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/orchestration-commands.svg" alt="The Saga Orchestrator owns the workflow and failure handling; it sends commands to the Inventory, Payment and Shipping services, each of which runs a local transaction and returns its result" style="width:100%;max-width:760px">
+    </div>
+    <div class="intro">
+        <p>The orchestrator determines:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>Which transaction executes next.</li>
+        <li>Whether a step succeeded or failed.</li>
+        <li>Whether to retry a failed operation.</li>
+        <li>Which compensation to invoke.</li>
+        <li>When the Saga can be marked completed or cancelled.</li>
+    </ul></div>
+    <div class="intro">
+        <p><strong>Choreography vs. Orchestration</strong></p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Aspect</th><th>Choreography</th><th>Orchestration</th></tr></thead>
+            <tbody>
+                <tr><td>Coordinator</td><td>No central coordinator</td><td>Central orchestrator</td></tr>
+                <tr><td>Communication</td><td>Primarily events</td><td>Commands and replies</td></tr>
+                <tr><td>Workflow visibility</td><td>Distributed across services</td><td>Centralized</td></tr>
+                <tr><td>Complex workflows</td><td>Can become difficult to follow</td><td>Generally easier to manage</td></tr>
+                <tr><td>Coupling</td><td>Event contracts</td><td>Orchestrator knows participants</td></tr>
+                <tr><td>Compensation</td><td>Event-driven</td><td>Explicitly coordinated</td></tr>
+                <tr><td>Testing</td><td>Often more involved</td><td>State-machine tests are straightforward</td></tr>
+                <tr><td>Central component</td><td>Not required</td><td>Orchestrator must be reliable</td></tr>
+                <tr><td>Best use</td><td>Relatively simple, decoupled flows</td><td>Complex multi-step transactions</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>Both approaches can be reliable and scalable. The difference is how coordination responsibility is distributed.</p>
+        <p>For the rest of this tutorial, we will focus specifically on <strong>Saga Orchestration</strong>.</p>
+    </div>
+
+    <div class="subheading">Internal working of a Saga Orchestrator</div>
+    <div class="intro">
+        <p>A reliable Saga Orchestrator is more than a Java class that calls three REST APIs.</p>
+        <p>Conceptually, it is a <strong>persistent state machine</strong>.</p>
+        <p>Consider our order workflow:</p>
+    </div>
+    <div class="svg-diagram mermaid-diagram">
+        <img class="mermaid-fallback" src="../static/orchestration-workflow.svg" alt="Order workflow: forward path from Order Created (PENDING) through Reserve Inventory, Charge Payment and Create Shipment to Order CONFIRMED; a permanent failure starts compensation: Cancel Shipment, Refund Payment, Release Inventory, Order CANCELLED" style="width:100%;max-width:660px">
+        <script type="text/plain" class="mermaid-src">
+flowchart TD
+    A["Order Created<br/>PENDING"] --> B["Reserve Inventory"]
+    B -->|Success| C["Charge Payment"]
+    C -->|Success| D["Create Shipment"]
+    D -->|Success| E["Order CONFIRMED"]
+
+    B -->|Permanent failure| F["Start Compensation"]
+    C -->|Permanent failure| F
+    D -->|Permanent failure| F
+    F --> G["Cancel Shipment"]
+    G --> H["Refund Payment"]
+    H --> I["Release Inventory"]
+    I --> J["Order CANCELLED"]
+
+    classDef success fill:#dcfce7,stroke:#16a34a,color:#166534
+    classDef failure fill:#fee2e2,stroke:#dc2626,color:#991b1b
+    class E success
+    class J failure
+        </script>
+    </div>
+    <div class="intro">
+        <p>The compensation path is deliberately idempotent. In our implementation, asking a service to compensate an operation that never happened is safe: the service records a cancellation or reversal marker to prevent a delayed original command from applying afterward.</p>
+    </div>
+    <div class="intro">
+        <p><strong>Successful execution</strong></p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/orchestration-sequence-success.svg" alt="Successful saga sequence: the customer posts an order and gets 202 Accepted; inventory, payment and shipping each commit and reply success; the order is marked CONFIRMED" style="width:100%;max-width:712px">
+    </div>
+    <div class="intro">
+        <p>Each participant commits its transaction independently.</p>
+    </div>
+    <div class="intro">
+        <p><strong>Failure during shipment creation</strong></p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/orchestration-sequence-failure.svg" alt="Failure during shipment creation: inventory and payment succeed, shipping fails permanently, compensation cancels the shipment, refunds the payment and releases the inventory, and the order ends CANCELLED" style="width:100%;max-width:536px">
+    </div>
+    <div class="intro">
+        <p>The order cannot be considered cancelled merely because shipment creation failed.</p>
+        <p>Cancellation becomes complete only after the required compensations have succeeded.</p>
+    </div>
+    <div class="intro">
+        <p><strong>What does the orchestrator store?</strong></p>
+        <p>A typical Saga might record:</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Field</th><th>Example</th></tr></thead>
+            <tbody>
+                <tr><td><code>sagaId</code></td><td><code>a1b2-...</code></td></tr>
+                <tr><td><code>orderId</code></td><td><code>9f20-...</code></td></tr>
+                <tr><td><code>status</code></td><td><code>CANCELLING</code></td></tr>
+                <tr><td><code>currentStep</code></td><td><code>REFUND_PAYMENT</code></td></tr>
+                <tr><td><code>retryCount</code></td><td><code>2</code></td></tr>
+                <tr><td><code>nextAttemptAt</code></td><td>Timestamp</td></tr>
+                <tr><td><code>lastError</code></td><td><code>Payment API unavailable</code></td></tr>
+                <tr><td><code>version</code></td><td><code>7</code></td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>This persistent information makes it possible to restart an incomplete workflow rather than beginning the whole process again blindly.</p>
+    </div>
+
+    <div class="subheading">Building a Saga Orchestrator: E-commerce order processing</div>
+    <div class="intro">
+        <p>We will build four independent Spring Boot applications.</p>
+    </div>
+    <div class="intro"><p><strong>Application architecture</strong></p></div>
+    <div class="svg-diagram">
+        <img src="../static/orchestration-architecture.svg" alt="Order Service (port 8080, orders_db) contains the Saga Orchestrator and calls the Inventory (8081, inventory_db), Payment (8082, payments_db) and Shipping (8083, shipping_db) services" style="width:100%;max-width:780px">
+    </div>
+    <div class="intro">
+        <p>We'll use:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>Java 21</li>
+        <li>Spring Boot 4.0.x</li>
+        <li>Spring MVC <code>RestClient</code></li>
+        <li>Spring Data JPA and Hibernate</li>
+        <li>H2 databases for local development</li>
+        <li>A persistent Saga state machine</li>
+        <li>A background worker for retrying and recovering incomplete Sagas</li>
+    </ul></div>
+    <div class="intro">
+        <p>The code focuses on the distributed transaction mechanics. Authentication, full payment-provider integration, deployment configuration, and operational infrastructure are intentionally outside the runnable core.</p>
+        <p>Spring Boot provides an auto-configured <code>RestClient.Builder</code>, which is well suited to synchronous REST-based orchestration.</p>
+    </div>
+
+    <div class="subheading">Project structure</div>
+    <div class="code-block tree"><pre><code>saga-orchestration/
+│
+├── order-service/
+│   ├── pom.xml
+│   └── src/main/
+│       ├── java/com/example/orders/
+│       │   ├── OrderApplication.java
+│       │   ├── CustomerOrder.java
+│       │   ├── OrderRepository.java
+│       │   ├── OrderStateService.java
+│       │   ├── ParticipantClients.java
+│       │   ├── SagaWorker.java
+│       │   └── OrderController.java
+│       └── resources/application.properties
+│
+├── inventory-service/
+│   ├── pom.xml
+│   └── src/main/
+│       ├── java/com/example/inventory/
+│       │   ├── InventoryApplication.java
+│       │   ├── ProductStock.java
+│       │   ├── Reservation.java
+│       │   ├── InventoryService.java
+│       │   └── InventoryController.java
+│       └── resources/application.properties
+│
+├── payment-service/
+│   ├── pom.xml
+│   └── src/main/
+│       ├── java/com/example/payment/
+│       └── resources/application.properties
+│
+└── shipping-service/
+    ├── pom.xml
+    └── src/main/
+        ├── java/com/example/shipping/
+        └── resources/application.properties</code></pre></div>
+    <div class="intro">
+        <p>Each directory is an independently deployable application.</p>
+    </div>
+    <div class="subheading">Service configuration</div>
+    <div class="intro">
+        <p>Each service has its own file-backed H2 database.</p>
+        <p>Order Service</p>
+    </div>
+    <div class="code-block"><pre><code>spring.application.name=order-service
+server.port=8080
+
+spring.datasource.url=jdbc:h2:file:./data/orders
+spring.datasource.username=sa
+spring.datasource.password=
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.open-in-view=false
+
+clients.inventory=http://localhost:8081
+clients.payment=http://localhost:8082
+clients.shipping=http://localhost:8083
+
+saga.poll-delay-ms=1000</code></pre></div>
+    <div class="intro">
+        <p>Inventory Service</p>
+    </div>
+    <div class="code-block"><pre><code>spring.application.name=inventory-service
+server.port=8081
+
+spring.datasource.url=jdbc:h2:file:./data/inventory
+spring.datasource.username=sa
+spring.datasource.password=
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.open-in-view=false</code></pre></div>
+    <div class="intro">
+        <p>Payment Service</p>
+    </div>
+    <div class="code-block"><pre><code>spring.application.name=payment-service
+server.port=8082
+
+spring.datasource.url=jdbc:h2:file:./data/payments
+spring.datasource.username=sa
+spring.datasource.password=
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.open-in-view=false</code></pre></div>
+    <div class="intro">
+        <p>Shipping Service</p>
+    </div>
+    <div class="code-block"><pre><code>spring.application.name=shipping-service
+server.port=8083
+
+spring.datasource.url=jdbc:h2:file:./data/shipping
+spring.datasource.username=sa
+spring.datasource.password=
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.open-in-view=false</code></pre></div>
+    <div class="intro">
+        <p>For production, use persistent databases such as PostgreSQL or MySQL and manage schemas through Flyway or Liquibase rather than Hibernate's <code>ddl-auto=update</code>.</p>
+    </div>
+
+    <div class="subheading">Define the Saga states</div>
+    <div class="intro">
+        <p>The Saga needs to know exactly what to execute next.</p>
+        <p>Instead of maintaining progress only in Java memory, we define persistent states.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">enum</span> <span class="code-class">SagaPhase</span> {
+    RESERVE_INVENTORY, CHARGE_PAYMENT, CREATE_SHIPMENT, <span class="code-comment"># Forward workflow</span>
+    CANCEL_SHIPMENT, REFUND_PAYMENT, RELEASE_INVENTORY, <span class="code-comment"># Compensation workflow</span>
+    COMPLETED, CANCELLED <span class="code-comment"># Terminal phases</span>
+}</code></pre></div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">enum</span> <span class="code-class">OrderStatus</span> {
+    PENDING, CONFIRMED, CANCELLING, CANCELLED
+}</code></pre></div>
+    <div class="intro">
+        <p>Notice that <code>SagaPhase</code> and <code>OrderStatus</code> represent different concepts.</p>
+        <p><code>OrderStatus</code> describes the business-level order state.</p>
+        <p><code>SagaPhase</code> describes the operation that the orchestrator must perform next.</p>
+        <p>For example, an order can be <code>CANCELLING</code> while the Saga phase is <code>REFUND_PAYMENT</code>.</p>
+    </div>
+
+    <div class="subheading">Create the Order entity</div>
+    <div class="intro">
+        <p><code>CustomerOrder.java</code></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@Entity</span>
+<span class="code-annotation">@Table</span>(name = <span class="code-string">"customer_orders"</span>, uniqueConstraints = <span class="code-annotation">@UniqueConstraint</span>(columnNames = <span class="code-string">"request_key"</span>))
+<span class="code-annotation">@Getter</span>
+<span class="code-annotation">@Setter</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CustomerOrder</span> {
+
+    <span class="code-annotation">@Id</span>
+    <span class="code-keyword">private</span> UUID id;
+
+    <span class="code-annotation">@Column</span>(name = <span class="code-string">"request_key"</span>, nullable = <span class="code-keyword">false</span>)
+    <span class="code-keyword">private</span> <span class="code-class">String</span> requestKey;
+
+    <span class="code-keyword">private</span> <span class="code-class">String</span> customerId;
+    <span class="code-keyword">private</span> <span class="code-class">String</span> sku;
+    <span class="code-keyword">private</span> <span class="code-keyword">int</span> quantity;
+    <span class="code-keyword">private</span> <span class="code-keyword">double</span> amount;
+
+    <span class="code-annotation">@Enumerated</span>(<span class="code-class">EnumType</span>.STRING)
+    <span class="code-keyword">private</span> <span class="code-class">OrderStatus</span> status;
+
+    <span class="code-annotation">@Enumerated</span>(<span class="code-class">EnumType</span>.STRING)
+    <span class="code-keyword">private</span> <span class="code-class">SagaPhase</span> phase;
+
+    <span class="code-keyword">private</span> <span class="code-keyword">int</span> retryCount;
+    <span class="code-keyword">private</span> <span class="code-class">Instant</span> nextAttemptAt;
+
+    <span class="code-annotation">@Column</span>(length = <span class="code-number">2000</span>)
+    <span class="code-keyword">private</span> <span class="code-class">String</span> lastError;
+
+    <span class="code-annotation">@Version</span>
+    <span class="code-keyword">private</span> <span class="code-keyword">long</span> version;
+
+    <span class="code-keyword">protected</span> <span class="code-class">CustomerOrder</span>() {}
+
+    <span class="code-keyword">public</span> <span class="code-class">CustomerOrder</span>(<span class="code-class">String</span> requestKey, <span class="code-class">CreateOrderRequest</span> request) {
+        <span class="code-keyword">this</span>.id = UUID.randomUUID();
+        <span class="code-keyword">this</span>.requestKey = requestKey;
+        <span class="code-keyword">this</span>.customerId = request.getCustomerId();
+        <span class="code-keyword">this</span>.sku = request.getSku();
+        <span class="code-keyword">this</span>.quantity = request.getQuantity();
+        <span class="code-keyword">this</span>.amount = request.getAmount();
+        <span class="code-keyword">this</span>.status = <span class="code-class">OrderStatus</span>.PENDING;
+        <span class="code-keyword">this</span>.phase = <span class="code-class">SagaPhase</span>.RESERVE_INVENTORY;
+        <span class="code-keyword">this</span>.retryCount = <span class="code-number">0</span>;
+        <span class="code-keyword">this</span>.nextAttemptAt = <span class="code-class">Instant</span>.now();
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Our code stores the Saga state on the order itself because each order has exactly one order-creation Saga.</p>
+        <p>A larger application may instead maintain separate <code>orders</code>, <code>saga_instances</code>, and <code>saga_steps</code> tables. That is often preferable when orders participate in multiple different Saga workflows.</p>
+    </div>
+    <div class="intro">
+        <p><strong>Why do we need <code>Version</code>?</strong></p>
+        <p><code>Version</code> enables optimistic locking.</p>
+    </div>
+    <div class="code-block"><pre><code>Worker A reads Order version 5
+Worker B reads Order version 5
+
+Worker A updates -&gt; version becomes 6
+Worker B updates -&gt; optimistic lock failure</code></pre></div>
+    <div class="intro">
+        <p>This prevents Worker B from silently overwriting Worker A's database changes.</p>
+        <p>However, optimistic locking alone does not prevent both workers from making the same external REST call.<br> A distributed worker-claim or leasing mechanism is still required when multiple orchestrator instances process Sagas concurrently.</p>
+    </div>
+
+    <div class="subheading">Define request and response DTOs</div>
+    <div class="code-block"><pre><code><span class="code-annotation">@Getter</span>
+<span class="code-annotation">@Setter</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CreateOrderRequest</span> {
+    <span class="code-annotation">@NotBlank</span>
+    <span class="code-keyword">private</span> <span class="code-class">String</span> customerId;
+
+    <span class="code-annotation">@NotBlank</span>
+    <span class="code-keyword">private</span> <span class="code-class">String</span> sku;
+
+    <span class="code-annotation">@Min</span>(<span class="code-number">1</span>)
+    <span class="code-keyword">private</span> <span class="code-keyword">int</span> quantity;
+
+    <span class="code-annotation">@DecimalMin</span>(<span class="code-string">"0.01"</span>)
+    <span class="code-keyword">private</span> <span class="code-keyword">double</span> amount;
+}</code></pre></div>
+    <div class="code-block"><pre><code><span class="code-annotation">@Getter</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderResponse</span> {
+    <span class="code-keyword">private</span> UUID orderId;
+    <span class="code-keyword">private</span> <span class="code-class">OrderStatus</span> status;
+    <span class="code-keyword">private</span> <span class="code-class">SagaPhase</span> phase;
+    <span class="code-keyword">private</span> <span class="code-class">String</span> lastError;
+
+    <span class="code-keyword">public</span> <span class="code-class">OrderResponse</span>(UUID orderId, <span class="code-class">OrderStatus</span> status, <span class="code-class">SagaPhase</span> phase, <span class="code-class">String</span> lastError) {
+        <span class="code-keyword">this</span>.orderId = orderId;
+        <span class="code-keyword">this</span>.status = status;
+        <span class="code-keyword">this</span>.phase = phase;
+        <span class="code-keyword">this</span>.lastError = lastError;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-class">OrderResponse</span> from(<span class="code-class">CustomerOrder</span> o) {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">OrderResponse</span>(o.getId(), o.getStatus(), o.getPhase(), o.getLastError());
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>In a real checkout system, the server should calculate payment amounts from trusted price data rather than accepting arbitrary client-provided amounts. We're keeping the price in the request to simplify the distributed transaction example.</p>
+    </div>
+
+    <div class="subheading">Create the Order repository</div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">OrderRepository</span> <span class="code-keyword">extends</span> <span class="code-class">JpaRepository</span>&lt;<span class="code-class">CustomerOrder</span>, UUID&gt; {
+    <span class="code-class">Optional</span>&lt;<span class="code-class">CustomerOrder</span>&gt; findByRequestKey(<span class="code-class">String</span> requestKey);
+
+    <span class="code-annotation">@Query</span>(<span class="code-string">""</span><span class="code-string">"
+        SELECT o.id
+        FROM CustomerOrder o
+        WHERE o.phase NOT IN :terminalPhases
+          AND o.nextAttemptAt &lt;= :now
+        ORDER BY o.nextAttemptAt ASC
+        "</span><span class="code-string">""</span>)
+    <span class="code-class">List</span>&lt;UUID&gt; findDueSagaIds(<span class="code-class">Collection</span>&lt;<span class="code-class">SagaPhase</span>&gt; terminalPhases, <span class="code-class">Instant</span> now, <span class="code-class">Pageable</span> pageable);
+}</code></pre></div>
+    <div class="intro">
+        <p>The second query is particularly important.</p>
+        <p>It retrieves Sagas that are not completed and are due for execution or retry.</p>
+        <p>This allows the application to resume workflows after restarts.</p>
+    </div>
+
+    <div class="subheading">Implement persistent state transitions</div>
+    <div class="intro">
+        <p>Every Saga transition must be committed independently of external HTTP requests.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@Service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderStateService</span> {
+    <span class="code-annotation">@Autowired</span>
+    <span class="code-keyword">private</span> <span class="code-class">OrderRepository</span> repository;
+
+    <span class="code-annotation">@Transactional</span>
+    <span class="code-keyword">public</span> <span class="code-class">OrderResponse</span> create(<span class="code-class">String</span> requestKey, <span class="code-class">CreateOrderRequest</span> request) {
+        <span class="code-keyword">var</span> existing = repository.findByRequestKey(requestKey);
+        <span class="code-keyword">if</span> (existing.isPresent()) {
+            <span class="code-class">CustomerOrder</span> order = existing.get();
+            <span class="code-keyword">boolean</span> sameRequest =
+                order.getCustomerId().equals(request.getCustomerId())
+                &amp;&amp; order.getSku().equals(request.getSku())
+                &amp;&amp; order.getQuantity() == request.getQuantity()
+                &amp;&amp; order.getAmount() == request.getAmount();
+            <span class="code-keyword">if</span> (!sameRequest) {
+                <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">ResponseStatusException</span>(<span class="code-class">HttpStatus</span>.CONFLICT,
+                                                  <span class="code-string">"Idempotency key reused with different data"</span>);
+            }
+            <span class="code-keyword">return</span> <span class="code-class">OrderResponse</span>.from(order);
+        }
+        <span class="code-class">CustomerOrder</span> order = <span class="code-keyword">new</span> <span class="code-class">CustomerOrder</span>(requestKey, request);
+        repository.save(order);
+        <span class="code-keyword">return</span> <span class="code-class">OrderResponse</span>.from(order);
+    }
+
+    <span class="code-annotation">@Transactional</span>(readOnly = <span class="code-keyword">true</span>)
+    <span class="code-keyword">public</span> <span class="code-class">CustomerOrder</span> get(UUID orderId) {
+        <span class="code-keyword">return</span> repository.findById(orderId)
+            .orElseThrow(() -&gt; <span class="code-keyword">new</span> <span class="code-class">ResponseStatusException</span>(<span class="code-class">HttpStatus</span>.NOT_FOUND, <span class="code-string">"Order not found"</span>));
+    }
+
+    <span class="code-annotation">@Transactional</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> moveTo(UUID orderId, <span class="code-class">SagaPhase</span> next) {
+        <span class="code-class">CustomerOrder</span> order = get(orderId);
+        order.setPhase(next);
+        order.setRetryCount(<span class="code-number">0</span>);
+        order.setNextAttemptAt(<span class="code-class">Instant</span>.now());
+        <span class="code-keyword">if</span> (next == <span class="code-class">SagaPhase</span>.COMPLETED) {
+            order.setStatus(<span class="code-class">OrderStatus</span>.CONFIRMED);
+        } <span class="code-keyword">else</span> <span class="code-keyword">if</span> (next == <span class="code-class">SagaPhase</span>.CANCELLED) {
+            order.setStatus(<span class="code-class">OrderStatus</span>.CANCELLED);
+        }
+    }
+
+    <span class="code-annotation">@Transactional</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> beginCompensation(UUID orderId, <span class="code-class">String</span> reason) {
+        <span class="code-class">CustomerOrder</span> order = get(orderId);
+        order.setStatus(<span class="code-class">OrderStatus</span>.CANCELLING);
+        order.setPhase(<span class="code-class">SagaPhase</span>.CANCEL_SHIPMENT);
+        order.setRetryCount(<span class="code-number">0</span>);
+        order.setNextAttemptAt(<span class="code-class">Instant</span>.now());
+        order.setLastError(reason);
+    }
+
+    <span class="code-annotation">@Transactional</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> recordTransientFailure(UUID orderId, <span class="code-class">String</span> reason) {
+        <span class="code-class">CustomerOrder</span> order = get(orderId);
+        order.setRetryCount(order.getRetryCount() + <span class="code-number">1</span>);
+        order.setLastError(reason);
+        <span class="code-keyword">boolean</span> compensating = <span class="code-keyword">switch</span> (order.getPhase()) {
+            <span class="code-keyword">case</span> CANCEL_SHIPMENT, REFUND_PAYMENT, RELEASE_INVENTORY -&gt; <span class="code-keyword">true</span>;
+            <span class="code-keyword">default</span> -&gt; <span class="code-keyword">false</span>;
+        };
+        <span class="code-comment"># Give up forward execution after a retry budget.</span>
+        <span class="code-comment"># Never pretend an unsuccessful compensation succeeded.</span>
+        <span class="code-keyword">if</span> (!compensating &amp;&amp; order.getRetryCount() &gt;= <span class="code-number">5</span>) {
+            order.setStatus(<span class="code-class">OrderStatus</span>.CANCELLING);
+            order.setPhase(<span class="code-class">SagaPhase</span>.CANCEL_SHIPMENT);
+            order.setRetryCount(<span class="code-number">0</span>);
+        }
+        <span class="code-comment"># Exponential backoff, capped at 60 seconds.</span>
+        <span class="code-keyword">int</span> exponent = <span class="code-class">Math</span>.min(order.getRetryCount(), <span class="code-number">6</span>);
+        <span class="code-keyword">long</span> delay = <span class="code-class">Math</span>.min(60L, 1L &lt;&lt; exponent);
+        order.setNextAttemptAt(<span class="code-class">Instant</span>.now().plusSeconds(delay));
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Why are these methods transactional?</strong></p>
+        <p>Because state transitions themselves must be atomic and durable.</p>
+        <p>For example:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@Transactional</span>
+<span class="code-keyword">public</span> <span class="code-keyword">void</span> moveTo(UUID orderId, <span class="code-class">SagaPhase</span> next)</code></pre></div>
+    <div class="intro">
+        <p>ensures the update to the order's state is committed as a local database transaction.</p>
+        <p>The orchestrator calls this method <strong>after</strong> a participant REST call succeeds.</p>
+        <p>We never hold a single database transaction open across the entire distributed workflow.</p>
+    </div>
+    <div class="intro">
+        <p><strong>Why persist the next phase?</strong></p>
+        <p>Imagine this sequence:</p>
+    </div>
+    <div class="code-block"><pre><code>1. Inventory reservation succeeds
+2. Orchestrator changes phase to CHARGE_PAYMENT
+3. Phase is committed to database
+4. Order Service crashes
+5. Order Service restarts
+6. Worker reads CHARGE_PAYMENT
+7. Payment step resumes</code></pre></div>
+    <div class="intro">
+        <p>We don't have to restart the Saga at the beginning.</p>
+        <p>There is another important case:</p>
+    </div>
+    <div class="code-block"><pre><code>1. Inventory reservation succeeds
+2. Order Service crashes BEFORE saving CHARGE_PAYMENT
+3. Worker retries RESERVE_INVENTORY</code></pre></div>
+    <div class="intro">
+        <p>This must also be safe.</p>
+        <p>We make it safe by implementing <strong>idempotent participant operations</strong>. Reserving inventory twice for the same order ID must not deduct stock twice.</p>
+        <p>The unique <code>request_key</code> also establishes request-level idempotency. Under concurrent duplicate POST requests, the database unique constraint is the final guard; a production API should additionally catch a uniqueness conflict and reread the existing order to return the same response.</p>
+    </div>
+
+    <div class="subheading">Configure HTTP clients</div>
+    <div class="intro">
+        <p><code>ParticipantClientConfig.java</code></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@Configuration</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ParticipantClientConfig</span> {
+
+    <span class="code-keyword">private</span> <span class="code-class">ClientHttpRequestFactory</span> requestFactory() {
+        <span class="code-keyword">var</span> factory = <span class="code-keyword">new</span> <span class="code-class">SimpleClientHttpRequestFactory</span>();
+        factory.setConnectTimeout(<span class="code-class">Duration</span>.ofSeconds(<span class="code-number">2</span>));
+        factory.setReadTimeout(<span class="code-class">Duration</span>.ofSeconds(<span class="code-number">3</span>));
+        <span class="code-keyword">return</span> factory;
+    }
+
+    <span class="code-annotation">@Bean</span>(<span class="code-string">"inventoryClient"</span>)
+    <span class="code-class">RestClient</span> inventoryClient(<span class="code-class">RestClient</span>.<span class="code-class">Builder</span> builder, <span class="code-annotation">@Value</span>(<span class="code-string">"${clients.inventory}"</span>) <span class="code-class">String</span> url) {
+        <span class="code-keyword">return</span> builder.clone().baseUrl(url).requestFactory(requestFactory()).build();
+    }
+
+    <span class="code-annotation">@Bean</span>(<span class="code-string">"paymentClient"</span>)
+    <span class="code-class">RestClient</span> paymentClient(<span class="code-class">RestClient</span>.<span class="code-class">Builder</span> builder, <span class="code-annotation">@Value</span>(<span class="code-string">"${clients.payment}"</span>) <span class="code-class">String</span> url) {
+        <span class="code-keyword">return</span> builder.clone().baseUrl(url).requestFactory(requestFactory()).build();
+    }
+
+    <span class="code-annotation">@Bean</span>(<span class="code-string">"shippingClient"</span>)
+    <span class="code-class">RestClient</span> shippingClient(<span class="code-class">RestClient</span>.<span class="code-class">Builder</span> builder, <span class="code-annotation">@Value</span>(<span class="code-string">"${clients.shipping}"</span>) <span class="code-class">String</span> url) {
+        <span class="code-keyword">return</span> builder.clone().baseUrl(url).requestFactory(requestFactory()).build();
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Timeouts matter because the orchestrator must not remain blocked indefinitely on a network request.</p>
+        <p>A timeout does not prove that the remote operation failed. The remote service might already have committed the transaction before the response was lost. We will handle this through idempotency and safe retries.</p>
+    </div>
+
+    <div class="subheading">Create the participant clients</div>
+    <div class="intro">
+        <p>This component isolates communication with other microservices.</p>
+        <p><code>ParticipantClients.java</code></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@Component</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ParticipantClients</span> {
+    <span class="code-annotation">@Autowired</span>
+    <span class="code-annotation">@Qualifier</span>(<span class="code-string">"inventoryClient"</span>)
+    <span class="code-keyword">private</span> <span class="code-class">RestClient</span> inventory;
+
+    <span class="code-annotation">@Autowired</span>
+    <span class="code-annotation">@Qualifier</span>(<span class="code-string">"paymentClient"</span>)
+    <span class="code-keyword">private</span> <span class="code-class">RestClient</span> payment;
+
+    <span class="code-annotation">@Autowired</span>
+    <span class="code-annotation">@Qualifier</span>(<span class="code-string">"shippingClient"</span>)
+    <span class="code-keyword">private</span> <span class="code-class">RestClient</span> shipping;
+
+    <span class="code-annotation">@Getter</span>
+    <span class="code-annotation">@Setter</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-keyword">class</span> <span class="code-class">InventoryCommand</span> {
+        <span class="code-keyword">private</span> UUID orderId;
+        <span class="code-keyword">private</span> <span class="code-class">String</span> sku;
+        <span class="code-keyword">private</span> <span class="code-keyword">int</span> quantity;
+
+        <span class="code-keyword">public</span> <span class="code-class">InventoryCommand</span>(UUID orderId, <span class="code-class">String</span> sku, <span class="code-keyword">int</span> quantity) {
+            <span class="code-keyword">this</span>.orderId = orderId;
+            <span class="code-keyword">this</span>.sku = sku;
+            <span class="code-keyword">this</span>.quantity = quantity;
+        }
+    }
+
+    <span class="code-annotation">@Getter</span>
+    <span class="code-annotation">@Setter</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-keyword">class</span> <span class="code-class">PaymentCommand</span> {
+        <span class="code-keyword">private</span> UUID orderId;
+        <span class="code-keyword">private</span> <span class="code-class">String</span> customerId;
+        <span class="code-keyword">private</span> <span class="code-keyword">double</span> amount;
+
+        <span class="code-keyword">public</span> <span class="code-class">PaymentCommand</span>(UUID orderId, <span class="code-class">String</span> customerId, <span class="code-keyword">double</span> amount) {
+            <span class="code-keyword">this</span>.orderId = orderId;
+            <span class="code-keyword">this</span>.customerId = customerId;
+            <span class="code-keyword">this</span>.amount = amount;
+        }
+    }
+
+    <span class="code-annotation">@Getter</span>
+    <span class="code-annotation">@Setter</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-keyword">class</span> <span class="code-class">ShippingCommand</span> {
+        <span class="code-keyword">private</span> UUID orderId;
+
+        <span class="code-keyword">public</span> <span class="code-class">ShippingCommand</span>(UUID orderId) {
+            <span class="code-keyword">this</span>.orderId = orderId;
+        }
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> reserveInventory(<span class="code-class">CustomerOrder</span> order) {
+        inventory.post()
+            .uri(<span class="code-string">"/inventory/reservations"</span>)
+            .body(<span class="code-keyword">new</span> <span class="code-class">InventoryCommand</span>(order.getId(), order.getSku(), order.getQuantity()))
+            .retrieve().toBodilessEntity();
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> chargePayment(<span class="code-class">CustomerOrder</span> order) {
+        payment.post()
+            .uri(<span class="code-string">"/payments/charges"</span>)
+            .body(<span class="code-keyword">new</span> <span class="code-class">PaymentCommand</span>(order.getId(), order.getCustomerId(), order.getAmount()))
+            .retrieve().toBodilessEntity();
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> createShipment(<span class="code-class">CustomerOrder</span> order) {
+        shipping.post()
+            .uri(<span class="code-string">"/shipments"</span>)
+            .body(<span class="code-keyword">new</span> <span class="code-class">ShippingCommand</span>(order.getId()))
+            .retrieve().toBodilessEntity();
+    }
+
+    <span class="code-comment"># Compensation methods</span>
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> cancelShipment(<span class="code-class">CustomerOrder</span> order) {
+        shipping.post()
+            .uri(<span class="code-string">"/shipments/cancel"</span>)
+            .body(<span class="code-keyword">new</span> <span class="code-class">ShippingCommand</span>(order.getId()))
+            .retrieve().toBodilessEntity();
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> refundPayment(<span class="code-class">CustomerOrder</span> order) {
+        payment.post()
+            .uri(<span class="code-string">"/payments/refunds"</span>)
+            .body(<span class="code-keyword">new</span> <span class="code-class">PaymentCommand</span>(order.getId(), order.getCustomerId(), order.getAmount()))
+            .retrieve().toBodilessEntity();
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> releaseInventory(<span class="code-class">CustomerOrder</span> order) {
+        inventory.post()
+            .uri(<span class="code-string">"/inventory/reservations/release"</span>)
+            .body(<span class="code-keyword">new</span> <span class="code-class">InventoryCommand</span>(order.getId(), order.getSku(), order.getQuantity()))
+            .retrieve().toBodilessEntity();
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Notice that all commands contain an <code>orderId</code>.</p>
+        <p>For this Saga, it serves as a stable business operation identifier that the participants use for idempotency.</p>
+        <p>For more sophisticated systems, use an explicit unique operation ID for every step:</p>
+    </div>
+    <div class="code-block"><pre><code>order-123:reserve-inventory
+order-123:charge-payment
+order-123:create-shipment
+order-123:cancel-shipment
+order-123:refund-payment
+order-123:release-inventory</code></pre></div>
+    <div class="intro">
+        <p>Such IDs make retries, deduplication, logging, and auditing easier.</p>
+    </div>
+
+    <div class="subheading">Implement the Saga Orchestrator</div>
+    <div class="intro">
+        <p>This is the central part of the implementation.</p>
+        <p><code>SagaWorker.java</code></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@Service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">SagaWorker</span> {
+    <span class="code-keyword">private</span> <span class="code-keyword">static</span> <span class="code-keyword">final</span> <span class="code-class">Logger</span> log = <span class="code-class">LoggerFactory</span>.getLogger(<span class="code-class">SagaWorker</span>.<span class="code-keyword">class</span>);
+
+    <span class="code-annotation">@Autowired</span>
+    <span class="code-keyword">private</span> <span class="code-class">OrderRepository</span> repository;
+
+    <span class="code-annotation">@Autowired</span>
+    <span class="code-keyword">private</span> <span class="code-class">OrderStateService</span> states;
+
+    <span class="code-annotation">@Autowired</span>
+    <span class="code-keyword">private</span> <span class="code-class">ParticipantClients</span> clients;
+
+    <span class="code-annotation">@Scheduled</span>(fixedDelayString = <span class="code-string">"${saga.poll-delay-ms:1000}"</span>)
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> processDueSagas() {
+        <span class="code-keyword">var</span> terminal = <span class="code-class">List</span>.of(<span class="code-class">SagaPhase</span>.COMPLETED, <span class="code-class">SagaPhase</span>.CANCELLED);
+        <span class="code-class">List</span>&lt;UUID&gt; orderIds = repository.findDueSagaIds(terminal, <span class="code-class">Instant</span>.now(), <span class="code-class">PageRequest</span>.of(<span class="code-number">0</span>, <span class="code-number">100</span>));
+        <span class="code-keyword">for</span> (UUID orderId : orderIds) {
+            <span class="code-keyword">try</span> {
+                executeOneStep(orderId);
+            } <span class="code-keyword">catch</span> (<span class="code-class">Exception</span> unexpected) {
+                log.error(<span class="code-string">"Unexpected error for Saga {}"</span>, orderId, unexpected);
+            }
+        }
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> executeOneStep(UUID orderId) {
+        <span class="code-class">CustomerOrder</span> order = states.get(orderId);
+        <span class="code-keyword">try</span> {
+            <span class="code-keyword">switch</span> (order.getPhase()) {
+                <span class="code-keyword">case</span> RESERVE_INVENTORY -&gt; {
+                    clients.reserveInventory(order);
+                    states.moveTo(orderId, <span class="code-class">SagaPhase</span>.CHARGE_PAYMENT);
+                }
+                <span class="code-keyword">case</span> CHARGE_PAYMENT -&gt; {
+                    clients.chargePayment(order);
+                    states.moveTo(orderId, <span class="code-class">SagaPhase</span>.CREATE_SHIPMENT);
+                }
+                <span class="code-keyword">case</span> CREATE_SHIPMENT -&gt; {
+                    clients.createShipment(order);
+                    states.moveTo(orderId, <span class="code-class">SagaPhase</span>.COMPLETED);
+                }
+                <span class="code-comment"># Reverse order of compensation</span>
+                <span class="code-keyword">case</span> CANCEL_SHIPMENT -&gt; {
+                    clients.cancelShipment(order);
+                    states.moveTo(orderId, <span class="code-class">SagaPhase</span>.REFUND_PAYMENT);
+                }
+                <span class="code-keyword">case</span> REFUND_PAYMENT -&gt; {
+                    clients.refundPayment(order);
+                    states.moveTo(orderId, <span class="code-class">SagaPhase</span>.RELEASE_INVENTORY);
+                }
+                <span class="code-keyword">case</span> RELEASE_INVENTORY -&gt; {
+                    clients.releaseInventory(order);
+                    states.moveTo(orderId, <span class="code-class">SagaPhase</span>.CANCELLED);
+                }
+                <span class="code-keyword">case</span> COMPLETED, CANCELLED -&gt; {
+                    <span class="code-comment"># Nothing left to execute</span>
+                }
+            }
+        } <span class="code-keyword">catch</span> (<span class="code-class">RestClientResponseException</span> ex) {
+            <span class="code-keyword">int</span> status = ex.getStatusCode().value();
+            <span class="code-keyword">if</span> (isForward(order.getPhase()) &amp;&amp; (status == <span class="code-number">409</span> || status == <span class="code-number">422</span>)) {
+                states.beginCompensation(orderId, ex.getMessage()); <span class="code-comment"># Permanent business rejection</span>
+            } <span class="code-keyword">else</span> {
+                <span class="code-comment"># Infrastructure issue or uncertain result</span>
+                states.recordTransientFailure(orderId, ex.getMessage());
+            }
+        } <span class="code-keyword">catch</span> (<span class="code-class">RestClientException</span> ex) {
+            <span class="code-comment"># Network error / timeout.</span>
+            <span class="code-comment"># We cannot assume the remote service did nothing.</span>
+            states.recordTransientFailure(orderId, ex.getMessage());
+        }
+    }
+
+    <span class="code-keyword">private</span> <span class="code-keyword">boolean</span> isForward(<span class="code-class">SagaPhase</span> phase) {
+        <span class="code-keyword">return</span> <span class="code-keyword">switch</span> (phase) {
+            <span class="code-keyword">case</span> RESERVE_INVENTORY, CHARGE_PAYMENT, CREATE_SHIPMENT -&gt; <span class="code-keyword">true</span>;
+            <span class="code-keyword">default</span> -&gt; <span class="code-keyword">false</span>;
+        };
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>This code shows several important orchestration principles.</p>
+    </div>
+    <div class="intro">
+        <p><strong>The orchestrator is a state machine</strong></p>
+        <p>Instead of a long method containing every operation inside a single transaction, execution is based on the persisted Saga phase.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">switch</span> (order.getPhase()) {
+    <span class="code-keyword">case</span> RESERVE_INVENTORY -&gt; ...
+    <span class="code-keyword">case</span> CHARGE_PAYMENT -&gt; ...
+    <span class="code-keyword">case</span> CREATE_SHIPMENT -&gt; ...
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Each step is independently retryable</strong></p>
+        <p>If the Payment Service becomes temporarily unavailable, the order remains in <code>CHARGE_PAYMENT</code>.</p>
+        <p>When the next retry becomes due, the worker executes that step again.</p>
+    </div>
+    <div class="intro">
+        <p><strong>Compensation is also persistent</strong></p>
+        <p>If payment succeeds but shipping permanently fails, the Saga enters:</p>
+    </div>
+    <div class="code-block"><pre><code>CANCEL_SHIPMENT
+    |
+    v
+REFUND_PAYMENT
+    |
+    v
+RELEASE_INVENTORY
+    |
+    v
+CANCELLED</code></pre></div>
+    <div class="intro">
+        <p>If the orchestrator crashes while processing a refund, it can resume from <code>REFUND_PAYMENT</code> after restarting.</p>
+    </div>
+    <div class="intro">
+        <p><strong>Compensation is never silently skipped</strong></p>
+        <p>Suppose the refund endpoint is unavailable.</p>
+        <p>The Saga remains in <code>REFUND_PAYMENT</code> and retries with backoff.</p>
+        <p>It does not incorrectly mark the order <code>CANCELLED</code> while the customer may still be charged.</p>
+    </div>
+    <div class="intro">
+        <p><strong>Forward retries have a limit</strong></p>
+        <p>Our demonstration retries a transient forward failure up to five times before starting compensation.</p>
+        <p>A real application should define different policies for each failure type. For example, a payment gateway might be unavailable for several minutes without that being a reason to immediately cancel every order.</p>
+    </div>
+    <div class="intro">
+        <p><strong>Important limitation of this worker</strong></p>
+        <p>This scheduler is suitable for a <strong>single orchestrator worker</strong> in a demonstration.</p>
+        <p>If the Order Service is deployed with multiple replicas, several workers could pick up the same Saga. The database <code>@Version</code> check alone does not protect the external side effects.</p>
+        <p>A production version should atomically claim work using a lease, lock, or queue-based ownership mechanism. We will discuss this in the production section.</p>
+    </div>
+
+    <div class="subheading">Create the Order REST controller</div>
+    <div class="intro">
+        <p><code>OrderController.java</code></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@RestController</span>
+<span class="code-annotation">@RequestMapping</span>(<span class="code-string">"/orders"</span>)
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderController</span> {
+    <span class="code-annotation">@Autowired</span>
+    <span class="code-keyword">private</span> <span class="code-class">OrderStateService</span> states;
+
+    <span class="code-annotation">@PostMapping</span>
+    <span class="code-keyword">public</span> <span class="code-class">ResponseEntity</span>&lt;<span class="code-class">OrderResponse</span>&gt; create(
+            <span class="code-annotation">@RequestHeader</span>(<span class="code-string">"Idempotency-Key"</span>)
+            <span class="code-class">String</span> requestKey,
+            <span class="code-annotation">@Valid</span> <span class="code-annotation">@RequestBody</span>
+            <span class="code-class">CreateOrderRequest</span> request
+    ) {
+        <span class="code-class">OrderResponse</span> response = states.create(requestKey, request);
+        <span class="code-keyword">return</span> <span class="code-class">ResponseEntity</span>.accepted().body(response);
+    }
+
+    <span class="code-annotation">@GetMapping</span>(<span class="code-string">"/{orderId}"</span>)
+    <span class="code-keyword">public</span> <span class="code-class">OrderResponse</span> get(<span class="code-annotation">@PathVariable</span> UUID orderId) {
+        <span class="code-keyword">return</span> <span class="code-class">OrderResponse</span>.from(states.get(orderId));
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>The API returns <code>202 Accepted</code> because creating the order record does not mean that the entire distributed business operation has finished.</p>
+        <p>The client can poll the status endpoint while the Saga is running.</p>
+        <p>Finally, enable scheduling.</p>
+        <p><code>OrderApplication.java</code></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@SpringBootApplication</span>
+<span class="code-annotation">@EnableScheduling</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderApplication</span> {
+
+    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+        <span class="code-class">SpringApplication</span>.run(<span class="code-class">OrderApplication</span>.<span class="code-keyword">class</span>, args);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>At this point, the Order Service can create and persist Saga instances.</p>
+        <p>Next, we need to implement the participating services that execute the actual local transactions.</p>
+    </div>
+
+    <div class="subheading">Implementing the Inventory Service</div>
+
+    <div class="subheading">Inventory local transactions</div>
+    <div class="intro">
+        <p>The Inventory Service needs two operations:</p>
+    </div>
+    <div class="intro"><ul>
+        <li><code>reserveInventory()</code> — deduct available inventory and create a reservation.</li>
+        <li><code>releaseInventory()</code> — restore inventory if previously reserved.</li>
+    </ul></div>
+    <div class="intro">
+        <p>Both operations must be idempotent.</p>
+        <p>Imagine an item initially has 10 units available.</p>
+    </div>
+    <div class="intro"><p><strong>Inventory changes for an order requesting 3 units</strong></p></div>
+    <div class="svg-diagram">
+        <img src="../static/orchestration-inventory.svg" alt="Inventory changes for an order requesting 3 units: 10 available initially, 7 after reserve, 10 after release" style="width:100%;max-width:640px">
+    </div>
+    <div class="intro">
+        <p>If the same reservation command is delivered twice, stock must remain at 7, not decrease to 4.</p>
+    </div>
+
+    <div class="subheading">Inventory entities</div>
+    <div class="intro">
+        <p><code>ProductStock.java</code></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@Entity</span>
+<span class="code-annotation">@Getter</span>
+<span class="code-annotation">@Setter</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductStock</span> {
+    <span class="code-annotation">@Id</span>
+    <span class="code-keyword">private</span> <span class="code-class">String</span> sku;
+
+    <span class="code-keyword">private</span> <span class="code-keyword">int</span> available;
+
+    <span class="code-keyword">protected</span> <span class="code-class">ProductStock</span>() {}
+
+    <span class="code-keyword">public</span> <span class="code-class">ProductStock</span>(<span class="code-class">String</span> sku, <span class="code-keyword">int</span> available) {
+        <span class="code-keyword">this</span>.sku = sku;
+        <span class="code-keyword">this</span>.available = available;
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p><code>Reservation.java</code></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">enum</span> <span class="code-class">ReservationStatus</span> {
+    RESERVED, RELEASED
+}
+
+<span class="code-annotation">@Entity</span>
+<span class="code-annotation">@Getter</span>
+<span class="code-annotation">@Setter</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Reservation</span> {
+    <span class="code-annotation">@Id</span>
+    <span class="code-keyword">private</span> UUID orderId;
+
+    <span class="code-keyword">private</span> <span class="code-class">String</span> sku;
+    <span class="code-keyword">private</span> <span class="code-keyword">int</span> quantity;
+
+    <span class="code-annotation">@Enumerated</span>(<span class="code-class">EnumType</span>.STRING)
+    <span class="code-keyword">private</span> <span class="code-class">ReservationStatus</span> status;
+
+    <span class="code-keyword">protected</span> <span class="code-class">Reservation</span>() {}
+
+    <span class="code-keyword">public</span> <span class="code-class">Reservation</span>(UUID orderId, <span class="code-class">String</span> sku, <span class="code-keyword">int</span> quantity, <span class="code-class">ReservationStatus</span> status) {
+        <span class="code-keyword">this</span>.orderId = orderId;
+        <span class="code-keyword">this</span>.sku = sku;
+        <span class="code-keyword">this</span>.quantity = quantity;
+        <span class="code-keyword">this</span>.status = status;
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>We maintain a separate <code>Reservation</code> entity because merely decrementing the stock is not enough.</p>
+        <p>The service must remember which order reserved how much inventory, whether that reservation has already been released, and whether a future duplicate reservation should be rejected.</p>
+    </div>
+
+    <div class="subheading">Inventory repositories</div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">StockRepository</span>
+        <span class="code-keyword">extends</span> <span class="code-class">JpaRepository</span>&lt;<span class="code-class">ProductStock</span>, <span class="code-class">String</span>&gt; {
+    <span class="code-annotation">@Lock</span>(<span class="code-class">LockModeType</span>.PESSIMISTIC_WRITE)
+    <span class="code-annotation">@Query</span>(<span class="code-string">""</span><span class="code-string">"
+        SELECT s
+        FROM ProductStock s
+        WHERE s.sku = :sku
+        "</span><span class="code-string">""</span>)
+    <span class="code-class">Optional</span>&lt;<span class="code-class">ProductStock</span>&gt; findLocked(<span class="code-annotation">@Param</span>(<span class="code-string">"sku"</span>) <span class="code-class">String</span> sku);
+}</code></pre></div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">ReservationRepository</span>
+        <span class="code-keyword">extends</span> <span class="code-class">JpaRepository</span>&lt;<span class="code-class">Reservation</span>, UUID&gt; {
+}</code></pre></div>
+    <div class="intro">
+        <p>The <code>PESSIMISTIC_WRITE</code> lock protects the stock row while inventory is being checked and modified.</p>
+        <p>Without appropriate concurrency control, two separate orders could both observe the same available quantity and oversell the product.</p>
+    </div>
+
+    <div class="subheading">Inventory service implementation</div>
+    <div class="intro">
+        <p><code>InventoryService.java</code></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@Service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">InventoryService</span> {
+    <span class="code-annotation">@Autowired</span>
+    <span class="code-keyword">private</span> <span class="code-class">StockRepository</span> stocks;
+
+    <span class="code-annotation">@Autowired</span>
+    <span class="code-keyword">private</span> <span class="code-class">ReservationRepository</span> reservations;
+
+    <span class="code-annotation">@Getter</span>
+    <span class="code-annotation">@Setter</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-keyword">class</span> <span class="code-class">InventoryCommand</span> {
+        <span class="code-keyword">private</span> UUID orderId;
+        <span class="code-keyword">private</span> <span class="code-class">String</span> sku;
+        <span class="code-keyword">private</span> <span class="code-keyword">int</span> quantity;
+    }
+
+    <span class="code-annotation">@Transactional</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> reserve(<span class="code-class">InventoryCommand</span> request) {
+        <span class="code-class">ProductStock</span> stock = stocks
+            .findLocked(request.getSku())
+            .orElseThrow(() -&gt; <span class="code-keyword">new</span> <span class="code-class">ResponseStatusException</span>(<span class="code-class">HttpStatus</span>.CONFLICT, <span class="code-string">"Product does not exist"</span>));
+        <span class="code-class">Reservation</span> existing = reservations.findById(request.getOrderId()).orElse(<span class="code-keyword">null</span>);
+        <span class="code-keyword">if</span> (existing != <span class="code-keyword">null</span>) {
+            validateSameRequest(existing, request);
+            <span class="code-keyword">if</span> (existing.getStatus() == <span class="code-class">ReservationStatus</span>.RESERVED) {
+                <span class="code-keyword">return</span>; <span class="code-comment"># This order already reserved inventory.</span>
+            }
+            <span class="code-comment"># A release happened earlier.</span>
+            <span class="code-comment"># Do not allow a delayed reserve to recreate it.</span>
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">ResponseStatusException</span>(<span class="code-class">HttpStatus</span>.CONFLICT, <span class="code-string">"Reservation already released"</span>);
+        }
+        <span class="code-keyword">if</span> (stock.getAvailable() &lt; request.getQuantity()) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">ResponseStatusException</span>(<span class="code-class">HttpStatus</span>.CONFLICT, <span class="code-string">"Insufficient inventory"</span>);
+        }
+        stock.setAvailable(stock.getAvailable() - request.getQuantity());
+        reservations.save(<span class="code-keyword">new</span> <span class="code-class">Reservation</span>(request.getOrderId(), request.getSku(), request.getQuantity(),
+                                          <span class="code-class">ReservationStatus</span>.RESERVED));
+    }
+
+    <span class="code-annotation">@Transactional</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> release(<span class="code-class">InventoryCommand</span> request) {
+        <span class="code-comment"># Lock stock before checking reservation,</span>
+        <span class="code-comment"># matching the reserve operation's lock ordering.</span>
+        <span class="code-class">Optional</span>&lt;<span class="code-class">ProductStock</span>&gt; stock = stocks.findLocked(request.getSku());
+        <span class="code-class">Reservation</span> existing = reservations.findById(request.getOrderId()).orElse(<span class="code-keyword">null</span>);
+        <span class="code-keyword">if</span> (existing == <span class="code-keyword">null</span>) {
+            <span class="code-comment"># Tombstone: reservation either never happened</span>
+            <span class="code-comment"># or a delayed reserve may arrive later.</span>
+            reservations.save(<span class="code-keyword">new</span> <span class="code-class">Reservation</span>(request.getOrderId(), request.getSku(), request.getQuantity(),
+                                              <span class="code-class">ReservationStatus</span>.RELEASED));
+            <span class="code-keyword">return</span>;
+        }
+        validateSameRequest(existing, request);
+        <span class="code-keyword">if</span> (existing.getStatus() == <span class="code-class">ReservationStatus</span>.RELEASED) {
+            <span class="code-keyword">return</span>; <span class="code-comment"># Duplicate compensation is harmless.</span>
+        }
+        <span class="code-class">ProductStock</span> product = stock.orElseThrow(
+            () -&gt; <span class="code-keyword">new</span> <span class="code-class">IllegalStateException</span>(
+                <span class="code-string">"Reserved product is missing"</span>
+            )
+        );
+        product.setAvailable(product.getAvailable() + existing.getQuantity());
+        existing.setStatus(<span class="code-class">ReservationStatus</span>.RELEASED);
+    }
+
+    <span class="code-keyword">private</span> <span class="code-keyword">void</span> validateSameRequest(<span class="code-class">Reservation</span> existing, <span class="code-class">InventoryCommand</span> request) {
+        <span class="code-keyword">if</span> (!existing.getSku().equals(request.getSku()) || existing.getQuantity() != request.getQuantity()) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">ResponseStatusException</span>(<span class="code-class">HttpStatus</span>.CONFLICT, <span class="code-string">"Conflicting inventory operation"</span>);
+        }
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Key point: Why introduce a RELEASED tombstone?</strong></p>
+        <p>Consider a network timeout:</p>
+    </div>
+    <div class="code-block"><pre><code>Orchestrator                 Inventory Service
+     |                              |
+     |---- Reserve(order-123) -----&gt;|
+     |                              |
+     |                         Request delayed
+     |
+     |---- Release(order-123) -----&gt;|
+     |                              |
+     |                         Records RELEASED
+     |                              |
+     |       Delayed reserve arrives|
+     |                              |
+     |                         Reject reservation</code></pre></div>
+    <div class="intro">
+        <p>If the release operation simply returned success whenever no reservation existed, a late original command could reserve inventory after the Saga had already been cancelled.</p>
+        <p>Recording <code>RELEASED</code> prevents that mistake.</p>
+        <p>This example assumes operations for the same order use the same command identity and that concurrent commands are serialized sufficiently by database constraints and locking. In production, enforce this invariant explicitly, including handling concurrent first-time inserts and unique-key conflicts.</p>
+    </div>
+
+    <div class="subheading">Inventory controller</div>
+    <div class="intro">
+        <p><code>InventoryController.java</code></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@RestController</span>
+<span class="code-annotation">@RequestMapping</span>(<span class="code-string">"/inventory/reservations"</span>)
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">InventoryController</span> {
+    <span class="code-annotation">@Autowired</span>
+    <span class="code-keyword">private</span> <span class="code-class">InventoryService</span> service;
+
+    <span class="code-annotation">@PostMapping</span>
+    <span class="code-keyword">public</span> <span class="code-class">ResponseEntity</span>&lt;<span class="code-class">Void</span>&gt; reserve(<span class="code-annotation">@RequestBody</span> <span class="code-class">InventoryService</span>.<span class="code-class">InventoryCommand</span> request) {
+        service.reserve(request);
+        <span class="code-keyword">return</span> <span class="code-class">ResponseEntity</span>.ok().build();
+    }
+
+    <span class="code-annotation">@PostMapping</span>(<span class="code-string">"/release"</span>)
+    <span class="code-keyword">public</span> <span class="code-class">ResponseEntity</span>&lt;<span class="code-class">Void</span>&gt; release(<span class="code-annotation">@RequestBody</span> <span class="code-class">InventoryService</span>.<span class="code-class">InventoryCommand</span> request) {
+        service.release(request);
+        <span class="code-keyword">return</span> <span class="code-class">ResponseEntity</span>.ok().build();
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>For local testing, initialize some stock.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@Configuration</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">InventorySeed</span> {
+
+    <span class="code-annotation">@Bean</span>
+    <span class="code-class">CommandLineRunner</span> seed(<span class="code-class">StockRepository</span> repository) {
+        <span class="code-keyword">return</span> args -&gt; {
+            <span class="code-keyword">if</span> (!repository.existsById(<span class="code-string">"BOOK-1"</span>)) {
+                repository.save(<span class="code-keyword">new</span> <span class="code-class">ProductStock</span>(<span class="code-string">"BOOK-1"</span>, <span class="code-number">10</span>));
+            }
+        };
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>The service application itself is a standard <code>@SpringBootApplication</code> entry point.</p>
+    </div>
+
+    <div class="subheading">Implementing the Payment Service</div>
+
+    <div class="subheading">Payment local transactions</div>
+    <div class="intro">
+        <p>The Payment Service implements:</p>
+    </div>
+    <div class="intro"><ul>
+        <li><code>charge()</code> — debit a payment or, in this demonstration, record the charge.</li>
+        <li><code>refund()</code> — reverse a completed charge.</li>
+    </ul></div>
+    <div class="intro">
+        <p>The essential rules are:</p>
+    </div>
+    <div class="intro"><ol>
+        <li>Charging the same order twice must not charge twice.</li>
+        <li>Refunding the same order twice must not refund twice.</li>
+        <li>A delayed charge must not succeed after the order has been refunded or cancelled.</li>
+        <li>A refund must not be considered complete until the payment system confirms it.</li>
+    </ol></div>
+    <div class="intro">
+        <p>For simplicity, the sample uses a database-backed payment ledger rather than an external payment gateway.</p>
+    </div>
+
+    <div class="subheading">Payment entity and repository</div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">enum</span> <span class="code-class">PaymentStatus</span> {
+    CHARGED, REFUNDED
+}
+
+<span class="code-annotation">@Entity</span>
+<span class="code-annotation">@Getter</span>
+<span class="code-annotation">@Setter</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">PaymentRecord</span> {
+    <span class="code-annotation">@Id</span>
+    <span class="code-keyword">private</span> UUID orderId;
+
+    <span class="code-keyword">private</span> <span class="code-class">String</span> customerId;
+    <span class="code-keyword">private</span> <span class="code-keyword">double</span> amount;
+
+    <span class="code-annotation">@Enumerated</span>(<span class="code-class">EnumType</span>.STRING)
+    <span class="code-keyword">private</span> <span class="code-class">PaymentStatus</span> status;
+
+    <span class="code-keyword">protected</span> <span class="code-class">PaymentRecord</span>() {}
+
+    <span class="code-keyword">public</span> <span class="code-class">PaymentRecord</span>(UUID orderId, <span class="code-class">String</span> customerId, <span class="code-keyword">double</span> amount, <span class="code-class">PaymentStatus</span> status) {
+        <span class="code-keyword">this</span>.orderId = orderId;
+        <span class="code-keyword">this</span>.customerId = customerId;
+        <span class="code-keyword">this</span>.amount = amount;
+        <span class="code-keyword">this</span>.status = status;
+    }
+}</code></pre></div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">PaymentRepository</span>
+        <span class="code-keyword">extends</span> <span class="code-class">JpaRepository</span>&lt;<span class="code-class">PaymentRecord</span>, UUID&gt; {
+}</code></pre></div>
+
+    <div class="subheading">Payment service implementation</div>
+    <div class="intro">
+        <p><code>PaymentService.java</code></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@Service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">PaymentService</span> {
+    <span class="code-annotation">@Autowired</span>
+    <span class="code-keyword">private</span> <span class="code-class">PaymentRepository</span> repository;
+
+    <span class="code-annotation">@Getter</span>
+    <span class="code-annotation">@Setter</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-keyword">class</span> <span class="code-class">PaymentCommand</span> {
+        <span class="code-keyword">private</span> UUID orderId;
+        <span class="code-keyword">private</span> <span class="code-class">String</span> customerId;
+        <span class="code-keyword">private</span> <span class="code-keyword">double</span> amount;
+    }
+
+    <span class="code-annotation">@Transactional</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> charge(<span class="code-class">PaymentCommand</span> request) {
+        <span class="code-class">PaymentRecord</span> existing = repository.findById(request.getOrderId()).orElse(<span class="code-keyword">null</span>);
+        <span class="code-keyword">if</span> (existing != <span class="code-keyword">null</span>) {
+            validateSamePayment(existing, request);
+            <span class="code-keyword">if</span> (existing.getStatus() == <span class="code-class">PaymentStatus</span>.CHARGED) {
+                <span class="code-keyword">return</span>; <span class="code-comment"># Already charged. Idempotent success.</span>
+            }
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">ResponseStatusException</span>(<span class="code-class">HttpStatus</span>.CONFLICT, <span class="code-string">"Payment was already reversed"</span>);
+        }
+        <span class="code-comment"># Simulate a business rejection.</span>
+        <span class="code-keyword">if</span> (<span class="code-string">"declined"</span>.equals(request.getCustomerId())) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">ResponseStatusException</span>(<span class="code-class">HttpStatus</span>.UNPROCESSABLE_ENTITY, <span class="code-string">"Payment declined"</span>);
+        }
+        <span class="code-comment"># Demo only: real gateways require their own</span>
+        <span class="code-comment"># idempotency keys and reconciliation process.</span>
+        repository.save(<span class="code-keyword">new</span> <span class="code-class">PaymentRecord</span>(request.getOrderId(), request.getCustomerId(),
+                                          request.getAmount(), <span class="code-class">PaymentStatus</span>.CHARGED));
+    }
+
+    <span class="code-annotation">@Transactional</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> refund(<span class="code-class">PaymentCommand</span> request) {
+        <span class="code-class">PaymentRecord</span> existing = repository.findById(request.getOrderId()).orElse(<span class="code-keyword">null</span>);
+        <span class="code-keyword">if</span> (existing == <span class="code-keyword">null</span>) {
+            <span class="code-comment"># Compensation before charge.</span>
+            <span class="code-comment"># Persist a tombstone to reject late charges.</span>
+            repository.save(<span class="code-keyword">new</span> <span class="code-class">PaymentRecord</span>(request.getOrderId(), request.getCustomerId(),
+                                              request.getAmount(), <span class="code-class">PaymentStatus</span>.REFUNDED));
+            <span class="code-keyword">return</span>;
+        }
+        validateSamePayment(existing, request);
+        <span class="code-keyword">if</span> (existing.getStatus() == <span class="code-class">PaymentStatus</span>.REFUNDED) {
+            <span class="code-keyword">return</span>;
+        }
+        <span class="code-comment"># Demo: real gateway refund goes here,</span>
+        existing.setStatus(<span class="code-class">PaymentStatus</span>.REFUNDED); <span class="code-comment"># coordinated with durable state/reconciliation.</span>
+    }
+
+    <span class="code-keyword">private</span> <span class="code-keyword">void</span> validateSamePayment(<span class="code-class">PaymentRecord</span> existing, <span class="code-class">PaymentCommand</span> request) {
+        <span class="code-keyword">boolean</span> same =
+            existing.getCustomerId().equals(request.getCustomerId())
+            &amp;&amp; existing.getAmount() == request.getAmount();
+        <span class="code-keyword">if</span> (!same) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">ResponseStatusException</span>(<span class="code-class">HttpStatus</span>.CONFLICT, <span class="code-string">"Conflicting payment request"</span>);
+        }
+    }
+}</code></pre></div>
+
+    <div class="subheading">Payment controller</div>
+    <div class="code-block"><pre><code><span class="code-annotation">@RestController</span>
+<span class="code-annotation">@RequestMapping</span>(<span class="code-string">"/payments"</span>)
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">PaymentController</span> {
+    <span class="code-annotation">@Autowired</span>
+    <span class="code-keyword">private</span> <span class="code-class">PaymentService</span> service;
+
+    <span class="code-annotation">@PostMapping</span>(<span class="code-string">"/charges"</span>)
+    <span class="code-keyword">public</span> <span class="code-class">ResponseEntity</span>&lt;<span class="code-class">Void</span>&gt; charge(<span class="code-annotation">@RequestBody</span> <span class="code-class">PaymentService</span>.<span class="code-class">PaymentCommand</span> request) {
+        service.charge(request);
+        <span class="code-keyword">return</span> <span class="code-class">ResponseEntity</span>.ok().build();
+    }
+
+    <span class="code-annotation">@PostMapping</span>(<span class="code-string">"/refunds"</span>)
+    <span class="code-keyword">public</span> <span class="code-class">ResponseEntity</span>&lt;<span class="code-class">Void</span>&gt; refund(<span class="code-annotation">@RequestBody</span> <span class="code-class">PaymentService</span>.<span class="code-class">PaymentCommand</span> request) {
+        service.refund(request);
+        <span class="code-keyword">return</span> <span class="code-class">ResponseEntity</span>.ok().build();
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>What happens if the same payment request is sent twice?</strong></p>
+    </div>
+    <div class="code-block"><pre><code>First request:
+  orderId = 123
+  CHARGE 500
+  Payment row created
+  status = CHARGED
+
+Second request:
+  orderId = 123
+  CHARGE 500
+  Existing row found
+  status = CHARGED
+  Return success without charging again</code></pre></div>
+    <div class="intro">
+        <p>The database's primary key gives us a durable identity for each order's payment.</p>
+        <p>The code still requires robust concurrency handling for simultaneous first requests. A production implementation should serialize state transitions per payment intent or transaction, with uniqueness constraints and transaction retries, and use a provider-supported idempotency key for actual money movements.</p>
+    </div>
+
+    <div class="subheading">Implementing the Shipping Service</div>
+
+    <div class="subheading">Shipping local transactions</div>
+    <div class="intro">
+        <p>Shipping provides two operations:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>Create a shipment.</li>
+        <li>Cancel a shipment.</li>
+    </ul></div>
+    <div class="intro">
+        <p>Just as with payments and inventory reservations, the service must remember completed and cancelled operations.</p>
+    </div>
+
+    <div class="subheading">Shipping entity and repository</div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">enum</span> <span class="code-class">ShipmentStatus</span> {
+    CREATED, CANCELLED
+}
+
+<span class="code-annotation">@Entity</span>
+<span class="code-annotation">@Getter</span>
+<span class="code-annotation">@Setter</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Shipment</span> {
+    <span class="code-annotation">@Id</span>
+    <span class="code-keyword">private</span> UUID orderId;
+
+    <span class="code-annotation">@Enumerated</span>(<span class="code-class">EnumType</span>.STRING)
+    <span class="code-keyword">private</span> <span class="code-class">ShipmentStatus</span> status;
+
+    <span class="code-keyword">protected</span> <span class="code-class">Shipment</span>() {}
+
+    <span class="code-keyword">public</span> <span class="code-class">Shipment</span>(UUID orderId, <span class="code-class">ShipmentStatus</span> status) {
+        <span class="code-keyword">this</span>.orderId = orderId;
+        <span class="code-keyword">this</span>.status = status;
+    }
+}</code></pre></div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">ShipmentRepository</span>
+        <span class="code-keyword">extends</span> <span class="code-class">JpaRepository</span>&lt;<span class="code-class">Shipment</span>, UUID&gt; {
+}</code></pre></div>
+
+    <div class="subheading">Shipping service implementation</div>
+    <div class="code-block"><pre><code><span class="code-annotation">@Service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ShippingService</span> {
+    <span class="code-annotation">@Autowired</span>
+    <span class="code-keyword">private</span> <span class="code-class">ShipmentRepository</span> repository;
+
+    <span class="code-annotation">@Value</span>(<span class="code-string">"${demo.shipping-fail:false}"</span>)
+    <span class="code-keyword">private</span> <span class="code-keyword">boolean</span> simulateFailure;
+
+    <span class="code-annotation">@Getter</span>
+    <span class="code-annotation">@Setter</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-keyword">class</span> <span class="code-class">ShippingCommand</span> {
+        <span class="code-keyword">private</span> UUID orderId;
+    }
+
+    <span class="code-annotation">@Transactional</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> create(<span class="code-class">ShippingCommand</span> request) {
+        <span class="code-class">Shipment</span> existing = repository.findById(request.getOrderId()).orElse(<span class="code-keyword">null</span>);
+        <span class="code-keyword">if</span> (existing != <span class="code-keyword">null</span>) {
+            <span class="code-keyword">if</span> (existing.getStatus() == <span class="code-class">ShipmentStatus</span>.CREATED) {
+                <span class="code-keyword">return</span>;
+            }
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">ResponseStatusException</span>(<span class="code-class">HttpStatus</span>.CONFLICT, <span class="code-string">"Shipment already cancelled"</span>);
+        }
+        <span class="code-keyword">if</span> (simulateFailure) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">ResponseStatusException</span>(<span class="code-class">HttpStatus</span>.UNPROCESSABLE_ENTITY,
+                                              <span class="code-string">"Shipping destination unavailable"</span>);
+        }
+        repository.save(<span class="code-keyword">new</span> <span class="code-class">Shipment</span>(request.getOrderId(), <span class="code-class">ShipmentStatus</span>.CREATED));
+    }
+
+    <span class="code-annotation">@Transactional</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> cancel(<span class="code-class">ShippingCommand</span> request) {
+        <span class="code-class">Shipment</span> existing = repository.findById(request.getOrderId()).orElse(<span class="code-keyword">null</span>);
+        <span class="code-keyword">if</span> (existing == <span class="code-keyword">null</span>) {
+            repository.save(<span class="code-keyword">new</span> <span class="code-class">Shipment</span>(request.getOrderId(), <span class="code-class">ShipmentStatus</span>.CANCELLED));
+            <span class="code-keyword">return</span>;
+        }
+        <span class="code-keyword">if</span> (existing.getStatus() == <span class="code-class">ShipmentStatus</span>.CANCELLED) {
+            <span class="code-keyword">return</span>;
+        }
+        existing.setStatus(<span class="code-class">ShipmentStatus</span>.CANCELLED);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>The <code>simulateFailure</code> property allows us to deliberately fail shipping during local tests.</p>
+        <p>Add to the Shipping Service's <code>application.properties</code>:</p>
+    </div>
+    <div class="code-block"><pre><code>demo.shipping-fail=false</code></pre></div>
+    <div class="intro">
+        <p>Change it to <code>true</code> and restart the Shipping Service to simulate a permanent business rejection.</p>
+    </div>
+
+    <div class="subheading">Shipping controller</div>
+    <div class="code-block"><pre><code><span class="code-annotation">@RestController</span>
+<span class="code-annotation">@RequestMapping</span>(<span class="code-string">"/shipments"</span>)
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ShippingController</span> {
+    <span class="code-annotation">@Autowired</span>
+    <span class="code-keyword">private</span> <span class="code-class">ShippingService</span> service;
+
+    <span class="code-annotation">@PostMapping</span>
+    <span class="code-keyword">public</span> <span class="code-class">ResponseEntity</span>&lt;<span class="code-class">Void</span>&gt; create(<span class="code-annotation">@RequestBody</span> <span class="code-class">ShippingService</span>.<span class="code-class">ShippingCommand</span> request) {
+        service.create(request);
+        <span class="code-keyword">return</span> <span class="code-class">ResponseEntity</span>.ok().build();
+    }
+
+    <span class="code-annotation">@PostMapping</span>(<span class="code-string">"/cancel"</span>)
+    <span class="code-keyword">public</span> <span class="code-class">ResponseEntity</span>&lt;<span class="code-class">Void</span>&gt; cancel(<span class="code-annotation">@RequestBody</span> <span class="code-class">ShippingService</span>.<span class="code-class">ShippingCommand</span> request) {
+        service.cancel(request);
+        <span class="code-keyword">return</span> <span class="code-class">ResponseEntity</span>.ok().build();
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p><strong>Real-world caution:</strong> Cancelling a shipment record is not necessarily the same as stopping a physical package. Once a parcel is handed to a carrier, an earlier shipment-creation operation might no longer be fully reversible.</p>
+        <p>This is why good Saga designs often delay irreversible actions until the last practical stage of the workflow.</p>
+    </div>
+
+    <div class="subheading">Running and Testing the Complete Saga</div>
+
+    <div class="subheading">Start all four services</div>
+    <div class="intro">
+        <p>Run each application independently, with its package-specific <code>@SpringBootApplication</code> main class.</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Application</th><th>Address</th></tr></thead>
+            <tbody>
+                <tr><td>Order Service</td><td><code>http://localhost:8080</code></td></tr>
+                <tr><td>Inventory Service</td><td><code>http://localhost:8081</code></td></tr>
+                <tr><td>Payment Service</td><td><code>http://localhost:8082</code></td></tr>
+                <tr><td>Shipping Service</td><td><code>http://localhost:8083</code></td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>The inventory seed creates 10 units of <code>BOOK-1</code> on the first startup.</p>
+    </div>
+
+    <div class="subheading">Test case 1: Successful order</div>
+    <div class="intro">
+        <p>Send a request:</p>
+    </div>
+    <div class="code-block"><pre><code>curl -X POST http://localhost:8080/orders \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: checkout-001" \
+  -d '{
+    "customerId": "CUST-101",
+    "sku": "BOOK-1",
+    "quantity": 2,
+    "amount": 500.00
+  }'</code></pre></div>
+    <div class="intro">
+        <p>Initial response:</p>
+    </div>
+    <div class="code-block"><pre><code>{
+  "orderId": "86dd8fa0-f6bf-4e53-a94f-6ac7b1367c0a",
+  "status": "PENDING",
+  "phase": "RESERVE_INVENTORY",
+  "lastError": null
+}</code></pre></div>
+    <div class="intro">
+        <p>The worker processes the Saga.</p>
+    </div>
+    <div class="code-block"><pre><code>RESERVE_INVENTORY   -&gt; SUCCESS
+CHARGE_PAYMENT      -&gt; SUCCESS
+CREATE_SHIPMENT     -&gt; SUCCESS
+COMPLETED</code></pre></div>
+    <div class="intro">
+        <p>Check the order:</p>
+    </div>
+    <div class="code-block"><pre><code>GET /orders/86dd8fa0-f6bf-4e53-a94f-6ac7b1367c0a</code></pre></div>
+    <div class="intro">
+        <p>Eventually:</p>
+    </div>
+    <div class="code-block"><pre><code>{
+  "orderId": "86dd8fa0-f6bf-4e53-a94f-6ac7b1367c0a",
+  "status": "CONFIRMED",
+  "phase": "COMPLETED",
+  "lastError": null
+}</code></pre></div>
+    <div class="intro">
+        <p>Inventory now has 8 units available, one payment record is <code>CHARGED</code>, and the shipment record is <code>CREATED</code>.</p>
+    </div>
+
+    <div class="subheading">Test case 2: Payment declined</div>
+    <div class="intro">
+        <p>Use <code>declined</code> as the test customer ID.</p>
+    </div>
+    <div class="code-block"><pre><code>curl -X POST http://localhost:8080/orders \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: checkout-002" \
+  -d '{
+    "customerId": "declined",
+    "sku": "BOOK-1",
+    "quantity": 2,
+    "amount": 500.00
+  }'</code></pre></div>
+    <div class="intro">
+        <p>Expected execution:</p>
+    </div>
+    <div class="code-block"><pre><code>RESERVE_INVENTORY
+    |
+    v
+SUCCESS
+
+CHARGE_PAYMENT
+    |
+    v
+REJECTED (422)
+
+CANCEL_SHIPMENT
+    |
+    v
+NO-OP / TOMBSTONE
+
+REFUND_PAYMENT
+    |
+    v
+NO-OP / TOMBSTONE
+
+RELEASE_INVENTORY
+    |
+    v
+SUCCESS
+
+ORDER CANCELLED</code></pre></div>
+    <div class="intro">
+        <p>The payment was declined, so the Payment Service did not record a successful charge.</p>
+        <p>The compensation process safely records a reversed payment state, then restores the inventory.</p>
+        <p>The final order status is <code>CANCELLED</code>.</p>
+    </div>
+
+    <div class="subheading">Test case 3: Shipping fails after payment succeeds</div>
+    <div class="intro">
+        <p>Start the Shipping Service with:</p>
+    </div>
+    <div class="code-block"><pre><code>demo.shipping-fail=true</code></pre></div>
+    <div class="intro">
+        <p>Create another order.</p>
+    </div>
+    <div class="code-block"><pre><code>curl -X POST http://localhost:8080/orders \
+  -H "Content-Type: application/json" \
+  -H "Idempotency-Key: checkout-003" \
+  -d '{
+    "customerId": "CUST-103",
+    "sku": "BOOK-1",
+    "quantity": 3,
+    "amount": 750.00
+  }'</code></pre></div>
+    <div class="intro">
+        <p>Observe the transitions:</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Phase</th><th>Result</th><th>Effect</th></tr></thead>
+            <tbody>
+                <tr><td>Reserve inventory</td><td>Success</td><td>Available stock decreases by 3</td></tr>
+                <tr><td>Charge payment</td><td>Success</td><td>Payment becomes <code>CHARGED</code></td></tr>
+                <tr><td>Create shipment</td><td>Failure</td><td>No active shipment created</td></tr>
+                <tr><td>Cancel shipment</td><td>Success</td><td>Cancellation recorded</td></tr>
+                <tr><td>Refund payment</td><td>Success</td><td>Payment becomes <code>REFUNDED</code></td></tr>
+                <tr><td>Release inventory</td><td>Success</td><td>Stock increases by 3</td></tr>
+                <tr><td>Finalize</td><td>Success</td><td>Order becomes <code>CANCELLED</code></td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>This demonstrates the central idea of Saga orchestration:</p>
+        <p><strong>A later service's failure is handled by explicit compensating operations in services that have already committed their local transactions.</strong></p>
+    </div>
+
+    <div class="subheading">Test case 4: Duplicate order request</div>
+    <div class="intro">
+        <p>Retry the first order creation request with the same idempotency key.</p>
+    </div>
+    <div class="code-block"><pre><code>POST /orders
+Idempotency-Key: checkout-001</code></pre></div>
+    <div class="intro">
+        <p>Because the Order Service already has a record associated with <code>checkout-001</code>, it returns that order instead of creating another one.</p>
+        <p>For a matching request:</p>
+    </div>
+    <div class="code-block"><pre><code>Existing order found
+    |
+    v
+Return existing order ID
+    |
+    v
+Do not create a new Saga</code></pre></div>
+    <div class="intro">
+        <p>This protects against client retries caused by mobile network failures, gateway timeouts, or an uncertain API response.</p>
+        <p>The API uses <code>202</code> for both first submission and duplicate lookup in this example; production APIs may differentiate the response codes.</p>
+    </div>
+
+    <div class="subheading">Failure Handling: The Most Important Part of Saga Design</div>
+    <div class="intro">
+        <p>Writing an orchestrator that works when all services are healthy is relatively easy.</p>
+        <p>The difficult part is making it correct when networks fail, processes crash, and requests are delivered more than once.</p>
+    </div>
+
+    <div class="subheading">Transient failures vs. permanent failures</div>
+    <div class="intro">
+        <p>A Saga Orchestrator must distinguish between failures that should be retried and failures that should trigger compensation.</p>
+    </div>
+    <div class="section cmp"><div class="section-content">
+        <table class="cmp-table centered cmp-peer">
+            <thead><tr><th>Failure</th><th>Example</th><th>Typical response</th></tr></thead>
+            <tbody>
+                <tr><td>Business rejection</td><td>Insufficient inventory</td><td>Compensate</td></tr>
+                <tr><td>Business rejection</td><td>Payment declined</td><td>Compensate</td></tr>
+                <tr><td>Permanent validation error</td><td>Unsupported shipping destination</td><td>Compensate</td></tr>
+                <tr><td>Temporary outage</td><td>Payment Service returns 503</td><td>Retry</td></tr>
+                <tr><td>Rate limiting</td><td>Payment provider returns 429</td><td>Retry with backoff</td></tr>
+                <tr><td>Network timeout</td><td>No payment response received</td><td>Retry/reconcile</td></tr>
+                <tr><td>Orchestrator crash</td><td>Process stops after inventory commit</td><td>Resume from durable state</td></tr>
+                <tr><td>Compensation failure</td><td>Refund provider unavailable</td><td>Retry compensation and alert</td></tr>
+                <tr><td>Irreversible action</td><td>Parcel already dispatched</td><td>Exception-handling business workflow</td></tr>
+            </tbody>
+        </table>
+    </div></div>
+    <div class="intro">
+        <p>HTTP status codes alone are not a complete business error model. A production system should use explicit error codes such as <code>OUT_OF_STOCK</code>, <code>PAYMENT_DECLINED</code>, and <code>SHIPPING_UNAVAILABLE</code> to determine whether an error is retryable.</p>
+    </div>
+
+    <div class="subheading">The uncertain-outcome problem</div>
+    <div class="intro">
+        <p>This is one of the most important distributed-systems problems.</p>
+        <p>Imagine the orchestrator calls the Payment Service:</p>
+    </div>
+    <div class="code-block"><pre><code>Orchestrator                         Payment Service
+     |                                     |
+     |------ Charge ₹1,000 --------------&gt;|
+     |                                     |
+     |                               Payment succeeds
+     |                               Transaction commits
+     |                                     |
+     |&lt;------- Response lost ---- X ------|
+     |
+     | HTTP timeout
+     |
+     | Was payment successful?
+     | UNKNOWN</code></pre></div>
+    <div class="intro">
+        <p>A timeout means the caller did not receive a response within the deadline.</p>
+        <p>It does not establish whether the payment was processed.</p>
+        <p>If the orchestrator immediately retries without idempotency, the customer might be charged twice.</p>
+        <p>If it immediately initiates a refund without tracking the original transaction, it might refund an unknown or incorrect charge.</p>
+    </div>
+    <div class="intro">
+        <p><strong>Solution: At-least-once execution with idempotent effects</strong></p>
+        <p>The orchestrator retries the same logical operation using the same stable idempotency key.</p>
+    </div>
+    <div class="code-block"><pre><code>First attempt: CHARGE(order-123)
+  Payment processed
+  Response lost
+
+Second attempt: CHARGE(order-123)
+  Payment Service finds previous charge
+  Returns success
+  No additional charge</code></pre></div>
+    <div class="intro">
+        <p>The orchestrator can now safely advance to the next phase.</p>
+        <p>This is a major principle of reliable Saga implementation:</p>
+        <p><strong>Do not assume exactly-once network delivery. Design operations so duplicate delivery has the same business effect as one successful delivery.</strong></p>
+    </div>
+
+    <div class="subheading">What if compensation fails?</div>
+    <div class="intro">
+        <p>Consider the following situation:</p>
+    </div>
+    <div class="code-block"><pre><code>Inventory Reserved
+       |
+       v
+Payment Charged
+       |
+       v
+Shipping Failed
+       |
+       v
+Refund Payment
+       |
+       v
+Payment Service is unavailable</code></pre></div>
+    <div class="intro">
+        <p>What should the orchestrator do?</p>
+        <p>It must not say:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">catch</span> (<span class="code-class">Exception</span> ex) {
+    order.set</code></pre></div>
+</div>
+</body>
+</html>

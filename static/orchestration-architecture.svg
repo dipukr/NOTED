@@ -1,0 +1,23 @@
+<svg width="780" height="250" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 250" role="img" aria-label="Order Service (port 8080, orders_db) contains the Saga Orchestrator and calls three services: Inventory Service (port 8081, inventory_db) reserves and releases stock, Payment Service (port 8082, payments_db) charges and refunds, Shipping Service (port 8083, shipping_db) creates and cancels shipments">
+    <defs><marker id="sg7-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#555555"/></marker><marker id="sg7-l" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 Z" fill="#9A9A9A"/></marker></defs>
+    <path d="M255 125 H360 V43 H473" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#sg7-a)"/>
+    <path d="M255 125 H360 V125 H473" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#sg7-a)"/>
+    <path d="M255 125 H360 V207 H473" fill="none" stroke="#555555" stroke-width="1.5" stroke-linejoin="miter" marker-end="url(#sg7-a)"/>
+    <rect x="25" y="92" width="230" height="66" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="140" y="114" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Order Service</text>
+    <text x="140" y="131" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555">port 8080 · orders_db</text>
+    <text x="140" y="146" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555">contains the Saga Orchestrator</text>
+    <rect x="475" y="10" width="250" height="66" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="600" y="32" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Inventory Service</text>
+    <text x="600" y="49" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555">port 8081 · inventory_db</text>
+    <text x="600" y="64" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555">reserves and releases stock</text>
+    <rect x="475" y="92" width="250" height="66" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="600" y="114" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Payment Service</text>
+    <text x="600" y="131" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555">port 8082 · payments_db</text>
+    <text x="600" y="146" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555">charges and refunds</text>
+    <rect x="475" y="174" width="250" height="66" rx="8" fill="#FFFFFF" stroke="#222222" stroke-width="1.2"/>
+    <text x="600" y="196" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="13" font-weight="600" fill="#222222">Shipping Service</text>
+    <text x="600" y="213" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555">port 8083 · shipping_db</text>
+    <text x="600" y="228" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555">creates and cancels shipments</text>
+    <text x="305" y="118" text-anchor="middle" font-family="system-ui, -apple-system, 'Segoe UI', Arial, sans-serif" font-size="10.5" font-weight="400" fill="#555555" font-style="italic">REST</text>
+</svg>

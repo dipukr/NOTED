@@ -523,12 +523,12 @@ PREMIUM  → PremiumDiscountStrategy</code></pre></div>
     <div class="intro">
         <p>The Strategy pattern illustrates several important object-oriented design principles.</p>
     </div>
-    <div class="intro"><ul>
-        <li><strong>Single Responsibility Principle (SRP)</strong><br> Each concrete strategy is responsible for one particular algorithm, while the Context coordinates its use.</li>
-        <li><strong>Open/Closed Principle (OCP)</strong><br> New algorithms can be introduced through additional implementations without modifying the Context's algorithm execution logic. Some selection mechanisms may still require configuration changes.</li>
-        <li><strong>Dependency Inversion Principle (DIP)</strong><br> The Context depends on an abstraction such as <code>PaymentStrategy</code>, rather than depending directly on <code>UpiPayment</code> or <code>CardPayment</code>.</li>
-        <li><strong>Composition over Inheritance</strong><br> The Context composes a strategy object instead of inheriting and overriding behavior for every possible algorithm variation.</li>
-    </ul></div>
+    <div class="intro">
+        <p><strong>Single Responsibility Principle (SRP)</strong><br> Each concrete strategy is responsible for one particular algorithm, while the Context coordinates its use.</p>
+        <p><strong>Open/Closed Principle (OCP)</strong><br> New algorithms can be introduced through additional implementations without modifying the Context's algorithm execution logic. Some selection mechanisms may still require configuration changes.</p>
+        <p><strong>Dependency Inversion Principle (DIP)</strong><br> The Context depends on an abstraction such as <code>PaymentStrategy</code>, rather than depending directly on <code>UpiPayment</code><br> or <code>CardPayment</code>.</p>
+        <p><strong>Composition over Inheritance</strong><br> The Context composes a strategy object instead of inheriting and overriding behavior for every possible algorithm variation.</p>
+    </div>
 
     <div class="subheading">Important Design Consideration: Strategy vs Factory</div>
     <div class="intro">

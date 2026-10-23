@@ -54,7 +54,7 @@ br {
 
 .subheading {
     font-family: Arial, Helvetica, sans-serif;
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 700;
     color: #475569;
     text-transform: uppercase;
@@ -81,6 +81,13 @@ br {
 }
 
 .intro li { margin: 2px 0; }
+
+/* formulas, styled like rendered TeX: serif face, italic variables, upright digits and arrows */
+.math { font-family: "Cambria Math", "STIX Two Math", "Latin Modern Math", "Times New Roman", serif; font-size: 1.12em; white-space: nowrap; }
+.math i { font-style: italic; }
+.math sub { font-size: 0.7em; }
+.intro p.math-display { text-align: center; margin: 10px 0; font-size: 1.1em; }
+.math .katex { font-size: 0.95em; }
 
 /* numbered steps card: number + bold title, description indented beside a thin rail */
 .steps {
@@ -911,6 +918,9 @@ br {
     line-height: 1.5;
     white-space: pre;
 }
+
+/* directory trees: tighter lines so the box-drawing edges join up */
+.code-block.tree pre { line-height: 1.3; }
 
 .ascii-diagram {
     margin: 14px 0 18px;
