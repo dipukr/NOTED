@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apache Kafka — Comprehensive Guide with Java APIs</title>
+<style>
+* {box-sizing: border-box;}
+
+body {
+    margin: 0;
+    padding: 35px 24px;
+    background: #f5f7fa;
+    color: #172033;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 18px;
+    line-height: 1.55;
+    word-spacing: normal;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+.note {
+    max-width: 1040px;
+    margin: 0 auto;
+    background: #ffffff;
+    padding: 38px 44px;
+    border-radius: 5px;
+    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.08);
+}
+
+.title {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: #18212f;
+    margin: 0 0 25px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.intro p { margin: 0 0 5px; }
+
+.section {
+    margin-top: 30px;
+    border-radius: 5px;
+    overflow: hidden;
+    border: 1px solid #dbe2ea;
+}
+
+.section-title {
+    padding: 8px 18px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+}
+
+.section-content { padding: 14px 20px 16px; }
+
+.section-content ul {
+    margin: 0;
+    padding-left: 30px;
+    list-style-type: square;
+}
+
+.section-content li {
+    margin: 4px 0;
+    padding-left: 3px;
+}
+
+.when-use {
+    background: #eff6ff;
+}
+
+.when-use .section-title {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.advantages {
+    background: #f0fdf4;
+}
+
+.advantages .section-title {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.disadvantages {
+    background: #fef2f2;
+}
+
+.disadvantages .section-title {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.code-section {
+    margin-top: 20px;
+    border: 1px solid #d1d5db;
+    border-radius: 5px;
+    overflow: hidden;
+    background: #f8fafc;
+}
+
+.code-section .section-title {
+    background: #e5e7eb;
+    color: #1f2937;
+}
+
+.code-wrapper {
+    margin: 0;
+    padding: 16px 20px;
+    overflow-x: auto;
+    background: #f3f6f9;
+    border-top: 1px solid #dbe2ea;
+}
+
+.code-wrapper pre {
+    margin: 0;
+    color: #263238;
+    font-family: Consolas, "Source Code Pro", "Courier New", monospace;
+    font-size: 12px;
+    line-height: 1.45;
+    word-spacing: normal;
+    white-space: pre;
+}
+
+.code-wrapper code {
+    font-family: Consolas, "Source Code Pro", "Courier New", monospace;
+}
+
+.code-comment { color: #58734f; }
+.code-keyword { color: #315f9b; }
+.code-class { color: #236b63; }
+.code-string { color: #8a5a32; }
+
+.code-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 12fr) minmax(300px, 8fr);
+    background: #f3f6f9;
+    border-top: 1px solid #dbe2ea;
+}
+
+.code-layout .code-wrapper {
+    margin: 0;
+    padding: 16px 20px;
+    overflow-x: auto;
+    background: #f3f6f9;
+    border-top: 0;
+    border-right: 1px solid #dbe2ea;
+}
+
+.code-explanation {
+    padding: 18px 20px;
+    background: #eef2f6;
+    color: #374151;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.45;
+    word-spacing: normal;
+}
+
+.code-explanation-title {
+    margin-bottom: 10px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.code-explanation ul {
+    margin: 0;
+    padding-left: 20px;
+    list-style-type: square;
+}
+
+.code-explanation li {
+    margin: 6px 0;
+    padding-left: 2px;
+}
+
+.code-explanation code {
+    font-family: Consolas, "Source Code Pro", "Courier New", monospace;
+    font-size: 13px;
+}
+
+.index .title { margin: 0 0 8px; }
+.index .section-content { padding: 18px 20px 20px; }
+
+.subtitle {
+    margin: 0 0 10px;
+    color: #4b5563;
+    font-size: 18px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+}
+
+.grid a {
+    display: block;
+    padding: 10px 14px;
+    border-radius: 5px;
+    text-decoration: none;
+    color: #172033;
+    background: #ffffff;
+    border: 1px solid #dbe2ea;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    transition: background 0.15s, border-color 0.15s, transform 0.05s;
+}
+
+.grid a:hover {
+    background: #f0f6ff;
+    border-color: #2563eb;
+    transform: translateY(-1px);
+}
+
+.oop {
+    background: #eff6ff;
+}
+.oop .section-title { background: #dbeafe; color: #1e40af; }
+
+.patterns {
+    background: #f0fdf4;
+}
+.patterns .section-title { background: #dcfce7; color: #166534; }
+
+.threading {
+    background: #fffbeb;
+}
+.threading .section-title { background: #fef3c7; color: #92400e; }
+
+@media (max-width: 800px) {
+    .code-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .code-layout .code-wrapper {
+        border-right: 0;
+        border-bottom: 1px solid #dbe2ea;
+    }
+
+    .code-explanation {
+        font-size: 15px;
+    }
+
+    .comparison-row {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    body {
+        padding: 15px;
+        font-size: 17px;
+    }
+
+    .note { padding: 25px 22px; }
+    .title { font-size: 27px; }
+    .section-title { font-size: 17px; }
+    .code-wrapper pre { font-size: 12px; }
+}
+
+@media print {
+    body {
+        background: white;
+        padding: 10px;
+    }
+
+    .note {
+        box-shadow: none;
+        padding: 20px;
+    }
+}
+
+h2,h3 { font-family: Arial, Helvetica, sans-serif; color:#18212f; }
+h3 { font-size:18px; margin:20px 0 8px; }
+p { margin:8px 0; }
+table { width:100%; border-collapse:collapse; margin:14px 0; }
+th,td { border:1px solid #dbe2ea; padding:9px 11px; text-align:left; vertical-align:top; }
+th { background:#eef2f6; }
+ul { margin-top:8px; }
+li { margin:5px 0; }
+a { color:#1e40af; }
+svg { display:block; width:100%; height:auto; margin:10px auto 18px; }
+</style>
+</head>
+<body>
+<main class="note">
+<h1 class="title">Apache Kafka — Comprehensive Guide with Java APIs</h1>
+<div class="intro">
+<p><b>Purpose:</b> A deep practical reference for learning Kafka architecture, internals, delivery guarantees, Java Producer/Consumer APIs, transactions, partitioning, Kafka Streams, Connect, security, performance, and production design.</p>
+<p><b>Version context:</b> KRaft and current architectural notes use Kafka 4.x concepts. Always verify exact configuration and API behavior against the Kafka version used by your application.</p>
+</div>
+<section class="section index" id="contents">
+<div class="section-title">Contents</div>
+<div class="section-content"><p class="subtitle">A comprehensive study/reference note with conceptual explanations, SVG architecture diagrams, Java client examples, configuration guidance, and production patterns.</p><div class="grid"><a href="#kafka-fundamentals">Kafka Fundamentals</a><a href="#architecture">Architecture</a><a href="#topics-partitions-and-offsets">Topics, Partitions and Offsets</a><a href="#producers">Producers</a><a href="#consumers">Consumers</a><a href="#consumer-groups">Consumer Groups</a><a href="#delivery-semantics">Delivery Semantics</a><a href="#replication-and-fault-tolerance">Replication and Fault Tolerance</a><a href="#kraft">KRaft</a><a href="#serialization">Serialization</a><a href="#java-api-setup">Java API Setup</a><a href="#java-producer-api">Java Producer API</a><a href="#java-consumer-api">Java Consumer API</a><a href="#manual-offset-management">Manual Offset Management</a><a href="#transactions-and-exactly-once">Transactions and Exactly Once</a><a href="#partitioning">Partitioning</a><a href="#headers-and-metadata">Headers and Metadata</a><a href="#retry-and-dead-letter-topics">Retry and Dead Letter Topics</a><a href="#log-retention-and-compaction">Log Retention and Compaction</a><a href="#kafka-streams">Kafka Streams</a><a href="#kafka-connect">Kafka Connect</a><a href="#schema-evolution">Schema Evolution</a><a href="#security">Security</a><a href="#performance-tuning">Performance Tuning</a><a href="#monitoring">Monitoring</a><a href="#operational-design">Operational Design</a><a href="#common-pitfalls">Common Pitfalls</a><a href="#kafka-cli-cheat-sheet">Kafka CLI Cheat Sheet</a><a href="#production-checklist">Production Checklist</a></div></div>
+</section><section class="section" id="kafka-fundamentals">
+<div class="section-title">Kafka Fundamentals</div>
+<div class="section-content">
+<p><b>Apache Kafka</b> is a distributed event-streaming platform built around partitioned append-only logs. A producer writes records to a topic, Kafka stores those records in partitions, and consumers read them by position (offset). Kafka is designed for high throughput, scalable parallelism, durable storage, and independent consumption by multiple consumer groups. citeturn0search0turn0search2</p>
+<h3>Kafka is more than a traditional message queue</h3>
+<ul>
+<li>A topic can have multiple independent subscribers.</li>
+<li>Records remain available according to retention policy rather than disappearing immediately after one consumer reads them.</li>
+<li>Partitions provide both horizontal scalability and the unit of ordering.</li>
+<li>Consumer groups provide load balancing among consumers while different groups can independently consume the same topic.</li>
+</ul>
+<h3>Core mental model</h3>
+<p>Think of Kafka as a distributed collection of durable logs. A consumer does not remove a record from the log; it advances its position in that log. This is why replay, backfilling, and multiple independent consumers are natural Kafka operations.</p>
+</div>
+</section><section class="section" id="architecture">
+<div class="section-title">Architecture</div>
+<div class="section-content">
+
+<svg viewBox="0 0 1000 470" role="img" aria-label="Kafka cluster architecture">
+<defs>
+ <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L10,3 L0,6 z" fill="#315f9b"/></marker>
+</defs>
+<rect x="25" y="20" width="950" height="420" rx="12" fill="#f8fafc" stroke="#cbd5e1"/>
+<text x="500" y="52" text-anchor="middle" font-size="24" font-weight="700">Kafka Cluster</text>
+<rect x="60" y="85" width="190" height="70" rx="8" fill="#dbeafe" stroke="#93c5fd"/>
+<text x="155" y="126" text-anchor="middle" font-size="19">Producer</text>
+<line x1="250" y1="120" x2="350" y2="120" stroke="#315f9b" stroke-width="3" marker-end="url(#arrow)"/>
+<rect x="350" y="75" width="580" height="315" rx="10" fill="#fff" stroke="#94a3b8"/>
+<text x="640" y="105" text-anchor="middle" font-size="20" font-weight="700">Brokers</text>
+<rect x="385" y="125" width="155" height="210" rx="8" fill="#eff6ff" stroke="#93c5fd"/>
+<text x="462" y="153" text-anchor="middle" font-size="18" font-weight="700">Broker 1</text>
+<text x="405" y="190" font-size="16">P0 Leader</text><text x="405" y="220" font-size="16">P1 Replica</text>
+<text x="405" y="250" font-size="16">P2 Leader</text><text x="405" y="280" font-size="16">P3 Replica</text>
+<rect x="560" y="125" width="155" height="210" rx="8" fill="#f0fdf4" stroke="#86efac"/>
+<text x="637" y="153" text-anchor="middle" font-size="18" font-weight="700">Broker 2</text>
+<text x="580" y="190" font-size="16">P0 Replica</text><text x="580" y="220" font-size="16">P1 Leader</text>
+<text x="580" y="250" font-size="16">P2 Replica</text><text x="580" y="280" font-size="16">P3 Leader</text>
+<rect x="735" y="125" width="155" height="210" rx="8" fill="#fffbeb" stroke="#fcd34d"/>
+<text x="812" y="153" text-anchor="middle" font-size="18" font-weight="700">Broker 3</text>
+<text x="755" y="190" font-size="16">P0 Replica</text><text x="755" y="220" font-size="16">P1 Replica</text>
+<text x="755" y="250" font-size="16">P2 Replica</text><text x="755" y="280" font-size="16">P3 Replica</text>
+<line x1="640" y1="390" x2="640" y2="425" stroke="#315f9b" stroke-width="3" marker-end="url(#arrow)"/>
+<rect x="480" y="405" width="320" height="35" rx="7" fill="#e5e7eb"/>
+<text x="640" y="429" text-anchor="middle" font-size="16">Consumer Group reads assigned partitions</text>
+</svg>
+
+<h3>Broker</h3><p>A broker is a Kafka server responsible for storing partitions and serving client requests. A cluster normally has multiple brokers so partitions and replicas can be distributed.</p>
+<h3>Controller</h3><p>In modern Kafka, KRaft controllers manage cluster metadata. Kafka 4.0 operates without ZooKeeper and uses KRaft. citeturn0search3turn0search5</p>
+<h3>Client communication</h3><p>Kafka clients communicate with brokers using a binary TCP protocol. Producers and consumers maintain network connections and use Kafka APIs for metadata, produce, fetch, group coordination, and related operations. citeturn0search4</p>
+</div>
+</section><section class="section" id="topics-partitions-and-offsets">
+<div class="section-title">Topics, Partitions and Offsets</div>
+<div class="section-content">
+
+<svg viewBox="0 0 1000 360" role="img" aria-label="Kafka topic partitions">
+<defs><marker id="a2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L10,3 L0,6 z" fill="#315f9b"/></marker></defs>
+<text x="500" y="35" text-anchor="middle" font-size="24" font-weight="700">Topic: orders</text>
+<rect x="70" y="75" width="260" height="70" rx="8" fill="#eff6ff" stroke="#93c5fd"/>
+<text x="200" y="105" text-anchor="middle" font-size="19" font-weight="700">Partition 0</text>
+<text x="200" y="130" text-anchor="middle" font-size="16">offset: 0 → 1 → 2 → 3 → 4</text>
+<rect x="370" y="75" width="260" height="70" rx="8" fill="#f0fdf4" stroke="#86efac"/>
+<text x="500" y="105" text-anchor="middle" font-size="19" font-weight="700">Partition 1</text>
+<text x="500" y="130" text-anchor="middle" font-size="16">offset: 0 → 1 → 2 → 3 → 4</text>
+<rect x="670" y="75" width="260" height="70" rx="8" fill="#fffbeb" stroke="#fcd34d"/>
+<text x="800" y="105" text-anchor="middle" font-size="19" font-weight="700">Partition 2</text>
+<text x="800" y="130" text-anchor="middle" font-size="16">offset: 0 → 1 → 2 → 3 → 4</text>
+<line x1="500" y1="175" x2="500" y2="230" stroke="#315f9b" stroke-width="3" marker-end="url(#a2)"/>
+<rect x="280" y="235" width="440" height="70" rx="8" fill="#dbeafe" stroke="#93c5fd"/>
+<text x="500" y="265" text-anchor="middle" font-size="18" font-weight="700">Consumer Group</text>
+<text x="500" y="289" text-anchor="middle" font-size="16">one consumer owns a partition at a time</text>
+</svg>
+
+<h3>Topic</h3><p>A topic is a logical name for a stream of records. A topic is divided into one or more partitions.</p>
+<h3>Partition</h3><p>A partition is an ordered, append-only sequence. Ordering is guaranteed within a partition, not globally across all partitions of a topic. citeturn0search0</p>
+<h3>Offset</h3><p>Each record receives an offset that identifies its position within its partition. Consumer progress is represented by committed offsets.</p>
+<h3>Why partitions matter</h3>
+<ul><li>More partitions permit more consumer parallelism.</li><li>Partitions distribute storage and request load across brokers.</li><li>A key can be used to keep related records in the same partition, preserving their relative order.</li></ul>
+</div>
+</section><section class="section" id="producers">
+<div class="section-title">Producers</div>
+<div class="section-content">
+<p>A producer creates <code>ProducerRecord</code> objects and sends them to Kafka. The producer obtains metadata about topic partitions and routes records to the appropriate partition leader. Kafka's design allows the client to select partitions directly or use a key-based partitioning strategy. citeturn0search2</p>
+<h3>Producer configuration</h3>
+<table><tr><th>Property</th><th>Purpose</th></tr>
+<tr><td><code>bootstrap.servers</code></td><td>Initial broker addresses used to discover cluster metadata.</td></tr>
+<tr><td><code>key.serializer</code></td><td>Serializes record keys.</td></tr>
+<tr><td><code>value.serializer</code></td><td>Serializes record values.</td></tr>
+<tr><td><code>acks</code></td><td>Controls producer acknowledgment level.</td></tr>
+<tr><td><code>enable.idempotence</code></td><td>Enables idempotent producer behavior.</td></tr>
+<tr><td><code>linger.ms</code></td><td>Allows a short delay so more records can form a batch.</td></tr>
+<tr><td><code>batch.size</code></td><td>Target batch size per partition.</td></tr>
+<tr><td><code>compression.type</code></td><td>Compression algorithm such as <code>lz4</code>, <code>snappy</code>, <code>gzip</code>, or <code>zstd</code>.</td></tr>
+</table>
+</div>
+</section><div class="code-section">
+<div class="section-title">Basic Java Producer</div>
+<div class="code-layout">
+<div class="code-wrapper"><pre><code>Properties props = new Properties();
+props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, &quot;localhost:9092&quot;);
+props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
+        StringSerializer.class.getName());
+props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
+        StringSerializer.class.getName());
+
+try (KafkaProducer&lt;String, String&gt; producer =
+        new KafkaProducer&lt;&gt;(props)) {
+
+    ProducerRecord&lt;String, String&gt; record =
+        new ProducerRecord&lt;&gt;(&quot;orders&quot;, &quot;order-1001&quot;, &quot;CREATED&quot;);
+
+    producer.send(record, (metadata, exception) -&gt; {
+        if (exception != null) {
+            exception.printStackTrace();
+            return;
+        }
+
+        System.out.printf(
+            &quot;topic=%s partition=%d offset=%d%n&quot;,
+            metadata.topic(),
+            metadata.partition(),
+            metadata.offset()
+        );
+    });
+}</code></pre></div>
+<div class="code-explanation">
+<div class="code-explanation-title">Explanation</div>
+<p>The send operation is asynchronous. The callback is invoked when Kafka acknowledges the request or when the send fails.</p>
+</div>
+</div></div><section class="section" id="consumers">
+<div class="section-title">Consumers</div>
+<div class="section-content">
+<p>A consumer fetches records from Kafka and processes them. Consumers normally subscribe to topics and repeatedly call <code>poll()</code>. The consumer controls its position and can resume from committed offsets or seek to other offsets.</p>
+<h3>Important consumer settings</h3>
+<table><tr><th>Property</th><th>Meaning</th></tr>
+<tr><td><code>group.id</code></td><td>Identifies the consumer group.</td></tr>
+<tr><td><code>enable.auto.commit</code></td><td>Controls automatic offset commits.</td></tr>
+<tr><td><code>auto.offset.reset</code></td><td>Defines behavior when no valid committed offset exists.</td></tr>
+<tr><td><code>max.poll.records</code></td><td>Maximum records returned from one poll.</td></tr>
+<tr><td><code>max.poll.interval.ms</code></td><td>Maximum interval between successful polls before a consumer can be considered unresponsive for group management.</td></tr>
+<tr><td><code>session.timeout.ms</code></td><td>Session failure-detection configuration used by the consumer group protocol.</td></tr>
+</table>
+</div>
+</section><div class="code-section">
+<div class="section-title">Basic Java Consumer</div>
+<div class="code-layout">
+<div class="code-wrapper"><pre><code>Properties props = new Properties();
+props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, &quot;localhost:9092&quot;);
+props.put(ConsumerConfig.GROUP_ID_CONFIG, &quot;order-service&quot;);
+props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+        StringDeserializer.class.getName());
+props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+        StringDeserializer.class.getName());
+props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, &quot;earliest&quot;);
+
+try (KafkaConsumer&lt;String, String&gt; consumer =
+        new KafkaConsumer&lt;&gt;(props)) {
+
+    consumer.subscribe(List.of(&quot;orders&quot;));
+
+    while (true) {
+        ConsumerRecords&lt;String, String&gt; records =
+            consumer.poll(Duration.ofMillis(1000));
+
+        for (ConsumerRecord&lt;String, String&gt; record : records) {
+            System.out.printf(
+                &quot;partition=%d offset=%d key=%s value=%s%n&quot;,
+                record.partition(),
+                record.offset(),
+                record.key(),
+                record.value()
+            );
+        }
+    }
+}</code></pre></div>
+<div class="code-explanation">
+<div class="code-explanation-title">Explanation</div>
+<p>A consumer should call poll regularly. The poll loop is central to fetching data and participating in consumer-group coordination.</p>
+</div>
+</div></div><section class="section" id="consumer-groups">
+<div class="section-title">Consumer Groups</div>
+<div class="section-content">
+<p>A consumer group is a set of consumers cooperating to consume a topic. Within a group, a partition is assigned to one consumer at a time. If there are more consumers than partitions, some consumers will have no partition assignment. Different groups can independently consume the same topic. citeturn0search0</p>
+<h3>Example</h3>
+<table><tr><th>Topic partitions</th><th>Consumers in group</th><th>Typical result</th></tr>
+<tr><td>3</td><td>1</td><td>One consumer processes all 3 partitions.</td></tr>
+<tr><td>3</td><td>3</td><td>Partitions can be distributed one per consumer.</td></tr>
+<tr><td>3</td><td>5</td><td>Only 3 consumers can actively own partitions; 2 can be idle.</td></tr>
+</table>
+<h3>Rebalancing</h3><p>When group membership or partition availability changes, Kafka redistributes partition assignments. Rebalancing is necessary for elasticity and fault tolerance but can temporarily affect processing. Modern Kafka also includes a newer consumer rebalance protocol; Kafka 4.0 introduced the next-generation protocol as generally available. citeturn0search8</p>
+</div>
+</section><section class="section" id="delivery-semantics">
+<div class="section-title">Delivery Semantics</div>
+<div class="section-content">
+<table><tr><th>Semantic</th><th>Meaning</th><th>Typical trade-off</th></tr>
+<tr><td>At-most-once</td><td>A record is processed zero or one time.</td><td>Duplicates are avoided at the cost of possible loss.</td></tr>
+<tr><td>At-least-once</td><td>A record is not intentionally lost but may be processed more than once.</td><td>Applications must tolerate duplicates.</td></tr>
+<tr><td>Exactly-once</td><td>Kafka can provide transactional processing semantics for Kafka-to-Kafka workflows when correctly configured.</td><td>More coordination and transactional overhead.</td></tr>
+</table>
+<p>Kafka's design explicitly distinguishes publishing durability from consumption/processing semantics. Exactly-once claims should always be scoped to the system boundary being discussed. citeturn0search2</p>
+</div>
+</section><div class="code-section">
+<div class="section-title">At-Least-Once Pattern</div>
+<div class="code-layout">
+<div class="code-wrapper"><pre><code>props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, &quot;false&quot;);
+
+while (true) {
+    ConsumerRecords&lt;String, String&gt; records =
+        consumer.poll(Duration.ofSeconds(1));
+
+    for (ConsumerRecord&lt;String, String&gt; record : records) {
+        processBusinessLogic(record);
+    }
+
+    consumer.commitSync();
+}</code></pre></div>
+<div class="code-explanation">
+<div class="code-explanation-title">Explanation</div>
+<p>The application processes records before committing offsets. A crash after processing but before commit can cause the record to be processed again, so the business operation should be idempotent where possible.</p>
+</div>
+</div></div><section class="section" id="replication-and-fault-tolerance">
+<div class="section-title">Replication and Fault Tolerance</div>
+<div class="section-content">
+
+<svg viewBox="0 0 1000 360" role="img" aria-label="Kafka partition replication">
+<defs><marker id="a3" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L10,3 L0,6 z" fill="#315f9b"/></marker></defs>
+<text x="500" y="35" text-anchor="middle" font-size="24" font-weight="700">Partition Replication</text>
+<rect x="70" y="80" width="240" height="180" rx="10" fill="#dbeafe" stroke="#93c5fd"/>
+<text x="190" y="120" text-anchor="middle" font-size="20" font-weight="700">Leader</text>
+<text x="190" y="155" text-anchor="middle" font-size="17">P0</text>
+<text x="190" y="190" text-anchor="middle" font-size="16">writes accepted</text>
+<text x="190" y="220" text-anchor="middle" font-size="16">reads served</text>
+<line x1="310" y1="145" x2="420" y2="145" stroke="#315f9b" stroke-width="3" marker-end="url(#a3)"/>
+<line x1="310" y1="205" x2="420" y2="205" stroke="#315f9b" stroke-width="3" marker-end="url(#a3)"/>
+<rect x="420" y="80" width="220" height="180" rx="10" fill="#f0fdf4" stroke="#86efac"/>
+<text x="530" y="120" text-anchor="middle" font-size="20" font-weight="700">Follower</text>
+<text x="530" y="155" text-anchor="middle" font-size="17">Replica 1</text>
+<text x="530" y="195" text-anchor="middle" font-size="16">replicates log</text>
+<rect x="680" y="80" width="220" height="180" rx="10" fill="#fffbeb" stroke="#fcd34d"/>
+<text x="790" y="120" text-anchor="middle" font-size="20" font-weight="700">Follower</text>
+<text x="790" y="155" text-anchor="middle" font-size="17">Replica 2</text>
+<text x="790" y="195" text-anchor="middle" font-size="16">replicates log</text>
+</svg>
+
+<p>Replication is performed at the partition level. A partition has one leader and zero or more follower replicas. Writes are directed to the leader; followers replicate the partition log. The replication factor is the total number of replicas for a partition. citeturn0search2</p>
+<h3>ISR — In-Sync Replicas</h3><p>The ISR is the set of replicas considered sufficiently caught up with the leader. Producer durability can be strengthened by combining <code>acks=all</code> with an appropriate <code>min.insync.replicas</code>. Kafka's documentation describes <code>min.insync.replicas</code> as the minimum ISR size required when the producer requests the stronger acknowledgment level. citeturn0search2</p>
+</div>
+</section><div class="code-section">
+<div class="section-title">Durable Producer Configuration</div>
+<div class="code-layout">
+<div class="code-wrapper"><pre><code>props.put(ProducerConfig.ACKS_CONFIG, &quot;all&quot;);
+props.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
+
+// Example cluster/topic policy:
+// replication.factor = 3
+// min.insync.replicas = 2</code></pre></div>
+<div class="code-explanation">
+<div class="code-explanation-title">Explanation</div>
+<p>This is a common durability-oriented pattern, but exact values should be chosen based on availability, failure tolerance, latency, and workload requirements.</p>
+</div>
+</div></div><section class="section" id="kraft">
+<div class="section-title">KRaft</div>
+<div class="section-content">
+<p>KRaft is Kafka's metadata-management architecture based on the Raft consensus protocol. Kafka 4.0 removed ZooKeeper mode and operates entirely in KRaft mode. citeturn0search5</p>
+<h3>Process roles</h3>
+<ul><li><code>broker</code> — handles client data traffic and partition storage.</li><li><code>controller</code> — participates in the controller quorum and manages cluster metadata.</li><li><code>broker,controller</code> — combined role, useful for simpler development deployments.</li></ul>
+<p>Kafka's KRaft documentation notes that combined broker/controller servers simplify small deployments but are not recommended for critical environments where controller isolation is important. citeturn0search3</p>
+</div>
+</section><div class="code-section">
+<div class="section-title">Illustrative KRaft Properties</div>
+<div class="code-layout">
+<div class="code-wrapper"><pre><code>process.roles=broker,controller
+node.id=1
+controller.quorum.voters=1@localhost:9093
+listeners=PLAINTEXT://:9092,CONTROLLER://:9093
+advertised.listeners=PLAINTEXT://localhost:9092
+controller.listener.names=CONTROLLER
+inter.broker.listener.name=PLAINTEXT
+log.dirs=/tmp/kafka-logs</code></pre></div>
+<div class="code-explanation">
+<div class="code-explanation-title">Explanation</div>
+<p>This is a development-oriented example. Production KRaft configurations should use appropriate listener security, stable storage paths, multiple controllers, and deployment-specific networking.</p>
+</div>
+</div></div><section class="section" id="serialization">
+<div class="section-title">Serialization</div>
+<div class="section-content">
+<p>Kafka transports bytes. Java clients use serializers on the producer side and deserializers on the consumer side to convert Java objects to and from bytes.</p>
+<h3>Common choices</h3>
+<ul><li>String serializer/deserializer for text.</li><li>ByteArray serializer/deserializer when the application manages raw bytes.</li><li>JSON serializers for object payloads, with explicit schema/versioning discipline.</li><li>Avro, Protobuf, or JSON Schema when a schema-registry-based contract is appropriate.</li></ul>
+</div>
+</section><div class="code-section">
+<div class="section-title">Custom JSON Serialization Concept</div>
+<div class="code-layout">
+<div class="code-wrapper"><pre><code>public record Order(
+    String id,
+    String customerId,
+    BigDecimal amount
+) {}
+
+ObjectMapper mapper = new ObjectMapper();
+
+byte[] payload = mapper.writeValueAsBytes(order);
+
+ProducerRecord&lt;String, byte[]&gt; record =
+    new ProducerRecord&lt;&gt;(&quot;orders&quot;, order.id(), payload);</code></pre></div>
+<div class="code-explanation">
+<div class="code-explanation-title">Explanation</div>
+<p>In production, define a clear schema evolution strategy. Serialization is not just a technical conversion; it is part of the event contract between producers and consumers.</p>
+</div>
+</div></div><section class="section" id="java-api-setup">
+<div class="section-title">Java API Setup</div>
+<div class="section-content">
+<p>For a plain Java application, use the Apache Kafka client library. A typical Maven dependency is:</p>
+</div>
+</section><div class="code-section">
+<div class="section-title">Maven Dependency</div>
+<div class="code-layout">
+<div class="code-wrapper"><pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;org.apache.kafka&lt;/groupId&gt;
+    &lt;artifactId&gt;kafka-clients&lt;/artifactId&gt;
+    &lt;version&gt;4.0.0&lt;/version&gt;
+&lt;/dependency&gt;</code></pre></div>
+<div class="code-explanation">
+<div class="code-explanation-title">Explanation</div>
+<p>Use the Kafka client version selected by your project. Keep client and broker compatibility in mind when upgrading.</p>
+</div>
+</div></div><section class="section" id="java-producer-api">
+<div class="section-title">Java Producer API</div>
+<div class="section-content"></div>
+</section><div class="code-section">
+<div class="section-title">Send with Future</div>
+<div class="code-layout">
+<div class="code-wrapper"><pre><code>Future&lt;RecordMetadata&gt; future = producer.send(
+    new ProducerRecord&lt;&gt;(&quot;orders&quot;, &quot;order-1001&quot;, &quot;CREATED&quot;)
+);
+
+RecordMetadata metadata = future.get();
+
+System.out.println(metadata.partition());
+System.out.println(metadata.offset());</code></pre></div>
+<div class="code-explanation">
+<div class="code-explanation-title">Explanation</div>
+<p>Calling get() waits for the send result. It is useful when the application must know whether a specific record was acknowledged, but excessive synchronous waiting can reduce throughput.</p>
+</div>
+</div></div><div class="code-section">
+<div class="section-title">Explicit Partition</div>
+<div class="code-layout">
+<div class="code-wrapper"><pre><code>ProducerRecord&lt;String, String&gt; record =
+    new ProducerRecord&lt;&gt;(
+        &quot;orders&quot;,
+        2,
+        &quot;order-1001&quot;,
+        &quot;CREATED&quot;
+    );
+
+producer.send(record);</code></pre></div>
+<div class="code-explanation">
+<div class="code-explanation-title">Explanation</div>
+<p>An application can explicitly select a partition. This should normally be done only when the partitioning rule is intentional.</p>
+</div>
+</div></div><div class="code-section">
+<div class="section-title">Flush and Close</div>
+<div class="code-layout">
+<div class="code-wrapper"><pre><code>producer.flush();
+producer.close();</code></pre></div>
+<div class="code-explanation">
+<div class="code-explanation-title">Explanation</div>
+<p>Close the producer during orderly shutdown so buffered records can be flushed and resources released.</p>
+</div>
+</div></div><section class="section" id="java-consumer-api">
+<div class="section-title">Java Consumer API</div>
+<div class="section-content"></div>
+</section><div class="code-section">
+<div class="section-title">Assign Specific Partitions</div>
+<div class="code-layout">
+<div class="code-wrapper"><pre><code>TopicPartition p0 = new TopicPartition(&quot;orders&quot;, 0);
+
+consumer.assign(List.of(p0));
+
+consumer.seekToBeginning(List.of(p0));
+
+ConsumerRecords&lt;String, String&gt; records =
+    consumer.poll(Duration.ofSeconds(1));</code></pre></div>
+<div class="code-explanation">
+<div class="code-explanation-title">Explanation</div>
+<p>assign() bypasses normal group subscription/assignment. It is useful for specialized consumers, deterministic replay tools, and administrative workflows.</p>
+</div>
+</div></div><div class="code-section">
+<div class="section-title">Seek to Offset</div>
+<div class="code-layout">
+<div class="code-wrapper"><pre><code>TopicPartition partition =
+    new TopicPartition(&quot;orders&quot;, 0);
+
+consumer.assign(List.of(partition));
+consumer.seek(partition, 100);
+
+ConsumerRecords&lt;String, String&gt; records =
+    consumer.poll(Duration.ofSeconds(1));</code></pre></div>
+<div class="code-explanation">
+<div class="code-explanation-title">Explanation</div>
+<p>seek() changes the consumer's read position. This is one reason Kafka is useful for replay and backfill workflows.</p>
+</div>
+</div></div><section class="section" id="manual-offset-management">
+<div class="section-title">Manual Offset Management</div>
+<div class="section-content"></div>
+</section><div class="code-section">
+<div class="section-title">Commit Specific Offsets</div>
+<div class="code-layout">
+<div class="code-wrapper"><pre><code>Map&lt;TopicPartition, OffsetAndMetadata&gt; offsets =
+    new HashMap&lt;&gt;();
+
+for (ConsumerRecord&lt;String, String&gt; record : records) {
+    process(record);
+
+    offsets.put(
+        new TopicPartition(record.topic(), record.partition()),
+        new OffsetAndMetadata(record.offset() + 1)
+    );
+}
+
+consumer.commitSync(offsets);</code></pre></div>
+<div class="code-explanation">
+<div class="code-explanation-title">Explanation</div>
+<p>Kafka commits the next offset to read, so after successfully processing offset N, the committed position is normally N + 1.</p>
+</div>
+</div></div><section class="section" id="transactions-and-exactly-once">
+<div class="section-title">Transactions and Exactly Once</div>
+<div class="section-content">
+
+<svg viewBox="0 0 1000 390" role="img" aria-label="Kafka exactly once processing">
+<defs><marker id="a4" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><path d="M0,0 L10,3 L0,6 z" fill="#315f9b"/></marker></defs>
+<text x="500" y="35" text-anchor="middle" font-size="24" font-weight="700">Exactly-Once Processing Pattern</text>
+<rect x="50" y="95" width="220" height="90" rx="9" fill="#dbeafe" stroke="#93c5fd"/>
+<text x="160" y="130" text-anchor="middle" font-size="18" font-weight="700">Input Topic</text>
+<text x="160" y="158" text-anchor="middle" font-size="15">records + offsets</text>
+<line x1="270" y1="140" x2="380" y2="140" stroke="#315f9b" stroke-width="3" marker-end="url(#a4)"/>
+<rect x="380" y="70" width="240" height="145" rx="9" fill="#f0fdf4" stroke="#86efac"/>
+<text x="500" y="108" text-anchor="middle" font-size="18" font-weight="700">Transactional Producer</text>
+<text x="500" y="140" text-anchor="middle" font-size="15">produce output</text>
+<text x="500" y="168" text-anchor="middle" font-size="15">commit consumed offsets</text>
+<line x1="620" y1="140" x2="730" y2="140" stroke="#315f9b" stroke-width="3" marker-end="url(#a4)"/>
+<rect x="730" y="95" width="220" height="90" rx="9" fill="#fffbeb" stroke="#fcd34d"/>
+<text x="840" y="130" text-anchor="middle" font-size="18" font-weight="700">Output Topic</text>
+<text x="840" y="158" text-anchor="middle" font-size="15">atomic visibility</text>
+<rect x="320" y="265" width="360" height="70" rx="9" fill="#eef2f6" stroke="#cbd5e1"/>
+<text x="500" y="295" text-anchor="middle" font-size="16" font-weight="700">Transaction</text>
+<text x="500" y="318" text-anchor="middle" font-size="15">output records + consumer offsets</text>
+</svg>
+
+<p>Kafka transactions allow a producer to atomically publish records and, when used with a consumer group, commit the consumer offsets as part of the same transaction. This is the foundation for Kafka-to-Kafka exactly-once processing patterns. citeturn0search2</p>
+</div>
+</section><div class="code-section">
+<div class="section-title">Transactional Producer</div>
+<div class="code-layout">
+<div class="code-wrapper"><pre><code>props.put(
+    ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
+
+props.put(
+    ProducerConfig.TRANSACTIONAL_ID_CONFIG,
+    &quot;order-transformer-1&quot;);
+
+KafkaProducer&lt;String, String&gt; producer =
+    new KafkaProducer&lt;&gt;(props);
+
+producer.initTransactions();
+
+producer.beginTransaction();
+
+try {
+    producer.send(
+        new ProducerRecord&lt;&gt;(&quot;orders-out&quot;,
+            &quot;order-1001&quot;, &quot;PROCESSED&quot;));
+
+    producer.commitTransaction();
+} catch (Exception e) {
+    producer.abortTransaction();
+    throw e;
+}</code></pre></div>
+<div class="code-explanation">
+<div class="code-explanation-title">Explanation</div>
+<p>A transactional.id identifies the producer instance for transactional semantics. Production deployments need carefully designed stable transactional IDs and fencing/restart behavior.</p>
+</div>
+</div></div><div class="code-section">
+<div class="section-title">Consume, Produce, and Commit Offsets Transactionally</div>
+<div class="code-layout">
+<div class="code-wrapper"><pre><code>producer.beginTransaction();
+
+try {
+    for (ConsumerRecord&lt;String, String&gt; record : records) {
+
+        producer.send(
+            new ProducerRecord&lt;&gt;(
+                &quot;orders-out&quot;,
+                record.key(),
+                transform(record.value())
+            )
+        );
+    }
+
+    Map&lt;TopicPartition, OffsetAndMetadata&gt; offsets =
+        currentOffsets(records);
+
+    producer.sendOffsetsToTransaction(
+        offsets,
+        consumer.groupMetadata()
+    );
+
+    producer.commitTransaction();
+
+} catch (Exception e) {
+    producer.abortTransaction();
+}</code></pre></div>
+<div class="code-explanation">
+<div class="code-explanation-title">Explanation</div>
+<p>The important idea is atomicity: the output records and the consumer's progress are committed together. Kafka's transaction design uses the producer transaction to combine these operations. citeturn0search2</p>
+</div>
+</div></div><section class="section" id="partitioning">
+<div class="section-title">Partitioning</div>
+<div class="section-content">
+<p>Partitioning determines where records are stored and therefore where their ordering and processing locality exist. Kafka allows a key to influence partition selection; for example, using customer ID as a key can place all events for that customer in the same partition. citeturn0search2turn0search4</p>
+<h3>Partitioning trade-offs</h3>
+<ul><li>More partitions increase parallelism potential.</li><li>Too many partitions increase metadata and operational overhead.</li><li>A hot key can create a hot partition.</li><li>Changing the partitioning scheme can affect ordering and locality.</li></ul>
+</div>
+</section><div class="code-section">
+<div class="section-title">Key-Based Partitioning</div>
+<div class="code-layout">
+<div class="code-wrapper"><pre><code>ProducerRecord&lt;String, String&gt; record =
+    new ProducerRecord&lt;&gt;(
+        &quot;customer-events&quot;,
+        customerId,
+        eventJson
+    );
+
+producer.send(record);</code></pre></div>
+<div class="code-explanation">
+<div class="code-explanation-title">Explanation</div>
+<p>The key gives the producer a stable partitioning input. The exact partitioning algorithm and behavior can depend on the client version and configuration.</p>
+</div>
+</div></div><section class="section" id="headers-and-metadata">
+<div class="section-title">Headers and Metadata</div>
+<div class="section-content"></div>
+</section><div class="code-section">
+<div class="section-title">Kafka Headers</div>
+<div class="code-layout">
+<div class="code-wrapper"><pre><code>ProducerRecord&lt;String, String&gt; record =
+    new ProducerRecord&lt;&gt;(
+        &quot;orders&quot;,
+        &quot;order-1001&quot;,
+        &quot;CREATED&quot;
+    );
+
+record.headers()
+    .add(&quot;event-type&quot;, &quot;OrderCreated&quot;.getBytes(StandardCharsets.UTF_8))
+    .add(&quot;trace-id&quot;, traceId.getBytes(StandardCharsets.UTF_8));
+
+producer.send(record);</code></pre></div>
+<div class="code-explanation">
+<div class="code-explanation-title">Explanation</div>
+<p>Headers carry metadata alongside the key and value. They are useful for tracing, event type information, version hints, and other transport metadata.</p>
+</div>
+</div></div><div class="code-section">
+<div class="section-title">Read Headers</div>
+<div class="code-layout">
+<div class="code-wrapper"><pre><code>Header header =
+    record.headers().lastHeader(&quot;event-type&quot;);
+
+if (header != null) {
+    String eventType =
+        new String(header.value(), StandardCharsets.UTF_8);
+}</code></pre></div>
+
+</div></div><section class="section" id="retry-and-dead-letter-topics">
+<div class="section-title">Retry and Dead Letter Topics</div>
+<div class="section-content">
+<p>Kafka does not require one universal retry design. Common application patterns include delayed retry topics, retry topics with increasing delay, and a dead-letter topic (DLT) for records that repeatedly fail processing.</p>
+<h3>Example flow</h3>
+<p><code>orders → order-service → retry-1 → retry-2 → orders.DLT</code></p>
+<p>A retry record should normally retain enough context to diagnose and safely reprocess the original event, such as original topic, partition, offset, error information, attempt count, and correlation ID.</p>
+</div>
+</section><div class="code-section">
+<div class="section-title">Simple Retry Metadata</div>
+<div class="code-layout">
+<div class="code-wrapper"><pre><code>ProducerRecord&lt;String, String&gt; retry =
+    new ProducerRecord&lt;&gt;(
+        &quot;orders.retry&quot;,
+        record.key(),
+        record.value()
+    );
+
+retry.headers()
+    .add(&quot;retry-attempt&quot;, &quot;2&quot;.getBytes(StandardCharsets.UTF_8))
+    .add(&quot;original-topic&quot;,
+         record.topic().getBytes(StandardCharsets.UTF_8))
+    .add(&quot;original-offset&quot;,
+         Long.toString(record.offset())
+             .getBytes(StandardCharsets.UTF_8));
+
+producer.send(retry);</code></pre></div>
+
+</div></div><section class="section" id="log-retention-and-compaction">
+<div class="section-title">Log Retention and Compaction</div>
+<div class="section-content">
+<h3>Time/size retention</h3>
+<p>Kafka can remove old log segments according to retention configuration. Consumers can therefore replay records while those records remain retained.</p>
+<h3>Log compaction</h3>
+<p>Compaction retains the latest value for a key over time, making it useful for state/changelog-style topics. Compaction is different from ordinary time-based deletion.</p>
+</div>
+</section><div class="code-section">
+<div class="section-title">Create a Compacted Topic</div>
+<div class="code-layout">
+<div class="code-wrapper"><pre><code>kafka-topics.sh --bootstrap-server localhost:9092   --create   --topic customer-state   --partitions 6   --replication-factor 3   --config cleanup.policy=compact</code></pre></div>
+
+</div></div><section class="section" id="kafka-streams">
+<div class="section-title">Kafka Streams</div>
+<div class="section-content">
+<p>Kafka Streams is a Java library for building stream-processing applications on Kafka. It supports transformations, grouping, aggregation, joins, windowing, state stores, and exactly-once processing modes.</p>
+</div>
+</section><div class="code-section">
+<div class="section-title">Kafka Streams DSL</div>
+<div class="code-layout">
+<div class="code-wrapper"><pre><code>Properties props = new Properties();
+props.put(
+    StreamsConfig.APPLICATION_ID_CONFIG,
+    &quot;order-counts&quot;);
+props.put(
+    StreamsConfig.BOOTSTRAP_SERVERS_CONFIG,
+    &quot;localhost:9092&quot;);
+props.put(
+    StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG,
+    Serdes.StringSerde.class);
+props.put(
+    StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG,
+    Serdes.StringSerde.class);
+
+StreamsBuilder builder = new StreamsBuilder();
+
+KStream&lt;String, String&gt; orders =
+    builder.stream(&quot;orders&quot;);
+
+KTable&lt;String, Long&gt; counts =
+    orders
+        .groupByKey()
+        .count();
+
+counts.toStream().to(&quot;order-counts&quot;);
+
+KafkaStreams streams =
+    new KafkaStreams(builder.build(), props);
+
+streams.start();</code></pre></div>
+<div class="code-explanation">
+<div class="code-explanation-title">Explanation</div>
+<p>Streams applications maintain processing topology state and use Kafka topics as durable input/output boundaries. For production use, configure state, exception handling, replication, and processing guarantees deliberately.</p>
+</div>
+</div></div><section class="section" id="kafka-connect">
+<div class="section-title">Kafka Connect</div>
+<div class="section-content">
+<p>Kafka Connect is a framework for moving data between Kafka and external systems using connectors. Source connectors bring external data into Kafka; sink connectors send Kafka records to external systems.</p>
+<h3>Typical architecture</h3>
+<p><code>Database → Source Connector → Kafka → Sink Connector → Search/Data Warehouse/Object Storage</code></p>
+<p>Connect is useful when integration can be expressed as connector configuration rather than custom application code.</p>
+</div>
+</section><section class="section" id="schema-evolution">
+<div class="section-title">Schema Evolution</div>
+<div class="section-content">
+<p>Event schemas should be treated as contracts. A producer and consumer may be deployed independently, so changes should consider backward/forward compatibility.</p>
+<h3>Common strategies</h3>
+<ul><li>Add optional fields with safe defaults.</li><li>Avoid changing the meaning of an existing field.</li><li>Version incompatible event contracts explicitly.</li><li>Use a schema registry when centralized compatibility enforcement is valuable.</li></ul>
+</div>
+</section><div class="code-section">
+<div class="section-title">Schema-Oriented Event</div>
+<div class="code-layout">
+<div class="code-wrapper"><pre><code>public record OrderCreated(
+    String eventId,
+    String orderId,
+    String customerId,
+    BigDecimal amount,
+    Instant occurredAt
+) {}</code></pre></div>
+<div class="code-explanation">
+<div class="code-explanation-title">Explanation</div>
+<p>A strongly defined event contract makes compatibility, testing, observability, and consumer development easier.</p>
+</div>
+</div></div><section class="section" id="security">
+<div class="section-title">Security</div>
+<div class="section-content">
+<h3>Encryption</h3><p>Kafka can use TLS for encrypted network communication.</p>
+<h3>Authentication</h3><p>Common Kafka authentication mechanisms include SASL-based mechanisms and TLS client authentication.</p>
+<h3>Authorization</h3><p>Kafka supports authorization using ACLs and other configured authorizer mechanisms.</p>
+<h3>Principle of least privilege</h3><p>Application identities should receive only the topic/group permissions they require. Separate producer and consumer identities where operationally useful.</p>
+</div>
+</section><div class="code-section">
+<div class="section-title">Illustrative Java Client Security Properties</div>
+<div class="code-layout">
+<div class="code-wrapper"><pre><code>props.put(
+    CommonClientConfigs.SECURITY_PROTOCOL_CONFIG,
+    &quot;SASL_SSL&quot;);
+
+props.put(
+    SaslConfigs.SASL_MECHANISM,
+    &quot;PLAIN&quot;);
+
+props.put(
+    SaslConfigs.SASL_JAAS_CONFIG,
+    &quot;org.apache.kafka.common.security.plain.PlainLoginModule required &quot; +
+    &quot;username=&quot;app&quot; password=&quot;secret&quot;;&quot;);</code></pre></div>
+<div class="code-explanation">
+<div class="code-explanation-title">Explanation</div>
+<p>Do not hard-code real credentials. Use a secret-management mechanism appropriate to your environment.</p>
+</div>
+</div></div><section class="section" id="performance-tuning">
+<div class="section-title">Performance Tuning</div>
+<div class="section-content">
+<h3>Producer</h3>
+<ul><li>Use batching through <code>batch.size</code> and <code>linger.ms</code>.</li><li>Use compression to reduce network and storage traffic when CPU trade-offs are acceptable.</li><li>Avoid unnecessary synchronous sends.</li><li>Use appropriate <code>acks</code> and idempotence settings for the required durability.</li></ul>
+<h3>Consumer</h3>
+<ul><li>Process records in batches where possible.</li><li>Keep poll cadence healthy.</li><li>Tune <code>max.poll.records</code> based on processing time.</li><li>Scale consumers only when enough partitions exist.</li></ul>
+<h3>Broker/topic</h3>
+<ul><li>Distribute partitions and leaders across brokers.</li><li>Use replication for failure tolerance.</li><li>Choose partition counts based on throughput and consumer parallelism requirements.</li></ul>
+</div>
+</section><div class="code-section">
+<div class="section-title">Performance-Oriented Producer Baseline</div>
+<div class="code-layout">
+<div class="code-wrapper"><pre><code>props.put(ProducerConfig.ACKS_CONFIG, &quot;all&quot;);
+props.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
+props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, &quot;zstd&quot;);
+props.put(ProducerConfig.LINGER_MS_CONFIG, 5);
+props.put(ProducerConfig.BATCH_SIZE_CONFIG, 64 * 1024);</code></pre></div>
+<div class="code-explanation">
+<div class="code-explanation-title">Explanation</div>
+<p>These are example starting points, not universal optimal values. Benchmark with representative message sizes and traffic patterns.</p>
+</div>
+</div></div><section class="section" id="monitoring">
+<div class="section-title">Monitoring</div>
+<div class="section-content">
+<h3>Producer metrics</h3><p>Watch request latency, record rate, byte rate, batch behavior, retries, errors, and buffer availability.</p>
+<h3>Consumer metrics</h3><p>Watch consumer lag, poll behavior, fetch rate, processing latency, rebalance activity, and commit failures.</p>
+<h3>Broker metrics</h3><p>Watch request latency, disk utilization, network throughput, replica health, under-replicated partitions, controller health, and JVM/system resources.</p>
+<h3>Consumer lag</h3><p>Lag represents how far a consumer's position is behind the log end. Persistent increasing lag generally means consumption capacity is below production rate, though temporary spikes can be normal.</p>
+</div>
+</section><section class="section" id="operational-design">
+<div class="section-title">Operational Design</div>
+<div class="section-content">
+<h3>Capacity planning</h3>
+<p>Estimate incoming records/sec, average record bytes, peak traffic, retention duration, replication factor, consumer throughput, and required replay window.</p>
+<h3>Partition planning</h3>
+<p>Partition count should be driven by expected throughput and parallelism, not simply by the number of brokers.</p>
+<h3>Failure planning</h3>
+<ul><li>Use multiple brokers.</li><li>Use replication factor greater than one for important topics.</li><li>Distribute replicas across failure domains where supported by the deployment.</li><li>Test broker loss and consumer failure rather than relying only on configuration.</li></ul>
+<h3>Ordering</h3>
+<p>If ordering is required for an entity, consistently use an entity key and ensure all related events are routed to the same partition. Kafka does not provide a total order across multiple partitions. citeturn0search0</p>
+</div>
+</section><section class="section" id="common-pitfalls">
+<div class="section-title">Common Pitfalls</div>
+<div class="section-content">
+<ul>
+<li><b>Using one partition for everything:</b> simplifies ordering but limits parallelism.</li>
+<li><b>Too many partitions:</b> increases operational and metadata overhead.</li>
+<li><b>Assuming Kafka removes messages after consumption:</b> consumers advance offsets; retention controls storage lifetime.</li>
+<li><b>Assuming exactly-once is automatic:</b> application boundaries and external side effects matter.</li>
+<li><b>Ignoring duplicate processing:</b> at-least-once systems require idempotent business operations or deduplication.</li>
+<li><b>Using NOLOCK-like thinking in Kafka:</b> consumer offset management and delivery semantics should be designed explicitly.</li>
+<li><b>Ignoring poison messages:</b> use bounded retries and a DLT strategy where appropriate.</li>
+<li><b>Hard-coding credentials:</b> use secret management.</li>
+</ul>
+</div>
+</section><section class="section" id="kafka-cli-cheat-sheet">
+<div class="section-title">Kafka CLI Cheat Sheet</div>
+<div class="section-content"></div>
+</section><div class="code-section">
+<div class="section-title">Create Topic</div>
+<div class="code-layout">
+<div class="code-wrapper"><pre><code>kafka-topics.sh --bootstrap-server localhost:9092 --create --topic orders --partitions 6 --replication-factor 3</code></pre></div>
+
+</div></div><div class="code-section">
+<div class="section-title">Describe Topic</div>
+<div class="code-layout">
+<div class="code-wrapper"><pre><code>kafka-topics.sh --bootstrap-server localhost:9092 --describe --topic orders</code></pre></div>
+
+</div></div><div class="code-section">
+<div class="section-title">List Topics</div>
+<div class="code-layout">
+<div class="code-wrapper"><pre><code>kafka-topics.sh --bootstrap-server localhost:9092 --list</code></pre></div>
+
+</div></div><div class="code-section">
+<div class="section-title">Console Producer</div>
+<div class="code-layout">
+<div class="code-wrapper"><pre><code>kafka-console-producer.sh --bootstrap-server localhost:9092 --topic orders</code></pre></div>
+
+</div></div><div class="code-section">
+<div class="section-title">Console Consumer</div>
+<div class="code-layout">
+<div class="code-wrapper"><pre><code>kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic orders --from-beginning</code></pre></div>
+
+</div></div><div class="code-section">
+<div class="section-title">Consumer Group</div>
+<div class="code-layout">
+<div class="code-wrapper"><pre><code>kafka-consumer-groups.sh --bootstrap-server localhost:9092 --describe --group order-service</code></pre></div>
+
+</div></div><div class="code-section">
+<div class="section-title">Delete Topic</div>
+<div class="code-layout">
+<div class="code-wrapper"><pre><code>kafka-topics.sh --bootstrap-server localhost:9092 --delete --topic orders</code></pre></div>
+
+</div></div><section class="section" id="production-checklist">
+<div class="section-title">Production Checklist</div>
+<div class="section-content">
+<ul>
+<li>☐ Define topic ownership and event contracts.</li>
+<li>☐ Choose partition count from throughput/parallelism requirements.</li>
+<li>☐ Configure replication for important data.</li>
+<li>☐ Choose <code>acks</code> and idempotence deliberately.</li>
+<li>☐ Define consumer offset strategy.</li>
+<li>☐ Make processing idempotent where duplicates are possible.</li>
+<li>☐ Define retry and DLT behavior.</li>
+<li>☐ Define retention and/or compaction policy.</li>
+<li>☐ Secure network traffic and authenticate clients.</li>
+<li>☐ Apply least-privilege authorization.</li>
+<li>☐ Monitor consumer lag and replica health.</li>
+<li>☐ Test broker, consumer, and producer failure scenarios.</li>
+<li>☐ Document event schema compatibility rules.</li>
+<li>☐ Benchmark representative traffic before final performance tuning.</li>
+</ul>
+</div>
+</section><section class="section" id="reference-notes">
+<div class="section-title">Reference Notes</div>
+<div class="section-content">
+<p>This guide uses Apache Kafka's official documentation for core architecture, partitioning, replication, delivery semantics, KRaft, and protocol behavior. Kafka 4.0 is the version context used for KRaft-specific notes; client dependency examples should be adjusted to the version selected by the application.</p>
+<p>Official documentation: <a href="https://kafka.apache.org/documentation/">Apache Kafka Documentation</a></p>
+</div>
+</section>
+</main>
+</body>
+</html>

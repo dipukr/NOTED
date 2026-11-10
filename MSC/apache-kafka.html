@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apache Kafka – Complete Guide with Java APIs</title>
+<style>* {box-sizing: border-box;}
+
+body {
+    margin: 0;
+    padding: 35px 24px;
+    background: #f5f7fa;
+    color: #172033;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 18px;
+    line-height: 1.55;
+    word-spacing: normal;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+.note {
+    max-width: 1040px;
+    margin: 0 auto;
+    background: #ffffff;
+    padding: 38px 44px;
+    border-radius: 5px;
+    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.08);
+}
+
+.title {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: #18212f;
+    margin: 0 0 25px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.intro p { margin: 0 0 5px; }
+
+.section {
+    margin-top: 30px;
+    border-radius: 5px;
+    overflow: hidden;
+    border: 1px solid #dbe2ea;
+}
+
+.section-title {
+    padding: 8px 18px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+}
+
+.section-content { padding: 14px 20px 16px; }
+
+.section-content ul {
+    margin: 0;
+    padding-left: 30px;
+    list-style-type: square;
+}
+
+.section-content li {
+    margin: 4px 0;
+    padding-left: 3px;
+}
+
+.when-use {
+    background: #eff6ff;
+}
+
+.when-use .section-title {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.advantages {
+    background: #f0fdf4;
+}
+
+.advantages .section-title {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.disadvantages {
+    background: #fef2f2;
+}
+
+.disadvantages .section-title {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.code-section {
+    margin-top: 20px;
+    border: 1px solid #d1d5db;
+    border-radius: 5px;
+    overflow: hidden;
+    background: #f8fafc;
+}
+
+.code-section .section-title {
+    background: #e5e7eb;
+    color: #1f2937;
+}
+
+.code-wrapper {
+    margin: 0;
+    padding: 16px 20px;
+    overflow-x: auto;
+    background: #f3f6f9;
+    border-top: 1px solid #dbe2ea;
+}
+
+.code-wrapper pre {
+    margin: 0;
+    color: #263238;
+    font-family: Consolas, "Source Code Pro", "Courier New", monospace;
+    font-size: 12px;
+    line-height: 1.45;
+    word-spacing: normal;
+    white-space: pre;
+}
+
+.code-wrapper code {
+    font-family: Consolas, "Source Code Pro", "Courier New", monospace;
+}
+
+.code-comment { color: #58734f; }
+.code-keyword { color: #315f9b; }
+.code-class { color: #236b63; }
+.code-string { color: #8a5a32; }
+
+.code-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 12fr) minmax(300px, 8fr);
+    background: #f3f6f9;
+    border-top: 1px solid #dbe2ea;
+}
+
+.code-layout .code-wrapper {
+    margin: 0;
+    padding: 16px 20px;
+    overflow-x: auto;
+    background: #f3f6f9;
+    border-top: 0;
+    border-right: 1px solid #dbe2ea;
+}
+
+.code-explanation {
+    padding: 18px 20px;
+    background: #eef2f6;
+    color: #374151;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.45;
+    word-spacing: normal;
+}
+
+.code-explanation-title {
+    margin-bottom: 10px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.code-explanation ul {
+    margin: 0;
+    padding-left: 20px;
+    list-style-type: square;
+}
+
+.code-explanation li {
+    margin: 6px 0;
+    padding-left: 2px;
+}
+
+.code-explanation code {
+    font-family: Consolas, "Source Code Pro", "Courier New", monospace;
+    font-size: 13px;
+}
+
+.index .title { margin: 0 0 8px; }
+.index .section-content { padding: 18px 20px 20px; }
+
+.subtitle {
+    margin: 0 0 10px;
+    color: #4b5563;
+    font-size: 18px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+}
+
+.grid a {
+    display: block;
+    padding: 10px 14px;
+    border-radius: 5px;
+    text-decoration: none;
+    color: #172033;
+    background: #ffffff;
+    border: 1px solid #dbe2ea;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    transition: background 0.15s, border-color 0.15s, transform 0.05s;
+}
+
+.grid a:hover {
+    background: #f0f6ff;
+    border-color: #2563eb;
+    transform: translateY(-1px);
+}
+
+.oop {
+    background: #eff6ff;
+}
+.oop .section-title { background: #dbeafe; color: #1e40af; }
+
+.patterns {
+    background: #f0fdf4;
+}
+.patterns .section-title { background: #dcfce7; color: #166534; }
+
+.threading {
+    background: #fffbeb;
+}
+.threading .section-title { background: #fef3c7; color: #92400e; }
+
+@media (max-width: 800px) {
+    .code-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .code-layout .code-wrapper {
+        border-right: 0;
+        border-bottom: 1px solid #dbe2ea;
+    }
+
+    .code-explanation {
+        font-size: 15px;
+    }
+
+    .comparison-row {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    body {
+        padding: 15px;
+        font-size: 17px;
+    }
+
+    .note { padding: 25px 22px; }
+    .title { font-size: 27px; }
+    .section-title { font-size: 17px; }
+    .code-wrapper pre { font-size: 12px; }
+}
+
+@media print {
+    body {
+        background: white;
+        padding: 10px;
+    }
+
+    .note {
+        box-shadow: none;
+        padding: 20px;
+    }
+}
+
+h2,h3{font-family:Arial,Helvetica,sans-serif;color:#18212f}
+table{width:100%;border-collapse:collapse;margin:12px 0}
+th,td{border:1px solid #dbe2ea;padding:8px}
+th{background:#eef2f6}
+</style>
+</head>
+<body>
+<main class="note">
+<h1 class="title">Apache Kafka – Complete Guide with Java APIs</h1>
+<div class="intro"><p>Production-focused Kafka reference with Java examples (Java 25 syntax compatible, Spring Boot independent examples).</p></div>
+
+<section class="section index">
+<div class="section-title">Contents</div>
+<div class="section-content">
+<div class="grid">
+<a href="#overview">Kafka Overview</a>
+<a href="#architecture">Architecture</a>
+<a href="#producer">Producer API</a>
+<a href="#consumer">Consumer API</a>
+<a href="#topics">Topics & Partitions</a>
+<a href="#replication">Replication</a>
+<a href="#consumer-groups">Consumer Groups</a>
+<a href="#offsets">Offsets</a>
+<a href="#transactions">Transactions</a>
+<a href="#streams">Kafka Streams</a>
+<a href="#admin">Admin API</a>
+<a href="#performance">Performance</a>
+<a href="#patterns">Messaging Patterns</a>
+</div>
+</div></section>
+
+<section class="section" id="overview">
+<div class="section-title">1. Kafka Overview</div>
+<div class="section-content">
+<p><b>Apache Kafka</b> is a distributed event streaming platform designed for high-throughput, fault-tolerant, and scalable messaging.</p>
+<ul>
+<li>Millions of messages per second</li>
+<li>Durable append-only log</li>
+<li>Horizontal scaling using partitions</li>
+<li>Replication for fault tolerance</li>
+<li>Exactly-once support with transactions</li>
+</ul>
+
+<h3>Traditional Messaging vs Kafka</h3>
+<table>
+<tr><th>Feature</th><th>Traditional Queue</th><th>Kafka</th></tr>
+<tr><td>Storage</td><td>Queue</td><td>Persistent Log</td></tr>
+<tr><td>Replay</td><td>Usually No</td><td>Yes</td></tr>
+<tr><td>Scaling</td><td>Limited</td><td>Excellent</td></tr>
+<tr><td>Retention</td><td>Consumed messages removed</td><td>Configurable</td></tr>
+</table>
+</div></section>
+
+<section class="section" id="architecture">
+<div class="section-title">2. Kafka Architecture</div>
+<div class="section-content">
+<AsyncImage query="Apache Kafka architecture brokers partitions topics diagram" aspectRatio="16:9"/>
+<ul>
+<li><b>Producer</b> publishes events.</li>
+<li><b>Topic</b> stores related events.</li>
+<li><b>Partition</b> provides ordering and scalability.</li>
+<li><b>Broker</b> stores partitions.</li>
+<li><b>Consumer</b> reads events.</li>
+<li><b>Consumer Group</b> enables parallel processing.</li>
+</ul>
+
+<h3>Message Flow</h3>
+<AsyncImage query="Kafka producer broker consumer flow diagram" aspectRatio="16:9"/>
+</div></section>
+
+<section class="section" id="topics">
+<div class="section-title">3. Topics and Partitions</div>
+<div class="section-content">
+<AsyncImage query="Kafka topic partitions leader follower diagram" aspectRatio="16:9"/>
+<p>Messages inside a partition remain ordered.</p>
+<div class="code-section"><div class="section-title">Producer with Key</div><div class="code-wrapper"><pre><code>ProducerRecord&lt;String,String&gt; record =
+    new ProducerRecord&lt;&gt;("orders","cust123","Order Created");</code></pre></div></div>
+<p>The same key consistently maps to the same partition.</p>
+</div></section>
+
+<section class="section" id="producer">
+<div class="section-title">4. Kafka Producer Java API</div>
+<div class="section-content">
+<h3>Create Producer</h3>
+<div class="code-section"><div class="section-title">Producer Configuration</div><div class="code-wrapper"><pre><code>Properties props = new Properties();
+props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
+          StringSerializer.class.getName());
+props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
+          StringSerializer.class.getName());
+
+KafkaProducer&lt;String,String&gt; producer = new KafkaProducer&lt;&gt;(props);</code></pre></div></div>
+
+<h3>Synchronous Send</h3>
+<div class="code-section"><div class="section-title">Sync Send</div><div class="code-wrapper"><pre><code>RecordMetadata metadata = producer.send(
+    new ProducerRecord&lt;&gt;("orders","Hello")
+).get();</code></pre></div></div>
+
+<h3>Asynchronous Send</h3>
+<div class="code-section"><div class="section-title">Async Callback</div><div class="code-wrapper"><pre><code>producer.send(
+    new ProducerRecord&lt;&gt;("orders","Hello"),
+    (metadata, exception) -> {
+        if(exception == null){
+            System.out.println(metadata.partition());
+        }
+    }
+);</code></pre></div></div>
+
+<h3>Important Producer Configurations</h3>
+<table>
+<tr><th>Property</th><th>Purpose</th></tr>
+<tr><td>acks</td><td>Durability level</td></tr>
+<tr><td>retries</td><td>Retry failed sends</td></tr>
+<tr><td>batch.size</td><td>Batch messages</td></tr>
+<tr><td>linger.ms</td><td>Wait before batching</td></tr>
+<tr><td>compression.type</td><td>gzip, snappy, lz4, zstd</td></tr>
+<tr><td>enable.idempotence</td><td>Prevent duplicates</td></tr>
+</table>
+</div></section>
+
+<section class="section" id="consumer">
+<div class="section-title">5. Kafka Consumer Java API</div>
+<div class="section-content">
+<h3>Create Consumer</h3>
+<div class="code-section"><div class="section-title">Consumer Configuration</div><div class="code-wrapper"><pre><code>Properties props = new Properties();
+props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,"localhost:9092");
+props.put(ConsumerConfig.GROUP_ID_CONFIG,"order-group");
+props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+          StringDeserializer.class.getName());
+props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG,
+          StringDeserializer.class.getName());
+
+KafkaConsumer&lt;String,String&gt; consumer =
+    new KafkaConsumer&lt;&gt;(props);</code></pre></div></div>
+
+<h3>Subscribe and Poll</h3>
+<div class="code-section"><div class="section-title">Polling Loop</div><div class="code-wrapper"><pre><code>consumer.subscribe(List.of("orders"));
+
+while(true){
+    ConsumerRecords&lt;String,String&gt; records =
+        consumer.poll(Duration.ofMillis(500));
+
+    for(ConsumerRecord&lt;String,String&gt; record : records){
+        System.out.println(record.value());
+    }
+}</code></pre></div></div>
+
+<h3>Manual Offset Commit</h3>
+<div class="code-section"><div class="section-title">Manual Commit</div><div class="code-wrapper"><pre><code>consumer.commitSync();</code></pre></div></div>
+</div></section>
+
+<section class="section" id="consumer-groups">
+<div class="section-title">6. Consumer Groups</div>
+<div class="section-content">
+<AsyncImage query="Kafka consumer group partition assignment diagram" aspectRatio="16:9"/>
+<p>Each partition is processed by only one consumer within a group.</p>
+</div></section>
+
+<section class="section" id="offsets">
+<div class="section-title">7. Offsets</div>
+<div class="section-content">
+<AsyncImage query="Kafka offsets commit replay diagram" aspectRatio="16:9"/>
+<table>
+<tr><th>Commit Mode</th><th>Behavior</th></tr>
+<tr><td>Auto Commit</td><td>Simpler but less control</td></tr>
+<tr><td>Manual Sync</td><td>Reliable</td></tr>
+<tr><td>Manual Async</td><td>Higher throughput</td></tr>
+</table>
+</div></section>
+
+<section class="section" id="replication">
+<div class="section-title">8. Replication</div>
+<div class="section-content">
+<AsyncImage query="Kafka replication leader follower ISR diagram" aspectRatio="16:9"/>
+<p>Every partition has one leader and optional follower replicas.</p>
+</div></section>
+
+<section class="section" id="transactions">
+<div class="section-title">9. Idempotence and Transactions</div>
+<div class="section-content">
+<h3>Idempotent Producer</h3>
+<div class="code-section"><div class="section-title">Idempotence</div><div class="code-wrapper"><pre><code>props.put(
+    ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG,
+    true
+);</code></pre></div></div>
+
+<h3>Transactional Producer</h3>
+<div class="code-section"><div class="section-title">Transactions</div><div class="code-wrapper"><pre><code>producer.initTransactions();
+
+producer.beginTransaction();
+
+producer.send(new ProducerRecord&lt;&gt;("orders","A"));
+producer.send(new ProducerRecord&lt;&gt;("orders","B"));
+
+producer.commitTransaction();</code></pre></div></div>
+</div></section>
+
+<section class="section" id="streams">
+<div class="section-title">10. Kafka Streams API</div>
+<div class="section-content">
+<AsyncImage query="Kafka Streams topology source processor sink diagram" aspectRatio="16:9"/>
+<p>Kafka Streams is a Java library for real-time stream processing.</p>
+
+<div class="code-section"><div class="section-title">Word Count Example</div><div class="code-wrapper"><pre><code>StreamsBuilder builder = new StreamsBuilder();
+
+KStream&lt;String,String&gt; stream =
+    builder.stream("input-topic");
+
+stream.flatMapValues(v -> List.of(v.split(" ")))
+      .groupBy((k,v) -> v)
+      .count()
+      .toStream()
+      .to("output-topic");</code></pre></div></div>
+
+<h3>Common Operations</h3>
+<ul>
+<li>map</li>
+<li>filter</li>
+<li>flatMap</li>
+<li>groupBy</li>
+<li>count</li>
+<li>join</li>
+<li>aggregate</li>
+<li>windowed aggregation</li>
+</ul>
+</div></section>
+
+<section class="section" id="admin">
+<div class="section-title">11. Admin Client API</div>
+<div class="section-content">
+<div class="code-section"><div class="section-title">Create Topic</div><div class="code-wrapper"><pre><code>Admin admin = Admin.create(Map.of(
+    AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG,
+    "localhost:9092"
+));
+
+NewTopic topic =
+    new NewTopic("orders",3,(short)2);
+
+admin.createTopics(List.of(topic));</code></pre></div></div>
+
+<div class="code-section"><div class="section-title">List Topics</div><div class="code-wrapper"><pre><code>admin.listTopics().names().get();</code></pre></div></div>
+</div></section>
+
+<section class="section" id="patterns">
+<div class="section-title">12. Messaging Patterns</div>
+<div class="section-content">
+<table>
+<tr><th>Pattern</th><th>Kafka Implementation</th></tr>
+<tr><td>Pub/Sub</td><td>Multiple consumer groups</td></tr>
+<tr><td>Work Queue</td><td>Single consumer group</td></tr>
+<tr><td>Event Sourcing</td><td>Replay retained log</td></tr>
+<tr><td>CQRS</td><td>Separate read/write topics</td></tr>
+<tr><td>DLQ</td><td>Dead-letter topic</td></tr>
+</table>
+</div></section>
+
+<section class="section" id="performance">
+<div class="section-title">13. Performance Tuning</div>
+<div class="section-content">
+<table>
+<tr><th>Area</th><th>Recommendation</th></tr>
+<tr><td>Producer</td><td>Increase batch.size</td></tr>
+<tr><td>Producer</td><td>Use linger.ms</td></tr>
+<tr><td>Producer</td><td>Enable compression</td></tr>
+<tr><td>Consumer</td><td>Tune max.poll.records</td></tr>
+<tr><td>Consumer</td><td>Scale consumer groups</td></tr>
+<tr><td>Broker</td><td>Use SSD storage</td></tr>
+<tr><td>Broker</td><td>Increase partitions carefully</td></tr>
+</table>
+
+<h3>Useful CLI Commands</h3>
+<div class="code-section"><div class="section-title">CLI Reference</div><div class="code-wrapper"><pre><code>kafka-topics.sh --list
+
+kafka-topics.sh --create \
+  --topic orders \
+  --partitions 3 \
+  --replication-factor 2
+
+kafka-console-producer.sh --topic orders
+
+kafka-console-consumer.sh --topic orders --from-beginning</code></pre></div></div>
+</div></section>
+
+<section class="section">
+<div class="section-title">14. Interview Cheat Sheet</div>
+<div class="section-content">
+<table>
+<tr><th>Concept</th><th>Key Point</th></tr>
+<tr><td>Partition</td><td>Ordering unit</td></tr>
+<tr><td>Broker</td><td>Kafka server</td></tr>
+<tr><td>Consumer Group</td><td>Parallel processing</td></tr>
+<tr><td>Offset</td><td>Read position</td></tr>
+<tr><td>Leader</td><td>Handles reads and writes</td></tr>
+<tr><td>ISR</td><td>In-sync replicas</td></tr>
+<tr><td>Idempotence</td><td>No duplicate writes</td></tr>
+<tr><td>Transaction</td><td>Exactly-once support</td></tr>
+<tr><td>Kafka Streams</td><td>Real-time processing</td></tr>
+</table>
+</div></section>
+
+</main>
+</body>
+</html>
