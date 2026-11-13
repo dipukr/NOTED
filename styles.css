@@ -1403,3 +1403,26 @@ strong {
 .gw-obj .gw-i { margin-top: 4px; }
 .gw-obj p { margin: 0; }
 .gw-obj .gw-t { font-size: 14px; }
+
+/* API reference card: method list on the left, details of the selected method on the right (see api-card.js) */
+.api-card { margin: 14px 0 24px; border: 1px solid #e3e6ea; border-radius: 5px; overflow: hidden; background: #fff; }
+.api-card-body { display: grid; grid-template-columns: 250px minmax(0, 1fr); }
+.api-list { list-style: none; margin: 0; padding: 8px; background: #fbfbfc; border-right: 1px solid #e3e6ea; max-height: 620px; overflow-y: auto; }
+.api-list li { margin: 0; padding: 0; }
+.api-item { display: block; width: 100%; padding: 7px 10px; border: 0; border-radius: 6px; background: none; text-align: left; cursor: pointer; color: #383a42; font-family: Consolas, "Source Code Pro", "Courier New", monospace; font-size: 13.5px; line-height: 1.35; }
+.api-item:hover { background: #eef0f3; }
+.api-item.active { background: #e8eefc; color: #1d4ed8; font-weight: 600; }
+.api-item:focus-visible { outline: 2px solid #3b82f6; outline-offset: -2px; }
+.api-detail { display: grid; padding: 16px 20px; min-width: 0; }
+/* all panes share one grid cell, so the card keeps the height of its tallest method */
+.api-pane { grid-area: 1 / 1; min-width: 0; visibility: hidden; }
+.api-pane.active { visibility: visible; }
+.api-label { margin: 0 0 6px; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #6b7280; }
+.api-sig { margin: 0 0 14px; padding: 9px 12px; border-radius: 5px; background: #f4f4f4; overflow-x: auto; white-space: pre-wrap; color: #383a42; font-family: Consolas, "Source Code Pro", "Courier New", monospace; font-size: 14px; }
+.api-desc { margin: 0 0 14px; }
+.api-pane .code-block { margin: 0; }
+@media (max-width: 800px) {
+    .api-card-body { grid-template-columns: 1fr; }
+    .api-list { display: flex; flex-wrap: wrap; gap: 4px; max-height: none; border-right: 0; border-bottom: 1px solid #e3e6ea; }
+    .api-item { width: auto; }
+}
