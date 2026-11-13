@@ -1,0 +1,2619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JDBC</title>
+<link rel="stylesheet" href="../styles.css">
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    var cur = document.getElementById("gw-cursor");
+    if (!cur) return;
+    var pos = 0, badges = ["Before first", "Row 1", "Row 2", "Row 3", "After last"];
+    var draw = function () {
+        cur.querySelector('[data-o="badge"]').textContent = badges[pos];
+        cur.querySelector('[data-o="status"]').textContent = pos === 0 ? "Call rs.next() to begin" : "rs.next() returned " + (pos < 4);
+        cur.querySelectorAll("[data-pos]").forEach(function (el) {
+            var on = +el.dataset.pos === pos;
+            el.classList.toggle("on", on);
+            if (el.classList.contains("m")) el.textContent = on ? "→" : "";
+        });
+    };
+    cur.querySelector('[data-act="next"]').onclick = function () { pos = Math.min(pos + 1, 4); draw(); };
+    cur.querySelector('[data-act="reset"]').onclick = function () { pos = 0; draw(); };
+    draw();
+});
+</script>
+</head>
+<body>
+<div class="note">
+    <div class="title">JDBC API — Complete Guide to Java Database Programming</div>
+
+    <div class="intro">
+        <p>Core Java • SQL • JDBC 4.5 • Database Connections • Transactions • Performance • Spring Boot</p>
+        <p><strong>JDBC (Java Database Connectivity)</strong> is the standard Java API used to connect to databases, execute SQL statements, retrieve and manipulate data, manage transactions, and interact with database-specific functionality through a common programming interface.</p>
+        <p>This guide covers JDBC from beginner to advanced level, including the major interfaces, classes, methods, and practical Java implementations.</p>
+    </div>
+
+    <div class="subheading">1. What is JDBC?</div>
+    <div class="intro">
+        <p>JDBC defines a standard set of interfaces and classes that allow a Java application to communicate with relational databases such as PostgreSQL, MySQL, Oracle, SQL Server, and H2.</p>
+        <p>Instead of writing database-specific networking code, applications interact with JDBC APIs. A database-specific <strong>JDBC Driver</strong> implements those APIs and translates the application&rsquo;s operations into the database&rsquo;s communication protocol.</p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/jdbc-driver-manager.svg" alt="A Java application calls the JDBC API; the JDBC Driver Manager routes calls to the matching driver, such as the JDBC SQLite driver for SQLite, the JDBC JavaDB driver for JavaDB, or another JDBC driver for other databases" style="width:100%;max-width:760px">
+    </div>
+    <div class="gw-card gw-vflow">
+        <p class="gw-label" style="margin:0">JDBC architecture</p>
+        <div class="gw-vbox"><p><strong>Java Application</strong></p><p class="gw-cap">Services &bull; Repositories &bull; Business logic</p></div>
+        <div class="gw-vlink"><svg class="gw-i" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12.707 18.707a1 1 0 0 1-1.414 0l-5-5a1 1 0 1 1 1.414-1.414L11 15.586V6a1 1 0 1 1 2 0v9.586l3.293-3.293a1 1 0 0 1 1.414 1.414l-5 5Z" clip-rule="evenodd"/></svg><span>JDBC method calls</span></div>
+        <div class="gw-vbox blue"><p><strong>JDBC API</strong></p><p class="gw-cap">Connection &bull; PreparedStatement &bull; ResultSet</p></div>
+        <div class="gw-vlink"><svg class="gw-i" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12.707 18.707a1 1 0 0 1-1.414 0l-5-5a1 1 0 1 1 1.414-1.414L11 15.586V6a1 1 0 1 1 2 0v9.586l3.293-3.293a1 1 0 0 1 1.414 1.414l-5 5Z" clip-rule="evenodd"/></svg><span>Driver implementation</span></div>
+        <div class="gw-cols3">
+            <div class="gw-tile"><svg class="gw-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>PostgreSQL Driver</div>
+            <div class="gw-tile"><svg class="gw-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>MySQL Driver</div>
+            <div class="gw-tile"><svg class="gw-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>SQL Server Driver</div>
+        </div>
+        <div class="gw-vlink"><svg class="gw-i" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12.707 18.707a1 1 0 0 1-1.414 0l-5-5a1 1 0 1 1 1.414-1.414L11 15.586V6a1 1 0 1 1 2 0v9.586l3.293-3.293a1 1 0 0 1 1.414 1.414l-5 5Z" clip-rule="evenodd"/></svg><span>Database-specific protocol</span></div>
+        <div class="gw-vbox line"><p><strong>Database Server</strong></p><p class="gw-cap">SQL execution &bull; Transactions &bull; Persistent storage</p></div>
+    </div>
+    <div class="intro">
+        <p>For example, the following JDBC code can work with multiple relational databases when the SQL and data types are supported:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">String</span> sql = <span class="code-string">"SELECT id, name FROM users"</span>;
+<span class="code-keyword">try</span> (<span class="code-class">Connection</span> con = dataSource.getConnection(); <span class="code-class">PreparedStatement</span> ps = con.prepareStatement(sql);
+     <span class="code-class">ResultSet</span> rs = ps.executeQuery()) {
+    <span class="code-keyword">while</span> (rs.next()) {
+        <span class="code-class">System</span>.out.println(rs.getLong(<span class="code-string">"id"</span>));
+        <span class="code-class">System</span>.out.println(rs.getString(<span class="code-string">"name"</span>));
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>The database-specific driver provides the implementations behind <code>Connection</code>, <code>PreparedStatement</code>, and <code>ResultSet</code>.</p>
+        <p><strong>Important:</strong> JDBC standardizes database access, but it does not make all SQL dialects, database features, or data types identical.</p>
+    </div>
+
+    <div class="subheading">2. JDBC packages and modules</div>
+    <div class="intro">
+        <p>JDBC is part of Java SE.</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Package</th><th>Purpose</th></tr></thead>
+            <tbody>
+                <tr><td><code>java.sql</code></td><td>Core JDBC APIs</td></tr>
+                <tr><td><code>javax.sql</code></td><td>DataSource, connection pooling interfaces, distributed transactions, RowSet</td></tr>
+                <tr><td><code>javax.sql.rowset</code></td><td>Standard RowSet implementations and factories</td></tr>
+                <tr><td><code>javax.sql.rowset.serial</code></td><td>Serializable SQL data-type mappings</td></tr>
+                <tr><td><code>javax.sql.rowset.spi</code></td><td>RowSet synchronization providers</td></tr>
+                <tr><td><code>javax.transaction.xa</code></td><td>XA distributed transaction interfaces</td></tr>
+            </tbody>
+        </table></div>
+        <p>The Java module system contains <code>java.sql</code>, <code>java.sql.rowset</code>, and <code>java.transaction.xa</code>.</p>
+        <p>As of Java 27 (September 2026), the JDBC specification exposed by Java SE is JDBC 4.5. Its recent additions include <code>JSON</code> and <code>DECFLOAT</code> SQL type constants and <code>AutoCloseable</code> support for SQL LOB and related objects. Individual drivers may support different subsets of the specification.</p>
+        <p class="minor-heading"><strong>Main JDBC API hierarchy</strong></p>
+    </div>
+    <div class="gw-card gw-vflow">
+        <div class="gw-vbox"><p><strong><code>java.sql.Statement</code></strong></p><p class="gw-cap">General SQL execution interface</p></div>
+        <div class="gw-vlink"><svg class="gw-i" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12.707 18.707a1 1 0 0 1-1.414 0l-5-5a1 1 0 1 1 1.414-1.414L11 15.586V6a1 1 0 1 1 2 0v9.586l3.293-3.293a1 1 0 0 1 1.414 1.414l-5 5Z" clip-rule="evenodd"/></svg></div>
+        <div class="gw-vbox"><p><strong><code>java.sql.PreparedStatement</code></strong></p><p class="gw-cap">Extends Statement; supports parameter binding</p></div>
+        <div class="gw-vlink"><svg class="gw-i" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12.707 18.707a1 1 0 0 1-1.414 0l-5-5a1 1 0 1 1 1.414-1.414L11 15.586V6a1 1 0 1 1 2 0v9.586l3.293-3.293a1 1 0 0 1 1.414 1.414l-5 5Z" clip-rule="evenodd"/></svg></div>
+        <div class="gw-vbox"><p><strong><code>java.sql.CallableStatement</code></strong></p><p class="gw-cap">Extends PreparedStatement; supports stored procedures</p></div>
+    </div>
+    <div class="intro">
+        <p>This is an <strong>interface inheritance hierarchy</strong>, not a typical call sequence.</p>
+        <p>The core connection and result interfaces are separate. <code>Connection</code> creates statements, while executed statements provide <code>ResultSet</code> objects.</p>
+    </div>
+
+    <div class="subheading">3. Complete JDBC API map</div>
+    <div class="intro">
+        <p>The following table organizes the important JDBC interfaces and classes by purpose.</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Category</th><th>Interfaces / classes</th></tr></thead>
+            <tbody>
+                <tr><td>Driver management</td><td><code>Driver</code>, <code>DriverManager</code>, <code>DriverPropertyInfo</code></td></tr>
+                <tr><td>Connections</td><td><code>Connection</code>, <code>DataSource</code>, <code>ConnectionBuilder</code></td></tr>
+                <tr><td>SQL execution</td><td><code>Statement</code>, <code>PreparedStatement</code>, <code>CallableStatement</code></td></tr>
+                <tr><td>Query results</td><td><code>ResultSet</code></td></tr>
+                <tr><td>Transactions</td><td><code>Connection</code>, <code>Savepoint</code></td></tr>
+                <tr><td>Metadata</td><td><code>DatabaseMetaData</code>, <code>ResultSetMetaData</code>, <code>ParameterMetaData</code></td></tr>
+                <tr><td>SQL types</td><td><code>Types</code>, <code>JDBCType</code>, <code>SQLType</code></td></tr>
+                <tr><td>Date and time</td><td><code>Date</code>, <code>Time</code>, <code>Timestamp</code></td></tr>
+                <tr><td>Large objects</td><td><code>Blob</code>, <code>Clob</code>, <code>NClob</code>, <code>SQLXML</code></td></tr>
+                <tr><td>Structured values</td><td><code>Array</code>, <code>Struct</code>, <code>Ref</code>, <code>RowId</code>, <code>SQLData</code>, <code>SQLInput</code>, <code>SQLOutput</code></td></tr>
+                <tr><td>Errors</td><td><code>SQLException</code>, <code>SQLWarning</code>, <code>BatchUpdateException</code></td></tr>
+                <tr><td>Pooling</td><td><code>ConnectionPoolDataSource</code>, <code>PooledConnection</code>, connection/statement event APIs</td></tr>
+                <tr><td>Distributed transactions</td><td><code>XADataSource</code>, <code>XAConnection</code>, <code>XAResource</code></td></tr>
+                <tr><td>RowSets</td><td><code>RowSet</code>, <code>JdbcRowSet</code>, <code>CachedRowSet</code>, <code>WebRowSet</code>, <code>FilteredRowSet</code>, <code>JoinRowSet</code></td></tr>
+                <tr><td>Advanced</td><td><code>ShardingKey</code>, <code>ShardingKeyBuilder</code>, <code>Wrapper</code></td></tr>
+            </tbody>
+        </table></div>
+        <p>We will examine the APIs individually and then combine them in a working application.</p>
+    </div>
+
+    <div class="subheading">4. Setting up a JDBC project</div>
+    <div class="intro">
+        <p>For practical examples, we will use PostgreSQL with Java 17+.</p>
+        <p class="minor-heading"><strong>Maven dependency</strong></p>
+        <p>A JDBC driver is an external dependency. JDBC interfaces themselves are included with the JDK.</p>
+        <p>Add this inside your Maven <code>pom.xml</code>:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code>&lt;<span class="code-keyword">dependency</span>&gt;
+    &lt;<span class="code-keyword">groupId</span>&gt;org.postgresql&lt;/<span class="code-keyword">groupId</span>&gt;
+    &lt;<span class="code-keyword">artifactId</span>&gt;postgresql&lt;/<span class="code-keyword">artifactId</span>&gt;
+    &lt;<span class="code-keyword">version</span>&gt;42.7.14&lt;/<span class="code-keyword">version</span>&gt;
+&lt;/<span class="code-keyword">dependency</span>&gt;</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>This is the PostgreSQL JDBC driver release published October 7, 2026.</p>
+        <p class="minor-heading"><strong>Database setup</strong></p>
+        <p>Run:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">CREATE</span> <span class="code-keyword">DATABASE</span> companydb;</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Connect to <code>companydb</code> and create a table:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">CREATE</span> <span class="code-keyword">TABLE</span> employees (
+    id <span class="code-keyword">BIGINT</span> <span class="code-keyword">GENERATED</span> <span class="code-keyword">ALWAYS</span> <span class="code-keyword">AS</span> <span class="code-keyword">IDENTITY</span>
+        <span class="code-keyword">PRIMARY</span> <span class="code-keyword">KEY</span>,
+    name <span class="code-keyword">VARCHAR</span>(100) <span class="code-keyword">NOT</span> <span class="code-keyword">NULL</span>,
+    email <span class="code-keyword">VARCHAR</span>(150) <span class="code-keyword">UNIQUE</span> <span class="code-keyword">NOT</span> <span class="code-keyword">NULL</span>,
+    salary <span class="code-keyword">NUMERIC</span>(12, 2) <span class="code-keyword">NOT</span> <span class="code-keyword">NULL</span>,
+    created_at <span class="code-keyword">TIMESTAMP</span> <span class="code-keyword">NOT</span> <span class="code-keyword">NULL</span>
+        <span class="code-keyword">DEFAULT</span> CURRENT_TIMESTAMP
+);</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p class="minor-heading"><strong>First working JDBC program</strong></p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) <span class="code-keyword">throws</span> <span class="code-class">SQLException</span> {
+    <span class="code-class">String</span> url = <span class="code-string">"jdbc:postgresql://localhost:5432/companydb"</span>;
+    <span class="code-class">String</span> username = <span class="code-string">"postgres"</span>;
+    <span class="code-class">String</span> password = <span class="code-class">System</span>.getenv(<span class="code-string">"DB_PASSWORD"</span>);
+    <span class="code-keyword">try</span> (<span class="code-class">Connection</span> con = <span class="code-class">DriverManager</span>.getConnection(url, username, password)) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Connected!"</span>);
+        <span class="code-class">String</span> sql = <span class="code-string">"""
+            SELECT id, name, salary
+            FROM employees
+            """</span>;
+        <span class="code-keyword">try</span> (<span class="code-class">PreparedStatement</span> ps = con.prepareStatement(sql); <span class="code-class">ResultSet</span> rs = ps.executeQuery()) {
+            <span class="code-keyword">while</span> (rs.next()) {
+                <span class="code-keyword">long</span> id = rs.getLong(<span class="code-string">"id"</span>);
+                <span class="code-class">String</span> name = rs.getString(<span class="code-string">"name"</span>);
+                <span class="code-keyword">double</span> salary = rs.getDouble(<span class="code-string">"salary"</span>);
+                <span class="code-class">System</span>.out.printf(<span class="code-string">"%d | %s | %.2f%n"</span>, id, name, salary);
+            }
+        }
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>This program demonstrates the three most frequently used JDBC operations:</p>
+        <ol>
+            <li><code>DriverManager.getConnection()</code> — establish a database connection.</li>
+            <li><code>Connection.prepareStatement()</code> — create an SQL command.</li>
+            <li><code>PreparedStatement.executeQuery()</code> — execute the query and return a <code>ResultSet</code>.</li>
+        </ol>
+        <p><code>ResultSet.next()</code> moves the cursor forward, and the getter methods retrieve values from its current row.</p>
+        <p>For financial values such as salaries, use <code>BigDecimal</code> rather than <code>double</code> in production code to preserve decimal precision.</p>
+    </div>
+
+    <div class="subheading">5. <code>Driver</code> and <code>DriverManager</code> APIs</div>
+    <div class="intro">
+        <p class="minor-heading"><strong>5.1 <code>Driver</code> interface</strong></p>
+        <p>Package: <code>java.sql.Driver</code></p>
+        <p>The <code>Driver</code> interface defines the contract that database-specific JDBC drivers must implement.</p>
+        <p>Important methods:</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Method</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>connect(url, properties)</code></td><td>Attempts to establish a database connection</td></tr>
+                <tr><td><code>acceptsURL(url)</code></td><td>Checks whether the driver supports a JDBC URL</td></tr>
+                <tr><td><code>getMajorVersion()</code></td><td>Driver major version</td></tr>
+                <tr><td><code>getMinorVersion()</code></td><td>Driver minor version</td></tr>
+                <tr><td><code>jdbcCompliant()</code></td><td>Reports JDBC compliance characteristics</td></tr>
+                <tr><td><code>getPropertyInfo(url, props)</code></td><td>Describes supported connection properties</td></tr>
+                <tr><td><code>getParentLogger()</code></td><td>Returns the parent logger</td></tr>
+            </tbody>
+        </table></div>
+        <p>You generally do not implement this interface yourself. Libraries such as PostgreSQL JDBC and MySQL Connector/J supply implementations.</p>
+        <p class="minor-heading"><strong>5.2 <code>DriverManager</code> class</strong></p>
+        <p>Package: <code>java.sql.DriverManager</code></p>
+        <p><code>DriverManager</code> manages registered JDBC drivers and helps applications establish connections.</p>
+        <p>Important methods:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">DriverManager</span>.getConnection(url); <span class="code-comment"># Obtain database connection</span>
+<span class="code-class">DriverManager</span>.getConnection(url, username, password);
+<span class="code-class">DriverManager</span>.getConnection(url, properties);
+<span class="code-class">DriverManager</span>.registerDriver(driver); <span class="code-comment"># Manage drivers</span>
+<span class="code-class">DriverManager</span>.deregisterDriver(driver);
+<span class="code-class">DriverManager</span>.getDriver(url);
+<span class="code-class">DriverManager</span>.getDrivers();
+<span class="code-class">DriverManager</span>.drivers(); <span class="code-comment"># Stream&lt;Driver&gt;</span>
+<span class="code-class">DriverManager</span>.setLoginTimeout(<span class="code-number">10</span>); <span class="code-comment"># Configuration</span>
+<span class="code-class">DriverManager</span>.getLoginTimeout();</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Note that <code>setLoginTimeout()</code> is a global setting on <code>DriverManager</code>.</p>
+        <p class="minor-heading"><strong>5.3 How JDBC finds the correct driver</strong></p>
+        <p>Suppose the following drivers are available on the classpath:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code>org.postgresql.Driver
+com.mysql.cj.jdbc.Driver
+com.microsoft.sqlserver.jdbc.SQLServerDriver</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>You execute:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">Connection</span> con = <span class="code-class">DriverManager</span>.getConnection(<span class="code-string">"jdbc:postgresql://localhost:5432/companydb"</span>, <span class="code-string">"postgres"</span>, password);</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Conceptually:</p>
+    </div>
+    <div class="gw-card gw-vflow">
+        <div class="gw-vbox"><p><strong><code>DriverManager.getConnection(url)</code></strong></p></div>
+        <div class="gw-vlink"><svg class="gw-i" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12.707 18.707a1 1 0 0 1-1.414 0l-5-5a1 1 0 1 1 1.414-1.414L11 15.586V6a1 1 0 1 1 2 0v9.586l3.293-3.293a1 1 0 0 1 1.414 1.414l-5 5Z" clip-rule="evenodd"/></svg></div>
+        <div class="gw-vbox line"><p>Find a registered driver that can accept the URL</p></div>
+        <div class="gw-vlink"><svg class="gw-i" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12.707 18.707a1 1 0 0 1-1.414 0l-5-5a1 1 0 1 1 1.414-1.414L11 15.586V6a1 1 0 1 1 2 0v9.586l3.293-3.293a1 1 0 0 1 1.414 1.414l-5 5Z" clip-rule="evenodd"/></svg></div>
+        <div class="gw-cols3">
+            <div class="gw-tile line"><svg class="gw-i bad" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg><span>MySQL</span><span class="gw-note2">Not compatible</span></div>
+            <div class="gw-tile ok"><svg class="gw-i ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg><span>PostgreSQL</span><span class="gw-note2">Accepts URL</span></div>
+            <div class="gw-tile line"><svg class="gw-i bad" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg><span>SQL Server</span><span class="gw-note2">Not compatible</span></div>
+        </div>
+        <div class="gw-vlink"><svg class="gw-i" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12.707 18.707a1 1 0 0 1-1.414 0l-5-5a1 1 0 1 1 1.414-1.414L11 15.586V6a1 1 0 1 1 2 0v9.586l3.293-3.293a1 1 0 0 1 1.414 1.414l-5 5Z" clip-rule="evenodd"/></svg></div>
+        <div class="gw-vbox"><p>PostgreSQL driver establishes the connection</p></div>
+    </div>
+    <div class="intro">
+        <p>The exact discovery and connection mechanics are implemented by JDBC and the driver. <code>acceptsURL()</code> is a useful way to understand driver selection, although <code>DriverManager</code> is not required to invoke it before every connection attempt.</p>
+        <p class="minor-heading"><strong>5.4 Why <code>Class.forName()</code> is usually unnecessary</strong></p>
+        <p>Older JDBC code explicitly registered the driver:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">Class</span>.forName(<span class="code-string">"org.postgresql.Driver"</span>);</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Modern JDBC drivers can be discovered automatically through the Java service-provider mechanism.</p>
+        <p>With a correctly packaged modern driver in the classpath, this is sufficient:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">Connection</span> con = <span class="code-class">DriverManager</span>.getConnection(url, username, password);</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p class="minor-heading"><strong>5.5 JDBC URLs</strong></p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Database</th><th>Example</th></tr></thead>
+            <tbody>
+                <tr><td>PostgreSQL</td><td><code>jdbc:postgresql://localhost:5432/companydb</code></td></tr>
+                <tr><td>MySQL</td><td><code>jdbc:mysql://localhost:3306/companydb</code></td></tr>
+                <tr><td>SQL Server</td><td><code>jdbc:sqlserver://localhost:1433;databaseName=companydb</code></td></tr>
+                <tr><td>Oracle</td><td><code>jdbc:oracle:thin:@//localhost:1521/FREEPDB1</code></td></tr>
+                <tr><td>H2 memory</td><td><code>jdbc:h2:mem:testdb</code></td></tr>
+            </tbody>
+        </table></div>
+        <p>These are illustrative connection strings. Production deployments require the appropriate authentication, TLS, and driver configuration.</p>
+    </div>
+
+    <div class="subheading">6. <code>Connection</code> interface — complete explanation</div>
+    <div class="intro">
+        <p>Package: <code>java.sql.Connection</code></p>
+        <p>The <code>Connection</code> interface represents a logical database session.</p>
+        <p>It is one of the most important JDBC interfaces because almost every operation happens through a connection.</p>
+        <p>A connection manages:</p>
+        <ul>
+            <li>Statement creation.</li>
+            <li>Transaction boundaries.</li>
+            <li>Isolation levels.</li>
+            <li>Commit and rollback operations.</li>
+            <li>Session properties.</li>
+            <li>Database metadata.</li>
+            <li>SQL-specific object creation.</li>
+            <li>Connection validation and closure.</li>
+        </ul>
+        <p class="minor-heading"><strong>6.1 Important <code>Connection</code> methods</strong></p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Method</th><th>Purpose</th></tr></thead>
+            <tbody>
+                <tr><td><code>createStatement()</code></td><td>Creates a <code>Statement</code></td></tr>
+                <tr><td><code>prepareStatement(sql)</code></td><td>Creates a <code>PreparedStatement</code></td></tr>
+                <tr><td><code>prepareCall(sql)</code></td><td>Creates a <code>CallableStatement</code></td></tr>
+                <tr><td><code>setAutoCommit(boolean)</code></td><td>Controls automatic commits</td></tr>
+                <tr><td><code>getAutoCommit()</code></td><td>Reads auto-commit setting</td></tr>
+                <tr><td><code>commit()</code></td><td>Commits current transaction</td></tr>
+                <tr><td><code>rollback()</code></td><td>Rolls back current transaction</td></tr>
+                <tr><td><code>rollback(savepoint)</code></td><td>Rolls back to a savepoint</td></tr>
+                <tr><td><code>setSavepoint()</code></td><td>Creates an unnamed savepoint</td></tr>
+                <tr><td><code>setSavepoint(name)</code></td><td>Creates a named savepoint</td></tr>
+                <tr><td><code>releaseSavepoint(savepoint)</code></td><td>Releases a savepoint</td></tr>
+                <tr><td><code>setTransactionIsolation(level)</code></td><td>Sets transaction isolation</td></tr>
+                <tr><td><code>getTransactionIsolation()</code></td><td>Reads isolation level</td></tr>
+                <tr><td><code>setReadOnly(boolean)</code></td><td>Sets a read-only hint</td></tr>
+                <tr><td><code>isReadOnly()</code></td><td>Reads read-only setting</td></tr>
+                <tr><td><code>setCatalog(name)</code></td><td>Sets current catalog</td></tr>
+                <tr><td><code>getCatalog()</code></td><td>Reads current catalog</td></tr>
+                <tr><td><code>setSchema(schema)</code></td><td>Sets current schema</td></tr>
+                <tr><td><code>getSchema()</code></td><td>Reads current schema</td></tr>
+                <tr><td><code>getMetaData()</code></td><td>Returns <code>DatabaseMetaData</code></td></tr>
+                <tr><td><code>nativeSQL(sql)</code></td><td>Translates JDBC SQL syntax where supported</td></tr>
+                <tr><td><code>isValid(timeout)</code></td><td>Validates connection</td></tr>
+                <tr><td><code>isClosed()</code></td><td>Checks closed state</td></tr>
+                <tr><td><code>close()</code></td><td>Closes logical connection</td></tr>
+                <tr><td><code>setNetworkTimeout(executor, ms)</code></td><td>Sets network-operation timeout</td></tr>
+                <tr><td><code>abort(executor)</code></td><td>Terminates connection</td></tr>
+                <tr><td><code>getWarnings()</code></td><td>Returns connection warnings</td></tr>
+                <tr><td><code>clearWarnings()</code></td><td>Clears warnings</td></tr>
+                <tr><td><code>getClientInfo()</code></td><td>Returns client information</td></tr>
+                <tr><td><code>setClientInfo(...)</code></td><td>Sets client information</td></tr>
+                <tr><td><code>createBlob()</code></td><td>Creates <code>Blob</code> object</td></tr>
+                <tr><td><code>createClob()</code></td><td>Creates <code>Clob</code> object</td></tr>
+                <tr><td><code>createNClob()</code></td><td>Creates <code>NClob</code> object</td></tr>
+                <tr><td><code>createSQLXML()</code></td><td>Creates <code>SQLXML</code> object</td></tr>
+                <tr><td><code>createArrayOf(type, values)</code></td><td>Creates SQL array</td></tr>
+                <tr><td><code>createStruct(type, attrs)</code></td><td>Creates SQL structured value</td></tr>
+                <tr><td><code>getTypeMap()</code></td><td>Gets SQL user-defined type mappings</td></tr>
+                <tr><td><code>setTypeMap(map)</code></td><td>Sets custom type mappings</td></tr>
+            </tbody>
+        </table></div>
+        <p>Additional APIs include <code>beginRequest()</code>, <code>endRequest()</code>, sharding-key methods, and identifier-quoting methods.</p>
+        <p class="minor-heading"><strong>6.2 Example: configuring a connection</strong></p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">try</span> (<span class="code-class">Connection</span> con = <span class="code-class">DriverManager</span>.getConnection(url, username, password)) {
+    con.setReadOnly(<span class="code-keyword">true</span>);
+    con.setTransactionIsolation(<span class="code-class">Connection</span>.TRANSACTION_READ_COMMITTED);
+    <span class="code-class">System</span>.out.println(<span class="code-string">"Auto commit: "</span> + con.getAutoCommit());
+    <span class="code-class">System</span>.out.println(<span class="code-string">"Read only: "</span> + con.isReadOnly());
+    <span class="code-class">System</span>.out.println(<span class="code-string">"Schema: "</span> + con.getSchema());
+    <span class="code-class">System</span>.out.println(<span class="code-string">"Valid: "</span> + con.isValid(<span class="code-number">5</span>));
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Important distinctions:</p>
+        <p><code>setReadOnly(true)</code> is primarily a hint and must not be treated as a universally enforced security boundary.</p>
+        <p><code>isValid(5)</code> asks the driver to validate the connection with a timeout of five seconds. It does not guarantee that the connection will remain available for the next operation.</p>
+        <p><code>close()</code> releases the application-owned JDBC resource. For a pooled connection, this normally returns the logical connection to its pool rather than immediately closing the physical network connection.</p>
+        <p class="minor-heading"><strong>6.3 <code>Connection</code> with try-with-resources</strong></p>
+        <p>The recommended pattern is:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">try</span> (<span class="code-class">Connection</span> con = dataSource.getConnection()) {
+    <span class="code-comment"># Use connection</span>
+} <span class="code-comment"># Automatic close</span></code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Because <code>Connection</code> implements <code>AutoCloseable</code>, Java closes it when the scope ends, even when an exception is thrown.</p>
+        <p>The same applies to <code>Statement</code>, <code>PreparedStatement</code>, and <code>ResultSet</code>.</p>
+        <p>Always keep resource ownership clear. Do not close a framework-managed connection behind Spring&rsquo;s transaction manager.</p>
+    </div>
+
+    <div class="subheading">7. <code>Statement</code> interface</div>
+    <div class="intro">
+        <p>Package: <code>java.sql.Statement</code></p>
+        <p><code>Statement</code> executes SQL commands supplied as strings.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">Statement</span> stmt = con.createStatement();</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p class="minor-heading"><strong>7.1 Important methods</strong></p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Method</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>executeQuery(sql)</code></td><td>Executes a query and returns a <code>ResultSet</code></td></tr>
+                <tr><td><code>executeUpdate(sql)</code></td><td>Executes DML or DDL; returns update count</td></tr>
+                <tr><td><code>execute(sql)</code></td><td>General execution method</td></tr>
+                <tr><td><code>executeLargeUpdate(sql)</code></td><td>Returns a <code>long</code> update count</td></tr>
+                <tr><td><code>addBatch(sql)</code></td><td>Adds SQL to a batch</td></tr>
+                <tr><td><code>executeBatch()</code></td><td>Executes batch; returns <code>int[]</code></td></tr>
+                <tr><td><code>executeLargeBatch()</code></td><td>Executes batch; returns <code>long[]</code></td></tr>
+                <tr><td><code>clearBatch()</code></td><td>Clears batch commands</td></tr>
+                <tr><td><code>getResultSet()</code></td><td>Obtains current query result</td></tr>
+                <tr><td><code>getUpdateCount()</code></td><td>Obtains current update count</td></tr>
+                <tr><td><code>getLargeUpdateCount()</code></td><td>Obtains large update count</td></tr>
+                <tr><td><code>getMoreResults()</code></td><td>Advances through multiple results</td></tr>
+                <tr><td><code>getGeneratedKeys()</code></td><td>Gets generated keys</td></tr>
+                <tr><td><code>setQueryTimeout(seconds)</code></td><td>Sets query timeout</td></tr>
+                <tr><td><code>setFetchSize(rows)</code></td><td>Sets fetch-size hint</td></tr>
+                <tr><td><code>setMaxRows(rows)</code></td><td>Limits JDBC result row count</td></tr>
+                <tr><td><code>setMaxFieldSize(bytes)</code></td><td>Limits specified field sizes</td></tr>
+                <tr><td><code>setFetchDirection(direction)</code></td><td>Sets fetch direction hint</td></tr>
+                <tr><td><code>cancel()</code></td><td>Requests cancellation</td></tr>
+                <tr><td><code>closeOnCompletion()</code></td><td>Closes when dependent result sets close</td></tr>
+                <tr><td><code>getWarnings()</code></td><td>Obtains warnings</td></tr>
+                <tr><td><code>close()</code></td><td>Releases statement resources</td></tr>
+            </tbody>
+        </table></div>
+        <p class="minor-heading"><strong>7.2 <code>executeQuery()</code> example</strong></p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">try</span> (<span class="code-class">Statement</span> stmt = con.createStatement(); <span class="code-class">ResultSet</span> rs = stmt.executeQuery(<span class="code-string">"SELECT id, name FROM employees"</span>)) {
+    <span class="code-keyword">while</span> (rs.next()) {
+        <span class="code-class">System</span>.out.println(rs.getLong(<span class="code-string">"id"</span>) + <span class="code-string">" "</span> + rs.getString(<span class="code-string">"name"</span>));
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p class="minor-heading"><strong>7.3 <code>executeUpdate()</code> example</strong></p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">try</span> (<span class="code-class">Statement</span> stmt = con.createStatement()) {
+    <span class="code-keyword">int</span> affectedRows = stmt.executeUpdate(<span class="code-string">"""
+        UPDATE employees
+        SET salary = salary + 1000
+        WHERE id = 10
+        """</span>);
+    <span class="code-class">System</span>.out.println(<span class="code-string">"Updated rows: "</span> + affectedRows);
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>For <code>INSERT</code>, <code>UPDATE</code>, or <code>DELETE</code>, the return value generally indicates the number of affected rows. For SQL commands such as DDL that do not return a row count, the returned value is often zero.</p>
+        <p class="minor-heading"><strong>7.4 <code>execute()</code> vs <code>executeQuery()</code> vs <code>executeUpdate()</code></strong></p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Method</th><th>SQL use</th><th>Return</th></tr></thead>
+            <tbody>
+                <tr><td><code>executeQuery()</code></td><td>Query returning rows</td><td><code>ResultSet</code></td></tr>
+                <tr><td><code>executeUpdate()</code></td><td>DML or DDL without result set</td><td><code>int</code></td></tr>
+                <tr><td><code>executeLargeUpdate()</code></td><td>DML with potentially large counts</td><td><code>long</code></td></tr>
+                <tr><td><code>execute()</code></td><td>General SQL, including multiple results</td><td><code>boolean</code></td></tr>
+            </tbody>
+        </table></div>
+        <p>A common misunderstanding is that <code>execute()</code> returns whether SQL succeeded.</p>
+        <p>It does not.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">boolean</span> result = stmt.execute(sql);</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <ul>
+            <li><code>true</code> means the first result is a <code>ResultSet</code>.</li>
+            <li><code>false</code> means the first result is an update count or there are no results.</li>
+            <li>Execution errors are reported through <code>SQLException</code>.</li>
+        </ul>
+        <p class="minor-heading"><strong>7.5 Handling multiple results</strong></p>
+        <p>Some stored procedures and SQL commands return multiple result sets and update counts.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">boolean</span> hasResultSet = stmt.execute(sql);
+<span class="code-keyword">while</span> (<span class="code-keyword">true</span>) {
+    <span class="code-keyword">if</span> (hasResultSet) {
+        <span class="code-keyword">try</span> (<span class="code-class">ResultSet</span> rs = stmt.getResultSet()) {
+            <span class="code-keyword">while</span> (rs.next()) {
+                <span class="code-comment"># Process current result set</span>
+            }
+        }
+    } <span class="code-keyword">else</span> {
+        <span class="code-keyword">int</span> count = stmt.getUpdateCount();
+        <span class="code-keyword">if</span> (count == -<span class="code-number">1</span>) {
+            <span class="code-keyword">break</span>;
+        }
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Affected rows: "</span> + count);
+    }
+    hasResultSet = stmt.getMoreResults();
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p class="minor-heading"><strong>7.6 Why ordinary <code>Statement</code> is unsafe for user input</strong></p>
+        <p>Consider:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">String</span> email = userInput;
+<span class="code-class">String</span> sql = <span class="code-string">"SELECT * FROM employees WHERE email = '"</span> + email + <span class="code-string">"'"</span>;
+stmt.executeQuery(sql);</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>If <code>userInput</code> contains SQL syntax, it can change the intended query.</p>
+        <p>This is an SQL injection vulnerability.</p>
+        <p><strong>Use </strong><code>PreparedStatement</code><strong> for values supplied by users, APIs, or other untrusted sources.</strong></p>
+    </div>
+
+    <div class="subheading">8. <code>PreparedStatement</code> interface</div>
+    <div class="intro">
+        <p>Package: <code>java.sql.PreparedStatement</code></p>
+        <p><code>PreparedStatement</code> extends <code>Statement</code> and supports SQL commands with parameters.</p>
+        <p>It is generally the preferred JDBC interface for application queries and updates.</p>
+        <p class="minor-heading"><strong>8.1 How it works</strong></p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">SELECT</span> *
+<span class="code-keyword">FROM</span> employees
+<span class="code-keyword">WHERE</span> id = ?
+  <span class="code-keyword">AND</span> salary &gt;= ?</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Parameters are represented by <code>?</code> placeholders.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">PreparedStatement</span> ps = con.prepareStatement(sql);
+ps.setLong(<span class="code-number">1</span>, <span class="code-number">10L</span>);
+ps.setBigDecimal(<span class="code-number">2</span>, <span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"50000"</span>));</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Parameter numbering starts at <strong>1</strong>, not 0.</p>
+        <p>The driver binds the parameters with their SQL values and types. Depending on the driver, database, and configuration, the statement may be prepared on the server, on the client, or through a combination of both. Preparation does not universally guarantee server-side execution-plan reuse.</p>
+        <p class="minor-heading"><strong>8.2 Important <code>PreparedStatement</code> methods</strong></p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Method</th><th>Purpose</th></tr></thead>
+            <tbody>
+                <tr><td><code>setInt(index, value)</code></td><td>Bind integer</td></tr>
+                <tr><td><code>setLong(index, value)</code></td><td>Bind long</td></tr>
+                <tr><td><code>setString(index, value)</code></td><td>Bind string</td></tr>
+                <tr><td><code>setBoolean(index, value)</code></td><td>Bind boolean</td></tr>
+                <tr><td><code>setDouble(index, value)</code></td><td>Bind double</td></tr>
+                <tr><td><code>setBigDecimal(index, value)</code></td><td>Bind decimal</td></tr>
+                <tr><td><code>setDate(index, value)</code></td><td>Bind SQL date</td></tr>
+                <tr><td><code>setTime(index, value)</code></td><td>Bind SQL time</td></tr>
+                <tr><td><code>setTimestamp(index, value)</code></td><td>Bind SQL timestamp</td></tr>
+                <tr><td><code>setObject(index, value)</code></td><td>Bind object</td></tr>
+                <tr><td><code>setObject(index, value, type)</code></td><td>Bind with explicit SQL type</td></tr>
+                <tr><td><code>setNull(index, sqlType)</code></td><td>Bind SQL NULL</td></tr>
+                <tr><td><code>setBytes(index, value)</code></td><td>Bind binary data</td></tr>
+                <tr><td><code>setBinaryStream(...)</code></td><td>Bind binary stream</td></tr>
+                <tr><td><code>setCharacterStream(...)</code></td><td>Bind text stream</td></tr>
+                <tr><td><code>setBlob(...)</code></td><td>Bind BLOB</td></tr>
+                <tr><td><code>setClob(...)</code></td><td>Bind CLOB</td></tr>
+                <tr><td><code>setArray(...)</code></td><td>Bind SQL array</td></tr>
+                <tr><td><code>executeQuery()</code></td><td>Execute parameterized query</td></tr>
+                <tr><td><code>executeUpdate()</code></td><td>Execute parameterized update</td></tr>
+                <tr><td><code>execute()</code></td><td>Execute general command</td></tr>
+                <tr><td><code>addBatch()</code></td><td>Add current parameter set to batch</td></tr>
+                <tr><td><code>clearParameters()</code></td><td>Clear parameters</td></tr>
+                <tr><td><code>getParameterMetaData()</code></td><td>Inspect SQL parameters</td></tr>
+                <tr><td><code>getMetaData()</code></td><td>Inspect result columns, when available</td></tr>
+            </tbody>
+        </table></div>
+        <p class="minor-heading"><strong>8.3 SELECT with parameters</strong></p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">String</span> sql = <span class="code-string">"""
+    SELECT id, name, salary
+    FROM employees
+    WHERE salary &gt;= ?
+    ORDER BY salary DESC
+    """</span>;
+<span class="code-keyword">try</span> (<span class="code-class">PreparedStatement</span> ps = con.prepareStatement(sql)) {
+    ps.setBigDecimal(<span class="code-number">1</span>, <span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"50000.00"</span>));
+    <span class="code-keyword">try</span> (<span class="code-class">ResultSet</span> rs = ps.executeQuery()) {
+        <span class="code-keyword">while</span> (rs.next()) {
+            <span class="code-class">System</span>.out.println(rs.getString(<span class="code-string">"name"</span>));
+        }
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p class="minor-heading"><strong>8.4 INSERT with parameters</strong></p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">String</span> sql = <span class="code-string">"""
+    INSERT INTO employees(name, email, salary)
+    VALUES (?, ?, ?)
+    """</span>;
+<span class="code-keyword">try</span> (<span class="code-class">PreparedStatement</span> ps = con.prepareStatement(sql)) {
+    ps.setString(<span class="code-number">1</span>, <span class="code-string">"Rahul"</span>);
+    ps.setString(<span class="code-number">2</span>, <span class="code-string">"rahul@example.com"</span>);
+    ps.setBigDecimal(<span class="code-number">3</span>, <span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"75000.00"</span>));
+    <span class="code-keyword">int</span> rows = ps.executeUpdate();
+    <span class="code-class">System</span>.out.println(<span class="code-string">"Inserted: "</span> + rows);
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p class="minor-heading"><strong>8.5 UPDATE with parameters</strong></p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">String</span> sql = <span class="code-string">"""
+    UPDATE employees
+    SET salary = ?
+    WHERE id = ?
+    """</span>;
+<span class="code-keyword">try</span> (<span class="code-class">PreparedStatement</span> ps = con.prepareStatement(sql)) {
+    ps.setBigDecimal(<span class="code-number">1</span>, <span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"85000.00"</span>));
+    ps.setLong(<span class="code-number">2</span>, <span class="code-number">1L</span>);
+    <span class="code-keyword">int</span> updated = ps.executeUpdate();
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p class="minor-heading"><strong>8.6 DELETE with parameters</strong></p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">String</span> sql = <span class="code-string">"DELETE FROM employees WHERE id = ?"</span>;
+<span class="code-keyword">try</span> (<span class="code-class">PreparedStatement</span> ps = con.prepareStatement(sql)) {
+    ps.setLong(<span class="code-number">1</span>, <span class="code-number">1L</span>);
+    <span class="code-keyword">int</span> deleted = ps.executeUpdate();
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p class="minor-heading"><strong>8.7 Handling NULL values</strong></p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code>ps.setNull(<span class="code-number">1</span>, <span class="code-class">Types</span>.VARCHAR);</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Or, where the driver supports the mapping:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code>ps.setObject(<span class="code-number">1</span>, <span class="code-keyword">null</span>, <span class="code-class">JDBCType</span>.VARCHAR);</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Prefer an explicit SQL type for ambiguous NULL parameters.</p>
+        <p class="minor-heading"><strong>8.8 Retrieving generated primary keys</strong></p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">String</span> sql = <span class="code-string">"""
+    INSERT INTO employees(name, email, salary)
+    VALUES (?, ?, ?)
+    """</span>;
+<span class="code-keyword">try</span> (<span class="code-class">PreparedStatement</span> ps = con.prepareStatement(sql, <span class="code-class">Statement</span>.RETURN_GENERATED_KEYS)) {
+    ps.setString(<span class="code-number">1</span>, <span class="code-string">"Anita"</span>);
+    ps.setString(<span class="code-number">2</span>, <span class="code-string">"anita@example.com"</span>);
+    ps.setBigDecimal(<span class="code-number">3</span>, <span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"90000"</span>));
+    ps.executeUpdate();
+    <span class="code-keyword">try</span> (<span class="code-class">ResultSet</span> keys = ps.getGeneratedKeys()) {
+        <span class="code-keyword">if</span> (keys.next()) {
+            <span class="code-keyword">long</span> id = keys.getLong(<span class="code-number">1</span>);
+            <span class="code-class">System</span>.out.println(<span class="code-string">"New ID: "</span> + id);
+        }
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Generated-key support and which columns are returned vary by driver.</p>
+        <p>For PostgreSQL, another common approach is <code>INSERT ... RETURNING id</code>, executed as a query.</p>
+        <p class="minor-heading"><strong>8.9 Advantages of <code>PreparedStatement</code></strong></p>
+        <ul>
+            <li>Protects parameterized values from SQL injection.</li>
+            <li>Provides explicit type binding.</li>
+            <li>Improves code maintainability.</li>
+            <li>Supports batch operations.</li>
+            <li>May enable execution-plan reuse.</li>
+            <li>Avoids manual quoting and escaping.</li>
+        </ul>
+        <p><strong>Limitation:</strong> <code>?</code> placeholders bind data values, not SQL identifiers such as table names, column names, or sort directions. Dynamic identifiers must be validated against an allowlist.</p>
+    </div>
+
+    <div class="subheading">9. <code>CallableStatement</code> interface</div>
+    <div class="intro">
+        <p>Package: <code>java.sql.CallableStatement</code></p>
+        <p><code>CallableStatement</code> extends <code>PreparedStatement</code> and supports stored procedure calls, including input and output parameters.</p>
+        <p class="minor-heading"><strong>9.1 Common methods</strong></p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Method</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>registerOutParameter(index, type)</code></td><td>Registers OUT parameter</td></tr>
+                <tr><td><code>setXxx(index, value)</code></td><td>Sets IN parameter</td></tr>
+                <tr><td><code>getXxx(index)</code></td><td>Reads OUT parameter</td></tr>
+                <tr><td><code>execute()</code></td><td>Executes procedure</td></tr>
+                <tr><td><code>executeQuery()</code></td><td>Executes procedure returning result set</td></tr>
+                <tr><td><code>getObject(index)</code></td><td>Reads object-valued OUT parameter</td></tr>
+                <tr><td><code>wasNull()</code></td><td>Checks if last OUT value was NULL</td></tr>
+            </tbody>
+        </table></div>
+        <p class="minor-heading"><strong>9.2 Example with IN and OUT parameters</strong></p>
+        <p>Suppose the database exposes a stored procedure named <code>get_employee_salary</code> with an employee ID as an IN parameter and salary as an OUT parameter.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">String</span> call = <span class="code-string">"{call get_employee_salary(?, ?)}"</span>;
+<span class="code-keyword">try</span> (<span class="code-class">CallableStatement</span> cs = con.prepareCall(call)) {
+    cs.setLong(<span class="code-number">1</span>, <span class="code-number">10L</span>); <span class="code-comment"># IN parameter</span>
+    cs.registerOutParameter(<span class="code-number">2</span>, <span class="code-class">Types</span>.DECIMAL); <span class="code-comment"># OUT parameter</span>
+    cs.execute();
+    <span class="code-class">BigDecimal</span> salary = cs.getBigDecimal(<span class="code-number">2</span>);
+    <span class="code-class">System</span>.out.println(salary);
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>The <code>{call ...}</code> syntax is JDBC escape syntax. How a procedure is defined and how its OUT parameters behave depends on the database.</p>
+        <p class="minor-heading"><strong>9.3 Stored functions</strong></p>
+        <p>For database functions that return scalar values, JDBC also defines:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">String</span> call = <span class="code-string">"{? = call calculate_bonus(?)}"</span>;
+<span class="code-keyword">try</span> (<span class="code-class">CallableStatement</span> cs = con.prepareCall(call)) {
+    cs.registerOutParameter(<span class="code-number">1</span>, <span class="code-class">Types</span>.DECIMAL);
+    cs.setLong(<span class="code-number">2</span>, <span class="code-number">10L</span>);
+    cs.execute();
+    <span class="code-class">BigDecimal</span> bonus = cs.getBigDecimal(<span class="code-number">1</span>);
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>PostgreSQL functions, PostgreSQL procedures, SQL Server procedures, and Oracle stored routines have different invocation rules. Use the syntax and driver configuration appropriate to your database.</p>
+    </div>
+
+    <div class="subheading">10. <code>ResultSet</code> interface — complete explanation</div>
+    <div class="intro">
+        <p>Package: <code>java.sql.ResultSet</code></p>
+        <p>A <code>ResultSet</code> represents a tabular result returned by a query.</p>
+        <p>It provides a cursor for navigating records and getter methods for extracting column values.</p>
+        <p class="minor-heading"><strong>10.1 How the cursor works</strong></p>
+        <p>Suppose a query returns:</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>id</th><th>name</th><th>salary</th></tr></thead>
+            <tbody>
+                <tr><td>1</td><td>Rahul</td><td>50000</td></tr>
+                <tr><td>2</td><td>Anita</td><td>70000</td></tr>
+                <tr><td>3</td><td>Priya</td><td>90000</td></tr>
+            </tbody>
+        </table></div>
+    </div>
+    <div class="gw-card gw-vflow" id="gw-cursor" style="gap:12px">
+        <div class="gw-cur-head"><p style="margin:0"><strong>Interactive ResultSet cursor</strong></p><span class="gw-pill" data-o="badge">Before first</span></div>
+        <div class="gw-vflow" style="gap:4px">
+            <div class="gw-cur-row" data-pos="0">Before first row (initial cursor position)</div>
+            <div class="gw-cur-grid">
+                <div class="h"></div><div class="h">ID</div><div class="h">Name</div><div class="h">Salary</div>
+                <div class="m" data-pos="1"></div><div class="c" data-pos="1">1</div><div class="c" data-pos="1">Rahul</div><div class="c" data-pos="1">50,000</div>
+                <div class="m" data-pos="2"></div><div class="c" data-pos="2">2</div><div class="c" data-pos="2">Anita</div><div class="c" data-pos="2">70,000</div>
+                <div class="m" data-pos="3"></div><div class="c" data-pos="3">3</div><div class="c" data-pos="3">Priya</div><div class="c" data-pos="3">90,000</div>
+            </div>
+            <div class="gw-cur-row last" data-pos="4">After last row</div>
+        </div>
+        <div class="gw-cur-head"><span class="gw-small" data-o="status">Call rs.next() to begin</span>
+            <div class="gw-btns"><button class="gw-btn" data-act="reset">Reset</button><button class="gw-btn primary" data-act="next">rs.next() &rarr;</button></div>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Initially, the cursor is positioned before the first row.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">ResultSet</span> rs = ps.executeQuery();
+<span class="code-keyword">while</span> (rs.next()) {
+    <span class="code-keyword">long</span> id = rs.getLong(<span class="code-string">"id"</span>);
+    <span class="code-class">String</span> name = rs.getString(<span class="code-string">"name"</span>);
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Each <code>next()</code> call advances the cursor. When it reaches the end, <code>next()</code> returns <code>false</code>.</p>
+        <p class="minor-heading"><strong>10.2 ResultSet getter methods</strong></p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Method</th><th>Java type</th></tr></thead>
+            <tbody>
+                <tr><td><code>getString()</code></td><td><code>String</code></td></tr>
+                <tr><td><code>getInt()</code></td><td><code>int</code></td></tr>
+                <tr><td><code>getLong()</code></td><td><code>long</code></td></tr>
+                <tr><td><code>getShort()</code></td><td><code>short</code></td></tr>
+                <tr><td><code>getFloat()</code></td><td><code>float</code></td></tr>
+                <tr><td><code>getDouble()</code></td><td><code>double</code></td></tr>
+                <tr><td><code>getBigDecimal()</code></td><td><code>BigDecimal</code></td></tr>
+                <tr><td><code>getBoolean()</code></td><td><code>boolean</code></td></tr>
+                <tr><td><code>getBytes()</code></td><td><code>byte[]</code></td></tr>
+                <tr><td><code>getDate()</code></td><td><code>java.sql.Date</code></td></tr>
+                <tr><td><code>getTime()</code></td><td><code>java.sql.Time</code></td></tr>
+                <tr><td><code>getTimestamp()</code></td><td><code>java.sql.Timestamp</code></td></tr>
+                <tr><td><code>getObject()</code></td><td><code>Object</code></td></tr>
+                <tr><td><code>getObject(column, Class&lt;T&gt;)</code></td><td>Requested Java type</td></tr>
+                <tr><td><code>getBlob()</code></td><td><code>Blob</code></td></tr>
+                <tr><td><code>getClob()</code></td><td><code>Clob</code></td></tr>
+                <tr><td><code>getArray()</code></td><td>SQL <code>Array</code></td></tr>
+                <tr><td><code>getBinaryStream()</code></td><td><code>InputStream</code></td></tr>
+                <tr><td><code>getCharacterStream()</code></td><td><code>Reader</code></td></tr>
+            </tbody>
+        </table></div>
+        <p>Example:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">long</span> id = rs.getLong(<span class="code-number">1</span>);
+<span class="code-class">String</span> name = rs.getString(<span class="code-string">"name"</span>);
+<span class="code-class">BigDecimal</span> salary = rs.getBigDecimal(<span class="code-string">"salary"</span>);
+<span class="code-class">LocalDateTime</span> created = rs.getObject(<span class="code-string">"created_at"</span>, <span class="code-class">LocalDateTime</span>.<span class="code-keyword">class</span>);</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Column indexes start at 1.</p>
+        <p>Accessing columns by name is often easier to maintain, while column indexes can avoid name lookup overhead in some drivers.</p>
+        <p class="minor-heading"><strong>10.3 Handling SQL NULL correctly</strong></p>
+        <p>Primitive JDBC getters cannot return Java <code>null</code>.</p>
+        <p>For example:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">int</span> managerId = rs.getInt(<span class="code-string">"manager_id"</span>);</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>If the SQL value is <code>NULL</code>, the getter returns <code>0</code>.</p>
+        <p>Use <code>wasNull()</code> to distinguish NULL from a real zero.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">int</span> value = rs.getInt(<span class="code-string">"manager_id"</span>);
+<span class="code-class">Integer</span> managerId = rs.wasNull() ? <span class="code-keyword">null</span> : value;</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p><code>wasNull()</code> refers to the most recently retrieved column value, so call it immediately after the relevant getter.</p>
+        <p>Another option is:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">Integer</span> managerId = rs.getObject(<span class="code-string">"manager_id"</span>, <span class="code-class">Integer</span>.<span class="code-keyword">class</span>);</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>This relies on support for the requested type conversion.</p>
+        <p class="minor-heading"><strong>10.4 ResultSet types</strong></p>
+        <p>JDBC supports three cursor types.</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Type</th><th>Behavior</th></tr></thead>
+            <tbody>
+                <tr><td><code>TYPE_FORWARD_ONLY</code></td><td>Forward-only navigation</td></tr>
+                <tr><td><code>TYPE_SCROLL_INSENSITIVE</code></td><td>Scrollable; generally insensitive to concurrent changes</td></tr>
+                <tr><td><code>TYPE_SCROLL_SENSITIVE</code></td><td>Scrollable; may reflect concurrent changes</td></tr>
+            </tbody>
+        </table></div>
+        <p>Example:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">Statement</span> stmt = con.createStatement(<span class="code-class">ResultSet</span>.TYPE_SCROLL_INSENSITIVE, <span class="code-class">ResultSet</span>.CONCUR_READ_ONLY);</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>By default, a JDBC <code>ResultSet</code> is forward-only and read-only. Oracle Docs</p>
+        <p class="minor-heading"><strong>10.5 Cursor navigation methods</strong></p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Method</th><th>Action</th></tr></thead>
+            <tbody>
+                <tr><td><code>next()</code></td><td>Next row</td></tr>
+                <tr><td><code>previous()</code></td><td>Previous row</td></tr>
+                <tr><td><code>first()</code></td><td>First row</td></tr>
+                <tr><td><code>last()</code></td><td>Last row</td></tr>
+                <tr><td><code>beforeFirst()</code></td><td>Before first row</td></tr>
+                <tr><td><code>afterLast()</code></td><td>After last row</td></tr>
+                <tr><td><code>absolute(n)</code></td><td>Move to absolute row</td></tr>
+                <tr><td><code>relative(n)</code></td><td>Move relative to current row</td></tr>
+                <tr><td><code>getRow()</code></td><td>Current row number</td></tr>
+                <tr><td><code>isFirst()</code></td><td>Checks first-row position</td></tr>
+                <tr><td><code>isLast()</code></td><td>Checks last-row position</td></tr>
+                <tr><td><code>isBeforeFirst()</code></td><td>Checks before-first position</td></tr>
+                <tr><td><code>isAfterLast()</code></td><td>Checks after-last position</td></tr>
+            </tbody>
+        </table></div>
+        <p>These operations have restrictions depending on the <code>ResultSet</code> type.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">try</span> (<span class="code-class">Statement</span> stmt = con.createStatement(<span class="code-class">ResultSet</span>.TYPE_SCROLL_INSENSITIVE, <span class="code-class">ResultSet</span>.CONCUR_READ_ONLY);
+     <span class="code-class">ResultSet</span> rs = stmt.executeQuery(<span class="code-string">"SELECT id, name FROM employees ORDER BY id"</span>)) {
+    <span class="code-keyword">if</span> (rs.absolute(<span class="code-number">3</span>)) {
+        <span class="code-class">System</span>.out.println(rs.getString(<span class="code-string">"name"</span>));
+    }
+    <span class="code-keyword">if</span> (rs.previous()) {
+        <span class="code-class">System</span>.out.println(rs.getString(<span class="code-string">"name"</span>));
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p><code>TYPE_SCROLL_SENSITIVE</code> and some scrolling operations are not supported equally by all database drivers.</p>
+        <p class="minor-heading"><strong>10.6 ResultSet concurrency modes</strong></p>
+        <p>JDBC supports two concurrency modes:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">ResultSet</span>.CONCUR_READ_ONLY
+<span class="code-class">ResultSet</span>.CONCUR_UPDATABLE</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p><code>CONCUR_UPDATABLE</code> allows some ResultSets to update underlying rows.</p>
+        <p>Example:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">try</span> (<span class="code-class">Statement</span> stmt = con.createStatement(<span class="code-class">ResultSet</span>.TYPE_SCROLL_INSENSITIVE, <span class="code-class">ResultSet</span>.CONCUR_UPDATABLE);
+     <span class="code-class">ResultSet</span> rs = stmt.executeQuery(<span class="code-string">"SELECT id, name FROM employees"</span>)) {
+    <span class="code-keyword">if</span> (rs.next()) {
+        rs.updateString(<span class="code-string">"name"</span>, <span class="code-string">"Updated Name"</span>);
+        rs.updateRow();
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Additional update APIs:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code>rs.updateInt(...);
+rs.updateString(...);
+rs.updateObject(...);
+rs.updateRow();
+rs.deleteRow();
+rs.moveToInsertRow();
+rs.insertRow();
+rs.moveToCurrentRow();
+rs.cancelRowUpdates();
+rs.refreshRow();</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Whether a query produces an updatable ResultSet depends on driver support and query structure. Complex joins, aggregations, and some projections may not be updatable.</p>
+        <p>For typical application CRUD, explicit SQL through <code>PreparedStatement</code> is easier to reason about.</p>
+        <p class="minor-heading"><strong>10.7 ResultSet holdability</strong></p>
+        <p>These constants control cursor behavior across commits:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">ResultSet</span>.HOLD_CURSORS_OVER_COMMIT
+<span class="code-class">ResultSet</span>.CLOSE_CURSORS_AT_COMMIT</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Example:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">Statement</span> stmt = con.createStatement(<span class="code-class">ResultSet</span>.TYPE_FORWARD_ONLY, <span class="code-class">ResultSet</span>.CONCUR_READ_ONLY,
+                                     <span class="code-class">ResultSet</span>.CLOSE_CURSORS_AT_COMMIT);</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Support is database-dependent. A holdable cursor may impose additional memory or database resource costs.</p>
+    </div>
+
+    <div class="subheading">11. JDBC data types and type mappings</div>
+    <div class="intro">
+        <p>Databases use SQL types, while Java applications use Java types.</p>
+        <p>JDBC maps between the two.</p>
+        <p class="minor-heading"><strong>11.1 Common mappings</strong></p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>SQL type</th><th>Recommended Java type</th></tr></thead>
+            <tbody>
+                <tr><td><code>SMALLINT</code></td><td><code>short</code> / <code>Short</code></td></tr>
+                <tr><td><code>INTEGER</code></td><td><code>int</code> / <code>Integer</code></td></tr>
+                <tr><td><code>BIGINT</code></td><td><code>long</code> / <code>Long</code></td></tr>
+                <tr><td><code>REAL</code></td><td><code>float</code> / <code>Float</code></td></tr>
+                <tr><td><code>DOUBLE PRECISION</code></td><td><code>double</code> / <code>Double</code></td></tr>
+                <tr><td><code>DECIMAL</code>, <code>NUMERIC</code></td><td><code>BigDecimal</code></td></tr>
+                <tr><td><code>CHAR</code>, <code>VARCHAR</code></td><td><code>String</code></td></tr>
+                <tr><td><code>BOOLEAN</code></td><td><code>boolean</code> / <code>Boolean</code></td></tr>
+                <tr><td><code>DATE</code></td><td><code>LocalDate</code></td></tr>
+                <tr><td><code>TIME</code></td><td><code>LocalTime</code></td></tr>
+                <tr><td><code>TIMESTAMP</code></td><td><code>LocalDateTime</code></td></tr>
+                <tr><td><code>TIMESTAMP WITH TIME ZONE</code></td><td><code>OffsetDateTime</code> where supported</td></tr>
+                <tr><td><code>BINARY</code>, <code>VARBINARY</code></td><td><code>byte[]</code></td></tr>
+                <tr><td><code>BLOB</code></td><td><code>Blob</code></td></tr>
+                <tr><td><code>CLOB</code></td><td><code>Clob</code></td></tr>
+                <tr><td><code>ARRAY</code></td><td><code>java.sql.Array</code></td></tr>
+                <tr><td><code>XML</code></td><td><code>SQLXML</code></td></tr>
+            </tbody>
+        </table></div>
+        <p>Driver and database conversions may vary, particularly for timezone, JSON, UUID, and vendor-specific types.</p>
+        <p class="minor-heading"><strong>11.2 <code>java.sql.Types</code> vs <code>java.sql.JDBCType</code></strong></p>
+        <p><code>Types</code> provides integer constants representing standard JDBC SQL types.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">Types</span>.INTEGER
+<span class="code-class">Types</span>.VARCHAR
+<span class="code-class">Types</span>.DECIMAL
+<span class="code-class">Types</span>.TIMESTAMP</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p><code>JDBCType</code> is an enum implementing <code>SQLType</code>.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">JDBCType</span>.INTEGER
+<span class="code-class">JDBCType</span>.VARCHAR
+<span class="code-class">JDBCType</span>.DECIMAL
+<span class="code-class">JDBCType</span>.TIMESTAMP</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Example:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code>ps.setObject(<span class="code-number">1</span>, <span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"1500.00"</span>), <span class="code-class">JDBCType</span>.DECIMAL);</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Java 26 introduced <code>Types.JSON</code>, <code>Types.DECFLOAT</code>, <code>JDBCType.JSON</code>, and <code>JDBCType.DECFLOAT</code>. Their availability in a specific driver is a separate question. Oracle</p>
+        <p class="minor-heading"><strong>11.3 Modern Java date/time mapping</strong></p>
+        <p>Prefer <code>java.time</code> APIs in modern applications.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">LocalDate</span> date = <span class="code-class">LocalDate</span>.now();
+<span class="code-class">LocalDateTime</span> timestamp = <span class="code-class">LocalDateTime</span>.now();
+ps.setObject(<span class="code-number">1</span>, date);
+ps.setObject(<span class="code-number">2</span>, timestamp);</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Reading:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">LocalDate</span> date = rs.getObject(<span class="code-string">"joining_date"</span>, <span class="code-class">LocalDate</span>.<span class="code-keyword">class</span>);
+<span class="code-class">LocalDateTime</span> timestamp = rs.getObject(<span class="code-string">"created_at"</span>, <span class="code-class">LocalDateTime</span>.<span class="code-keyword">class</span>);</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Legacy JDBC types still exist:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code>java.sql.<span class="code-class">Date</span>
+java.sql.<span class="code-class">Time</span>
+java.sql.<span class="code-class">Timestamp</span></code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Example:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code>java.sql.<span class="code-class">Date</span> sqlDate = java.sql.<span class="code-class">Date</span>.valueOf(<span class="code-class">LocalDate</span>.now());</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>For timestamps representing global instants, define an explicit UTC/timezone policy. Do not assume a database <code>TIMESTAMP</code> without timezone preserves an absolute instant.</p>
+    </div>
+
+    <div class="subheading">12. Batch processing APIs</div>
+    <div class="intro">
+        <p>Batch processing executes multiple SQL commands through a JDBC statement.</p>
+        <p>It can reduce network round trips and improve write throughput.</p>
+        <p class="minor-heading"><strong>12.1 Batch with <code>Statement</code></strong></p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">try</span> (<span class="code-class">Statement</span> stmt = con.createStatement()) {
+    stmt.addBatch(<span class="code-string">"""
+        UPDATE employees
+        SET salary = 50000
+        WHERE id = 1
+        """</span>);
+    stmt.addBatch(<span class="code-string">"""
+        UPDATE employees
+        SET salary = 60000
+        WHERE id = 2
+        """</span>);
+    <span class="code-keyword">int</span>[] results = stmt.executeBatch();
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p class="minor-heading"><strong>12.2 Batch with <code>PreparedStatement</code></strong></p>
+        <p>For repeated inserts, this is typically preferable.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">String</span> sql = <span class="code-string">"""
+    INSERT INTO employees(name, email, salary)
+    VALUES (?, ?, ?)
+    """</span>;
+<span class="code-keyword">try</span> (<span class="code-class">PreparedStatement</span> ps = con.prepareStatement(sql)) {
+    <span class="code-keyword">for</span> (<span class="code-keyword">int</span> i = <span class="code-number">1</span>; i &lt;= <span class="code-number">1000</span>; i++) {
+        ps.setString(<span class="code-number">1</span>, <span class="code-string">"Employee "</span> + i);
+        ps.setString(<span class="code-number">2</span>, <span class="code-string">"employee"</span> + i + <span class="code-string">"@example.com"</span>);
+        ps.setBigDecimal(<span class="code-number">3</span>, <span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"50000"</span>));
+        ps.addBatch();
+    }
+    <span class="code-keyword">int</span>[] counts = ps.executeBatch();
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Actual performance depends on whether the driver rewrites batches, pipelines commands, or sends them sequentially.</p>
+        <p class="minor-heading"><strong>12.3 Understanding batch update counts</strong></p>
+        <p><code>executeBatch()</code> returns an array of integers.</p>
+        <p>Entries may contain:</p>
+        <ul>
+            <li>A nonnegative count of affected rows.</li>
+            <li><code>Statement.SUCCESS_NO_INFO</code> (<code>-2</code>): operation succeeded, count unavailable.</li>
+            <li><code>Statement.EXECUTE_FAILED</code> (<code>-3</code>): operation failed, if the driver continued processing.</li>
+        </ul>
+        <p>A batch failure may throw <code>BatchUpdateException</code>, which provides partial update counts. Drivers differ in whether they continue executing subsequent commands.</p>
+        <p class="minor-heading"><strong>12.4 Transactional batch example</strong></p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">try</span> (<span class="code-class">Connection</span> con = dataSource.getConnection()) {
+    con.setAutoCommit(<span class="code-keyword">false</span>);
+    <span class="code-keyword">try</span> (<span class="code-class">PreparedStatement</span> ps = con.prepareStatement(sql)) {
+        <span class="code-keyword">for</span> (<span class="code-class">Employee</span> emp : employees) {
+            ps.setString(<span class="code-number">1</span>, emp.name());
+            ps.setString(<span class="code-number">2</span>, emp.email());
+            ps.setBigDecimal(<span class="code-number">3</span>, emp.salary());
+            ps.addBatch();
+        }
+        ps.executeBatch();
+        con.commit();
+    } <span class="code-keyword">catch</span> (<span class="code-class">SQLException</span> e) {
+        <span class="code-keyword">try</span> {
+            con.rollback();
+        } <span class="code-keyword">catch</span> (<span class="code-class">SQLException</span> rollbackError) {
+            e.addSuppressed(rollbackError);
+        }
+        <span class="code-keyword">throw</span> e;
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>This provides application-controlled transaction boundaries for the batch, assuming the database tables and SQL operations participate in transactional behavior.</p>
+        <p>For millions of records, batch in bounded chunks rather than adding everything to one enormous batch.</p>
+    </div>
+
+    <div class="subheading">13. JDBC transaction management</div>
+    <div class="intro">
+        <p>A transaction groups several database operations into one logical unit.</p>
+        <p>For example, transferring money involves:</p>
+        <ol>
+            <li>Debiting the sender.</li>
+            <li>Crediting the receiver.</li>
+            <li>Committing both changes together.</li>
+        </ol>
+        <p>If the credit fails, the debit must be rolled back.</p>
+        <p class="minor-heading"><strong>13.1 Auto-commit mode</strong></p>
+        <p>By default, JDBC connections start with auto-commit enabled.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code>con.getAutoCommit(); <span class="code-comment"># Typically true by default</span></code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>With auto-commit enabled, each statement is committed automatically according to JDBC&rsquo;s statement-completion rules.</p>
+        <p>Disable auto-commit for explicit transactions.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code>con.setAutoCommit(<span class="code-keyword">false</span>);</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Then:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code>con.commit(); <span class="code-comment"># Save changes</span>
+con.rollback(); <span class="code-comment"># Undo transaction</span></code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p class="minor-heading"><strong>13.2 Transaction lifecycle</strong></p>
+    </div>
+    <div class="gw-card gw-vflow">
+        <div class="gw-vbox"><p><strong><code>setAutoCommit(false)</code></strong></p></div>
+        <div class="gw-vlink"><svg class="gw-i" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12.707 18.707a1 1 0 0 1-1.414 0l-5-5a1 1 0 1 1 1.414-1.414L11 15.586V6a1 1 0 1 1 2 0v9.586l3.293-3.293a1 1 0 0 1 1.414 1.414l-5 5Z" clip-rule="evenodd"/></svg></div>
+        <div class="gw-vbox"><p>Execute SQL statements inside transaction</p></div>
+        <div class="gw-vlink"><svg class="gw-i" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12.707 18.707a1 1 0 0 1-1.414 0l-5-5a1 1 0 1 1 1.414-1.414L11 15.586V6a1 1 0 1 1 2 0v9.586l3.293-3.293a1 1 0 0 1 1.414 1.414l-5 5Z" clip-rule="evenodd"/></svg></div>
+        <div class="gw-vbox line"><svg class="gw-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg><p><strong>Did every operation succeed?</strong></p></div>
+        <div class="gw-cols2" style="gap:12px">
+            <div class="gw-vflow" style="align-items:center"><span class="gw-yn ok">Yes <svg class="gw-i ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+                <div class="gw-vbox green" style="align-self:stretch"><p><strong><code>commit()</code></strong></p><p class="gw-cap">Changes become committed</p></div></div>
+            <div class="gw-vflow" style="align-items:center"><span class="gw-yn bad">No <svg class="gw-i bad" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></span>
+                <div class="gw-vbox red" style="align-self:stretch"><p><strong><code>rollback()</code></strong></p><p class="gw-cap">Uncommitted changes are discarded</p></div></div>
+        </div>
+    </div>
+    <div class="intro">
+        <p class="minor-heading"><strong>13.3 Complete money-transfer example</strong></p>
+        <p>First create the table in PostgreSQL:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">CREATE</span> <span class="code-keyword">TABLE</span> accounts (
+    id <span class="code-keyword">BIGINT</span> <span class="code-keyword">PRIMARY</span> <span class="code-keyword">KEY</span>,
+    balance <span class="code-keyword">NUMERIC</span>(15, 2) <span class="code-keyword">NOT</span> <span class="code-keyword">NULL</span>
+        CHECK (balance &gt;= 0)
+);
+
+<span class="code-keyword">INSERT</span> <span class="code-keyword">INTO</span> accounts(id, balance)
+<span class="code-keyword">VALUES</span>
+(1, 10000.00),
+(2, 5000.00);</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Java implementation:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">TransferService</span> {
+    <span class="code-keyword">private</span> <span class="code-class">DataSource</span> dataSource;
+
+    <span class="code-keyword">public</span> <span class="code-class">TransferService</span>(<span class="code-class">DataSource</span> dataSource) {
+        <span class="code-keyword">this</span>.dataSource = dataSource;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> transfer(<span class="code-keyword">long</span> fromId, <span class="code-keyword">long</span> toId, <span class="code-class">BigDecimal</span> amount) <span class="code-keyword">throws</span> <span class="code-class">SQLException</span> {
+        <span class="code-keyword">if</span> (fromId == toId) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>(<span class="code-string">"Accounts must be different"</span>);
+        }
+        <span class="code-keyword">if</span> (amount.signum() &lt;= <span class="code-number">0</span>) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>(<span class="code-string">"Amount must be positive"</span>);
+        }
+        <span class="code-class">String</span> debitSql = <span class="code-string">"""
+            UPDATE accounts
+            SET balance = balance - ?
+            WHERE id = ?
+              AND balance &gt;= ?
+            """</span>;
+        <span class="code-class">String</span> creditSql = <span class="code-string">"""
+            UPDATE accounts
+            SET balance = balance + ?
+            WHERE id = ?
+            """</span>;
+        <span class="code-keyword">try</span> (<span class="code-class">Connection</span> con = dataSource.getConnection()) {
+            con.setAutoCommit(<span class="code-keyword">false</span>);
+            <span class="code-keyword">try</span> (<span class="code-class">PreparedStatement</span> debit = con.prepareStatement(debitSql);
+                 <span class="code-class">PreparedStatement</span> credit = con.prepareStatement(creditSql)) {
+                debit.setBigDecimal(<span class="code-number">1</span>, amount);
+                debit.setLong(<span class="code-number">2</span>, fromId);
+                debit.setBigDecimal(<span class="code-number">3</span>, amount);
+                <span class="code-keyword">if</span> (debit.executeUpdate() != <span class="code-number">1</span>) {
+                    <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">SQLException</span>(<span class="code-string">"Insufficient funds or source missing"</span>);
+                }
+                credit.setBigDecimal(<span class="code-number">1</span>, amount);
+                credit.setLong(<span class="code-number">2</span>, toId);
+                <span class="code-keyword">if</span> (credit.executeUpdate() != <span class="code-number">1</span>) {
+                    <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">SQLException</span>(<span class="code-string">"Destination account not found"</span>);
+                }
+                con.commit();
+            } <span class="code-keyword">catch</span> (<span class="code-class">SQLException</span> | <span class="code-class">RuntimeException</span> ex) {
+                <span class="code-keyword">try</span> {
+                    con.rollback();
+                } <span class="code-keyword">catch</span> (<span class="code-class">SQLException</span> rollbackError) {
+                    ex.addSuppressed(rollbackError);
+                }
+                <span class="code-keyword">throw</span> ex;
+            }
+        }
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>The conditional debit prevents a negative balance even when multiple transactions compete to debit the same account, assuming the database enforces the update atomically.</p>
+        <p>For a production transfer service, additionally consider deadlock retries, fixed currency scales, idempotency keys, transfer records, reconciliation, authorization, and a consistent account-locking order.</p>
+        <p class="minor-heading"><strong>13.4 Transaction isolation levels</strong></p>
+        <p>JDBC defines these isolation constants:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">Connection</span>.TRANSACTION_READ_UNCOMMITTED
+<span class="code-class">Connection</span>.TRANSACTION_READ_COMMITTED
+<span class="code-class">Connection</span>.TRANSACTION_REPEATABLE_READ
+<span class="code-class">Connection</span>.TRANSACTION_SERIALIZABLE
+<span class="code-class">Connection</span>.TRANSACTION_NONE</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Common textbook behavior:</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Isolation level</th><th>Dirty reads</th><th>Non-repeatable reads</th><th>Phantoms</th></tr></thead>
+            <tbody>
+                <tr><td>Read Uncommitted</td><td>Possible</td><td>Possible</td><td>Possible</td></tr>
+                <tr><td>Read Committed</td><td>Prevented</td><td>Possible</td><td>Possible</td></tr>
+                <tr><td>Repeatable Read</td><td>Prevented</td><td>Prevented</td><td>Standard permits</td></tr>
+                <tr><td>Serializable</td><td>Prevented</td><td>Prevented</td><td>Prevented</td></tr>
+            </tbody>
+        </table></div>
+        <p>These are standardized guarantees, not a precise description of every database implementation. For example, PostgreSQL&rsquo;s Repeatable Read offers a stronger snapshot guarantee against phantom reads than the minimum isolation-level table suggests.</p>
+        <p>Set isolation:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code>con.setTransactionIsolation(<span class="code-class">Connection</span>.TRANSACTION_SERIALIZABLE);</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>A higher isolation level can increase contention and cause serialization failures that must be retried safely.</p>
+        <p class="minor-heading"><strong>13.5 <code>Savepoint</code> interface</strong></p>
+        <p>A savepoint allows partial rollback inside a transaction.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code>con.setAutoCommit(<span class="code-keyword">false</span>);
+<span class="code-class">Savepoint</span> savepoint = <span class="code-keyword">null</span>;
+<span class="code-keyword">try</span> {
+    <span class="code-comment"># SQL operation 1</span>
+    savepoint = con.setSavepoint(<span class="code-string">"AFTER_STEP_1"</span>);
+    <span class="code-comment"># SQL operation 2</span>
+    con.rollback(savepoint);
+    <span class="code-comment"># SQL operation 3</span>
+    con.commit();
+} <span class="code-keyword">catch</span> (<span class="code-class">SQLException</span> e) {
+    con.rollback();
+    <span class="code-keyword">throw</span> e;
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Key API methods:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">Savepoint</span> sp = con.setSavepoint();
+<span class="code-class">Savepoint</span> named = con.setSavepoint(<span class="code-string">"CHECKPOINT"</span>);
+con.rollback(named);
+con.releaseSavepoint(named);</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>A rollback to a savepoint does not terminate the whole transaction. Database and driver support must be checked.</p>
+    </div>
+
+    <div class="subheading">14. JDBC metadata APIs</div>
+    <div class="intro">
+        <p>JDBC metadata APIs allow applications to inspect the database, query structure, and statement parameters dynamically.</p>
+        <p>There are three key interfaces.</p>
+        <p class="minor-heading"><strong>14.1 <code>DatabaseMetaData</code></strong></p>
+        <p>Package: <code>java.sql.DatabaseMetaData</code></p>
+        <p>Provides details about the database system and its supported features.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">DatabaseMetaData</span> meta = con.getMetaData();
+<span class="code-class">System</span>.out.println(meta.getDatabaseProductName());
+<span class="code-class">System</span>.out.println(meta.getDatabaseProductVersion());
+<span class="code-class">System</span>.out.println(meta.getDriverName());
+<span class="code-class">System</span>.out.println(meta.getDriverVersion());</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Important methods:</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Method</th><th>Purpose</th></tr></thead>
+            <tbody>
+                <tr><td><code>getDatabaseProductName()</code></td><td>Database name</td></tr>
+                <tr><td><code>getDatabaseProductVersion()</code></td><td>Database version</td></tr>
+                <tr><td><code>getDriverName()</code></td><td>Driver name</td></tr>
+                <tr><td><code>getDriverVersion()</code></td><td>Driver version</td></tr>
+                <tr><td><code>getURL()</code></td><td>Connection URL</td></tr>
+                <tr><td><code>getUserName()</code></td><td>Current username</td></tr>
+                <tr><td><code>getTables(...)</code></td><td>Lists tables</td></tr>
+                <tr><td><code>getColumns(...)</code></td><td>Lists columns</td></tr>
+                <tr><td><code>getPrimaryKeys(...)</code></td><td>Lists primary keys</td></tr>
+                <tr><td><code>getImportedKeys(...)</code></td><td>Lists foreign keys imported by table</td></tr>
+                <tr><td><code>getExportedKeys(...)</code></td><td>Lists foreign keys referencing table</td></tr>
+                <tr><td><code>getIndexInfo(...)</code></td><td>Lists index information</td></tr>
+                <tr><td><code>getProcedures(...)</code></td><td>Lists stored procedures</td></tr>
+                <tr><td><code>getFunctions(...)</code></td><td>Lists functions</td></tr>
+                <tr><td><code>getSchemas()</code></td><td>Lists schemas</td></tr>
+                <tr><td><code>getCatalogs()</code></td><td>Lists catalogs</td></tr>
+                <tr><td><code>supportsTransactions()</code></td><td>Checks transaction support</td></tr>
+                <tr><td><code>supportsBatchUpdates()</code></td><td>Checks batch support</td></tr>
+                <tr><td><code>supportsSavepoints()</code></td><td>Checks savepoint support</td></tr>
+                <tr><td><code>supportsResultSetType(...)</code></td><td>Checks cursor-type support</td></tr>
+                <tr><td><code>supportsSharding()</code></td><td>Checks JDBC sharding support</td></tr>
+            </tbody>
+        </table></div>
+        <p>Example: discover columns.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">DatabaseMetaData</span> meta = con.getMetaData();
+<span class="code-keyword">try</span> (<span class="code-class">ResultSet</span> columns = meta.getColumns(<span class="code-keyword">null</span>, <span class="code-string">"public"</span>, <span class="code-string">"employees"</span>, <span class="code-keyword">null</span>)) {
+    <span class="code-keyword">while</span> (columns.next()) {
+        <span class="code-class">String</span> name = columns.getString(<span class="code-string">"COLUMN_NAME"</span>);
+        <span class="code-class">String</span> type = columns.getString(<span class="code-string">"TYPE_NAME"</span>);
+        <span class="code-class">System</span>.out.println(name + <span class="code-string">" : "</span> + type);
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>This is useful for database explorers, schema migration tools, query generators, and database introspection utilities.</p>
+        <p class="minor-heading"><strong>14.2 <code>ResultSetMetaData</code></strong></p>
+        <p>Package: <code>java.sql.ResultSetMetaData</code></p>
+        <p>Provides information about the columns returned by a query.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">ResultSetMetaData</span> meta = rs.getMetaData();
+<span class="code-keyword">int</span> count = meta.getColumnCount();
+<span class="code-keyword">for</span> (<span class="code-keyword">int</span> i = <span class="code-number">1</span>; i &lt;= count; i++) {
+    <span class="code-class">System</span>.out.println(meta.getColumnLabel(i) + <span class="code-string">" : "</span> + meta.getColumnTypeName(i));
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Important methods:</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Method</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>getColumnCount()</code></td><td>Number of columns</td></tr>
+                <tr><td><code>getColumnName(i)</code></td><td>Column name</td></tr>
+                <tr><td><code>getColumnLabel(i)</code></td><td>Column label/alias</td></tr>
+                <tr><td><code>getColumnType(i)</code></td><td>JDBC SQL type integer</td></tr>
+                <tr><td><code>getColumnTypeName(i)</code></td><td>SQL type name</td></tr>
+                <tr><td><code>getColumnClassName(i)</code></td><td>Java class name</td></tr>
+                <tr><td><code>getPrecision(i)</code></td><td>Numeric precision</td></tr>
+                <tr><td><code>getScale(i)</code></td><td>Decimal scale</td></tr>
+                <tr><td><code>isNullable(i)</code></td><td>NULL allowance</td></tr>
+                <tr><td><code>isAutoIncrement(i)</code></td><td>Auto-increment characteristic</td></tr>
+                <tr><td><code>isReadOnly(i)</code></td><td>Read-only status</td></tr>
+                <tr><td><code>isWritable(i)</code></td><td>Writable status</td></tr>
+                <tr><td><code>getTableName(i)</code></td><td>Associated table name if available</td></tr>
+            </tbody>
+        </table></div>
+        <p class="minor-heading"><strong>14.3 Dynamic result printer</strong></p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">ResultSetMetaData</span> meta = rs.getMetaData();
+<span class="code-keyword">int</span> columnCount = meta.getColumnCount();
+<span class="code-keyword">while</span> (rs.next()) {
+    <span class="code-keyword">for</span> (<span class="code-keyword">int</span> i = <span class="code-number">1</span>; i &lt;= columnCount; i++) {
+        <span class="code-class">Object</span> value = rs.getObject(i);
+        <span class="code-class">String</span> name = meta.getColumnLabel(i);
+        <span class="code-class">System</span>.out.printf(<span class="code-string">"%s=%s "</span>, name, value);
+    }
+    <span class="code-class">System</span>.out.println();
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>This is similar to the generic result processing used by SQL clients and database tools.</p>
+        <p class="minor-heading"><strong>14.4 <code>ParameterMetaData</code></strong></p>
+        <p>Package: <code>java.sql.ParameterMetaData</code></p>
+        <p>Describes the parameters accepted by a <code>PreparedStatement</code>.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">String</span> sql = <span class="code-string">"""
+    SELECT *
+    FROM employees
+    WHERE id = ?
+      AND salary &gt; ?
+    """</span>;
+<span class="code-keyword">try</span> (<span class="code-class">PreparedStatement</span> ps = con.prepareStatement(sql)) {
+    <span class="code-class">ParameterMetaData</span> meta = ps.getParameterMetaData();
+    <span class="code-class">System</span>.out.println(meta.getParameterCount());
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Important methods:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code>getParameterCount()
+getParameterType(index)
+getParameterTypeName(index)
+getParameterClassName(index)
+getPrecision(index)
+getScale(index)
+isNullable(index)
+getParameterMode(index)
+isSigned(index)</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Some drivers provide incomplete metadata for untyped SQL placeholders, so do not assume all parameter details are available before execution.</p>
+    </div>
+
+    <div class="subheading">15. JDBC exception handling</div>
+    <div class="intro">
+        <p>Package: <code>java.sql</code></p>
+        <p>Most JDBC operations report errors through <code>SQLException</code>.</p>
+        <p class="minor-heading"><strong>15.1 Exception hierarchy</strong></p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code>Exception
+  |
+  +-- SQLException
+        |
+        +-- SQLTransientException
+        |     +-- SQLTimeoutException
+        |     +-- SQLTransactionRollbackException
+        |     +-- SQLTransientConnectionException
+        |
+        +-- SQLNonTransientException
+        |     +-- SQLSyntaxErrorException
+        |     +-- SQLIntegrityConstraintViolationException
+        |     +-- SQLNonTransientConnectionException
+        |
+        +-- SQLRecoverableException
+        |
+        +-- BatchUpdateException
+        |
+        +-- SQLClientInfoException
+        |
+        +-- SQLWarning
+              +-- DataTruncation</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>This is a simplified hierarchy highlighting important classes, not every JDBC exception subclass.</p>
+        <p class="minor-heading"><strong>15.2 Important <code>SQLException</code> methods</strong></p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Method</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>getMessage()</code></td><td>Error explanation</td></tr>
+                <tr><td><code>getSQLState()</code></td><td>SQLState diagnostic code</td></tr>
+                <tr><td><code>getErrorCode()</code></td><td>Vendor-specific numeric code</td></tr>
+                <tr><td><code>getNextException()</code></td><td>Additional SQL exception</td></tr>
+                <tr><td><code>getCause()</code></td><td>Underlying cause</td></tr>
+                <tr><td><code>iterator()</code></td><td>Iterate chained exceptions and causes</td></tr>
+            </tbody>
+        </table></div>
+        <p>Example:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">try</span> {
+    ps.executeUpdate();
+} <span class="code-keyword">catch</span> (<span class="code-class">SQLException</span> e) {
+    <span class="code-class">System</span>.err.println(e.getMessage());
+    <span class="code-class">System</span>.err.println(e.getSQLState());
+    <span class="code-class">System</span>.err.println(e.getErrorCode());
+    <span class="code-keyword">throw</span> e;
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p class="minor-heading"><strong>15.3 SQLState codes</strong></p>
+        <p>SQLState codes provide a more standardized way to classify SQL errors than parsing error text.</p>
+        <p>Examples from PostgreSQL:</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>SQLState</th><th>Meaning</th></tr></thead>
+            <tbody>
+                <tr><td><code>23505</code></td><td>Unique constraint violation</td></tr>
+                <tr><td><code>23503</code></td><td>Foreign key violation</td></tr>
+                <tr><td><code>23502</code></td><td>NOT NULL constraint violation</td></tr>
+                <tr><td><code>40001</code></td><td>Serialization failure</td></tr>
+                <tr><td><code>40P01</code></td><td>Deadlock detected</td></tr>
+                <tr><td><code>42P01</code></td><td>Undefined table</td></tr>
+            </tbody>
+        </table></div>
+        <p>For example:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">catch</span> (<span class="code-class">SQLException</span> e) {
+    <span class="code-keyword">if</span> (<span class="code-string">"23505"</span>.equals(e.getSQLState())) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Duplicate value"</span>);
+    }
+    <span class="code-keyword">throw</span> e;
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p class="minor-heading"><strong>15.4 Retry handling</strong></p>
+        <p>Some failures, such as serialization conflicts or deadlocks, may be recoverable by retrying an entire transaction.</p>
+        <p>Do not simply retry every <code>SQLException</code>.</p>
+        <p>Retries must account for whether the previous transaction committed, whether the operation is idempotent, and whether external side effects have already happened. For transient contention, bounded retries with backoff are common.</p>
+        <p class="minor-heading"><strong>15.5 <code>SQLWarning</code></strong></p>
+        <p>Warnings are nonfatal diagnostics.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">SQLWarning</span> warning = con.getWarnings();
+<span class="code-keyword">while</span> (warning != <span class="code-keyword">null</span>) {
+    <span class="code-class">System</span>.out.println(warning.getMessage());
+    warning = warning.getNextWarning();
+}
+con.clearWarnings();</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Warnings can also be obtained from statements and result sets.</p>
+    </div>
+
+    <div class="subheading">16. <code>DataSource</code> and connection pooling APIs</div>
+    <div class="intro">
+        <p>Package: <code>javax.sql</code></p>
+        <p>In production applications, <code>DataSource</code><strong> is generally preferred over </strong><code>DriverManager</code> because it separates connection configuration from application logic and supports integration with connection pools and application frameworks. Oracle Docs</p>
+        <p class="minor-heading"><strong>16.1 <code>DataSource</code> interface</strong></p>
+        <p>Important methods:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">Connection</span> getConnection();
+<span class="code-class">Connection</span> getConnection(<span class="code-class">String</span> username, <span class="code-class">String</span> password);</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Additional inherited or related APIs provide login timeouts, logging, connection builders, and driver-specific access.</p>
+        <p>Application code:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">EmployeeRepository</span> {
+    <span class="code-keyword">private</span> <span class="code-class">DataSource</span> dataSource;
+
+    <span class="code-keyword">public</span> <span class="code-class">EmployeeRepository</span>(<span class="code-class">DataSource</span> dataSource) {
+        <span class="code-keyword">this</span>.dataSource = dataSource;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">int</span> countEmployees() <span class="code-keyword">throws</span> <span class="code-class">SQLException</span> {
+        <span class="code-class">String</span> sql = <span class="code-string">"SELECT COUNT(*) FROM employees"</span>;
+        <span class="code-keyword">try</span> (<span class="code-class">Connection</span> con = dataSource.getConnection(); <span class="code-class">PreparedStatement</span> ps = con.prepareStatement(sql);
+             <span class="code-class">ResultSet</span> rs = ps.executeQuery()) {
+            rs.next();
+            <span class="code-keyword">return</span> rs.getInt(<span class="code-number">1</span>);
+        }
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>The repository is independent of how the <code>DataSource</code> creates or obtains its connections.</p>
+        <p class="minor-heading"><strong>16.2 <code>DriverManager</code> vs <code>DataSource</code></strong></p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Feature</th><th>DriverManager</th><th>DataSource</th></tr></thead>
+            <tbody>
+                <tr><td>JDBC standard API</td><td>Yes</td><td>Yes</td></tr>
+                <tr><td>Connection creation</td><td>Direct driver selection</td><td>Through data-source implementation</td></tr>
+                <tr><td>Configuration abstraction</td><td>Limited</td><td>Strong</td></tr>
+                <tr><td>Connection pooling</td><td>Not built in</td><td>Supported by pooling implementations</td></tr>
+                <tr><td>Dependency injection</td><td>Less natural</td><td>Natural</td></tr>
+                <tr><td>Production Spring Boot</td><td>Uncommon directly</td><td>Preferred</td></tr>
+                <tr><td>Simple standalone application</td><td>Good</td><td>Good</td></tr>
+            </tbody>
+        </table></div>
+        <p><code>DataSource</code> is an interface; it does not automatically mean pooling is enabled.</p>
+        <p>A particular <code>DataSource</code> implementation must supply pooling functionality.</p>
+        <p class="minor-heading"><strong>16.3 Why connection pooling is needed</strong></p>
+        <p>Opening a database connection can involve:</p>
+        <ul>
+            <li>Network socket creation.</li>
+            <li>TLS negotiation.</li>
+            <li>Authentication.</li>
+            <li>Database session initialization.</li>
+            <li>Allocation of server-side resources.</li>
+        </ul>
+        <p>Repeating this for every API request can be expensive.</p>
+        <p>A connection pool maintains reusable physical connections.</p>
+    </div>
+    <div class="gw-card gw-vflow" style="gap:12px">
+        <p class="gw-label" style="margin:0">Connection pooling lifecycle</p>
+        <div class="gw-cols3">
+            <div class="gw-tile"><svg class="gw-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Request A</div>
+            <div class="gw-tile"><svg class="gw-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Request B</div>
+            <div class="gw-tile"><svg class="gw-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Request C</div>
+        </div>
+        <div class="gw-vlink"><svg class="gw-i" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12.707 18.707a1 1 0 0 1-1.414 0l-5-5a1 1 0 1 1 1.414-1.414L11 15.586V6a1 1 0 1 1 2 0v9.586l3.293-3.293a1 1 0 0 1 1.414 1.414l-5 5Z" clip-rule="evenodd"/></svg><span>getConnection()</span></div>
+        <div class="gw-pool">
+            <div class="gw-cur-head"><p style="margin:0"><strong>Connection Pool (e.g. HikariCP)</strong></p><svg class="gw-i info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></div>
+            <div class="gw-cols4">
+                <div class="gw-tile"><svg class="gw-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 8V2"/><path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/></svg><span style="font-weight:400">Conn1</span><span class="gw-tiny">In use</span></div>
+                <div class="gw-tile"><svg class="gw-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 8V2"/><path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/></svg><span style="font-weight:400">Conn2</span><span class="gw-tiny">In use</span></div>
+                <div class="gw-tile"><svg class="gw-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 8V2"/><path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/></svg><span style="font-weight:400">Conn3</span><span class="gw-tiny">In use</span></div>
+                <div class="gw-tile"><svg class="gw-i ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22v-5"/><path d="M9 8V2"/><path d="M15 8V2"/><path d="M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/></svg><span style="font-weight:400">Conn4</span><span class="gw-tiny">Idle</span></div>
+            </div>
+            <span class="gw-note2" style="text-align:left">Illustrative pool state; real pools track connection availability dynamically.</span>
+        </div>
+        <div class="gw-vlink"><svg class="gw-i" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12.707 18.707a1 1 0 0 1-1.414 0l-5-5a1 1 0 1 1 1.414-1.414L11 15.586V6a1 1 0 1 1 2 0v9.586l3.293-3.293a1 1 0 0 1 1.414 1.414l-5 5Z" clip-rule="evenodd"/></svg><span>Reused physical database sessions</span></div>
+        <div class="gw-vbox"><p><strong>Database Server</strong></p></div>
+        <p class="gw-note" style="margin:0">After a request finishes, <code>Connection.close()</code> normally releases its logical connection back to the pool for reuse.</p>
+    </div>
+    <div class="intro">
+        <p class="minor-heading"><strong>16.4 How JDBC pooling interfaces fit together</strong></p>
+        <p>The <code>javax.sql</code> package exposes infrastructure-level interfaces.</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>API</th><th>Responsibility</th></tr></thead>
+            <tbody>
+                <tr><td><code>ConnectionPoolDataSource</code></td><td>Factory for pooled-connection objects</td></tr>
+                <tr><td><code>PooledConnection</code></td><td>Represents a pool-managed physical connection</td></tr>
+                <tr><td><code>ConnectionEvent</code></td><td>Reports connection-related events</td></tr>
+                <tr><td><code>ConnectionEventListener</code></td><td>Receives closed/error notifications</td></tr>
+                <tr><td><code>StatementEvent</code></td><td>Reports prepared-statement events</td></tr>
+                <tr><td><code>StatementEventListener</code></td><td>Receives prepared-statement notifications</td></tr>
+                <tr><td><code>XADataSource</code></td><td>Factory for XA connections</td></tr>
+                <tr><td><code>XAConnection</code></td><td>Physical connection with XA support</td></tr>
+                <tr><td><code>CommonDataSource</code></td><td>Common data-source configuration interface</td></tr>
+            </tbody>
+        </table></div>
+        <p>These are mainly used by drivers, pools, containers, and transaction managers. Most application developers work directly with the <code>DataSource</code> interface.</p>
+        <p class="minor-heading"><strong>16.5 JDBC connection lifecycle</strong></p>
+        <p>An application usually acquires and releases a logical connection:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">try</span> (<span class="code-class">Connection</span> con = dataSource.getConnection()) {
+    <span class="code-comment"># Database operations</span>
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>A pool implementation can associate that logical handle with an existing physical connection.</p>
+        <p>Be careful with these connection properties in pooled environments:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code>setAutoCommit(...)
+setTransactionIsolation(...)
+setReadOnly(...)
+setSchema(...)
+setCatalog(...)</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Pools commonly restore standard JDBC properties when connections are returned, but application-managed session changes, temporary tables, vendor variables, and uncommitted transactions require careful handling.</p>
+    </div>
+
+    <div class="subheading">17. Advanced JDBC APIs</div>
+    <div class="intro">
+        <p>The following interfaces are less frequently used in ordinary CRUD services, but they are part of JDBC.</p>
+        <p class="minor-heading"><strong>17.1 <code>Blob</code> — Binary Large Object</strong></p>
+        <p>Used for large binary values such as documents or images.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">String</span> sql = <span class="code-string">"""
+    INSERT INTO documents(id, data)
+    VALUES (?, ?)
+    """</span>;
+<span class="code-keyword">try</span> (<span class="code-class">PreparedStatement</span> ps = con.prepareStatement(sql); <span class="code-class">InputStream</span> in = <span class="code-class">Files</span>.newInputStream(filePath)) {
+    ps.setLong(<span class="code-number">1</span>, documentId);
+    ps.setBinaryStream(<span class="code-number">2</span>, in);
+    ps.executeUpdate();
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Reading:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">try</span> (<span class="code-class">InputStream</span> in = rs.getBinaryStream(<span class="code-string">"data"</span>)) {
+    <span class="code-comment"># Stream binary contents</span>
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Other related methods:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">Blob</span> blob = rs.getBlob(<span class="code-string">"data"</span>);
+blob.length();
+blob.getBytes(<span class="code-number">1</span>, length);
+blob.getBinaryStream();
+blob.free();</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p><code>Blob</code> uses SQL-style positions beginning at 1 for methods such as <code>getBytes()</code>.</p>
+        <p class="minor-heading"><strong>17.2 <code>Clob</code> — Character Large Object</strong></p>
+        <p>Used for large character-based content.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">Clob</span> clob = rs.getClob(<span class="code-string">"description"</span>);
+<span class="code-keyword">try</span> (<span class="code-class">Reader</span> reader = clob.getCharacterStream()) {
+    <span class="code-comment"># Read character data</span>
+} <span class="code-keyword">finally</span> {
+    clob.free();
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Other methods:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code>clob.length();
+clob.getSubString(position, length);
+clob.setString(position, value);
+clob.getCharacterStream();
+clob.free();</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p><code>NClob</code> represents national-character-set large objects.</p>
+        <p>As of JDBC 4.5, <code>Blob</code>, <code>Clob</code>, <code>NClob</code>, <code>Array</code>, and <code>SQLXML</code> implement <code>AutoCloseable</code> with <code>close()</code> delegating to <code>free()</code>. This enables try-with-resources on Java 26+, subject to driver support. Oracle</p>
+        <p class="minor-heading"><strong>17.3 <code>Array</code> — SQL array</strong></p>
+        <p>An SQL array is not exactly the same as a Java array.</p>
+        <p>Example with PostgreSQL:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">String</span> sql = <span class="code-string">"""
+    INSERT INTO products(id, tags)
+    VALUES (?, ?)
+    """</span>;
+<span class="code-class">Array</span> tags = con.createArrayOf(<span class="code-string">"text"</span>, <span class="code-keyword">new</span> <span class="code-class">String</span>[]{<span class="code-string">"java"</span>, <span class="code-string">"jdbc"</span>, <span class="code-string">"database"</span>});
+<span class="code-keyword">try</span> {
+    <span class="code-keyword">try</span> (<span class="code-class">PreparedStatement</span> ps = con.prepareStatement(sql)) {
+        ps.setLong(<span class="code-number">1</span>, <span class="code-number">100L</span>);
+        ps.setArray(<span class="code-number">2</span>, tags);
+        ps.executeUpdate();
+    }
+} <span class="code-keyword">finally</span> {
+    tags.free();
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Reading:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">Array</span> sqlArray = rs.getArray(<span class="code-string">"tags"</span>);
+<span class="code-keyword">if</span> (sqlArray != <span class="code-keyword">null</span>) {
+    <span class="code-keyword">try</span> {
+        <span class="code-class">String</span>[] tags = (<span class="code-class">String</span>[]) sqlArray.getArray();
+    } <span class="code-keyword">finally</span> {
+        sqlArray.free();
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>The example requires a database schema with an array-compatible <code>tags</code> column. SQL ARRAY support is not universal across databases.</p>
+        <p class="minor-heading"><strong>17.4 <code>SQLXML</code> — XML data</strong></p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code>SQLXML xml = con.createSQLXML();
+<span class="code-keyword">try</span> {
+    xml.setString(<span class="code-string">"""
+        &lt;employee&gt;
+            &lt;name&gt;Rahul&lt;/name&gt;
+        &lt;/employee&gt;
+        """</span>);
+    ps.setSQLXML(<span class="code-number">1</span>, xml);
+    ps.executeUpdate();
+} <span class="code-keyword">finally</span> {
+    xml.free();
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Key methods:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code>getString()
+setString(...)
+getBinaryStream()
+getCharacterStream()
+setBinaryStream()
+setCharacterStream()
+getSource(...)
+setResult(...)
+free()</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p class="minor-heading"><strong>17.5 Other specialized SQL APIs</strong></p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>API</th><th>Purpose</th></tr></thead>
+            <tbody>
+                <tr><td><code>Struct</code></td><td>Represents an SQL structured type</td></tr>
+                <tr><td><code>Ref</code></td><td>Reference to an SQL structured value</td></tr>
+                <tr><td><code>RowId</code></td><td>Represents a database row identifier</td></tr>
+                <tr><td><code>SQLData</code></td><td>Custom mapping for SQL user-defined types</td></tr>
+                <tr><td><code>SQLInput</code></td><td>Reads attributes of a structured SQL value</td></tr>
+                <tr><td><code>SQLOutput</code></td><td>Writes attributes of a structured SQL value</td></tr>
+                <tr><td><code>SQLType</code></td><td>Generic abstraction of an SQL type</td></tr>
+                <tr><td><code>SQLDataException</code></td><td>Data-conversion or related errors</td></tr>
+            </tbody>
+        </table></div>
+        <p>Example SQL UDT mapping:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Address</span> <span class="code-keyword">implements</span> <span class="code-class">SQLData</span> {
+    <span class="code-class">String</span> street;
+    <span class="code-class">String</span> city;
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">String</span> getSQLTypeName() {
+        <span class="code-keyword">return</span> <span class="code-string">"ADDRESS_TYPE"</span>;
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> readSQL(<span class="code-class">SQLInput</span> input, <span class="code-class">String</span> typeName) <span class="code-keyword">throws</span> <span class="code-class">SQLException</span> {
+        street = input.readString();
+        city = input.readString();
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> writeSQL(<span class="code-class">SQLOutput</span> output) <span class="code-keyword">throws</span> <span class="code-class">SQLException</span> {
+        output.writeString(street);
+        output.writeString(city);
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>An appropriate JDBC type map associates the SQL type name with this Java class:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">Map</span>&lt;<span class="code-class">String</span>, <span class="code-class">Class</span>&lt;?&gt;&gt; mappings = con.getTypeMap();
+mappings.put(<span class="code-string">"ADDRESS_TYPE"</span>, <span class="code-class">Address</span>.<span class="code-keyword">class</span>);
+con.setTypeMap(mappings);</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>This is advanced functionality for databases that support suitable user-defined structured types.</p>
+        <p class="minor-heading"><strong>17.6 JDBC sharding APIs</strong></p>
+        <p>JDBC also includes:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">ShardingKey</span>
+<span class="code-class">ShardingKeyBuilder</span>
+<span class="code-class">ConnectionBuilder</span></code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Example of the API structure:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">ShardingKey</span> key = dataSource.createShardingKeyBuilder().subkey(customerId, <span class="code-class">JDBCType</span>.BIGINT).build();
+<span class="code-keyword">try</span> (<span class="code-class">Connection</span> con = dataSource.createConnectionBuilder().shardingKey(key).build()) {
+    <span class="code-comment"># Operate on the selected database shard</span>
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>This requires an appropriate <code>DataSource</code> implementation and driver with JDBC sharding support. Most ordinary PostgreSQL and MySQL applications do not use these JDBC sharding interfaces.</p>
+        <p class="minor-heading"><strong>17.7 <code>Wrapper</code> interface</strong></p>
+        <p>Many JDBC interfaces extend <code>java.sql.Wrapper</code>.</p>
+        <p>It allows application code to access vendor-specific implementations when needed.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">boolean</span> supported = con.isWrapperFor(<span class="code-class">VendorConnection</span>.<span class="code-keyword">class</span>);
+<span class="code-keyword">if</span> (supported) {
+    <span class="code-class">VendorConnection</span> nativeCon = con.unwrap(<span class="code-class">VendorConnection</span>.<span class="code-keyword">class</span>);
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p><code>VendorConnection</code> is illustrative; use the actual implementation interface supplied by the database driver.</p>
+        <p>This is useful when functionality is not exposed by standard JDBC.</p>
+    </div>
+
+    <div class="subheading">18. JDBC RowSet APIs</div>
+    <div class="intro">
+        <p>A <code>RowSet</code> extends the <code>ResultSet</code> interface with JavaBeans-style properties, event support, and additional capabilities.</p>
+        <p>The Java RowSet framework supplies five main interfaces. Oracle Docs</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>RowSet type</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td><code>JdbcRowSet</code></td><td>Connected RowSet</td></tr>
+                <tr><td><code>CachedRowSet</code></td><td>Disconnected, cached rows</td></tr>
+                <tr><td><code>WebRowSet</code></td><td>CachedRowSet with XML serialization</td></tr>
+                <tr><td><code>FilteredRowSet</code></td><td>Applies filtering to cached data</td></tr>
+                <tr><td><code>JoinRowSet</code></td><td>Joins compatible RowSets</td></tr>
+            </tbody>
+        </table></div>
+        <p class="minor-heading"><strong>18.1 <code>CachedRowSet</code> example</strong></p>
+        <p>A <code>CachedRowSet</code> can store query results after the original database connection is closed.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">CachedRowSet</span> cached = <span class="code-class">RowSetProvider</span>.newFactory().createCachedRowSet();
+<span class="code-keyword">try</span> {
+    <span class="code-keyword">try</span> (<span class="code-class">Connection</span> con = dataSource.getConnection();
+         <span class="code-class">PreparedStatement</span> ps = con.prepareStatement(<span class="code-string">"SELECT id, name FROM employees"</span>);
+         <span class="code-class">ResultSet</span> rs = ps.executeQuery()) {
+        cached.populate(rs);
+    }
+    cached.beforeFirst(); <span class="code-comment"># Original connection is now closed.</span>
+    <span class="code-keyword">while</span> (cached.next()) {
+        <span class="code-class">System</span>.out.println(cached.getString(<span class="code-string">"name"</span>));
+    }
+} <span class="code-keyword">finally</span> {
+    cached.close();
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>This is useful when data must be processed after the database session has ended.</p>
+        <p>However, the cached rows occupy application memory. It is generally not appropriate to cache millions of rows blindly.</p>
+        <p class="minor-heading"><strong>18.2 Additional RowSet classes</strong></p>
+        <p>The <code>javax.sql.rowset</code> package also defines:</p>
+        <ul>
+            <li><code>RowSetFactory</code> and <code>RowSetProvider</code> for creating RowSets.</li>
+            <li><code>BaseRowSet</code> for shared RowSet behavior.</li>
+            <li><code>RowSetMetaDataImpl</code> for metadata representation.</li>
+            <li><code>Joinable</code> for joining RowSets.</li>
+            <li><code>Predicate</code> for filtering.</li>
+        </ul>
+        <p><code>javax.sql.rowset.spi</code> includes synchronization-provider APIs such as <code>SyncProvider</code>, <code>SyncFactory</code>, and <code>SyncResolver</code>. These support writing disconnected RowSet changes back to a data source and resolving conflicts.</p>
+        <p>The <code>javax.sql.rowset.serial</code> package provides classes such as <code>SerialBlob</code>, <code>SerialClob</code>, <code>SerialArray</code>, <code>SerialStruct</code>, and <code>SerialRef</code> for serialized SQL value representations.</p>
+    </div>
+
+    <div class="subheading">19. JDBC distributed transactions (XA)</div>
+    <div class="intro">
+        <p>XA transactions can coordinate operations across multiple transactional resources through a transaction manager.</p>
+        <p>For example:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code>Transaction Manager
+        |
+        +---- Database A (XAResource)
+        |
+        +---- Database B (XAResource)</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Important APIs:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code>javax.sql.<span class="code-class">XADataSource</span>
+javax.sql.<span class="code-class">XAConnection</span>
+javax.transaction.xa.<span class="code-class">XAResource</span>
+javax.transaction.xa.<span class="code-class">Xid</span>
+javax.transaction.xa.<span class="code-class">XAException</span></code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Conceptually, an XA-capable connection exposes an <code>XAResource</code>:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">XAConnection</span> xaCon = xaDataSource.getXAConnection();
+<span class="code-class">XAResource</span> resource = xaCon.getXAResource();</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>The transaction manager controls the distributed transaction lifecycle, commonly using two-phase commit.</p>
+    </div>
+    <div class="gw-card gw-vflow">
+        <p style="margin:0"><strong>Two-phase commit</strong></p>
+        <div class="gw-cols2">
+            <div class="gw-phase"><p class="gw-k">PHASE 1</p><p><strong>Prepare</strong></p><p class="gw-t">Each resource is asked to prepare its part of the transaction.</p></div>
+            <div class="gw-phase"><p class="gw-k">PHASE 2</p><p><strong>Commit / Rollback</strong></p><p class="gw-t">The coordinator directs the resources to finish the transaction.</p></div>
+        </div>
+    </div>
+    <div class="intro">
+        <p>In Java applications, developers usually rely on a JTA-compatible transaction manager rather than manually implementing the XA protocol.</p>
+        <p>XA is not automatically provided by ordinary JDBC <code>commit()</code> and <code>rollback()</code>, and it does not make arbitrary external HTTP APIs transactional.</p>
+    </div>
+
+    <div class="subheading">20. JDBC performance optimization</div>
+    <div class="intro">
+        <p>JDBC performance depends on the driver, database server, connection pool, SQL execution plan, network latency, and how results are processed.</p>
+        <p class="minor-heading"><strong>20.1 Important performance APIs</strong></p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>API</th><th>Use</th></tr></thead>
+            <tbody>
+                <tr><td><code>setFetchSize(n)</code></td><td>Hint for fetching rows in groups</td></tr>
+                <tr><td><code>setQueryTimeout(n)</code></td><td>Limit query execution time</td></tr>
+                <tr><td><code>setMaxRows(n)</code></td><td>Limit returned rows</td></tr>
+                <tr><td><code>executeBatch()</code></td><td>Batch DML execution</td></tr>
+                <tr><td><code>executeLargeBatch()</code></td><td>Batch with large update counts</td></tr>
+                <tr><td><code>setNetworkTimeout(...)</code></td><td>Limit network-operation time</td></tr>
+                <tr><td><code>setReadOnly(true)</code></td><td>Read-only connection hint</td></tr>
+                <tr><td><code>cancel()</code></td><td>Request statement cancellation</td></tr>
+                <tr><td><code>close()</code></td><td>Release connections and statements</td></tr>
+                <tr><td><code>getLargeUpdateCount()</code></td><td>Get large update counts</td></tr>
+            </tbody>
+        </table></div>
+        <p class="minor-heading"><strong>20.2 Fetch size vs batch size</strong></p>
+        <p>These are different concepts.</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th></th><th>Fetch size</th><th>Batch size</th></tr></thead>
+            <tbody>
+                <tr><td>Primary purpose</td><td>Reading rows</td><td>Writing multiple operations</td></tr>
+                <tr><td>API</td><td><code>setFetchSize()</code></td><td><code>addBatch()</code> / <code>executeBatch()</code></td></tr>
+                <tr><td>Typical operation</td><td><code>SELECT</code></td><td><code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code></td></tr>
+                <tr><td>Performance benefit</td><td>Reduced buffering/network overhead where supported</td><td>Reduced network overhead</td></tr>
+                <tr><td>Main concern</td><td>Cursor behavior and memory</td><td>Batch memory and transaction size</td></tr>
+            </tbody>
+        </table></div>
+        <p class="minor-heading"><strong>20.3 Fetching one million rows efficiently</strong></p>
+        <p>For PostgreSQL, cursor-based fetching generally requires auto-commit to be disabled and a forward-only result set. pgJDBC</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">String</span> sql = <span class="code-string">"""
+    SELECT id, name, email
+    FROM employees
+    ORDER BY id
+    """</span>;
+<span class="code-keyword">try</span> (<span class="code-class">Connection</span> con = dataSource.getConnection()) {
+    con.setAutoCommit(<span class="code-keyword">false</span>);
+    con.setReadOnly(<span class="code-keyword">true</span>);
+    <span class="code-keyword">try</span> (<span class="code-class">PreparedStatement</span> ps = con.prepareStatement(sql, <span class="code-class">ResultSet</span>.TYPE_FORWARD_ONLY,
+                                                     <span class="code-class">ResultSet</span>.CONCUR_READ_ONLY)) {
+        ps.setFetchSize(<span class="code-number">1000</span>);
+        ps.setQueryTimeout(<span class="code-number">120</span>);
+        <span class="code-keyword">try</span> (<span class="code-class">ResultSet</span> rs = ps.executeQuery()) {
+            <span class="code-keyword">while</span> (rs.next()) {
+                <span class="code-keyword">long</span> id = rs.getLong(<span class="code-string">"id"</span>);
+                <span class="code-class">String</span> name = rs.getString(<span class="code-string">"name"</span>);
+                <span class="code-comment"># Process immediately, don't accumulate every record in a giant List.</span>
+            }
+        }
+    }
+    con.commit();
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>For PostgreSQL, the driver can fetch rows in groups instead of buffering the entire result set. For other drivers, fetch-size behavior differs.</p>
+        <p class="minor-heading"><strong>20.4 Timeouts</strong></p>
+        <p>Several timeout types exist, and they solve different problems.</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Timeout</th><th>Purpose</th></tr></thead>
+            <tbody>
+                <tr><td>Connection timeout</td><td>Limit connection establishment or pool acquisition</td></tr>
+                <tr><td>Query timeout</td><td>Limit SQL operation execution</td></tr>
+                <tr><td>Network timeout</td><td>Limit certain JDBC network operations</td></tr>
+                <tr><td>Transaction timeout</td><td>Limit an entire transaction through supporting infrastructure</td></tr>
+            </tbody>
+        </table></div>
+        <p>Example:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code>ps.setQueryTimeout(<span class="code-number">30</span>); <span class="code-comment"># Seconds</span></code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>A query timeout is not a universal hard wall-clock guarantee. Cancellation depends on driver and server behavior.</p>
+        <p class="minor-heading"><strong>20.5 Important optimization practices</strong></p>
+        <ol>
+            <li>Use a correctly sized connection pool.</li>
+            <li>Prefer parameterized statements.</li>
+            <li>Use indexes and examine execution plans.</li>
+            <li>Select only required columns.</li>
+            <li>Use bounded batches for large writes.</li>
+            <li>Use server-side pagination or streaming for large result sets.</li>
+            <li>Keep transactions short.</li>
+            <li>Close JDBC resources promptly.</li>
+            <li>Avoid sharing mutable JDBC connections between concurrent requests.</li>
+            <li>Measure pool wait time, query latency, lock contention, and server resource utilization.</li>
+        </ol>
+        <p>A connection pool that is too large can worsen database throughput by increasing contention and exhausting server-side resources.</p>
+    </div>
+
+    <div class="subheading">21. Complete JDBC CRUD application from scratch</div>
+    <div class="intro">
+        <p>The following is a complete standalone Java application using PostgreSQL.</p>
+        <p>It supports:</p>
+        <ul>
+            <li>Creating employees.</li>
+            <li>Reading one employee.</li>
+            <li>Listing employees.</li>
+            <li>Updating salaries.</li>
+            <li>Deleting employees.</li>
+            <li>Retrieving generated IDs.</li>
+            <li>Proper JDBC resource management.</li>
+        </ul>
+        <p>Use the PostgreSQL table and Maven dependency defined earlier.</p>
+        <p class="minor-heading"><strong><code>JdbcCrudApp.java</code></strong></p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">JdbcCrudApp</span> {
+    <span class="code-keyword">private</span> <span class="code-keyword">static</span> <span class="code-class">String</span> URL = <span class="code-class">System</span>.getenv().getOrDefault(<span class="code-string">"DB_URL"</span>,
+                                                             <span class="code-string">"jdbc:postgresql://localhost:5432/companydb"</span>);
+    <span class="code-keyword">private</span> <span class="code-keyword">static</span> <span class="code-class">String</span> USER = <span class="code-class">System</span>.getenv().getOrDefault(<span class="code-string">"DB_USER"</span>, <span class="code-string">"postgres"</span>);
+    <span class="code-keyword">private</span> <span class="code-keyword">static</span> <span class="code-class">String</span> PASSWORD = <span class="code-class">System</span>.getenv(<span class="code-string">"DB_PASSWORD"</span>);
+
+    <span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">Employee</span>(<span class="code-keyword">long</span> id, <span class="code-class">String</span> name, <span class="code-class">String</span> email, <span class="code-class">BigDecimal</span> salary) {}
+
+    <span class="code-keyword">private</span> <span class="code-keyword">static</span> <span class="code-class">Connection</span> getConnection() <span class="code-keyword">throws</span> <span class="code-class">SQLException</span> {
+        <span class="code-keyword">return</span> <span class="code-class">DriverManager</span>.getConnection(URL, USER, PASSWORD);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-keyword">long</span> createEmployee(<span class="code-class">String</span> name, <span class="code-class">String</span> email, <span class="code-class">BigDecimal</span> salary) <span class="code-keyword">throws</span> <span class="code-class">SQLException</span> { <span class="code-comment"># CREATE</span>
+        <span class="code-class">String</span> sql = <span class="code-string">"""
+            INSERT INTO employees(name, email, salary)
+            VALUES (?, ?, ?)
+            RETURNING id
+            """</span>;
+        <span class="code-keyword">try</span> (<span class="code-class">Connection</span> con = getConnection(); <span class="code-class">PreparedStatement</span> ps = con.prepareStatement(sql)) {
+            ps.setString(<span class="code-number">1</span>, name);
+            ps.setString(<span class="code-number">2</span>, email);
+            ps.setBigDecimal(<span class="code-number">3</span>, salary);
+            <span class="code-keyword">try</span> (<span class="code-class">ResultSet</span> rs = ps.executeQuery()) {
+                <span class="code-keyword">if</span> (rs.next()) {
+                    <span class="code-keyword">return</span> rs.getLong(<span class="code-string">"id"</span>);
+                }
+            }
+        }
+        <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">SQLException</span>(<span class="code-string">"Insert did not return an ID"</span>);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-class">Optional</span>&lt;<span class="code-class">Employee</span>&gt; findById(<span class="code-keyword">long</span> id) <span class="code-keyword">throws</span> <span class="code-class">SQLException</span> { <span class="code-comment"># READ ONE</span>
+        <span class="code-class">String</span> sql = <span class="code-string">"""
+            SELECT id, name, email, salary
+            FROM employees
+            WHERE id = ?
+            """</span>;
+        <span class="code-keyword">try</span> (<span class="code-class">Connection</span> con = getConnection(); <span class="code-class">PreparedStatement</span> ps = con.prepareStatement(sql)) {
+            ps.setLong(<span class="code-number">1</span>, id);
+            <span class="code-keyword">try</span> (<span class="code-class">ResultSet</span> rs = ps.executeQuery()) {
+                <span class="code-keyword">if</span> (rs.next()) {
+                    <span class="code-keyword">return</span> <span class="code-class">Optional</span>.of(mapEmployee(rs));
+                }
+            }
+        }
+        <span class="code-keyword">return</span> <span class="code-class">Optional</span>.empty();
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-class">List</span>&lt;<span class="code-class">Employee</span>&gt; findAll() <span class="code-keyword">throws</span> <span class="code-class">SQLException</span> { <span class="code-comment"># READ ALL</span>
+        <span class="code-class">String</span> sql = <span class="code-string">"""
+            SELECT id, name, email, salary
+            FROM employees
+            ORDER BY id
+            """</span>;
+        <span class="code-class">List</span>&lt;<span class="code-class">Employee</span>&gt; employees = <span class="code-keyword">new</span> <span class="code-class">ArrayList</span>&lt;&gt;();
+        <span class="code-keyword">try</span> (<span class="code-class">Connection</span> con = getConnection(); <span class="code-class">PreparedStatement</span> ps = con.prepareStatement(sql);
+             <span class="code-class">ResultSet</span> rs = ps.executeQuery()) {
+            <span class="code-keyword">while</span> (rs.next()) {
+                employees.add(mapEmployee(rs));
+            }
+        }
+        <span class="code-keyword">return</span> employees;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-keyword">boolean</span> updateSalary(<span class="code-keyword">long</span> id, <span class="code-class">BigDecimal</span> salary) <span class="code-keyword">throws</span> <span class="code-class">SQLException</span> { <span class="code-comment"># UPDATE</span>
+        <span class="code-class">String</span> sql = <span class="code-string">"""
+            UPDATE employees
+            SET salary = ?
+            WHERE id = ?
+            """</span>;
+        <span class="code-keyword">try</span> (<span class="code-class">Connection</span> con = getConnection(); <span class="code-class">PreparedStatement</span> ps = con.prepareStatement(sql)) {
+            ps.setBigDecimal(<span class="code-number">1</span>, salary);
+            ps.setLong(<span class="code-number">2</span>, id);
+            <span class="code-keyword">return</span> ps.executeUpdate() == <span class="code-number">1</span>;
+        }
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-keyword">boolean</span> deleteEmployee(<span class="code-keyword">long</span> id) <span class="code-keyword">throws</span> <span class="code-class">SQLException</span> { <span class="code-comment"># DELETE</span>
+        <span class="code-class">String</span> sql = <span class="code-string">"DELETE FROM employees WHERE id = ?"</span>;
+        <span class="code-keyword">try</span> (<span class="code-class">Connection</span> con = getConnection(); <span class="code-class">PreparedStatement</span> ps = con.prepareStatement(sql)) {
+            ps.setLong(<span class="code-number">1</span>, id);
+            <span class="code-keyword">return</span> ps.executeUpdate() == <span class="code-number">1</span>;
+        }
+    }
+
+    <span class="code-keyword">private</span> <span class="code-keyword">static</span> <span class="code-class">Employee</span> mapEmployee(<span class="code-class">ResultSet</span> rs) <span class="code-keyword">throws</span> <span class="code-class">SQLException</span> { <span class="code-comment"># ROW MAPPING</span>
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">Employee</span>(rs.getLong(<span class="code-string">"id"</span>), rs.getString(<span class="code-string">"name"</span>), rs.getString(<span class="code-string">"email"</span>),
+                            rs.getBigDecimal(<span class="code-string">"salary"</span>));
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) <span class="code-keyword">throws</span> <span class="code-class">SQLException</span> {
+        <span class="code-keyword">long</span> id = createEmployee(<span class="code-string">"Rahul"</span>, <span class="code-string">"rahul.demo@example.com"</span>, <span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"55000.00"</span>)); <span class="code-comment"># 1. Insert</span>
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Created ID: "</span> + id);
+        <span class="code-class">Optional</span>&lt;<span class="code-class">Employee</span>&gt; employee = findById(id); <span class="code-comment"># 2. Find</span>
+        employee.ifPresent(<span class="code-class">System</span>.out::println);
+        <span class="code-keyword">boolean</span> updated = updateSalary(id, <span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"70000.00"</span>)); <span class="code-comment"># 3. Update</span>
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Updated: "</span> + updated);
+        <span class="code-keyword">for</span> (<span class="code-class">Employee</span> e : findAll()) { <span class="code-comment"># 4. List</span>
+            <span class="code-class">System</span>.out.println(e);
+        }
+        <span class="code-keyword">boolean</span> deleted = deleteEmployee(id); <span class="code-comment"># 5. Delete</span>
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Deleted: "</span> + deleted);
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>This example uses PostgreSQL&rsquo;s <code>RETURNING</code> clause. To make generated-key retrieval more portable, replace it with <code>Statement.RETURN_GENERATED_KEYS</code> and <code>getGeneratedKeys()</code>.</p>
+        <p>Also note that <code>findAll()</code> accumulates every matching row in memory. Production APIs should generally support pagination.</p>
+    </div>
+
+    <div class="subheading">22. JDBC in Spring Boot</div>
+    <div class="intro">
+        <p>Spring Boot applications commonly use JDBC through one of three approaches.</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Approach</th><th>API</th><th>Typical use</th></tr></thead>
+            <tbody>
+                <tr><td>Plain JDBC</td><td><code>Connection</code>, <code>PreparedStatement</code></td><td>Low-level database control</td></tr>
+                <tr><td>Spring JDBC</td><td><code>JdbcTemplate</code></td><td>Simplified SQL execution</td></tr>
+                <tr><td>Spring JDBC</td><td><code>JdbcClient</code></td><td>Fluent query API</td></tr>
+            </tbody>
+        </table></div>
+        <p>Spring also integrates JDBC access with connection pooling, exception translation, and declarative transaction management.</p>
+        <p class="minor-heading"><strong>22.1 Maven dependencies</strong></p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code>&lt;<span class="code-keyword">dependency</span>&gt;
+    &lt;<span class="code-keyword">groupId</span>&gt;org.springframework.boot&lt;/<span class="code-keyword">groupId</span>&gt;
+    &lt;<span class="code-keyword">artifactId</span>&gt;spring-boot-starter-jdbc&lt;/<span class="code-keyword">artifactId</span>&gt;
+&lt;/<span class="code-keyword">dependency</span>&gt;
+
+&lt;<span class="code-keyword">dependency</span>&gt;
+    &lt;<span class="code-keyword">groupId</span>&gt;org.postgresql&lt;/<span class="code-keyword">groupId</span>&gt;
+    &lt;<span class="code-keyword">artifactId</span>&gt;postgresql&lt;/<span class="code-keyword">artifactId</span>&gt;
+    &lt;<span class="code-keyword">scope</span>&gt;runtime&lt;/<span class="code-keyword">scope</span>&gt;
+&lt;/<span class="code-keyword">dependency</span>&gt;</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>With the Spring Boot parent or dependency-management BOM, versions can be managed by Spring Boot.</p>
+        <p class="minor-heading"><strong>22.2 <code>application.properties</code></strong></p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">spring.datasource.url</span>=jdbc:postgresql://localhost:5432/companydb
+<span class="code-keyword">spring.datasource.username</span>=${DB_USER:postgres}
+<span class="code-keyword">spring.datasource.password</span>=${DB_PASSWORD}
+
+<span class="code-keyword">spring.datasource.hikari.maximum-pool-size</span>=10
+<span class="code-keyword">spring.datasource.hikari.minimum-idle</span>=2
+<span class="code-keyword">spring.datasource.hikari.connection-timeout</span>=30000
+<span class="code-keyword">spring.datasource.hikari.max-lifetime</span>=1800000</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>The Hikari values are illustrative; tune them for the database&rsquo;s connection capacity, application concurrency, and workload.</p>
+        <p class="minor-heading"><strong>22.3 Using <code>JdbcTemplate</code></strong></p>
+        <p>Spring&rsquo;s <code>JdbcTemplate</code> removes much of the repetitive resource management code.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-annotation">@Repository</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">EmployeeRepository</span> {
+    <span class="code-keyword">private</span> <span class="code-class">JdbcTemplate</span> jdbcTemplate;
+
+    <span class="code-keyword">public</span> <span class="code-class">EmployeeRepository</span>(<span class="code-class">JdbcTemplate</span> jdbcTemplate) {
+        <span class="code-keyword">this</span>.jdbcTemplate = jdbcTemplate;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">int</span> updateSalary(<span class="code-keyword">long</span> id, <span class="code-class">BigDecimal</span> salary) {
+        <span class="code-keyword">return</span> jdbcTemplate.update(<span class="code-string">"""
+            UPDATE employees
+            SET salary = ?
+            WHERE id = ?
+            """</span>, salary, id);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">long</span> count() {
+        <span class="code-class">Long</span> count = jdbcTemplate.queryForObject(<span class="code-string">"SELECT COUNT(*) FROM employees"</span>, <span class="code-class">Long</span>.<span class="code-keyword">class</span>);
+        <span class="code-keyword">return</span> count;
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p><code>JdbcTemplate</code> handles acquiring and releasing connections, creating statements, executing SQL, traversing results through callbacks, and translating many SQL exceptions into Spring&rsquo;s <code>DataAccessException</code> hierarchy.</p>
+        <p class="minor-heading"><strong>22.4 Using <code>JdbcClient</code></strong></p>
+        <p><code>JdbcClient</code> offers a fluent API.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-annotation">@Repository</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">EmployeeJdbcRepository</span> {
+    <span class="code-keyword">private</span> <span class="code-class">JdbcClient</span> jdbcClient;
+
+    <span class="code-keyword">public</span> <span class="code-class">EmployeeJdbcRepository</span>(<span class="code-class">JdbcClient</span> jdbcClient) {
+        <span class="code-keyword">this</span>.jdbcClient = jdbcClient;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">Employee</span>(<span class="code-keyword">long</span> id, <span class="code-class">String</span> name, <span class="code-class">String</span> email, <span class="code-class">BigDecimal</span> salary) {}
+
+    <span class="code-keyword">public</span> <span class="code-class">Optional</span>&lt;<span class="code-class">Employee</span>&gt; findById(<span class="code-keyword">long</span> id) {
+        <span class="code-keyword">return</span> jdbcClient.sql(<span class="code-string">"""
+                SELECT id, name, email, salary
+                FROM employees
+                WHERE id = :id
+                """</span>).param(<span class="code-string">"id"</span>, id)
+                    .query((rs, rowNum) -&gt; <span class="code-keyword">new</span> <span class="code-class">Employee</span>(rs.getLong(<span class="code-string">"id"</span>), rs.getString(<span class="code-string">"name"</span>), rs.getString(<span class="code-string">"email"</span>),
+                                                        rs.getBigDecimal(<span class="code-string">"salary"</span>)))
+                    .optional();
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">int</span> updateSalary(<span class="code-keyword">long</span> id, <span class="code-class">BigDecimal</span> salary) {
+        <span class="code-keyword">return</span> jdbcClient.sql(<span class="code-string">"""
+                UPDATE employees
+                SET salary = :salary
+                WHERE id = :id
+                """</span>).param(<span class="code-string">"salary"</span>, salary).param(<span class="code-string">"id"</span>, id).update();
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p><code>JdbcClient</code> supports positional and named parameters, row mapping, and update operations.</p>
+        <p class="minor-heading"><strong>22.5 Spring Boot transactions</strong></p>
+        <p>Instead of manually calling:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code>con.setAutoCommit(<span class="code-keyword">false</span>);
+con.commit();
+con.rollback();</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Spring applications often use <code>@Transactional</code>.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-annotation">@Service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">BankService</span> {
+    <span class="code-keyword">private</span> <span class="code-class">JdbcClient</span> jdbcClient;
+
+    <span class="code-keyword">public</span> <span class="code-class">BankService</span>(<span class="code-class">JdbcClient</span> jdbcClient) {
+        <span class="code-keyword">this</span>.jdbcClient = jdbcClient;
+    }
+
+    <span class="code-annotation">@Transactional</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> transfer(<span class="code-keyword">long</span> from, <span class="code-keyword">long</span> <span class="code-keyword">to</span>, <span class="code-class">BigDecimal</span> amount) {
+        <span class="code-keyword">if</span> (from == <span class="code-keyword">to</span> || amount.signum() &lt;= <span class="code-number">0</span>) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>(<span class="code-string">"Invalid transfer"</span>);
+        }
+        <span class="code-keyword">int</span> debited = jdbcClient.sql(<span class="code-string">"""
+                UPDATE accounts
+                SET balance = balance - :amount
+                WHERE id = :id AND balance &gt;= :amount
+                """</span>).param(<span class="code-string">"amount"</span>, amount).param(<span class="code-string">"id"</span>, from).update();
+        <span class="code-keyword">if</span> (debited != <span class="code-number">1</span>) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalStateException</span>(<span class="code-string">"Insufficient funds or sender missing"</span>);
+        }
+        <span class="code-keyword">int</span> credited = jdbcClient.sql(<span class="code-string">"""
+                UPDATE accounts
+                SET balance = balance + :amount
+                WHERE id = :id
+                """</span>).param(<span class="code-string">"amount"</span>, amount).param(<span class="code-string">"id"</span>, <span class="code-keyword">to</span>).update();
+        <span class="code-keyword">if</span> (credited != <span class="code-number">1</span>) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalStateException</span>(<span class="code-string">"Receiver missing"</span>);
+        }
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>With a properly configured transaction manager and a Spring-managed invocation, Spring handles commit and rollback.</p>
+        <p>By default, Spring rolls back for unchecked exceptions and <code>Error</code>, but not all checked exceptions. Configure <code>rollbackFor</code> where necessary.</p>
+        <p><strong>Important:</strong> If you write manual JDBC inside a Spring-managed transaction, avoid independently acquiring a connection that bypasses Spring&rsquo;s transaction context. Use <code>JdbcTemplate</code>, <code>JdbcClient</code>, or Spring&rsquo;s <code>DataSourceUtils</code> for transaction-aware connection access.</p>
+    </div>
+
+    <div class="subheading">23. Common JDBC mistakes</div>
+    <div class="intro">
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Mistake</th><th>Why it is problematic</th><th>Better approach</th></tr></thead>
+            <tbody>
+                <tr><td>Concatenating user values into SQL</td><td>SQL injection</td><td><code>PreparedStatement</code></td></tr>
+                <tr><td>Not closing <code>ResultSet</code></td><td>Resource leaks</td><td>Try-with-resources</td></tr>
+                <tr><td>Opening a new physical connection per request</td><td>Excessive overhead</td><td>Connection pool</td></tr>
+                <tr><td>Sharing one connection across threads</td><td>Unsafe concurrency and transaction interference</td><td>Acquire separate logical connections</td></tr>
+                <tr><td>Long-running transactions</td><td>Locks, contention, resource usage</td><td>Keep transactions short</td></tr>
+                <tr><td>Using <code>double</code> for monetary data</td><td>Precision errors</td><td><code>BigDecimal</code></td></tr>
+                <tr><td>Loading every row into a list</td><td>Memory exhaustion</td><td>Pagination or streaming</td></tr>
+                <tr><td>Blindly retrying SQL exceptions</td><td>Duplicate writes or inconsistent effects</td><td>Transaction-aware, bounded retry policy</td></tr>
+                <tr><td>Assuming all databases support the same JDBC features</td><td>Portability failures</td><td>Consult driver metadata and documentation</td></tr>
+                <tr><td>Ignoring <code>executeUpdate()</code> count</td><td>Missing rows go unnoticed</td><td>Check affected-row count</td></tr>
+                <tr><td>Relying only on <code>setReadOnly()</code> for security</td><td>Read-only behavior may be advisory</td><td>Database privileges</td></tr>
+                <tr><td>Hardcoding credentials</td><td>Secret exposure</td><td>Secret management or environment variables</td></tr>
+                <tr><td>Assuming <code>close()</code> physically disconnects a pooled connection</td><td>Misunderstanding pooling</td><td>Understand pool ownership</td></tr>
+                <tr><td>Using <code>setFetchSize()</code> without checking driver behavior</td><td>Unexpected buffering or cursor behavior</td><td>Test driver-specific fetch strategies</td></tr>
+            </tbody>
+        </table></div>
+    </div>
+
+    <div class="subheading">24. JDBC API quick-reference cheat sheet</div>
+    <div class="gw-card gw-vflow" style="gap:12px">
+        <p class="gw-k" style="margin:0">MOST FREQUENTLY USED APIS</p>
+        <div class="gw-cols2">
+            <div class="gw-api"><p class="n">DriverManager</p><p class="d">Get a connection</p><p class="m">getConnection()</p></div>
+            <div class="gw-api"><p class="n">DataSource</p><p class="d">Connection factory</p><p class="m">getConnection()</p></div>
+            <div class="gw-api"><p class="n">Connection</p><p class="d">Create statements</p><p class="m">prepareStatement()</p></div>
+            <div class="gw-api"><p class="n">Statement</p><p class="d">Execute static SQL</p><p class="m">executeQuery()</p></div>
+            <div class="gw-api"><p class="n">PreparedStatement</p><p class="d">Parameterized SQL</p><p class="m">setXxx(), executeUpdate()</p></div>
+            <div class="gw-api"><p class="n">CallableStatement</p><p class="d">Stored routines</p><p class="m">registerOutParameter()</p></div>
+            <div class="gw-api"><p class="n">ResultSet</p><p class="d">Read database rows</p><p class="m">next(), getXxx()</p></div>
+            <div class="gw-api"><p class="n">Savepoint</p><p class="d">Partial rollback</p><p class="m">rollback(savepoint)</p></div>
+            <div class="gw-api"><p class="n">DatabaseMetaData</p><p class="d">Inspect schema</p><p class="m">getTables(), getColumns()</p></div>
+            <div class="gw-api"><p class="n">SQLException</p><p class="d">Handle database errors</p><p class="m">getSQLState()</p></div>
+        </div>
+    </div>
+
+    <div class="subheading">25. JDBC vs Hibernate vs Spring JDBC</div>
+    <div class="intro">
+        <p>These technologies operate at different abstraction levels.</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Aspect</th><th>JDBC</th><th>Spring JDBC</th><th>Hibernate / JPA</th></tr></thead>
+            <tbody>
+                <tr><td>Abstraction</td><td>Low-level SQL API</td><td>SQL helper abstraction</td><td>ORM</td></tr>
+                <tr><td>SQL control</td><td>Full</td><td>Full</td><td>Supports generated and custom SQL</td></tr>
+                <tr><td>Object mapping</td><td>Manual</td><td>RowMapper / mapping helpers</td><td>Entity mapping</td></tr>
+                <tr><td>Resource management</td><td>Manual</td><td>Mostly automatic</td><td>Framework-managed</td></tr>
+                <tr><td>Dirty checking</td><td>No</td><td>No</td><td>Yes</td></tr>
+                <tr><td>Persistence context</td><td>No</td><td>No</td><td>Yes</td></tr>
+                <tr><td>Typical use</td><td>Low-level integrations</td><td>SQL-centric applications</td><td>Domain/entity-centric applications</td></tr>
+            </tbody>
+        </table></div>
+        <p>Hibernate ultimately relies on database drivers and JDBC for much of its SQL communication.</p>
+        <p>Spring JDBC is not a replacement for JDBC at the protocol level; it is a convenience layer built on top of JDBC.</p>
+    </div>
+
+    <div class="subheading">26. Recommended learning order</div>
+    <div class="intro">
+        <p>For mastering JDBC as a backend engineer, study in the following order:</p>
+        <ol>
+            <li><strong>Fundamentals:</strong> <code>DriverManager</code>, <code>DataSource</code>, <code>Connection</code>, <code>Statement</code>, <code>PreparedStatement</code>, <code>ResultSet</code></li>
+            <li><strong>Resource handling:</strong> <code>AutoCloseable</code>, try-with-resources, connection pooling</li>
+            <li><strong>Data operations:</strong> CRUD, generated keys, batch processing, SQL type mapping</li>
+            <li><strong>Transactions:</strong> <code>commit</code>, <code>rollback</code>, <code>Savepoint</code>, isolation levels, concurrent updates</li>
+            <li><strong>Database introspection:</strong> <code>DatabaseMetaData</code>, <code>ResultSetMetaData</code>, <code>ParameterMetaData</code></li>
+            <li><strong>Production reliability:</strong> SQLState handling, transient failures, deadlocks, retries, timeouts</li>
+            <li><strong>Performance:</strong> fetch size, batch sizes, pooling, efficient large-result processing</li>
+            <li><strong>Framework integration:</strong> Spring <code>JdbcTemplate</code>, <code>JdbcClient</code>, and <code>@Transactional</code></li>
+            <li><strong>Specialized JDBC:</strong> stored routines, SQL large objects, RowSets, sharding, and XA transactions</li>
+        </ol>
+        <p class="minor-heading"><strong>Official references</strong></p>
+        <ul>
+            <li>Java SE 27 — java.sql API</li>
+            <li>Java SE — javax.sql API</li>
+            <li>Java RowSet APIs</li>
+            <li>PostgreSQL JDBC Driver Documentation</li>
+            <li>Spring JDBC Documentation</li>
+        </ul>
+        <p><strong>Key takeaway:</strong> The five most important JDBC interfaces for everyday backend development are <code>DataSource</code>, <code>Connection</code>, <code>PreparedStatement</code>, <code>ResultSet</code>, and <code>DatabaseMetaData</code>. Understanding their resource lifecycles, transaction boundaries, and driver-specific behavior is foundational for developing reliable, performant Java database applications.</p>
+    </div>
+</div>
+</body>
+</html>

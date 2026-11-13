@@ -50,7 +50,7 @@
     <span class="code-keyword">public</span> <span class="code-class">String</span> generateInvoice() {<span class="code-keyword">return</span> <span class="code-string">"Electronics invoice"</span>;}
 }</code></pre></div>
     <div class="intro">
-        <p><strong>What is the problem with this approach?</strong></p>
+        <p class="minor-heading"><strong>What is the problem with this approach?</strong></p>
         <p>Initially this design works.</p>
         <p>However, imagine that the business introduces several new requirements:</p>
     </div>
@@ -84,7 +84,7 @@
     </div>
     <div class="intro">
         <p>Each product delegates the requested operation to a visitor that knows its concrete type.</p>
-        <p><strong>Main components</strong></p>
+        <p class="minor-heading"><strong>Main components</strong></p>
     </div>
     <div class="section cmp"><div class="section-content">
         <table class="cmp-table centered cmp-peer">
@@ -107,7 +107,7 @@
     <div class="intro">
         <p>Consider an online shopping application that sells Books and Electronics.</p>
         <p>Each product has its own pricing and shipping rules.</p>
-        <p><strong>Requirements:</strong></p>
+        <p class="minor-heading"><strong>Requirements:</strong></p>
     </div>
     <div class="intro"><ul>
         <li>Books have no additional tax.</li>
@@ -118,7 +118,7 @@
     </ul></div>
     <div class="intro">
         <p>We will implement this example using the Visitor Pattern.</p>
-        <p><strong>Create the Visitor interface</strong></p>
+        <p class="minor-heading"><strong>Create the Visitor interface</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">ItemVisitor</span>&lt;R&gt; {
     R visit(<span class="code-class">Book</span> book);
@@ -137,7 +137,7 @@
     </ul></div>
     <div class="intro">
         <p>This makes the visitor interface reusable for different operations.</p>
-        <p><strong>Create the Element interface</strong></p>
+        <p class="minor-heading"><strong>Create the Element interface</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">CartItem</span> {
     &lt;R&gt; R accept(<span class="code-class">ItemVisitor</span>&lt;R&gt; visitor);
@@ -147,7 +147,7 @@
         <p>The method accepts a visitor and delegates the operation to it.</p>
         <p>Notice that <code>CartItem</code> doesn't contain methods such as <code>calculateTax</code>, <code>calculateShipping</code> or <code>generateInvoice</code>.</p>
         <p>Instead, we implement these operations using separate visitors.</p>
-        <p><strong>Implement the concrete elements</strong></p>
+        <p class="minor-heading"><strong>Implement the concrete elements</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">Book</span>(<span class="code-class">String</span> title, <span class="code-keyword">double</span> unitPrice, <span class="code-keyword">int</span> quantity, <span class="code-keyword">double</span> weightKg) <span class="code-keyword">implements</span> <span class="code-class">CartItem</span> {
     <span class="code-keyword">public</span> &lt;R&gt; R accept(<span class="code-class">ItemVisitor</span>&lt;R&gt; visitor) {
@@ -174,7 +174,7 @@
     <div class="code-block"><pre><code>visitor.visit(<span class="code-keyword">this</span>); <span class="code-comment"># visit(Electronics)</span></code></pre></div>
     <div class="intro">
         <p>This mechanism is called <strong>Double Dispatch</strong>.</p>
-        <p><strong>Implement a Price Visitor</strong></p>
+        <p class="minor-heading"><strong>Implement a Price Visitor</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">PriceVisitor</span> <span class="code-keyword">implements</span> <span class="code-class">ItemVisitor</span>&lt;<span class="code-class">Double</span>&gt; {
     <span class="code-keyword">public</span> <span class="code-class">Double</span> visit(<span class="code-class">Book</span> book) {
@@ -192,7 +192,7 @@
         <p>Notice that different product types have different pricing rules.</p>
         <p>The <code>Book</code> and <code>Electronics</code> classes don't know how pricing is calculated.</p>
         <p>If the pricing rules change, we can update the <code>PriceVisitor</code> without modifying the product classes.</p>
-        <p><strong>Implement a Shipping Visitor</strong></p>
+        <p class="minor-heading"><strong>Implement a Shipping Visitor</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ShippingVisitor</span> <span class="code-keyword">implements</span> <span class="code-class">ItemVisitor</span>&lt;<span class="code-class">Double</span>&gt; {
     <span class="code-keyword">public</span> <span class="code-class">Double</span> visit(<span class="code-class">Book</span> book) {
@@ -214,7 +214,7 @@
     </ul></div>
     <div class="intro">
         <p>Both operate on the same product classes, without requiring any changes to those classes.</p>
-        <p><strong>Create the client</strong></p>
+        <p class="minor-heading"><strong>Create the client</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
     <span class="code-class">List</span>&lt;<span class="code-class">CartItem</span>&gt; cart = <span class="code-class">List</span>.of(<span class="code-keyword">new</span> <span class="code-class">Book</span>(<span class="code-string">"Clean Code"</span>, <span class="code-number">500</span>, <span class="code-number">2</span>, <span class="code-number">0</span>.<span class="code-number">5</span>), <span class="code-keyword">new</span> <span class="code-class">Electronics</span>(<span class="code-string">"Headphones"</span>, <span class="code-number">3000</span>, <span class="code-number">1</span>, <span class="code-number">0</span>.<span class="code-number">4</span>));
@@ -227,13 +227,13 @@
     <span class="code-class">System</span>.out.println(<span class="code-string">"Grand Total: "</span> + (totalPrice + totalShipping));
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Output</strong></p>
+        <p class="minor-heading"><strong>Output</strong></p>
     </div>
     <div class="code-block"><pre><code>Total Price: 4540.0
 Shipping: 182.0
 Grand Total: 4722.0</code></pre></div>
     <div class="intro">
-        <p><strong>Understanding the execution flow</strong></p>
+        <p class="minor-heading"><strong>Understanding the execution flow</strong></p>
         <p>Let's trace what happens when the application executes:</p>
     </div>
     <div class="code-block"><pre><code>item.accept(priceVisitor);</code></pre></div>
@@ -263,7 +263,7 @@ Grand Total: 4722.0</code></pre></div>
         <p>Java normally uses <strong>single dispatch</strong> for overridden instance methods.</p>
         <p>That means Java chooses an overridden method based on the runtime type of the receiver object.</p>
         <p>However, Java chooses overloaded methods based on compile-time argument types.</p>
-        <p><strong>Single dispatch</strong></p>
+        <p class="minor-heading"><strong>Single dispatch</strong></p>
     </div>
     <div class="scenario-layout scenario-layout-equal scenario-layout-tight scenario-layout-stretch">
         <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Animal</span> {
@@ -284,7 +284,7 @@ Grand Total: 4722.0</code></pre></div>
     </div>
     <div class="intro">
         <p>Here, the method implementation is selected using the runtime type <code>Dog</code>, even though the reference type is <code>Animal</code>.</p>
-        <p><strong>Why method overloading alone is insufficient</strong></p>
+        <p class="minor-heading"><strong>Why method overloading alone is insufficient</strong></p>
         <p>Consider:</p>
     </div>
     <div class="scenario-layout scenario-layout-equal scenario-layout-tight scenario-layout-stretch">
@@ -307,7 +307,7 @@ Grand Total: 4722.0</code></pre></div>
 }</code></pre></div>
     </div>
     <div class="intro">
-        <p><strong>Output:</strong></p>
+        <p class="minor-heading"><strong>Output:</strong></p>
     </div>
     <div class="code-block"><pre><code>Visiting Animal</code></pre></div>
     <div class="intro">
@@ -317,7 +317,7 @@ Grand Total: 4722.0</code></pre></div>
     <div class="code-block"><pre><code>visit(<span class="code-class">Animal</span> animal)</code></pre></div>
     <div class="intro">
         <p>It does not select <code>visit(Dog dog)</code>, despite the object being a <code>Dog</code> at runtime.</p>
-        <p><strong>How Visitor achieves Double Dispatch</strong></p>
+        <p class="minor-heading"><strong>How Visitor achieves Double Dispatch</strong></p>
     </div>
     <div class="scenario-layout scenario-layout-equal scenario-layout-tight scenario-layout-stretch">
         <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">Animal</span> {
@@ -351,17 +351,17 @@ Grand Total: 4722.0</code></pre></div>
 }</code></pre></div>
     </div>
     <div class="intro">
-        <p><strong>Output:</strong></p>
+        <p class="minor-heading"><strong>Output:</strong></p>
     </div>
     <div class="code-block"><pre><code>Visiting Dog</code></pre></div>
     <div class="intro">
         <p>The method selection now happens in two stages:</p>
-        <p><strong>First dispatch &mdash; element selection</strong></p>
+        <p class="minor-heading"><strong>First dispatch &mdash; element selection</strong></p>
     </div>
     <div class="code-block"><pre><code>animal.accept(visitor);</code></pre></div>
     <div class="intro">
         <p>Java selects <code>Dog.accept()</code> based on the runtime type of <code>animal</code>.</p>
-        <p><strong>Second dispatch &mdash; visitor operation selection</strong></p>
+        <p class="minor-heading"><strong>Second dispatch &mdash; visitor operation selection</strong></p>
     </div>
     <div class="code-block"><pre><code>visitor.visit(<span class="code-keyword">this</span>);</code></pre></div>
     <div class="intro">
@@ -399,7 +399,7 @@ Grand Total: 4722.0</code></pre></div>
         <p>We could implement all these operations directly inside each AST node.</p>
         <p>However, that would tightly couple the AST structure with compiler operations.</p>
         <p>With the Visitor Pattern, we can create separate visitors for evaluation, printing, validation, and optimization.</p>
-        <p><strong>Complete Java implementation</strong></p>
+        <p class="minor-heading"><strong>Complete Java implementation</strong></p>
     </div>
     <div class="section code-section">
         <div class="code-wrapper"><pre><code><span class="code-keyword">public interface</span> <span class="code-class">Visitor</span>&lt;R&gt; {
@@ -458,12 +458,12 @@ Grand Total: 4722.0</code></pre></div>
         </div>
     </div><br>
     <div class="intro">
-        <p><strong>Output:</strong></p>
+        <p class="minor-heading"><strong>Output:</strong></p>
     </div>
     <div class="code-block"><pre><code>Expression: ((2 + 3) * 4)
 Result: 20</code></pre></div>
     <div class="intro">
-        <p><strong>How does recursive visiting work?</strong></p>
+        <p class="minor-heading"><strong>How does recursive visiting work?</strong></p>
         <p>Consider this part of code:</p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-class">Integer</span> visit(<span class="code-class">Add</span> expr) {
@@ -596,7 +596,7 @@ Result: 20</code></pre></div>
 
     <div class="subheading">Advantages and disadvantages</div>
     <div class="intro">
-        <p><strong>Advantages</strong></p>
+        <p class="minor-heading"><strong>Advantages</strong></p>
     </div>
     <div class="intro"><ul>
         <li><strong>OCP for new operations:</strong> introduce new visitor classes without modifying existing concrete elements.</li>
@@ -607,7 +607,7 @@ Result: 20</code></pre></div>
         <li><strong>Works well with hierarchical structures:</strong> particularly ASTs, document models, and composite object trees.</li>
     </ul></div>
     <div class="intro">
-        <p><strong>Disadvantages</strong></p>
+        <p class="minor-heading"><strong>Disadvantages</strong></p>
     </div>
     <div class="intro"><ul>
         <li><strong>Difficult to add new element types:</strong> the visitor interface and its concrete impls typically require modification.</li>

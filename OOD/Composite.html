@@ -77,7 +77,7 @@
     <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>(<span class="code-string">"Unknown type"</span>);
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Problems with this approach</strong></p>
+        <p class="minor-heading"><strong>Problems with this approach</strong></p>
     </div>
     <div class="intro"><ul>
         <li><strong>Type checking:</strong> Client code must know the concrete type.</li>
@@ -127,7 +127,7 @@
     <div class="subheading">Complete Java example: File System</div>
     <div class="intro">
         <p>This is one of the clearest real-world examples of the Composite Pattern.</p>
-        <p><strong>Define the Component</strong></p>
+        <p class="minor-heading"><strong>Define the Component</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">FileSystemNode</span> {
     <span class="code-class">String</span> getName();
@@ -136,7 +136,7 @@
 }</code></pre></div>
     <div class="intro">
         <p>The interface defines operations supported by both files and folders. Notice that it does not include <code>add</code> or <code>remove</code>.<br> Only folders can contain children, so we'll place those methods directly in <code>Folder</code>.</p>
-        <p><strong>Create the Leaf</strong></p>
+        <p class="minor-heading"><strong>Create the Leaf</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">File</span> <span class="code-keyword">implements</span> <span class="code-class">FileSystemNode</span> {
     <span class="code-keyword">private</span> <span class="code-class">String</span> name;
@@ -164,7 +164,7 @@
 }</code></pre></div>
     <div class="intro">
         <p>A <code>File</code> is a Leaf because it has no child components. Its <code>getSize()</code> method returns its own size.</p>
-        <p><strong>Create the Composite</strong></p>
+        <p class="minor-heading"><strong>Create the Composite</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Folder</span> <span class="code-keyword">implements</span> <span class="code-class">FileSystemNode</span> {
     <span class="code-keyword">private</span> <span class="code-class">String</span> name;
@@ -204,7 +204,7 @@
 }</code></pre></div>
     <div class="intro">
         <p>The folder stores <code>FileSystemNode</code> objects, not just <code>File</code> objects.<br> This means the folder can contain both individual files and other folders.</p>
-        <p><strong>Client code</strong></p>
+        <p class="minor-heading"><strong>Client code</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
     <span class="code-class">File</span> file1 = <span class="code-keyword">new</span> <span class="code-class">File</span>(<span class="code-string">"notes.txt"</span>, <span class="code-number">10</span>);
@@ -238,7 +238,7 @@
 
 Total size: 710 KB</code></pre></div>
     <div class="intro">
-        <p><strong>Client doesn't care whether it's a File or Folder</strong></p>
+        <p class="minor-heading"><strong>Client doesn't care whether it's a File or Folder</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-keyword">void</span> printDetails(<span class="code-class">FileSystemNode</span> node) {
     <span class="code-class">System</span>.out.println(<span class="code-string">"Name: "</span> + node.getName());
@@ -342,7 +342,7 @@ Rendering Button: Login</code></pre></div>
         <img src="../static/composite-product-bundle.svg" alt="Office Bundle (45,000) containing a Laptop (40,000) and an Accessory Bundle (5,000) with a Mouse (1,000) and a Keyboard (4,000)" style="width:100%;max-width:600px">
     </div>
     <div class="intro">
-        <p><strong>Implementation</strong></p>
+        <p class="minor-heading"><strong>Implementation</strong></p>
     </div>
     <div class="scenario-layout scenario-layout-equal">
         <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">CartItem</span> {
@@ -508,7 +508,7 @@ Rendering Button: Login</code></pre></div>
 
     <div class="subheading">Composite vs Decorator vs ordinary composition</div>
     <div class="intro">
-        <p><strong>Composite</strong></p>
+        <p class="minor-heading"><strong>Composite</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">Component</span> {
     <span class="code-keyword">void</span> operation();
@@ -524,7 +524,7 @@ Rendering Button: Login</code></pre></div>
 }</code></pre></div>
     <div class="intro">
         <p>The Composite organizes a collection and delegates an operation to its children.</p>
-        <p><strong>Decorator</strong></p>
+        <p class="minor-heading"><strong>Decorator</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">LoggingDecorator</span> <span class="code-keyword">implements</span> <span class="code-class">Component</span> {
     <span class="code-keyword">private</span> <span class="code-class">Component</span> wrapped;

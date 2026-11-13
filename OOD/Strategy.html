@@ -46,7 +46,7 @@
 service.pay(<span class="code-string">"UPI"</span>, <span class="code-number">1000</span>);
 service.pay(<span class="code-string">"CARD"</span>, <span class="code-number">2000</span>);</code></pre></div>
     <div class="intro">
-        <p><strong>Problems with this approach</strong></p>
+        <p class="minor-heading"><strong>Problems with this approach</strong></p>
     </div>
     <div class="intro"><ul>
         <li><strong>Violates Open/Closed Principle:</strong> Adding a new payment method requires modifying the existing <code>PaymentService</code>.</li>
@@ -86,7 +86,7 @@ service.pay(<span class="code-string">"CARD"</span>, <span class="code-number">2
     <div class="subheading">Practical Example: Payment Processing</div>
     <div class="intro">
         <p>We will implement the payment system using Strategy.</p>
-        <p><strong>Create the Strategy interface</strong></p>
+        <p class="minor-heading"><strong>Create the Strategy interface</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">PaymentStrategy</span> {
     <span class="code-keyword">void</span> pay(<span class="code-class">BigDecimal</span> amount);
@@ -94,7 +94,7 @@ service.pay(<span class="code-string">"CARD"</span>, <span class="code-number">2
     <div class="intro">
         <p>The <code>PaymentStrategy</code> interface defines the contract that every payment method must follow.</p>
         <p>Notice that it does not specify how a payment should be processed.</p>
-        <p><strong>Create Concrete Strategies</strong></p>
+        <p class="minor-heading"><strong>Create Concrete Strategies</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">UpiPayment</span> <span class="code-keyword">implements</span> <span class="code-class">PaymentStrategy</span> {
     <span class="code-keyword">private</span> <span class="code-class">String</span> upiId;
@@ -129,7 +129,7 @@ service.pay(<span class="code-string">"CARD"</span>, <span class="code-number">2
     </div>
     <div class="callout callout-note"><p>These classes demonstrate the pattern; they simulate payment processing rather than execute real financial transactions.</p></div>
     <div class="intro">
-        <p><strong>Create the Context class</strong></p>
+        <p class="minor-heading"><strong>Create the Context class</strong></p>
         <p>The Context is the class that uses a Strategy.</p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Checkout</span> {
@@ -150,7 +150,7 @@ service.pay(<span class="code-string">"CARD"</span>, <span class="code-number">2
     }
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Important observations:</strong></p>
+        <p class="minor-heading"><strong>Important observations:</strong></p>
     </div>
     <div class="intro"><ul>
         <li><code>Checkout</code> holds a reference to the <code>PaymentStrategy</code> interface, not to a concrete payment class.</li>
@@ -160,7 +160,7 @@ service.pay(<span class="code-string">"CARD"</span>, <span class="code-number">2
     <div class="intro">
         <p>The <code>Checkout</code> class does not know whether the payment is processed through UPI, credit card or cash on delivery.</p>
         <p>This is an example of <strong>composition</strong> and <strong>polymorphism</strong> working together.</p>
-        <p><strong>Client code</strong></p>
+        <p class="minor-heading"><strong>Client code</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
     <span class="code-class">Checkout</span> checkout = <span class="code-keyword">new</span> <span class="code-class">Checkout</span>(<span class="code-keyword">new</span> <span class="code-class">UpiPayment</span>(<span class="code-string">"customer@upi"</span>));
@@ -171,7 +171,7 @@ service.pay(<span class="code-string">"CARD"</span>, <span class="code-number">2
     checkout.checkout(<span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"1500"</span>));
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Output:</strong></p>
+        <p class="minor-heading"><strong>Output:</strong></p>
     </div>
     <div class="code-block"><pre><code>Processing UPI payment of Rs. 1000 using customer@upi
 Processing credit card payment of Rs. 2000
@@ -208,13 +208,13 @@ Cash on delivery selected. Amount: Rs. 1500</code></pre></div>
     </div></div>
     <div class="intro">
         <p>Instead of calculating all these shipping costs through conditional statements, we can implement each calculation as a strategy.</p>
-        <p><strong>Strategy interface</strong></p>
+        <p class="minor-heading"><strong>Strategy interface</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">ShippingStrategy</span> {
     <span class="code-class">BigDecimal</span> calculateCost(<span class="code-class">BigDecimal</span> weightInKg);
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Concrete strategies</strong></p>
+        <p class="minor-heading"><strong>Concrete strategies</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">StandardShipping</span> <span class="code-keyword">implements</span> <span class="code-class">ShippingStrategy</span> {
     <span class="code-keyword">public</span> <span class="code-class">BigDecimal</span> calculateCost(<span class="code-class">BigDecimal</span> weightInKg) {
@@ -234,7 +234,7 @@ Cash on delivery selected. Amount: Rs. 1500</code></pre></div>
     }
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Context</strong></p>
+        <p class="minor-heading"><strong>Context</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ShippingCalculator</span> {
     <span class="code-keyword">private</span> <span class="code-class">ShippingStrategy</span> strategy;
@@ -252,7 +252,7 @@ Cash on delivery selected. Amount: Rs. 1500</code></pre></div>
     }
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Client</strong></p>
+        <p class="minor-heading"><strong>Client</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
     <span class="code-class">ShippingCalculator</span> calculator = <span class="code-keyword">new</span> <span class="code-class">ShippingCalculator</span>(<span class="code-keyword">new</span> <span class="code-class">StandardShipping</span>());
@@ -264,7 +264,7 @@ Cash on delivery selected. Amount: Rs. 1500</code></pre></div>
     <span class="code-class">System</span>.out.println(calculator.calculate(weight));
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Output:</strong></p>
+        <p class="minor-heading"><strong>Output:</strong></p>
     </div>
     <div class="code-block"><pre><code>60
 140
@@ -320,13 +320,13 @@ calculator.setStrategy(express); <span class="code-comment"># Switch algorithm a
         <p>Consider a pricing application where discounts depend on customer membership.</p>
         <p>Regular customers receive no discount, while premium customers receive a 10% discount.</p>
         <p>A useful Spring Boot implementation is to register every strategy as a Spring bean, inject all available strategies into<br> a service and select the appropriate one per request.</p>
-        <p><strong>Define membership types</strong></p>
+        <p class="minor-heading"><strong>Define membership types</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">enum</span> <span class="code-class">CustomerTier</span> {
     REGULAR, PREMIUM
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Define the Strategy interface</strong></p>
+        <p class="minor-heading"><strong>Define the Strategy interface</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">DiscountStrategy</span> {
     <span class="code-class">CustomerTier</span> type();
@@ -334,7 +334,7 @@ calculator.setStrategy(express); <span class="code-comment"># Switch algorithm a
 }</code></pre></div>
     <div class="intro">
         <p>The <code>type</code> method tells us which membership tier the strategy supports.</p>
-        <p><strong>Implement Concrete Strategies</strong></p>
+        <p class="minor-heading"><strong>Implement Concrete Strategies</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-annotation">@Component</span>
 <span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">RegularDiscountStrategy</span> <span class="code-keyword">implements</span> <span class="code-class">DiscountStrategy</span> {
@@ -350,7 +350,7 @@ calculator.setStrategy(express); <span class="code-comment"># Switch algorithm a
 }</code></pre></div>
     <div class="intro">
         <p>Each concrete strategy is annotated with <code>Component</code>, allowing Spring Boot to discover and manage it.</p>
-        <p><strong>Create the Context service</strong></p>
+        <p class="minor-heading"><strong>Create the Context service</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-annotation">@Service</span>
 <span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">PricingService</span> {
@@ -369,7 +369,7 @@ calculator.setStrategy(express); <span class="code-comment"># Switch algorithm a
     }
 }</code></pre></div>
     <div class="intro">
-        <p><strong>What's happening here?</strong></p>
+        <p class="minor-heading"><strong>What's happening here?</strong></p>
         <p>Spring Boot automatically discovers the beans implementing <code>DiscountStrategy</code>:</p>
     </div>
     <div class="code-block"><pre><code>RegularDiscountStrategy
@@ -394,7 +394,7 @@ PREMIUM  → PremiumDiscountStrategy</code></pre></div>
     <div class="code-block"><pre><code>strategy.applyDiscount(amount);</code></pre></div>
     <div class="intro">
         <p>This eliminates the need to maintain an <code>if-else</code> chain containing separate discount algorithms.</p>
-        <p><strong>Expose a REST API</strong></p>
+        <p class="minor-heading"><strong>Expose a REST API</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-annotation">@RestController</span>
 <span class="code-annotation">@RequestMapping</span>(<span class="code-string">"/prices"</span>)
@@ -420,7 +420,7 @@ PREMIUM  → PremiumDiscountStrategy</code></pre></div>
     <div class="code-block"><pre><code>900.00</code></pre></div>
     <div class="intro">
         <p>The controller does not know how the discount is calculated. The service does not implement the discount calculation itself. The selected <code>DiscountStrategy</code> handles it.</p>
-        <p><strong>Why is this approach useful in Spring Boot?</strong></p>
+        <p class="minor-heading"><strong>Why is this approach useful in Spring Boot?</strong></p>
         <p>A Spring <code>Service</code> bean is generally a singleton by default. If we stored a mutable strategy field and changed it for every incoming request, concurrent requests could interfere with one another.</p>
         <p>For example, this approach is problematic:</p>
     </div>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thread Confinement</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Thread Confinement</div>
+
+    <div class="intro">
+        <p><strong>Thread confinement</strong> is one of the simplest and most effective ways to achieve thread safety in multithreaded programming. Instead of using complex synchronization (like locks or mutexes) to coordinate shared access to an object, you ensure that the object is <strong>only ever accessed by a single thread</strong>.</p>
+        <p>Because the object is never shared between threads, no data races or concurrency issues can occur.</p>
+    </div>
+
+    <div class="subheading">Types of Thread Confinement</div>
+    <div class="intro">
+        <p>There are three primary ways to implement thread confinement:</p>
+        <p class="minor-heading"><strong>1. Ad-hoc Thread Confinement</strong></p>
+        <ul>
+            <li><strong>What it is:</strong> Confinement that relies entirely on the developer&rsquo;s discipline and implementation choices. No language features or structural barriers enforce it.</li>
+            <li><strong>Example:</strong> Designating a specific background thread to handle all database writes.</li>
+            <li><strong>Risk:</strong> High. If another developer inadvertently touches the confined object from a different thread, a race condition will occur without any compiler warnings.</li>
+        </ul>
+        <p class="minor-heading"><strong>2. Stack Confinement (Local Variables)</strong></p>
+        <ul>
+            <li><strong>What it is:</strong> Restricting an object to the execution stack of a single method.</li>
+            <li><strong>How it works:</strong> Local variables reside on a thread&rsquo;s private execution stack. As long as you do not &ldquo;leak&rdquo; the reference (by returning it, passing it to a global variable, or publishing it to another thread), the object is completely safe from other threads.</li>
+            <li><strong>Example (Java):</strong></li>
+        </ul>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public void</span> processData() {
+    <span class="code-class">List</span>&lt;<span class="code-class">String</span>&gt; localList = <span class="code-keyword">new</span> <span class="code-class">ArrayList</span>&lt;&gt;(); <span class="code-comment"># Confined entirely to this method stack</span>
+    localList.add(<span class="code-string">"Data"</span>); <span class="code-comment"># As long as localList doesn't escape this method, it is safe</span>
+}</code></pre></div>
+    <div class="intro">
+        <p class="minor-heading"><strong>3. <code>ThreadLocal</code> Confinement</strong></p>
+        <ul>
+            <li><strong>What it is:</strong> A language-level feature (available in Java, C#, C++, etc.) that allows you to create a variable that can only be read and written by the same thread.</li>
+            <li><strong>How it works:</strong> Think of it as a map where the current thread is the key. Each thread gets its own, completely isolated copy of the variable.</li>
+            <li><strong>Example (Java):</strong></li>
+        </ul>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">private static</span> <span class="code-class">ThreadLocal</span>&lt;<span class="code-class">SimpleDateFormat</span>&gt; dateFormat = <span class="code-class">ThreadLocal</span>.withInitial(() -&gt; <span class="code-keyword">new</span> <span class="code-class">SimpleDateFormat</span>(<span class="code-string">"yyyy-MM-dd"</span>));</code></pre></div>
+
+    <div class="subheading">Core Trade-offs</div>
+    <div class="intro">
+        <p class="minor-heading"><strong>Benefits</strong></p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>High Performance</strong><br>No lock contention, context switching overhead, or waiting.</li>
+        <li><strong>Simplicity</strong><br>Code reads like standard single-threaded code.</li>
+        <li><strong>Deadlock-Free</strong><br>Since there are no locks, deadlocks are impossible.</li>
+    </ul></div>
+    <div class="intro">
+        <p class="minor-heading"><strong>Trade-offs and Risks</strong></p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>Memory Overhead</strong><br>If every thread holds its own copy of a large object, memory usage scales linearly.</li>
+        <li><strong>Memory Leaks</strong><br>If using thread pools (like <code>ThreadLocal</code> in application servers), data can persist unless explicitly cleaned up, causing leaks.</li>
+        <li><strong>Design Constraints</strong><br>You must structure your architecture so data moves <em>between</em> threads sequentially rather than concurrently.</li>
+    </ul></div>
+</div>
+</body>
+</html>

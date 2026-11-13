@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 690" font-family="Calibri, Carlito, 'Segoe UI', Arial, sans-serif" fill="#000">
+<rect width="1160" height="690" fill="#fff"/>
+<text x="115" y="120" font-size="19" font-weight="400" font-style="normal" text-anchor="start" dominant-baseline="central">JVM Language Classes</text>
+<path d="M310 120 L424 121" stroke="#000" stroke-width="1.4"/><path d="M424 121 L413.0 116.0 L413.0 125.9 Z" fill="#000"/>
+<path d="M426 68 L463 31 L695 31 L658 68 Z" fill="#fff" stroke="#000" stroke-width="1.5"/><path d="M658 68 L695 31 L695 140 L658 177 Z" fill="#c8c8c8" stroke="#000" stroke-width="1.5"/><rect x="426" y="68" width="232" height="109" fill="#fff" stroke="#000" stroke-width="1.5"/><text x="542" y="122.5" font-size="18" font-weight="700" font-style="normal" text-anchor="middle" dominant-baseline="central">Class Loader</text>
+<path d="M552 178 L566 194 L558 194 L558 236 L566 236 L552 252 L538 236 L546 236 L546 194 L538 194 Z" fill="#fff" stroke="#000" stroke-width="1.3"/>
+<path d="M108 252 L1074 252 L1044 283 L140 283 Z" fill="#fff" stroke="#000" stroke-width="1.4"/>
+<path d="M108 252 L140 283 L140 466 L108 496 Z" fill="#fff" stroke="#000" stroke-width="1.4"/>
+<path d="M1074 252 L1074 496 L1044 466 L1044 283 Z" fill="#9a9a9a" stroke="#000" stroke-width="1.4"/>
+<path d="M108 496 L140 466 L1044 466 L1074 496 Z" fill="#c8c8c8" stroke="#000" stroke-width="1.4"/>
+<rect x="140" y="283" width="904" height="183" fill="#fff" stroke="#000" stroke-width="1.4"/>
+<text x="152" y="302" font-size="18" font-weight="700" font-style="normal" text-anchor="start" dominant-baseline="central">JVM Memory</text>
+<rect x="153" y="349" width="155" height="81" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="230.5" y="390" font-size="18" font-weight="400" font-style="italic" text-anchor="middle" dominant-baseline="central">Method Area</text>
+<rect x="342" y="349" width="138" height="81" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="411" y="390" font-size="18" font-weight="400" font-style="italic" text-anchor="middle" dominant-baseline="central">Heap</text>
+<rect x="513" y="349" width="160" height="81" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="593" y="376" font-size="18" font-weight="400" font-style="italic" text-anchor="middle" dominant-baseline="central">JVM Language</text><text x="593" y="404" font-size="18" font-weight="400" font-style="italic" text-anchor="middle" dominant-baseline="central">Stacks</text>
+<rect x="694" y="349" width="137" height="81" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="762.5" y="390" font-size="18" font-weight="400" font-style="italic" text-anchor="middle" dominant-baseline="central">PC Registers</text>
+<rect x="861" y="349" width="164" height="81" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="943" y="376" font-size="18" font-weight="400" font-style="italic" text-anchor="middle" dominant-baseline="central">Native Method</text><text x="943" y="404" font-size="18" font-weight="400" font-style="italic" text-anchor="middle" dominant-baseline="central">Stacks</text>
+<path d="M207 496 L221 512 L213 512 L213 546 L221 546 L207 562 L193 546 L201 546 L201 512 L193 512 Z" fill="#fff" stroke="#000" stroke-width="1.3"/>
+<path d="M88 578 L118 548 L336 548 L306 578 Z" fill="#fff" stroke="#000" stroke-width="1.5"/><path d="M306 578 L336 548 L336 638 L306 668 Z" fill="#c8c8c8" stroke="#000" stroke-width="1.5"/><rect x="88" y="578" width="218" height="90" fill="#fff" stroke="#000" stroke-width="1.5"/><text x="197" y="623" font-size="18" font-weight="700" font-style="normal" text-anchor="middle" dominant-baseline="central">Execution Engine</text>
+<path d="M337 600 L441 598" stroke="#000" stroke-width="1.4"/><path d="M441 598 L430.9 593.7 L431.1 602.7 Z" fill="#000"/><path d="M337 600 L347.1 604.3 L346.9 595.3 Z" fill="#000"/>
+<rect x="443" y="555" width="251" height="91" fill="#fff" stroke="#000" stroke-width="1.3"/>
+<text x="568" y="595" font-size="18" font-weight="700" font-style="normal" text-anchor="middle" dominant-baseline="central">Native Method Interface</text>
+<path d="M697 600 L797 600" stroke="#000" stroke-width="1.4"/><path d="M797 600 L787.0 595.5 L787.0 604.5 Z" fill="#000"/><path d="M697 600 L707.0 604.5 L707.0 595.5 Z" fill="#000"/>
+<rect x="799" y="555" width="251" height="91" fill="#fff" stroke="#000" stroke-width="1.3"/>
+<text x="924" y="595" font-size="18" font-weight="700" font-style="normal" text-anchor="middle" dominant-baseline="central">Native Method Libraries</text>
+</svg>

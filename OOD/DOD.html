@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data-Oriented Design</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Data-Oriented Design</div>
+
+    <div class="intro">
+        <p><strong>Data-Oriented Design (DOD)</strong> is a software engineering approach focused on organizing data for optimal CPU cache usage and performance, rather than modeling based on object-oriented hierarchies.</p>
+        <p>By using layouts like <strong>Array of Structures (AoS)</strong> or <strong>Structure of Arrays (SoA)</strong>, DOD prioritizes efficient memory access, reducing cache misses and data movement. This is critical for high-performance applications such as video games.</p>
+    </div>
+
+    <div class="subheading">Key Aspects of Data-Oriented Design</div>
+    <div class="intro"><ul>
+        <li><strong>Focus on Data Layout:</strong> DOD prioritizes how data is structured in memory, aiming for contiguous, cache-friendly layouts, for example separating data into arrays based on when it is needed.</li>
+        <li><strong>Performance Optimization:</strong> It reduces CPU stall time by making sure data is already in the cache when it is needed, often giving significant speedups.</li>
+        <li><strong>Contrasted with OOD:</strong> Object-Oriented Design focuses on &ldquo;nouns&rdquo; (objects, state and behavior); DOD focuses on the transformations applied to data.</li>
+        <li><strong>Entity-Component-System (ECS):</strong> A common, practical implementation in game development, where entities are just IDs, components are raw data, and systems transform the data.</li>
+        <li><strong>Hardware Awareness:</strong> DOD considers the underlying hardware, such as cache lines and memory bandwidth, to create more efficient algorithms.</li>
+    </ul></div>
+</div>
+</body>
+</html>

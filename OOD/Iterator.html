@@ -93,7 +93,7 @@ songs.add(<span class="code-string">"Song C"</span>);
     <div class="subheading">Java's built-in Iterator and Iterable interfaces</div>
     <div class="intro">
         <p>Java already provides these abstractions through <code>java.util</code>.</p>
-        <p><strong><code>Iterator</code> interface</strong></p>
+        <p class="minor-heading"><strong><code>Iterator</code> interface</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">Iterator</span>&lt;E&gt; {
     <span class="code-keyword">boolean</span> hasNext();
@@ -170,7 +170,7 @@ songs.add(<span class="code-string">"Song C"</span>);
         <p>Unlike an <code>ArrayList</code>, a binary tree does not store elements in a simple sequential order. Its nodes are connected through left and right references.</p>
         <p>A tree can be traversed using several algorithms, including <strong>in-order</strong>, <strong>pre-order</strong>, <strong>post-order</strong>, and <strong>level-order</strong>.</p>
         <p>Iterator pattern allows us to encapsulate these traversal algorithms so that the client does not need to implement them.</p>
-        <p><strong>Binary tree structure</strong></p>
+        <p class="minor-heading"><strong>Binary tree structure</strong></p>
     </div>
     <div class="svg-diagram">
         <img src="../static/iterator-tree.svg" alt="Binary search tree: root 10; 5 and 15 below it; 2 and 7 under 5; 12 and 20 under 15" style="width:100%;max-width:520px">
@@ -178,7 +178,7 @@ songs.add(<span class="code-string">"Song C"</span>);
     <div class="intro">
         <p>Binary search tree used for the traversal examples.</p>
         <p>For this tree, different iterators can return different sequences.</p>
-        <p><strong>Explore traversal orders</strong></p>
+        <p class="minor-heading"><strong>Explore traversal orders</strong></p>
     </div>
     <div class="section cmp"><div class="section-content">
         <table class="cmp-table centered cmp-peer">
@@ -289,7 +289,7 @@ songs.add(<span class="code-string">"Song C"</span>);
     <span class="code-keyword">while</span> (iterator.hasNext())
         <span class="code-class">System</span>.out.print(iterator.next() + <span class="code-string">" "</span>);
 }</code></pre></div>
-            <div class="intro"><p><strong>Output:</strong></p></div>
+            <div class="intro"><p class="minor-heading"><strong>Output:</strong></p></div>
             <div class="code-block" style="flex:none"><pre><code>In-order:
 2 5 7 10 12 15 20
 
@@ -298,14 +298,14 @@ Pre-order:
         </div>
     </div>
     <div class="intro">
-        <p><strong>How the in-order iterator works</strong></p>
+        <p class="minor-heading"><strong>How the in-order iterator works</strong></p>
     </div>
     <div class="intro">
         <p>Our impl uses a stack instead of recursion, allowing the traversal to be paused and resumed between calls to <code>next</code>.</p>
     </div>
     <div class="intro">
         <p>The important observation is that the client only calls <code>hasNext</code> and <code>next</code>. It does not need to know anything about<br> tree nodes, stacks, recursion, or traversal order.</p>
-        <p><strong>Time and space complexity</strong></p>
+        <p class="minor-heading"><strong>Time and space complexity</strong></p>
     </div>
     <div class="section cmp"><div class="section-content">
         <table class="cmp-table centered cmp-peer">
@@ -337,7 +337,7 @@ Pre-order:
 }</code></pre></div>
     <div class="intro">
         <p>The iterator can fetch subsequent pages automatically, only when needed.</p>
-        <p><strong>How lazy pagination works</strong></p>
+        <p class="minor-heading"><strong>How lazy pagination works</strong></p>
     </div>
     <div class="svg-diagram">
         <img src="../static/iterator-pagination.svg" alt="The client loops with for-each over an iterator that keeps the cursor state and calls the REST API, which returns page 1, page 2 and page 3 only when each is required" style="width:100%;max-width:780px">
@@ -403,7 +403,7 @@ Pre-order:
         <span class="code-class">System</span>.out.println(<span class="code-string">"User: "</span> + user);
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Output:</strong></p>
+        <p class="minor-heading"><strong>Output:</strong></p>
     </div>
     <div class="code-block"><pre><code>Fetching page 1
 User: Alice
@@ -414,7 +414,7 @@ User: David</code></pre></div>
     <div class="intro">
         <p>Notice that page 2 is not fetched until the iterator runs out of elements from page 1.</p>
         <p>If the client stops after Alice, page 2 is never fetched.</p>
-        <p><strong>Why this is useful</strong></p>
+        <p class="minor-heading"><strong>Why this is useful</strong></p>
         <p>The client does not need to know how pagination works or when API calls must be made.</p>
         <p>It simply processes individual elements.</p>
         <p>The iterator encapsulates the pagination cursor, current page and fetching logic.</p>
@@ -478,7 +478,7 @@ User: David</code></pre></div>
     </div>
 
     <div class="subheading">Advantages and Disadvantages</div>
-    <div class="intro"><p><strong>Advantages</strong></p></div>
+    <div class="intro"><p class="minor-heading"><strong>Advantages</strong></p></div>
     <div class="intro"><ul>
         <li><strong>Hides traversal details</strong> &mdash; clients loop over elements without knowing how the collection stores them.</li>
         <li><strong>Separates traversal from storage</strong> &mdash; the collection keeps the data, while the iterator decides how to visit it.</li>
@@ -487,7 +487,7 @@ User: David</code></pre></div>
         <li><strong>Lazy traversal</strong> &mdash; elements, or whole pages of data, can be fetched only when <code>next</code> needs them.</li>
         <li><strong>Works with the enhanced <code>for</code> loop</strong> &mdash; any <code>Iterable</code> plugs straight into for-each.</li>
     </ul></div>
-    <div class="intro"><p><strong>Disadvantages</strong></p></div>
+    <div class="intro"><p class="minor-heading"><strong>Disadvantages</strong></p></div>
     <div class="intro"><ul>
         <li><strong>Extra abstraction</strong> &mdash; custom collections need additional iterator classes.</li>
         <li><strong>Overkill for simple collections</strong> &mdash; standard collections such as <code>ArrayList</code> already provide iterators.</li>

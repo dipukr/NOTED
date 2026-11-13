@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Docker</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Docker</div>
+
+    <div class="intro">
+        <p><strong>Docker</strong> is a containerization platform that provides a way to package an application and its dependencies into a single, self-contained unit called a container. Containers are isolated from each other and from the host operating system, which makes them an ideal solution for deploying applications in a consistent and predictable manner across different environments.</p>
+        <p>For example, using Docker, you can deploy Java and .NET Microservice in same way, unlike traditional way where you need JDK installed or CLR installed for .NET. Docker abstract that and allow you to deploy containers instead of JAR files or .NET executables.</p>
+        <p>On the other hand, <strong>Kubernetes</strong>, is an open-source platform for automating the deployment, scaling, and management of containerized applications. It provides a set of APIs and tools for deploying, scaling, and managing containers, including Docker containers.</p>
+        <p>In summary, Docker provides the containers, and Kubernetes provides the orchestration and management of those containers. The combination of Docker and Kubernetes allows organizations to manage and scale their applications more effectively and efficiently in a production environment.</p>
+        <p>It's also important to note that Kubernetes is not the only platform for orchestration and management of containers. There are many other alternatives available, such as Docker Swarm and OpenShift. However, Kubernetes is probably most popular solution in recent years due to its robust feature set, large community, and broad ecosystem.</p>
+    </div>
+    <div class="intro">
+        <p>A container is not a virtual machine. It is an ordinary process on the host that the Linux kernel isolates: <em>namespaces</em> give it its own view of processes, network, and file system, and <em>cgroups</em> limit how much CPU and memory it may use. All containers share the host&rsquo;s kernel, which is why they start in milliseconds and take megabytes rather than gigabytes.</p>
+        <p>The famous &ldquo;works on my machine&rdquo; problem disappears because the image carries the exact runtime, libraries, and configuration the application was tested with. The same image runs unchanged on a laptop, a CI server, and production.</p>
+    </div>
+
+    <div class="section-diagram">
+        <img src="../static/docker-architecture.svg" alt="Docker architecture: the Docker Client sends build, run and pull commands to the Docker Daemon on the Docker Host; the daemon manages read-only images and the running containers created from them, and pulls images from or pushes them to a registry such as Docker Hub">
+    </div>
+
+    <div class="section cmp">
+        <div class="section-title centered">Core Concepts</div>
+        <div class="section-content">
+            <table class="cmp-table">
+                <tbody>
+                    <tr><td>Image</td><td>A read-only template containing the application, its runtime, libraries, and configuration. Built in layers, where each instruction in a Dockerfile adds one layer that can be cached and shared.</td></tr>
+                    <tr><td>Container</td><td>A running instance of an image. It adds a thin writable layer on top of the image; many containers can run from the same image.</td></tr>
+                    <tr><td>Dockerfile</td><td>A text file of instructions (<code>FROM</code>, <code>COPY</code>, <code>RUN</code>, <code>CMD</code>, ...) that describes how to build an image.</td></tr>
+                    <tr><td>Registry</td><td>A store for images, such as Docker Hub, Amazon ECR, or a private Harbor registry. Images are pushed after a build and pulled wherever they run.</td></tr>
+                    <tr><td>Docker Daemon</td><td>The background service (<code>dockerd</code>) that builds images and creates, runs, and stops containers.</td></tr>
+                    <tr><td>Docker Client</td><td>The <code>docker</code> command-line tool; it sends each command to the daemon through its REST API.</td></tr>
+                    <tr><td>Volume</td><td>Storage managed by Docker that lives outside the container&rsquo;s writable layer, so data survives when the container is removed.</td></tr>
+                    <tr><td>Network</td><td>A virtual network that lets containers reach each other by container name; the default types are bridge, host, and none.</td></tr>
+                    <tr><td>Docker Compose</td><td>A tool that defines and runs multi-container applications from a single <code>compose.yaml</code> file.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="intro"><ul>
+        <li>Virtual machines virtualize the entire hardware &mdash; including the operating system. Each VM has its own operational system (OS). This in turn requires more memory and resources.</li>
+        <li>Containers, on the other hand, share the host operating system and only virtualize the application layer. This makes them significantly lighter and faster.</li>
+    </ul></div>
+
+    <div class="section cmp">
+        <div class="section-title centered">Container vs Virtual Machine</div>
+        <div class="section-content">
+            <table class="cmp-table">
+                <thead><tr><th>Aspect</th><th>Container</th><th>Virtual Machine</th></tr></thead>
+                <tbody>
+                    <tr><td>Isolation</td><td>Process-level, shares the host kernel</td><td>Full guest operating system on a hypervisor</td></tr>
+                    <tr><td>Size</td><td>Megabytes</td><td>Gigabytes</td></tr>
+                    <tr><td>Startup Time</td><td>Milliseconds to seconds</td><td>Minutes</td></tr>
+                    <tr><td>Density</td><td>Hundreds per host</td><td>Tens per host</td></tr>
+                    <tr><td>Security Boundary</td><td>Weaker, a kernel exploit can affect all containers</td><td>Stronger, each VM has its own kernel</td></tr>
+                    <tr><td>Operating System</td><td>Must match the host kernel (Linux containers need Linux)</td><td>Any guest operating system</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="section cmp">
+        <div class="section-title centered">Image Commands</div>
+        <div class="section-content">
+            <table class="cmp-table">
+                <tbody>
+                    <tr><td><code>docker build -t app:1.0 .</code></td><td>Build an image from the Dockerfile in the current directory and tag it <code>app:1.0</code>.</td></tr>
+                    <tr><td><code>docker images</code></td><td>List local images.</td></tr>
+                    <tr><td><code>docker pull nginx:1.27</code></td><td>Download an image from a registry.</td></tr>
+                    <tr><td><code>docker tag app:1.0 repo/app:1.0</code></td><td>Give an image another name, usually the registry path before a push.</td></tr>
+                    <tr><td><code>docker push repo/app:1.0</code></td><td>Upload an image to a registry.</td></tr>
+                    <tr><td><code>docker rmi app:1.0</code></td><td>Remove a local image.</td></tr>
+                    <tr><td><code>docker history app:1.0</code></td><td>Show the layers an image is built from and their sizes.</td></tr>
+                    <tr><td><code>docker image prune</code></td><td>Delete dangling (untagged) images to free disk space.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="section cmp">
+        <div class="section-title centered">Container Commands</div>
+        <div class="section-content">
+            <table class="cmp-table">
+                <tbody>
+                    <tr><td><code>docker run -d -p 8080:8080 --name api app:1.0</code></td><td>Start a container in the background, mapping host port 8080 to container port 8080.</td></tr>
+                    <tr><td><code>docker run -it --rm ubuntu bash</code></td><td>Start an interactive shell in a throwaway container that is deleted on exit.</td></tr>
+                    <tr><td><code>docker ps</code></td><td>List running containers; add <code>-a</code> to include stopped ones.</td></tr>
+                    <tr><td><code>docker logs -f api</code></td><td>Stream a container&rsquo;s standard output and error.</td></tr>
+                    <tr><td><code>docker exec -it api sh</code></td><td>Open a shell inside a running container.</td></tr>
+                    <tr><td><code>docker stop api</code></td><td>Stop a container gracefully (SIGTERM, then SIGKILL after a timeout).</td></tr>
+                    <tr><td><code>docker start api</code></td><td>Start a stopped container again.</td></tr>
+                    <tr><td><code>docker rm api</code></td><td>Remove a stopped container; add <code>-f</code> to stop and remove it.</td></tr>
+                    <tr><td><code>docker inspect api</code></td><td>Show full configuration and state as JSON (IP address, mounts, environment).</td></tr>
+                    <tr><td><code>docker stats</code></td><td>Show live CPU, memory, and network usage per container.</td></tr>
+                    <tr><td><code>docker cp api:/app/log.txt .</code></td><td>Copy files between a container and the host.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="section cmp">
+        <div class="section-title centered">Volume, Network and Compose Commands</div>
+        <div class="section-content">
+            <table class="cmp-table">
+                <tbody>
+                    <tr><td><code>docker volume create pgdata</code></td><td>Create a named volume.</td></tr>
+                    <tr><td><code>docker run -v pgdata:/var/lib/postgresql/data postgres</code></td><td>Mount a volume into a container so its data outlives the container.</td></tr>
+                    <tr><td><code>docker network create backend</code></td><td>Create a user-defined bridge network.</td></tr>
+                    <tr><td><code>docker run --network backend --name db postgres</code></td><td>Attach a container to a network; others on it can reach it as <code>db</code>.</td></tr>
+                    <tr><td><code>docker compose up -d</code></td><td>Build if needed, then start every service in <code>compose.yaml</code> in the background.</td></tr>
+                    <tr><td><code>docker compose down</code></td><td>Stop and remove the services and their network; add <code>-v</code> to remove volumes too.</td></tr>
+                    <tr><td><code>docker compose logs -f</code></td><td>Follow the combined logs of all services.</td></tr>
+                    <tr><td><code>docker system prune</code></td><td>Remove stopped containers, unused networks, dangling images, and build cache.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="subheading">Pros and Cons</div>
+    <div class="intro">
+        <p class="minor-heading"><strong>Pros</strong></p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>Consistent Environments</strong><br>The image carries the exact runtime and libraries, so the application behaves the same in development, testing, and production.</li>
+        <li><strong>Lightweight and Fast</strong><br>Containers share the host kernel, so they start in seconds and use far less memory and disk than virtual machines.</li>
+        <li><strong>Isolation</strong><br>Each service gets its own file system, dependencies, and resource limits, so conflicting library versions can run side by side.</li>
+        <li><strong>Portability</strong><br>The same image runs on any host with a container runtime: a laptop, an on-premise server, or any cloud.</li>
+        <li><strong>Faster Delivery</strong><br>Images are versioned, immutable artifacts, which makes CI/CD pipelines, rollbacks, and blue-green releases straightforward.</li>
+        <li><strong>Easy Scaling</strong><br>New instances are just new containers from the same image, which orchestrators such as Kubernetes start and stop automatically.</li>
+    </ul></div>
+    <div class="intro">
+        <p class="minor-heading"><strong>Cons</strong></p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>Weaker Isolation than VMs</strong><br>All containers share one kernel; a kernel vulnerability or a container running as root can put the whole host at risk.</li>
+        <li><strong>Persistent Data Is Harder</strong><br>Container file systems are temporary; databases and other stateful services need carefully managed volumes and backups.</li>
+        <li><strong>Operational Complexity</strong><br>Running many containers in production needs orchestration, service discovery, logging, and monitoring, which adds tools to learn and operate.</li>
+        <li><strong>Image Sprawl and Size</strong><br>Careless Dockerfiles produce large images with outdated packages, slowing deployments and widening the attack surface.</li>
+        <li><strong>Kernel Dependency</strong><br>Linux containers need a Linux kernel; on Windows and macOS Docker runs them inside a hidden virtual machine.</li>
+        <li><strong>Networking and Debugging</strong><br>Port mappings, overlay networks, and short-lived containers make troubleshooting harder than on a plain server.</li>
+    </ul></div>
+
+    <div class="section code-section">
+        <div class="section-title">Dockerfile for a Spring Boot Service</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-comment"># Stage 1: build the JAR with Maven</span>
+<span class="code-keyword">FROM</span> maven:3.9-eclipse-temurin-21 <span class="code-keyword">AS</span> build
+<span class="code-keyword">WORKDIR</span> /src
+<span class="code-keyword">COPY</span> pom.xml .
+<span class="code-keyword">RUN</span> mvn -q dependency:go-offline <span class="code-comment"># cached until pom.xml changes</span>
+<span class="code-keyword">COPY</span> src ./src
+<span class="code-keyword">RUN</span> mvn -q package -DskipTests
+
+<span class="code-comment"># Stage 2: small runtime image with only the JRE</span>
+<span class="code-keyword">FROM</span> eclipse-temurin:21-jre-alpine
+<span class="code-keyword">WORKDIR</span> /app
+<span class="code-keyword">RUN</span> addgroup -S app &amp;&amp; adduser -S app -G app
+<span class="code-keyword">USER</span> app <span class="code-comment"># never run as root</span>
+<span class="code-keyword">COPY</span> --from=build /src/target/*.jar app.jar
+<span class="code-keyword">EXPOSE</span> 8080
+<span class="code-keyword">ENTRYPOINT</span> [<span class="code-string">"java"</span>, <span class="code-string">"-jar"</span>, <span class="code-string">"app.jar"</span>]</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <p>A <em>multi-stage build</em>: the first stage has Maven and the full JDK, the second keeps only the JRE and the finished JAR.<br><br>
+                    Copying <code>pom.xml</code> before the source lets Docker reuse the cached dependency layer when only code changes.<br><br>
+                    The final image is small, contains no build tools, and runs as an unprivileged user.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Build, Run and Push</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code>docker build -t order-service:1.0 . <span class="code-comment"># build the image</span>
+docker run -d --name orders -p 8080:8080 \
+    -e SPRING_PROFILES_ACTIVE=dev order-service:1.0
+docker logs -f orders <span class="code-comment"># follow startup logs</span>
+curl http://localhost:8080/actuator/health
+docker tag order-service:1.0 registry.example.com/team/order-service:1.0
+docker push registry.example.com/team/order-service:1.0
+docker stop orders &amp;&amp; docker rm orders <span class="code-comment"># clean up</span></code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <p><code>-d</code> runs the container in the background, <code>-p</code> publishes its port on the host, and <code>-e</code> passes configuration as environment variables.<br><br>
+                    Tagging with the registry address and pushing makes the same image available to every other environment.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">application.properties for the Container</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code>spring.application.name=order-service
+server.port=8080
+
+<span class="code-comment"># db is the database container's name on the shared network</span>
+spring.datasource.url=jdbc:postgresql://db:5432/orders
+spring.datasource.username=orders
+spring.datasource.password=${DB_PASSWORD}
+
+management.endpoints.web.exposure.include=health</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <p>Inside a container, <code>localhost</code> is the container itself, so the database is addressed by its container name <code>db</code>.<br><br>
+                    The password is not baked into the image; Spring reads <code>${DB_PASSWORD}</code> from an environment variable passed with <code>docker run -e</code>.<br><br>
+                    Any property can also be overridden at run time, for example <code>-e SERVER_PORT=9090</code>.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Running the Service with a Database</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code>docker network create orders-net <span class="code-comment"># containers find each other by name</span>
+docker volume create pgdata <span class="code-comment"># database files outlive the container</span>
+
+docker run -d --name db --network orders-net \
+    -e POSTGRES_DB=orders -e POSTGRES_USER=orders \
+    -e POSTGRES_PASSWORD=$DB_PASSWORD \
+    -v pgdata:/var/lib/postgresql/data postgres:16
+
+docker run -d --name orders --network orders-net -p 8080:8080 \
+    -e DB_PASSWORD=$DB_PASSWORD order-service:1.0</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <p>Both containers join the <code>orders-net</code> network, so the service reaches PostgreSQL at <code>db:5432</code>.<br><br>
+                    Only the service publishes a port to the host; the database stays reachable from the network alone.<br><br>
+                    Removing the <code>db</code> container keeps the data, because it lives in the <code>pgdata</code> volume.</p>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

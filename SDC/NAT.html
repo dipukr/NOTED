@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NAT</title>
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    if (window.katex) document.querySelectorAll("[data-tex]").forEach(function (el) {
+        katex.render(el.dataset.tex, el, {displayMode: el.dataset.display === "1", throwOnError: false});
+    });
+
+    var nat = document.getElementById("gw-nat");
+    if (nat) {
+        var tabs = [
+            {title: "Source address translation", bs: "192.168.1.10:53000", bd: "198.51.100.80:443", as: "203.0.113.10:53000", ad: "198.51.100.80:443", changed: ["as"],
+             change: "Source IP changed", note: "The external server sees the router's external IP rather than the internal client IP."},
+            {title: "Destination address translation", bs: "198.51.100.25:52000", bd: "203.0.113.10:8080", as: "198.51.100.25:52000", ad: "192.168.1.50:8080", changed: ["ad"],
+             change: "Destination IP changed", note: "The NAT device forwards a packet addressed to its external IP to an internal service."},
+            {title: "Address and port translation", bs: "192.168.1.10:53000", bd: "198.51.100.80:443", as: "203.0.113.10:61001", ad: "198.51.100.80:443", changed: ["as"],
+             change: "Source IP and source port changed", note: "The assigned external port identifies this NAT mapping, allowing multiple internal clients to share the same IPv4 address."}
+        ];
+        var buttons = nat.querySelectorAll(".gw-tab");
+        buttons.forEach(function (b) {
+            b.onclick = function () {
+                var t = tabs[+b.dataset.tab];
+                buttons.forEach(function (x) { x.classList.toggle("active", x === b); });
+                ["title", "bs", "bd", "as", "ad", "change", "note"].forEach(function (k) {
+                    var el = nat.querySelector('[data-o="' + k + '"]');
+                    el.textContent = t[k];
+                    el.classList.toggle("changed", t.changed.indexOf(k) >= 0);
+                });
+            };
+        });
+    }
+});
+</script>
+</head>
+<body>
+<div class="note">
+    <div class="title">Network Address Translation (NAT) — Complete Guide</div>
+
+    <div class="intro">
+        <p>NAT is one of the most important networking concepts for backend engineers, system designers, DevOps engineers, and anyone working with routers, firewalls, Docker, Kubernetes, or cloud infrastructure.</p>
+        <p>In this guide, we&rsquo;ll cover how NAT works internally, its different types, how packets are modified, how connection tracking works, and how to implement and debug NAT using Linux commands.</p>
+    </div>
+
+    <div class="subheading">1. What is NAT?</div>
+    <div class="intro">
+        <p><strong>NAT (Network Address Translation)</strong> is a networking technique that modifies the source or destination IP address of packets as they travel through a router, firewall, or another network device.</p>
+        <p>Some forms of NAT also modify transport-layer port numbers.</p>
+        <p>NAT commonly allows multiple devices in a private network to communicate with external networks using a single public IPv4 address.</p>
+        <p>For example, your home may contain:</p>
+        <ul>
+            <li>Laptop: <code>192.168.1.10</code></li>
+            <li>Phone: <code>192.168.1.11</code></li>
+            <li>Desktop: <code>192.168.1.12</code></li>
+            <li>Router&rsquo;s public IP: <code>203.0.113.10</code></li>
+        </ul>
+        <p>All three devices can access the Internet simultaneously, with external servers seeing connections originating from the router&rsquo;s public IP address.</p>
+        <p>The public-looking addresses in this tutorial, including 203.0.113.x and 198.51.100.x, are reserved documentation addresses used for illustration, not reachable Internet servers.</p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/nat-overview.svg" alt="Laptop, phone and desktop with private IPs connect through a NAT router with public IP 203.0.113.10 to Internet servers; many private IPs share one external IP" style="width:100%;max-width:520px">
+    </div>
+    <div class="intro">
+        <p class="minor-heading"><strong>Why do we need NAT?</strong></p>
+        <p>The main reason for widespread IPv4 NAT is <strong>IPv4 address scarcity</strong>.</p>
+        <p>IPv4 addresses contain 32 bits:</p>
+    </div>
+    <div class="intro"><p class="math-display"><span class="math" data-tex="2^{32}=4,294,967,296" data-display="1">2<sup>32</sup> = 4,294,967,296</span></p></div>
+    <div class="intro">
+        <p>That gives approximately 4.3 billion possible IPv4 addresses, many of which are reserved or otherwise not globally available.</p>
+        <p>Without address sharing, providing a dedicated public IPv4 address to every phone, laptop, smart TV, server, and IoT device would be impractical.</p>
+        <p>NAT enables address reuse across private networks.</p>
+        <p>Other important motivations include:</p>
+        <ul>
+            <li>Allowing private networks to communicate with external networks.</li>
+            <li>Reducing consumption of public IPv4 addresses.</li>
+            <li>Hiding internal addressing details from external networks.</li>
+            <li>Supporting internal-to-external address mappings during network migrations.</li>
+            <li>Publishing selected internal services through port forwarding.</li>
+        </ul>
+        <p>NAT&rsquo;s basic behavior, including address-only translation and address-plus-port translation, is documented in RFC 3022 — Traditional NAT.</p>
+        <p class="minor-heading"><strong>Address allocation</strong></p>
+        <ul>
+            <li><strong>Dynamic Allocation:</strong> Many devices do not require a permanent IP address. Instead, they use Dynamic Host Configuration Protocol (DHCP) to obtain an IP address temporarily from a pool of available addresses.</li>
+            <li><strong>NAT (Network Address Translation):</strong> This technique allows multiple devices on a local network to share a single public IP address. It translates private IP addresses used within the local network to a public IP address for external communication.</li>
+            <li><strong>Subnetting:</strong> Networks can be divided into smaller sub-networks (subnets) to manage IP addresses more efficiently.</li>
+        </ul>
+    </div>
+
+    <div class="subheading">2. Public IP addresses vs private IP addresses</div>
+    <div class="intro">
+        <p>Before understanding NAT, you must distinguish public and private addresses.</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Property</th><th>Private IPv4</th><th>Public IPv4</th></tr></thead>
+            <tbody>
+                <tr><td>Globally unique</td><td>No</td><td>Normally yes</td></tr>
+                <tr><td>Routable on public Internet</td><td>No</td><td>Generally yes, if assigned and routed</td></tr>
+                <tr><td>Common usage</td><td>LANs, VPCs, internal networks</td><td>Public servers, ISP connections</td></tr>
+                <tr><td>NAT required for IPv4 Internet access?</td><td>Typically</td><td>Not inherently</td></tr>
+                <tr><td>Example</td><td><code>192.168.1.10</code></td><td>A publicly assigned routable address</td></tr>
+            </tbody>
+        </table></div>
+        <p class="minor-heading"><strong>Private IPv4 ranges</strong></p>
+        <p>RFC 1918 defines three ranges:</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Address range</th><th>CIDR</th><th>Number of addresses</th></tr></thead>
+            <tbody>
+                <tr><td><code>10.0.0.0</code> – <code>10.255.255.255</code></td><td><code>/8</code></td><td>16,777,216</td></tr>
+                <tr><td><code>172.16.0.0</code> – <code>172.31.255.255</code></td><td><code>/12</code></td><td>1,048,576</td></tr>
+                <tr><td><code>192.168.0.0</code> – <code>192.168.255.255</code></td><td><code>/16</code></td><td>65,536</td></tr>
+            </tbody>
+        </table></div>
+        <p>Different organizations can independently use these same private addresses.</p>
+        <p>For example, thousands of office networks can contain a machine with IP <code>192.168.1.10</code>.</p>
+        <p>That is possible because the address is meaningful inside its network, not necessarily globally.</p>
+        <p class="minor-heading"><strong>Check your addresses</strong></p>
+        <p>On Linux:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-comment"># Show addresses assigned to your machine</span>
+<span class="code-keyword">ip</span> addr show
+
+<span class="code-comment"># Show IPv4 addresses only</span>
+<span class="code-keyword">ip</span> -4 addr
+
+<span class="code-comment"># Show routing table</span>
+<span class="code-keyword">ip</span> route
+
+<span class="code-comment"># Show the route chosen for a destination</span>
+<span class="code-keyword">ip</span> route get 8.8.8.8</code></pre></div>
+    <div class="intro">
+        <p>Find the IP address visible to an external server:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">curl</span> -4 https://api.ipify.org</code></pre></div>
+    <div class="intro">
+        <p>The two addresses may differ because a NAT device translates your outgoing traffic. A proxy or VPN can also affect the externally visible address.</p>
+    </div>
+
+    <div class="subheading">3. How NAT works internally: step by step</div>
+    <div class="intro">
+        <p>Assume the following topology:</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Component</th><th>IP address</th></tr></thead>
+            <tbody>
+                <tr><td>Laptop</td><td><code>192.168.1.10</code></td></tr>
+                <tr><td>Router LAN interface</td><td><code>192.168.1.1</code></td></tr>
+                <tr><td>Router WAN interface</td><td><code>203.0.113.10</code></td></tr>
+                <tr><td>External server</td><td><code>198.51.100.80</code></td></tr>
+            </tbody>
+        </table></div>
+        <p>The laptop opens an HTTPS connection using local TCP source port <code>53000</code>.</p>
+        <p class="minor-heading"><strong>Step 1 — Laptop sends a packet</strong></p>
+        <p>The original packet has:</p>
+    </div>
+    <div class="code-block"><pre><code>IP Header:
+    Source IP      = 192.168.1.10
+    Destination IP = 198.51.100.80
+
+TCP Header:
+    Source Port      = 53000
+    Destination Port = 443</code></pre></div>
+    <div class="intro">
+        <p>Its connection endpoints are:</p>
+    </div>
+    <div class="code-block"><pre><code>192.168.1.10:53000 → 198.51.100.80:443</code></pre></div>
+    <div class="intro">
+        <p class="minor-heading"><strong>Step 2 — The packet reaches the router</strong></p>
+        <p>The laptop discovers that <code>198.51.100.80</code> is outside its local subnet.</p>
+        <p>It forwards the packet to its default gateway, <code>192.168.1.1</code>.</p>
+        <p>The router examines the packet, applies relevant forwarding and NAT rules, and establishes a translation mapping.</p>
+        <p>Suppose the NAT router selects public TCP port <code>61001</code>.</p>
+        <p>The mapping is:</p>
+    </div>
+    <div class="code-block"><pre><code>192.168.1.10:53000
+        ↓ NAT
+203.0.113.10:61001</code></pre></div>
+    <div class="intro">
+        <p class="minor-heading"><strong>Step 3 — The router modifies the packet</strong></p>
+        <p>The router replaces the source address and potentially the source port.</p>
+    </div>
+    <div class="code-block"><pre><code>BEFORE NAT
+
+Source:      192.168.1.10:53000
+Destination: 198.51.100.80:443
+
+AFTER NAT
+
+Source:      203.0.113.10:61001
+Destination: 198.51.100.80:443</code></pre></div>
+    <div class="intro">
+        <p>This is called <strong>Source NAT (SNAT)</strong>.</p>
+        <p>Because the port also changes in this example, it is specifically an example of Network Address and Port Translation (NAPT), commonly called PAT.</p>
+        <p class="minor-heading"><strong>Step 4 — External server responds</strong></p>
+        <p>The external server does not need to know the laptop&rsquo;s private address.</p>
+        <p>It responds to the source endpoint visible in the received packet:</p>
+    </div>
+    <div class="code-block"><pre><code>Source:      198.51.100.80:443
+Destination: 203.0.113.10:61001</code></pre></div>
+    <div class="intro">
+        <p class="minor-heading"><strong>Step 5 — Router performs reverse translation</strong></p>
+        <p>The router looks up its stored NAT state and determines that the reply belongs to the laptop.</p>
+        <p>It transforms the destination:</p>
+    </div>
+    <div class="code-block"><pre><code>BEFORE REVERSE TRANSLATION
+
+198.51.100.80:443 → 203.0.113.10:61001
+
+AFTER REVERSE TRANSLATION
+
+198.51.100.80:443 → 192.168.1.10:53000</code></pre></div>
+    <div class="intro">
+        <p>The laptop receives the response as part of its original TCP connection.</p>
+        <p class="minor-heading"><strong>Complete packet flow</strong></p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/nat-packet-flow.svg" alt="Sequence: the laptop sends 192.168.1.10:53000 to the NAT router, which applies SNAT and saves the mapping, forwards as 203.0.113.10:61001 to the server; the reply to :61001 is reverse-translated by lookup and delivered to 192.168.1.10:53000" style="width:100%;max-width:520px">
+    </div>
+    <div class="intro">
+        <p>Notice that the router is not creating a separate application-level HTTP request. It is forwarding and modifying network packets.</p>
+        <p>That distinction is important when comparing NAT with a proxy.</p>
+    </div>
+
+    <div class="subheading">4. NAT table and connection tracking</div>
+    <div class="intro">
+        <p>One of the most important questions is:</p>
+        <p><strong>When hundreds of devices share one public IP address, how does the router know which reply belongs to which device?</strong></p>
+        <p>The answer is its translation and connection-tracking state.</p>
+        <p class="minor-heading"><strong>Example NAT table</strong></p>
+        <p>Suppose three machines open TCP connections to the same server.</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Internal endpoint</th><th>External translated endpoint</th><th>Destination</th></tr></thead>
+            <tbody>
+                <tr><td><code>192.168.1.10:50000</code></td><td><code>203.0.113.10:40001</code></td><td><code>198.51.100.80:443</code></td></tr>
+                <tr><td><code>192.168.1.11:50000</code></td><td><code>203.0.113.10:40002</code></td><td><code>198.51.100.80:443</code></td></tr>
+                <tr><td><code>192.168.1.12:50000</code></td><td><code>203.0.113.10:40003</code></td><td><code>198.51.100.80:443</code></td></tr>
+            </tbody>
+        </table></div>
+        <p>Although all three devices independently selected local source port <code>50000</code>, the NAT router gave their connections distinct external ports.</p>
+        <p>When the router receives a reply for <code>203.0.113.10:40002</code>, it can associate it with the second connection.</p>
+        <p class="minor-heading"><strong>The TCP/UDP five-tuple</strong></p>
+        <p>A typical IP flow is identified using:</p>
+    </div>
+    <div class="code-block"><pre><code>(
+    Protocol,
+    Source IP,
+    Source Port,
+    Destination IP,
+    Destination Port
+)</code></pre></div>
+    <div class="intro">
+        <p>For example:</p>
+    </div>
+    <div class="code-block"><pre><code>(
+    TCP,
+    192.168.1.10,
+    53000,
+    198.51.100.80,
+    443
+)</code></pre></div>
+    <div class="intro">
+        <p>This combination is called the <strong>5-tuple</strong>.</p>
+        <p>A stateful NAT implementation uses packet identifiers, flow state, mappings, and filtering rules to determine the correct translation. The precise mapping keys depend on the NAT implementation and its mapping behavior.</p>
+        <p class="minor-heading"><strong>NAT is stateful in typical home-router usage</strong></p>
+        <p>A dynamic NAT mapping has a lifecycle:</p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/nat-mapping-lifecycle.svg" alt="NAT mapping lifecycle: new flow (first packet), active (translate traffic), expired (release mapping)" style="width:100%;max-width:520px">
+    </div>
+    <div class="intro">
+        <ol>
+            <li><strong>Creation:</strong> The first packet matches a NAT rule, creating translation state.</li>
+            <li><strong>Reuse:</strong> Subsequent packets belonging to the flow reuse the established mapping.</li>
+            <li><strong>Expiration:</strong> The device eventually removes stale or closed connection state and releases resources.</li>
+        </ol>
+        <p>For TCP, state can track connection establishment, ongoing traffic and closure. UDP has no built-in connection handshake, so NAT devices rely primarily on observed traffic and timeouts.</p>
+        <p>In Linux, this state is managed by the Netfilter connection-tracking subsystem, commonly called <code>conntrack</code>. The nftables documentation explains that NAT rules normally establish the mapping on the first packet rather than reselecting a translation for every subsequent packet.</p>
+    </div>
+
+    <div class="subheading">5. Types of NAT</div>
+    <div class="intro">
+        <p>There are several ways to classify NAT. Two particularly useful classifications are based on what gets translated and how mappings are allocated.</p>
+        <p class="minor-heading"><strong>5.1 Source NAT (SNAT)</strong></p>
+        <p>SNAT changes the <strong>source IP address</strong> of a packet.</p>
+        <p>It commonly operates when traffic leaves a private network.</p>
+        <p>Example:</p>
+    </div>
+    <div class="code-block"><pre><code>Original packet:
+    192.168.1.10:53000 → 198.51.100.80:443
+
+After SNAT:
+    203.0.113.10:53000 → 198.51.100.80:443</code></pre></div>
+    <div class="intro">
+        <p>Here, only the source IP changes. In actual deployments, the router may change the source port as well.</p>
+        <p>Common use cases include outbound Internet access, private cloud subnets connecting to external services, and network migrations.</p>
+        <p class="minor-heading"><strong>5.2 Destination NAT (DNAT)</strong></p>
+        <p>DNAT changes the <strong>destination IP address</strong> of a packet.</p>
+        <p>It is commonly used to forward incoming requests to an internal server.</p>
+        <p>Imagine hosting a Spring Boot application on:</p>
+    </div>
+    <div class="code-block"><pre><code>Internal server: 192.168.1.50:8080
+Router WAN IP:   203.0.113.10</code></pre></div>
+    <div class="intro">
+        <p>An external client requests:</p>
+    </div>
+    <div class="code-block"><pre><code>http://203.0.113.10:8080</code></pre></div>
+    <div class="intro">
+        <p>The router performs DNAT:</p>
+    </div>
+    <div class="code-block"><pre><code>BEFORE DNAT
+
+Source:      198.51.100.25:52000
+Destination: 203.0.113.10:8080
+
+AFTER DNAT
+
+Source:      198.51.100.25:52000
+Destination: 192.168.1.50:8080</code></pre></div>
+    <div class="intro">
+        <p>The application receives the request at its private address.</p>
+        <p>Replies traverse the same NAT device so their source can be translated back to the router&rsquo;s external endpoint.</p>
+        <p>This is the basic principle behind <strong>port forwarding</strong>.</p>
+        <p class="minor-heading"><strong>5.3 Port Address Translation (PAT/NAPT)</strong></p>
+        <p>PAT changes transport-layer ports, usually together with IP addresses.</p>
+        <p>It is also known as:</p>
+        <ul>
+            <li>Network Address and Port Translation (NAPT)</li>
+            <li>NAT overload</li>
+            <li>Many-to-one NAT, in common usage</li>
+        </ul>
+        <p>PAT is what makes sharing one IPv4 address across many simultaneous connections practical.</p>
+        <p>For example:</p>
+    </div>
+    <div class="code-block"><pre><code>Laptop A:
+192.168.1.10:50000
+       ↓
+203.0.113.10:40001
+
+Laptop B:
+192.168.1.11:50000
+       ↓
+203.0.113.10:40002
+
+Laptop C:
+192.168.1.12:50000
+       ↓
+203.0.113.10:40003</code></pre></div>
+    <div class="intro">
+        <p>The external ports help distinguish connections.</p>
+        <p><strong>Important:</strong> PAT does not necessarily change the source port every time. Many NAT devices attempt to preserve the original port when feasible.</p>
+        <p class="minor-heading"><strong>5.4 Static NAT</strong></p>
+        <p>Static NAT creates a fixed mapping between addresses.</p>
+        <p>For example:</p>
+    </div>
+    <div class="code-block"><pre><code>10.0.0.10 ↔ 203.0.113.10</code></pre></div>
+    <div class="intro">
+        <p>Every packet belonging to that mapping uses the same translated address.</p>
+        <p>Static NAT is useful when an internal system needs a predictable external address.</p>
+        <p>An address-only mapping is distinct from a fixed port-forwarding rule, although both involve static configuration.</p>
+        <p class="minor-heading"><strong>5.5 Dynamic NAT</strong></p>
+        <p>Dynamic NAT selects an address from an available pool.</p>
+        <p>Suppose a company has:</p>
+    </div>
+    <div class="code-block"><pre><code>Private addresses:
+10.0.0.10
+10.0.0.11
+10.0.0.12
+
+External address pool:
+203.0.113.10
+203.0.113.11</code></pre></div>
+    <div class="intro">
+        <p>An address-only dynamic NAT might allocate:</p>
+    </div>
+    <div class="code-block"><pre><code>10.0.0.10 → 203.0.113.10
+10.0.0.11 → 203.0.113.11</code></pre></div>
+    <div class="intro">
+        <p>If both external addresses are occupied, another internal host cannot obtain an additional simultaneous one-to-one binding until an address becomes available.</p>
+        <p>Dynamic NAPT avoids this particular limitation by sharing external addresses through ports.</p>
+        <p class="minor-heading"><strong>5.6 NAT comparison</strong></p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Type</th><th>What changes?</th><th>Typical application</th></tr></thead>
+            <tbody>
+                <tr><td>SNAT</td><td>Source address, sometimes source port</td><td>Outbound access</td></tr>
+                <tr><td>DNAT</td><td>Destination address, sometimes destination port</td><td>Incoming requests</td></tr>
+                <tr><td>PAT/NAPT</td><td>Address and port translation</td><td>Share one IPv4</td></tr>
+                <tr><td>Static NAT</td><td>Fixed address mapping</td><td>Predictable external address</td></tr>
+                <tr><td>Dynamic NAT</td><td>Address allocated from pool</td><td>Shared public address pool</td></tr>
+                <tr><td>Masquerading</td><td>SNAT using outgoing interface address</td><td>Home routers, Linux gateways</td></tr>
+            </tbody>
+        </table></div>
+        <p>The terms overlap: a dynamic NAPT connection can perform SNAT, while a static port-forward uses DNAT.</p>
+    </div>
+
+    <div class="subheading">6. SNAT vs DNAT vs PAT — interactive examples</div>
+    <div class="gw-card gw-nat" id="gw-nat">
+        <div class="gw-tabs"><button class="gw-tab active" data-tab="0">SNAT</button><button class="gw-tab" data-tab="1">DNAT</button><button class="gw-tab" data-tab="2">PAT</button></div>
+        <p class="gw-title" data-o="title">Source address translation</p>
+        <div class="gw-panel gw-pkt">
+            <p class="gw-k">Before translation</p>
+            <div class="gw-kv"><div><span>Source</span><p data-o="bs">192.168.1.10:53000</p></div><div><span>Destination</span><p data-o="bd">198.51.100.80:443</p></div></div>
+        </div>
+        <div class="gw-mid"><svg class="gw-down" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12.707 18.707a1 1 0 0 1-1.414 0l-5-5a1 1 0 1 1 1.414-1.414L11 15.586V6a1 1 0 1 1 2 0v9.586l3.293-3.293a1 1 0 0 1 1.414 1.414l-5 5Z" clip-rule="evenodd"/></svg><p>NAT device modifies packet</p></div>
+        <div class="gw-panel gw-pkt">
+            <p class="gw-k">After translation</p>
+            <div class="gw-kv"><div><span>Source</span><p data-o="as" class="changed">203.0.113.10:53000</p></div><div><span>Destination</span><p data-o="ad">198.51.100.80:443</p></div></div>
+        </div>
+        <p class="gw-change" data-o="change">Source IP changed</p>
+        <p class="gw-note" data-o="note">The external server sees the router's external IP rather than the internal client IP.</p>
+    </div>
+
+    <div class="subheading">7. Where NAT operates in the network stack</div>
+    <div class="intro">
+        <p>NAT is not a distinct OSI layer.</p>
+        <p>Traditional IPv4 NAT operates primarily on IP packet headers at Layer 3, while NAPT also examines and modifies Layer 4 transport identifiers such as TCP and UDP ports.</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Layer</th><th>Technology</th><th>NAT relationship</th></tr></thead>
+            <tbody>
+                <tr><td>7 — Application</td><td>HTTP, DNS</td><td>Usually not directly interpreted by basic NAT</td></tr>
+                <tr><td>4 — Transport</td><td>TCP, UDP</td><td>PAT can modify ports</td></tr>
+                <tr><td>3 — Network</td><td>IPv4</td><td>NAT modifies IP addresses</td></tr>
+                <tr><td>2 — Data link</td><td>Ethernet</td><td>Link-layer forwarding occurs separately</td></tr>
+            </tbody>
+        </table></div>
+        <p class="minor-heading"><strong>Does NAT change HTTP data?</strong></p>
+        <p>Ordinary IP/port NAT does not need to modify HTTP headers or HTTP bodies.</p>
+        <p>If a client sends:</p>
+    </div>
+    <div class="code-block"><pre><code>GET /orders HTTP/1.1
+Host: api.example.com</code></pre></div>
+    <div class="intro">
+        <p>The NAT device can translate the packet while leaving the HTTP request content unchanged.</p>
+        <p>Similarly, ordinary NAT does not decrypt HTTPS traffic. TLS can remain end-to-end between the client and server.</p>
+        <p>There are exceptions: Application Layer Gateways (ALGs) sometimes inspect or rewrite application payloads for protocols that embed addresses or ports, such as traditional FTP.</p>
+        <p class="minor-heading"><strong>What actually changes inside a packet?</strong></p>
+        <p>A NAT implementation may modify:</p>
+        <ol>
+            <li>IPv4 source or destination address.</li>
+            <li>TCP/UDP source or destination port.</li>
+            <li>IPv4 header checksum.</li>
+            <li>TCP/UDP checksum, which covers a pseudo-header containing IP addresses.</li>
+            <li>Protocol-specific identifiers or checksums when necessary, such as for certain ICMP exchanges.</li>
+        </ol>
+        <p>IP routing can also change the TTL independently of the NAT operation.</p>
+        <p>It is incorrect to think that NAT is simply replacing a text string containing an IP address. It is a packet-processing operation that must preserve valid protocol semantics.</p>
+    </div>
+
+    <div class="subheading">8. Linux packet-processing pipeline</div>
+    <div class="intro">
+        <p>Linux provides NAT through the Netfilter subsystem.</p>
+        <p>The usual packet-processing path for forwarded traffic is:</p>
+    </div>
+    <div class="gw-card gw-chain">
+        <div class="gw-step end"><p>Packet enters network interface</p></div>
+        <svg class="gw-down" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12.707 18.707a1 1 0 0 1-1.414 0l-5-5a1 1 0 1 1 1.414-1.414L11 15.586V6a1 1 0 1 1 2 0v9.586l3.293-3.293a1 1 0 0 1 1.414 1.414l-5 5Z" clip-rule="evenodd"/></svg>
+        <div class="gw-step hook"><div class="gw-steph"><strong>PREROUTING</strong><span class="gw-tag">DNAT</span></div><span class="gw-sd">Destination translation can occur here</span></div>
+        <svg class="gw-down" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12.707 18.707a1 1 0 0 1-1.414 0l-5-5a1 1 0 1 1 1.414-1.414L11 15.586V6a1 1 0 1 1 2 0v9.586l3.293-3.293a1 1 0 0 1 1.414 1.414l-5 5Z" clip-rule="evenodd"/></svg>
+        <div class="gw-step route"><p><strong>Routing decision</strong></p><p class="gw-small">Is the destination local or forwarded?</p></div>
+        <svg class="gw-down" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12.707 18.707a1 1 0 0 1-1.414 0l-5-5a1 1 0 1 1 1.414-1.414L11 15.586V6a1 1 0 1 1 2 0v9.586l3.293-3.293a1 1 0 0 1 1.414 1.414l-5 5Z" clip-rule="evenodd"/></svg>
+        <div class="gw-step hook"><p><strong>FORWARD</strong></p><span class="gw-sd">Forwarding firewall rules can accept or reject the packet</span></div>
+        <svg class="gw-down" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12.707 18.707a1 1 0 0 1-1.414 0l-5-5a1 1 0 1 1 1.414-1.414L11 15.586V6a1 1 0 1 1 2 0v9.586l3.293-3.293a1 1 0 0 1 1.414 1.414l-5 5Z" clip-rule="evenodd"/></svg>
+        <div class="gw-step hook"><div class="gw-steph"><strong>POSTROUTING</strong><span class="gw-tag">SNAT</span></div><span class="gw-sd">Source translation can occur here</span></div>
+        <svg class="gw-down" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12.707 18.707a1 1 0 0 1-1.414 0l-5-5a1 1 0 1 1 1.414-1.414L11 15.586V6a1 1 0 1 1 2 0v9.586l3.293-3.293a1 1 0 0 1 1.414 1.414l-5 5Z" clip-rule="evenodd"/></svg>
+        <div class="gw-step end"><p>Packet leaves network interface</p></div>
+    </div>
+    <div class="intro">
+        <p>This is the normal high-level forwarded-packet path. Packets generated locally or delivered to the local machine take different paths, involving <code>OUTPUT</code> or <code>INPUT</code> rather than <code>FORWARD</code>.</p>
+        <p>The major Netfilter hooks are:</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Hook</th><th>Purpose</th></tr></thead>
+            <tbody>
+                <tr><td><code>PREROUTING</code></td><td>Process incoming packets before routing</td></tr>
+                <tr><td><code>INPUT</code></td><td>Process packets destined for the local machine</td></tr>
+                <tr><td><code>FORWARD</code></td><td>Process packets routed through the machine</td></tr>
+                <tr><td><code>OUTPUT</code></td><td>Process locally generated packets</td></tr>
+                <tr><td><code>POSTROUTING</code></td><td>Process packets before transmission</td></tr>
+            </tbody>
+        </table></div>
+        <p>A Linux router must also have IP forwarding enabled.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-comment"># Check whether IPv4 forwarding is enabled</span>
+<span class="code-keyword">sysctl</span> net.ipv4.ip_forward
+
+<span class="code-comment"># Enable it (until reset or reboot)</span>
+<span class="code-keyword">sudo</span> sysctl -w net.ipv4.ip_forward=1</code></pre></div>
+    <div class="intro">
+        <p>Modern Linux systems commonly use <code>nftables</code> to configure Netfilter; <code>iptables</code> syntax remains widely encountered.</p>
+    </div>
+
+    <div class="subheading">9. Implement NAT using Linux nftables</div>
+    <div class="intro">
+        <p>Let&rsquo;s first understand the individual commands.</p>
+        <p>The following examples assume a Linux machine acting as a router, with:</p>
+    </div>
+    <div class="code-block"><pre><code>LAN interface: eth1
+LAN subnet:    192.168.1.0/24
+WAN interface: eth0</code></pre></div>
+    <div class="intro">
+        <p>These are illustrative interface names. Check actual names with <code>ip link</code>.</p>
+        <p class="minor-heading"><strong>Example A — Configure outbound SNAT</strong></p>
+        <p>Create the NAT table and its postrouting chain:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">sudo</span> nft add table ip nat
+
+<span class="code-keyword">sudo</span> nft 'add chain ip nat postrouting {
+    type nat hook postrouting priority 100;
+    policy accept;
+}'</code></pre></div>
+    <div class="intro">
+        <p>Enable masquerading:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">sudo</span> nft 'add rule ip nat postrouting
+    ip saddr 192.168.1.0/24
+    oifname "eth0"
+    masquerade'</code></pre></div>
+    <div class="intro">
+        <p>This instructs Linux to translate outgoing traffic from the private subnet using the outgoing interface&rsquo;s IPv4 address.</p>
+        <p>If the router&rsquo;s WAN address changes, masquerading automatically uses the current interface address.</p>
+        <p>For a fixed WAN address, you could instead use:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">sudo</span> nft 'add rule ip nat postrouting
+    ip saddr 192.168.1.0/24
+    oifname "eth0"
+    snat to 203.0.113.10'</code></pre></div>
+    <div class="intro">
+        <p>The <code>203.0.113.10</code> address is illustrative; a real rule must use an appropriate address actually assigned or routed to your device.</p>
+        <p class="minor-heading"><strong>Example B — Configure port forwarding using DNAT</strong></p>
+        <p>Suppose an internal Spring Boot application listens at:</p>
+    </div>
+    <div class="code-block"><pre><code>192.168.1.50:8080</code></pre></div>
+    <div class="intro">
+        <p>You want connections arriving at WAN port <code>9090</code> to be forwarded to it.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">sudo</span> nft 'add chain ip nat prerouting {
+    type nat hook prerouting priority -100;
+    policy accept;
+}'</code></pre></div>
+    <div class="intro">
+        <p>Add the rule:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">sudo</span> nft 'add rule ip nat prerouting
+    iifname "eth0"
+    tcp dport 9090
+    dnat to 192.168.1.50:8080'</code></pre></div>
+    <div class="intro">
+        <p>Result:</p>
+    </div>
+    <div class="code-block"><pre><code>External Client
+      |
+      | TCP request to WAN_IP:9090
+      v
+Linux NAT Router
+      |
+      | DNAT
+      v
+192.168.1.50:8080
+      |
+      v
+Spring Boot Application</code></pre></div>
+    <div class="intro">
+        <p>You still need IP forwarding, suitable firewall permissions, and a return route through the NAT device.</p>
+        <p class="minor-heading"><strong>Example C — Inspect NAT rules</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-comment"># Show all nftables rules</span>
+<span class="code-keyword">sudo</span> nft list ruleset
+
+<span class="code-comment"># Show the NAT table</span>
+<span class="code-keyword">sudo</span> nft list table ip nat
+
+<span class="code-comment"># Show active connection tracking entries</span>
+<span class="code-keyword">sudo</span> conntrack -L
+
+<span class="code-comment"># Monitor new connection tracking events</span>
+<span class="code-keyword">sudo</span> conntrack -E</code></pre></div>
+    <div class="intro">
+        <p>The <code>nftables</code> manual covers the supported SNAT, DNAT, masquerade, and redirect statements.</p>
+    </div>
+
+    <div class="subheading">10. Complete practical lab: build a NAT router from scratch</div>
+    <div class="intro">
+        <p>You can demonstrate real packet translation on a single Linux machine using <strong>network namespaces</strong>.</p>
+        <p>A network namespace has its own network interfaces, IP addresses, routing tables, and network configuration.</p>
+        <p>We&rsquo;ll create three isolated environments:</p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/nat-lab-topology.svg" alt="Lab topology: client 10.10.0.2 (nat-client, private network) connects over LAN to the NAT router 10.10.0.1 / 198.51.100.1 (nat-router), which connects over WAN to the server 198.51.100.2 (nat-server); all three networks run inside one Linux host" style="width:100%;max-width:520px">
+    </div>
+    <div class="intro">
+        <p class="minor-heading"><strong>Download the runnable examples</strong></p>
+    </div>
+    <div class="gw-card">
+        <div class="gw-file"><svg class="gw-icon" style="width:24px;height:24px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 12v-1"/><path d="M10 18v-2"/><path d="M10 7V6"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M15.5 22H18a2 2 0 0 0 2-2V7l-5-5H6a2 2 0 0 0-2 2v16a2 2 0 0 0 .274 1.01"/><circle cx="10" cy="20" r="2"/></svg><div style="flex:1"><p class="gw-title" style="margin:0">NAT practical examples</p><p class="gw-small" style="margin:4px 0 0">Contains <code>nat_lab.sh</code> and <code>NatTableSimulator.java</code></p></div><p class="gw-small" style="margin:0">3.2 KB</p></div>
+        <p style="margin:8px 0 0">Download the complete NAT examples ZIP</p>
+    </div>
+    <div class="intro">
+        <p>The Java simulator was compiled and tested. The Linux script passed a shell syntax check; its network operations require a suitable privileged Linux environment.</p>
+        <p class="minor-heading"><strong>Step 1 — Install requirements</strong></p>
+        <p>On Ubuntu or Debian:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">sudo</span> apt update
+
+<span class="code-keyword">sudo</span> apt install -y \
+    iproute2 \
+    nftables \
+    conntrack \
+    tcpdump \
+    curl \
+    python3 \
+    unzip</code></pre></div>
+    <div class="intro">
+        <p>Extract the ZIP:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">unzip</span> nat_tutorial_examples.zip
+<span class="code-keyword">cd</span> nat_tutorial</code></pre></div>
+    <div class="intro">
+        <p>Use a disposable Linux VM or development machine, not a production router.</p>
+        <p class="minor-heading"><strong>Step 2 — Create the network</strong></p>
+        <p>Run:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">sudo</span> bash nat_lab.sh setup</code></pre></div>
+    <div class="intro">
+        <p>The script creates the namespaces and virtual Ethernet interfaces, assigns addresses, enables forwarding and configures these NAT rules:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-comment"># Source NAT for outgoing connections</span>
+<span class="code-keyword">nft</span> 'add rule ip nat postrouting
+    ip saddr 10.10.0.0/24
+    oifname "veth-r-wan"
+    masquerade'
+
+<span class="code-comment"># Destination NAT for incoming TCP requests</span>
+<span class="code-keyword">nft</span> 'add rule ip nat prerouting
+    iifname "veth-r-wan"
+    tcp dport 8080
+    dnat to 10.10.0.2:8000'</code></pre></div>
+    <div class="intro">
+        <p>The complete commands, including namespace setup and chain creation, are in the script.</p>
+        <p>The simulated external server deliberately has no default route to the private subnet. This makes the address translation necessary for its return traffic.</p>
+        <p class="minor-heading"><strong>Step 3 — Test outbound NAT</strong></p>
+        <p>Open a terminal and start an HTTP server in the simulated external network:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">sudo</span> bash nat_lab.sh serve-external</code></pre></div>
+    <div class="intro">
+        <p>In a second terminal, execute the HTTP request from the private client:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">sudo</span> bash nat_lab.sh test-outbound</code></pre></div>
+    <div class="intro">
+        <p>The outgoing flow is:</p>
+    </div>
+    <div class="code-block"><pre><code>Before NAT:
+10.10.0.2:ephemeral → 198.51.100.2:8000
+
+After NAT:
+198.51.100.1:translated-port → 198.51.100.2:8000</code></pre></div>
+    <div class="intro">
+        <p>The server should respond with the Python HTTP server&rsquo;s directory listing.</p>
+        <p class="minor-heading"><strong>Step 4 — Observe real packet translation</strong></p>
+        <p>In another terminal:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">sudo</span> bash nat_lab.sh capture</code></pre></div>
+    <div class="intro">
+        <p>Then rerun the outbound test.</p>
+        <p>You can inspect packets leaving the router&rsquo;s WAN interface. Their source should be <code>198.51.100.1</code>, rather than the private address <code>10.10.0.2</code>.</p>
+        <p>You can also view the connection-tracking table:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">sudo</span> bash nat_lab.sh inspect</code></pre></div>
+    <div class="intro">
+        <p>With SNAT, you may see a connection-tracking entry resembling:</p>
+    </div>
+    <div class="code-block"><pre><code>Original direction:
+src=10.10.0.2
+dst=198.51.100.2
+
+Reply direction:
+src=198.51.100.2
+dst=198.51.100.1</code></pre></div>
+    <div class="intro">
+        <p>The actual ports and TCP connection state depend on the traffic and timing.</p>
+        <p class="minor-heading"><strong>Step 5 — Test inbound DNAT</strong></p>
+        <p>In one terminal, start an HTTP server on the private client:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">sudo</span> bash nat_lab.sh serve-internal</code></pre></div>
+    <div class="intro">
+        <p>From a second terminal:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">sudo</span> bash nat_lab.sh test-inbound</code></pre></div>
+    <div class="intro">
+        <p>The request goes to:</p>
+    </div>
+    <div class="code-block"><pre><code>http://198.51.100.1:8080</code></pre></div>
+    <div class="intro">
+        <p>But it is delivered to:</p>
+    </div>
+    <div class="code-block"><pre><code>http://10.10.0.2:8000</code></pre></div>
+    <div class="intro">
+        <p>This demonstrates port forwarding using DNAT.</p>
+        <p class="minor-heading"><strong>Step 6 — Clean up</strong></p>
+        <p>Stop any running HTTP server or packet capture sessions, then run:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">sudo</span> bash nat_lab.sh cleanup</code></pre></div>
+    <div class="intro">
+        <p>This deletes the three isolated network namespaces.</p>
+    </div>
+
+    <div class="subheading">11. Implement NAT with iptables</div>
+    <div class="intro">
+        <p>Many Linux tutorials and existing systems use <code>iptables</code>.</p>
+        <p>For a router with WAN interface <code>eth0</code>, LAN interface <code>eth1</code>, and private subnet <code>192.168.1.0/24</code>:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-comment"># Enable packet forwarding</span>
+<span class="code-keyword">sudo</span> sysctl -w net.ipv4.ip_forward=1
+
+<span class="code-comment"># Outbound NAT</span>
+<span class="code-keyword">sudo</span> iptables -t nat -A POSTROUTING \
+  -s 192.168.1.0/24 \
+  -o eth0 \
+  -j MASQUERADE
+
+<span class="code-comment"># Inbound port forwarding</span>
+<span class="code-keyword">sudo</span> iptables -t nat -A PREROUTING \
+  -i eth0 \
+  -p tcp \
+  --dport 9090 \
+  -j DNAT \
+  --to-destination 192.168.1.50:8080</code></pre></div>
+    <div class="intro">
+        <p>Where forwarding is restricted by the firewall, allow the corresponding traffic:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-comment"># Allow the incoming connection to the internal server</span>
+<span class="code-keyword">sudo</span> iptables -A FORWARD \
+  -i eth0 -o eth1 \
+  -p tcp -d 192.168.1.50 --dport 8080 \
+  -j ACCEPT
+
+<span class="code-comment"># Allow established return traffic</span>
+<span class="code-keyword">sudo</span> iptables -A FORWARD \
+  -m conntrack \
+  --ctstate ESTABLISHED,RELATED \
+  -j ACCEPT</code></pre></div>
+    <div class="intro">
+        <p>Depending on the existing firewall policy, additional rules are needed for outbound connections. Rule ordering also matters.</p>
+        <p>Inspect the result:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">sudo</span> iptables -t nat -L -n -v
+<span class="code-keyword">sudo</span> iptables -L FORWARD -n -v</code></pre></div>
+    <div class="intro">
+        <p>These are alternative configuration examples; avoid mixing native nftables and iptables rules without understanding how your system&rsquo;s firewall backend integrates them.</p>
+    </div>
+
+    <div class="subheading">12. Understand NAT implementation with Java</div>
+    <div class="intro">
+        <p>A normal Java application using <code>java.net.Socket</code> does not implement router-level NAT. The operating system handles packets, and a NAT-capable network device modifies them.</p>
+        <p>However, we can simulate a NAT mapping table using Java to understand the algorithm.</p>
+        <p>The downloadable <code>NatTableSimulator.java</code> implements a simplified version of TCP PAT.</p>
+        <p>The basic data structures are:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">Endpoint</span>(<span class="code-class">String</span> ip, int port) {}
+
+<span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">Flow</span>(<span class="code-class">String</span> protocol, <span class="code-class">Endpoint</span> inside, <span class="code-class">Endpoint</span> remote) {}
+
+<span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">Mapping</span>(<span class="code-class">Flow</span> original, <span class="code-class">Endpoint</span> outside) {}</code></pre></div>
+    <div class="intro">
+        <p>The simulator maintains two maps:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">Map</span>&lt;<span class="code-class">Flow</span>, <span class="code-class">Mapping</span>&gt; outgoing; <span class="code-comment"># Original flow -&gt; translated mapping</span>
+<span class="code-class">Map</span>&lt;<span class="code-class">ReplyKey</span>, <span class="code-class">Mapping</span>&gt; replies; <span class="code-comment"># Reply lookup -&gt; original mapping</span></code></pre></div>
+    <div class="intro">
+        <p>Conceptually, the outbound algorithm is:</p>
+    </div>
+    <div class="code-block"><pre><code>translateOutbound(packet):
+
+    flow = identifyFlow(packet)
+
+    if mappingExists(flow):
+        mapping = lookup(flow)
+    else:
+        port = allocateExternalPort()
+        mapping = createMapping(flow, port)
+        save(mapping)
+
+    replaceSourceEndpoint(packet, mapping)
+
+    return packet</code></pre></div>
+    <div class="intro">
+        <p>The reverse lookup is:</p>
+    </div>
+    <div class="code-block"><pre><code>translateInbound(reply):
+
+    mapping = findMappingForReply(reply)
+
+    if mapping == null:
+        no matching NAT mapping
+        return
+
+    replaceDestinationEndpoint(
+        reply,
+        mapping.originalInternalEndpoint
+    )
+
+    return reply</code></pre></div>
+    <div class="intro">
+        <p>Actual implementations additionally need checksums, timeouts, collision management, protocol state, filtering and packet processing.</p>
+        <p class="minor-heading"><strong>Run the Java simulator</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">javac</span> NatTableSimulator.java
+<span class="code-keyword">java</span> NatTableSimulator</code></pre></div>
+    <div class="intro">
+        <p>Output:</p>
+    </div>
+    <div class="code-block"><pre><code>Laptop: 192.168.1.10:50000 -&gt; 203.0.113.10:40001
+Phone:  192.168.1.11:50000 -&gt; 203.0.113.10:40002
+
+Reply to 203.0.113.10:40001 routes to 192.168.1.10:50000
+Reply to 203.0.113.10:40002 routes to 192.168.1.11:50000
+
+Unsolicited reply: null</code></pre></div>
+    <div class="intro">
+        <p>The example deliberately models mappings per five-tuple. Real NAT devices vary in their mapping behavior; this is a teaching simulator rather than a working packet translator.</p>
+    </div>
+
+    <div class="subheading">13. NAT vs Firewall vs Proxy vs Load Balancer</div>
+    <div class="intro">
+        <p>These mechanisms are related, but solve different problems.</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Component</th><th>Primary job</th><th>Usually changes</th></tr></thead>
+            <tbody>
+                <tr><td>NAT</td><td>Translate network endpoints</td><td>IP/port</td></tr>
+                <tr><td>Router</td><td>Forward packets between networks</td><td>Next-hop/L2 addressing</td></tr>
+                <tr><td>Firewall</td><td>Allow or block traffic</td><td>Usually forwarding decision</td></tr>
+                <tr><td>Forward proxy</td><td>Act on behalf of clients</td><td>Application-level connections</td></tr>
+                <tr><td>Reverse proxy</td><td>Accept traffic for backend servers</td><td>Application-level connections</td></tr>
+                <tr><td>Load balancer</td><td>Distribute traffic</td><td>Selected backend, sometimes IP/port</td></tr>
+            </tbody>
+        </table></div>
+        <p class="minor-heading"><strong>Is NAT a security mechanism?</strong></p>
+        <p><strong>NAT is not a replacement for a firewall.</strong></p>
+        <p>NAT typically prevents arbitrary new inbound connections from reaching private devices because no appropriate dynamic mapping or explicit port forwarding exists.</p>
+        <p>But its fundamental job is translation, not applying a comprehensive security policy.</p>
+        <p>A firewall can enforce rules based on source, destination, protocol, connection state and other attributes.</p>
+        <p>A machine with a publicly routable IP can be securely protected using a firewall without NAT.</p>
+        <p>Likewise, publishing a service through DNAT may expose it to attacks if firewall and application security controls are insufficient.</p>
+    </div>
+
+    <div class="subheading">14. NAT in Docker, Kubernetes and cloud environments</div>
+    <div class="intro">
+        <p class="minor-heading"><strong>Docker</strong></p>
+        <p>When you run:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">docker</span> run -d \
+  --name web \
+  -p 8080:80 \
+  nginx</code></pre></div>
+    <div class="intro">
+        <p>Docker makes the container&rsquo;s port <code>80</code> reachable through host port <code>8080</code>.</p>
+        <p>On a normal Linux bridge network, the implementation uses networking rules and may involve DNAT, masquerading and, in some configurations, user-space forwarding.</p>
+        <p>For outbound container traffic, Docker commonly uses masquerading so external services see the host&rsquo;s address rather than the container&rsquo;s private bridge address.</p>
+        <p>A more restricted published port is:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">docker</span> run -d \
+  -p 127.0.0.1:8080:80 \
+  nginx</code></pre></div>
+    <div class="intro">
+        <p>This binds the published port to the host&rsquo;s loopback address rather than all host interfaces.</p>
+        <p class="minor-heading"><strong>Kubernetes</strong></p>
+        <p>In many Kubernetes configurations, Service networking uses destination translation or equivalent forwarding mechanisms to send connections from a virtual Service address to selected backend Pods.</p>
+        <p>For example:</p>
+    </div>
+    <div class="code-block"><pre><code>Service ClusterIP: 10.96.0.20:80
+              |
+              v
+Selected Pod: 10.244.1.7:8080</code></pre></div>
+    <div class="intro">
+        <p>However, not all Kubernetes implementations use conventional iptables DNAT. Depending on the networking implementation, IPVS, nftables or eBPF-based data paths may be involved.</p>
+        <p class="minor-heading"><strong>AWS NAT Gateway</strong></p>
+        <p>A common cloud architecture looks like:</p>
+    </div>
+    <div class="code-block"><pre><code>Private EC2 instances
+         |
+         v
+   Private subnet
+         |
+         v
+    NAT Gateway
+         |
+         v
+  Internet Gateway
+         |
+         v
+       Internet</code></pre></div>
+    <div class="intro">
+        <p>A public AWS NAT Gateway lets resources in a private subnet initiate external connections and receive responses without giving each resource a public IPv4 address.</p>
+        <p>It does <strong>not</strong> accept unsolicited inbound Internet connections to those private resources. To publish applications, architectures typically use a suitable public-facing load balancer or another purpose-built ingress mechanism.</p>
+    </div>
+
+    <div class="subheading">15. Advanced NAT concepts</div>
+    <div class="intro">
+        <p class="minor-heading"><strong>15.1 Double NAT</strong></p>
+        <p>Double NAT occurs when packets pass through multiple NAT devices.</p>
+        <p>For example:</p>
+    </div>
+    <div class="code-block"><pre><code>Laptop
+192.168.1.10
+     |
+     v
+Home router
+WAN: 10.0.0.5
+     |
+     v
+ISP/router NAT
+Public-facing address
+     |
+     v
+Internet</code></pre></div>
+    <div class="intro">
+        <p>The first router translates the laptop&rsquo;s address into <code>10.0.0.5</code>. The upstream device then translates it again.</p>
+        <p>Outbound connections generally work, but inbound port forwarding becomes more complicated because multiple devices may need coordinated mappings.</p>
+        <p class="minor-heading"><strong>15.2 Carrier-Grade NAT (CGNAT)</strong></p>
+        <p>Some Internet service providers share public IPv4 addresses among many subscribers using large NAT systems.</p>
+        <p>The shared address block <code>100.64.0.0/10</code> is reserved specifically for this kind of deployment.</p>
+        <p>You can inspect your router&rsquo;s WAN IPv4 address to check for a possible CGNAT deployment.</p>
+        <p>A WAN address within <code>100.64.0.0/10</code> is a strong indicator. A private WAN address or a mismatch between your WAN address and externally visible address can also indicate upstream NAT, although that alone does not uniquely establish CGNAT.</p>
+        <p>CGNAT can complicate self-hosting, incoming connections and peer-to-peer connectivity.</p>
+        <p class="minor-heading"><strong>15.3 NAT hairpinning</strong></p>
+        <p>Hairpin NAT, also called NAT loopback, allows devices inside a network to access an internal server using its external address.</p>
+        <p>Example:</p>
+    </div>
+    <div class="code-block"><pre><code>Laptop: 192.168.1.20
+
+Accesses:
+203.0.113.10:443
+
+NAT translates to:
+192.168.1.50:443</code></pre></div>
+    <div class="intro">
+        <p>Both laptop and server are on the same private network.</p>
+        <p>Hairpin connections may require additional source translation so replies return through the NAT router rather than bypassing it.</p>
+        <p class="minor-heading"><strong>15.4 NAT traversal</strong></p>
+        <p>Two devices behind separate NAT routers often cannot establish direct inbound connections to each other without additional coordination.</p>
+        <p>Common NAT traversal technologies include:</p>
+        <ul>
+            <li><strong>STUN:</strong> Helps an endpoint discover its externally visible transport address.</li>
+            <li><strong>TURN:</strong> Relays traffic when direct connectivity is unavailable.</li>
+            <li><strong>ICE:</strong> Coordinates connectivity checks and selects a usable communication path.</li>
+            <li><strong>UDP hole punching:</strong> Attempts direct peer-to-peer communication by creating suitable NAT state.</li>
+        </ul>
+        <p>These are especially relevant to WebRTC, voice/video calls and peer-to-peer applications. Direct hole punching is not guaranteed to succeed across every combination of NAT mapping and filtering behaviors.</p>
+        <p class="minor-heading"><strong>15.5 NAT mapping behavior vs filtering behavior</strong></p>
+        <p>Two NATs can translate the same type of traffic differently.</p>
+        <p><strong>Mapping behavior</strong> determines whether the same internal IP/port is assigned the same external IP/port when communicating with different remote endpoints.</p>
+        <p><strong>Filtering behavior</strong> determines which external endpoints are permitted to send packets back through an existing mapping.</p>
+        <p>RFC 4787 describes endpoint-independent, address-dependent, and address-and-port-dependent behaviors. This is more precise than the often-used but ambiguous informal categories such as "symmetric NAT."</p>
+        <p class="minor-heading"><strong>15.6 NAT64</strong></p>
+        <p>NAT64 allows IPv6-only clients to communicate with IPv4-only services.</p>
+        <p>In a typical DNS64 + NAT64 setup:</p>
+    </div>
+    <div class="code-block"><pre><code>IPv6-only client
+       |
+       v
+   NAT64 gateway
+       |
+       v
+  IPv4-only server</code></pre></div>
+    <div class="intro">
+        <p>DNS64 can synthesize IPv6 DNS answers for IPv4-only destinations, while NAT64 translates packets between IPv6 and IPv4.</p>
+        <p>Unlike ordinary IPv4 NAT, this also requires translation between IP protocol versions.</p>
+        <p>Native IPv6 networks generally do not need NAT merely to share a single external address; publicly routable IPv6 addresses and stateful firewalls can provide connectivity and access control separately.</p>
+    </div>
+
+    <div class="subheading">16. NAT limitations and production challenges</div>
+    <div class="intro">
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Challenge</th><th>Explanation</th><th>Typical mitigation</th></tr></thead>
+            <tbody>
+                <tr><td>Port exhaustion</td><td>Too many mappings compete for available external ports</td><td>Additional external IPs, connection reuse, capacity planning</td></tr>
+                <tr><td>Connection timeouts</td><td>Idle NAT state expires</td><td>Application-level keepalives where appropriate</td></tr>
+                <tr><td>Peer-to-peer difficulty</td><td>Unsolicited inbound traffic lacks a mapping</td><td>ICE, TURN, explicit forwarding</td></tr>
+                <tr><td>Asymmetric routing</td><td>Return packets bypass the translating device</td><td>Correct routing, symmetric paths</td></tr>
+                <tr><td>Troubleshooting complexity</td><td>Client IP and external IP differ</td><td>Connection logs, NAT flow records</td></tr>
+                <tr><td>Application compatibility</td><td>Some protocols embed IPs in payloads</td><td>Protocol-aware solutions</td></tr>
+                <tr><td>High availability</td><td>Stateful NAT mappings may be lost on failover</td><td>Resilient gateway design, state synchronization where supported</td></tr>
+            </tbody>
+        </table></div>
+        <p class="minor-heading"><strong>Can one public IP support only 65,535 connections?</strong></p>
+        <p>Not necessarily.</p>
+        <p>A TCP or UDP port is 16 bits, giving 65,536 possible port numbers. Some ports are reserved or otherwise unavailable for allocation, and practical port allocation policies further limit capacity.</p>
+        <p>However, NAT connection capacity is not always simply the number of available external ports. Some implementations can reuse translated ports for different remote destinations while still uniquely identifying flows.</p>
+        <p>The actual limit depends on the mapping policy, protocol, available public IP addresses, destination distribution, NAT state capacity, and resource limits.</p>
+        <p class="minor-heading"><strong>Why a backend engineer should care</strong></p>
+        <p>Consider a Spring Boot service using an HTTP client to call an external payment API.</p>
+        <p>If hundreds of service instances are behind a shared NAT gateway, the external provider may see requests from the same public IP.</p>
+        <p>Heavy connection churn could contribute to port exhaustion or NAT table pressure.</p>
+        <p>The usual improvements include connection pooling, keep-alive, bounded concurrency, reasonable timeouts, and appropriately sized egress infrastructure.</p>
+        <p>This is one reason proper HTTP client reuse matters in distributed systems.</p>
+    </div>
+
+    <div class="subheading">17. NAT troubleshooting cheat sheet</div>
+    <div class="intro">
+        <p>On Linux, these commands are particularly useful.</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Goal</th><th>Command</th></tr></thead>
+            <tbody>
+                <tr><td>Show addresses</td><td><code>ip -4 addr</code></td></tr>
+                <tr><td>Show routes</td><td><code>ip route</code></td></tr>
+                <tr><td>Show selected route</td><td><code>ip route get 8.8.8.8</code></td></tr>
+                <tr><td>Verify forwarding</td><td><code>sysctl net.ipv4.ip_forward</code></td></tr>
+                <tr><td>Show nftables rules</td><td><code>sudo nft list ruleset</code></td></tr>
+                <tr><td>Show iptables NAT</td><td><code>sudo iptables -t nat -L -n -v</code></td></tr>
+                <tr><td>Show tracked connections</td><td><code>sudo conntrack -L</code></td></tr>
+                <tr><td>Monitor connections</td><td><code>sudo conntrack -E</code></td></tr>
+                <tr><td>Capture interface packets</td><td><code>sudo tcpdump -ni eth0</code></td></tr>
+                <tr><td>Show listening ports</td><td><code>ss -lntup</code></td></tr>
+            </tbody>
+        </table></div>
+        <p>When diagnosing failed connectivity, check routing, forwarding, firewall filtering, NAT rules and return routes separately. A correct NAT rule alone does not guarantee a connection will succeed.</p>
+    </div>
+
+    <div class="subheading">18. Frequently asked NAT questions</div>
+    <div class="intro">
+        <p class="minor-heading"><strong>Does NAT automatically provide Internet access?</strong></p>
+        <p>No. The router still requires valid upstream connectivity, correct routes, IP forwarding and suitable firewall rules.</p>
+        <p class="minor-heading"><strong>Does every packet require a new NAT entry?</strong></p>
+        <p>No. Stateful NAT typically creates a mapping for a flow and reuses it for subsequent packets.</p>
+        <p class="minor-heading"><strong>Can two computers have the same private IP address?</strong></p>
+        <p>Yes, if they are in separate address domains. Two independent home networks can both use <code>192.168.1.10</code>.</p>
+        <p class="minor-heading"><strong>Can two clients share the same translated source port?</strong></p>
+        <p>Depending on the NAT&rsquo;s mapping rules and the other flow identifiers, yes. However, conflicting mappings cannot be allowed to create ambiguity for return traffic.</p>
+        <p class="minor-heading"><strong>Can NAT work with UDP?</strong></p>
+        <p>Yes. UDP NAT uses mappings and timeouts even though UDP itself has no connection handshake.</p>
+        <p class="minor-heading"><strong>Is NAT the same as a VPN?</strong></p>
+        <p>No. NAT translates addresses, whereas a VPN establishes a virtual network connection, commonly through tunneling and encryption.</p>
+        <p class="minor-heading"><strong>Why does a server see my router&rsquo;s public IP rather than my laptop&rsquo;s IP?</strong></p>
+        <p>Because source NAT replaces the private source endpoint before the packet reaches the server.</p>
+        <p class="minor-heading"><strong>Does NAT hide the identity of individual users?</strong></p>
+        <p>It can hide their private network addresses from the destination, but it does not provide anonymity. Applications, cookies, authentication, traffic analysis, and network logs can still identify or distinguish users.</p>
+    </div>
+
+    <div class="subheading">Final mental model</div>
+    <div class="intro">
+        <p>Think of NAT as a network-level endpoint translator.</p>
+    </div>
+    <div class="code-block"><pre><code>SNAT
+    Changes where a packet appears to come from.
+
+DNAT
+    Changes where a packet is delivered.
+
+PAT/NAPT
+    Translates ports to support address sharing.
+
+Connection tracking
+    Remembers how to translate subsequent packets
+    and responses.
+
+Routing
+    Decides where to forward the packet.
+
+Firewall
+    Decides whether traffic is permitted.</code></pre></div>
+    <div class="intro">
+        <p>For backend engineering, the most important things to master are <strong>SNAT, DNAT, PAT, connection tracking, the Netfilter packet path, port forwarding, and NAT behavior in container and cloud networks</strong>. These concepts explain a large number of real production connectivity problems.</p>
+    </div>
+</div>
+</body>
+</html>

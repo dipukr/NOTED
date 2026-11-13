@@ -42,14 +42,14 @@
     </ol></div>
     <div class="intro">
         <p>This is an example of a <strong>Virtual Proxy</strong>, which delays expensive object initialization.</p>
-        <p><strong>Without Proxy</strong></p>
+        <p class="minor-heading"><strong>Without Proxy</strong></p>
     </div>
     <div class="svg-diagram">
         <img src="../static/proxy-without.svg" alt="Without a proxy, the client directly accesses the real object" style="width:100%;max-width:520px">
     </div>
     <div class="intro">
         <p>The client directly creates and accesses the expensive object.</p>
-        <p><strong>With Proxy</strong></p>
+        <p class="minor-heading"><strong>With Proxy</strong></p>
     </div>
     <div class="svg-diagram">
         <img src="../static/proxy-with.svg" alt="With a proxy, the client calls the proxy, which controls access (cache, lazy load, security, logging) and forwards to the real object" style="width:100%;max-width:780px">
@@ -110,7 +110,7 @@
     service.execute();
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Output:</strong></p>
+        <p class="minor-heading"><strong>Output:</strong></p>
     </div>
     <div class="code-block"><pre><code>Before execution
 Executing actual operation
@@ -194,7 +194,7 @@ After execution</code></pre></div>
     image.display();
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Output:</strong></p>
+        <p class="minor-heading"><strong>Output:</strong></p>
     </div>
     <div class="code-block"><pre><code>Proxy created
 First display:
@@ -236,7 +236,7 @@ Displaying: photo.jpg</code></pre></div>
     </ul></div>
     <div class="intro">
         <p>Rather than embedding authorization into every business service, a proxy can enforce the access policy.</p>
-        <p><strong>Java implementation</strong></p>
+        <p class="minor-heading"><strong>Java implementation</strong></p>
         <p><code>ProtectionProxyDemo.java</code></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">DocumentService</span> {
@@ -298,13 +298,13 @@ Displaying: photo.jpg</code></pre></div>
     admin.delete(<span class="code-string">"doc1"</span>);
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Output:</strong></p>
+        <p class="minor-heading"><strong>Output:</strong></p>
     </div>
     <div class="code-block"><pre><code>Confidential Report
 Only admins can delete documents
 Document deleted</code></pre></div>
     <div class="intro">
-        <p><strong>What is happening?</strong></p>
+        <p class="minor-heading"><strong>What is happening?</strong></p>
         <p>When <code>user.delete("doc1")</code> is executed:</p>
     </div>
     <div class="svg-diagram">
@@ -398,7 +398,7 @@ getProduct(101) -&gt; Cache Hit</code></pre></div>
     service.findById(<span class="code-number">102</span>);
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Output (simplified):</strong></p>
+        <p class="minor-heading"><strong>Output (simplified):</strong></p>
     </div>
     <div class="code-block"><pre><code>Request: 101
 Cache miss: 101
@@ -413,7 +413,7 @@ Cache miss: 102
 Querying database: 102
 Response: Optional[Product[id=102, name=Keyboard]]</code></pre></div>
     <div class="intro">
-        <p><strong>How the proxies are composed</strong></p>
+        <p class="minor-heading"><strong>How the proxies are composed</strong></p>
     </div>
     <div class="svg-diagram">
         <img src="../static/proxy-caching-flow.svg" alt="Client calls LoggingProductProxy, then CachingProductProxy; on a cache hit the cached result is returned, on a miss DatabaseProductService is queried and the result stored in the cache; the logging proxy records the response and the client receives the result" style="width:100%;max-width:640px">
@@ -422,7 +422,7 @@ Response: Optional[Product[id=102, name=Keyboard]]</code></pre></div>
         <p>This demonstrates an important property of proxies: <strong>multiple proxies can be chained</strong> because they implement the same interface.</p>
         <p>The client only needs the <code>ProductService</code> interface, and each proxy introduces an independent behavior.</p>
         <p>In this example, <code>computeIfAbsent</code> gives an atomic per-key computation with <code>ConcurrentHashMap</code>, avoiding duplicate cache initialization for the same key under normal concurrent access. The <code>Optional</code> wrapper allows missing products<br> to be cached as well.</p>
-        <p><strong>Production considerations</strong></p>
+        <p class="minor-heading"><strong>Production considerations</strong></p>
         <p>The example intentionally keeps caching simple. A production caching proxy should usually handle:</p>
     </div>
     <div class="intro"><ul>
@@ -449,7 +449,7 @@ Response: Optional[Product[id=102, name=Keyboard]]</code></pre></div>
     </ul></div>
     <div class="intro">
         <p>Instead of embedding HTTP communication code throughout the app, we can encapsulate it inside a remote proxy.</p>
-        <p><strong>Architecture</strong></p>
+        <p class="minor-heading"><strong>Architecture</strong></p>
     </div>
     <div class="svg-diagram">
         <img src="../static/proxy-remote.svg" alt="In microservice A the order service client calls a remote proxy, which sends an HTTP request to the REST API in microservice B; the order business logic returns an HTTP response to the proxy" style="width:100%;max-width:760px">
@@ -497,7 +497,7 @@ Response: Optional[Product[id=102, name=Keyboard]]</code></pre></div>
     <div class="code-block"><pre><code>orderService.getOrderStatus(<span class="code-number">1001</span>);</code></pre></div>
     <div class="intro">
         <p>It doesn't need to construct HTTP requests, manage the HTTP client, or interpret the HTTP status code directly.</p>
-        <p><strong>Why is this a Proxy?</strong></p>
+        <p class="minor-heading"><strong>Why is this a Proxy?</strong></p>
         <p>Because <code>RemoteOrderServiceProxy</code> implements the same <code>OrderService</code> interface expected by the client, while performing the actual operation by communicating with a remote service.</p>
     </div>
     <div class="callout callout-warning"><p>Unlike a local object, a remote service can have network latency, timeouts, partial failures, and independent availability. A remote proxy hides communication mechanics, but callers still need to handle those failure conditions.</p></div>
@@ -527,7 +527,7 @@ Response: Optional[Product[id=102, name=Keyboard]]</code></pre></div>
         <li><code>java.lang.reflect.Method</code></li>
     </ul></div>
     <div class="intro">
-        <p><strong>Dynamic logging proxy</strong></p>
+        <p class="minor-heading"><strong>Dynamic logging proxy</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">PaymentService</span> {
     <span class="code-keyword">void</span> pay(<span class="code-keyword">long</span> amountPaise);
@@ -557,13 +557,13 @@ Response: Optional[Product[id=102, name=Keyboard]]</code></pre></div>
     proxy.pay(<span class="code-number">50000</span>);
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Output:</strong></p>
+        <p class="minor-heading"><strong>Output:</strong></p>
     </div>
     <div class="code-block"><pre><code>Before: pay
 Processing payment of 50000 paise
 After: pay</code></pre></div>
     <div class="intro">
-        <p><strong>How does the Dynamic Proxy work</strong></p>
+        <p class="minor-heading"><strong>How does the Dynamic Proxy work</strong></p>
     </div>
     <div class="svg-diagram">
         <img src="../static/proxy-dynamic.svg" alt="Client calls pay() on the dynamic proxy object, which routes to the InvocationHandler; the handler delegates using Method.invoke() and returns the result" style="width:100%;max-width:820px">
@@ -585,7 +585,7 @@ After: pay</code></pre></div>
     </ol></div>
     <div class="intro">
         <p>We can reuse the same concept for many different interfaces, rather than writing a proxy implementation for each one.</p>
-        <p><strong>Static Proxy vs Dynamic Proxy</strong></p>
+        <p class="minor-heading"><strong>Static Proxy vs Dynamic Proxy</strong></p>
     </div>
     <div class="section cmp"><div class="section-content">
         <table class="cmp-table centered cmp-peer">
@@ -605,7 +605,7 @@ After: pay</code></pre></div>
     <div class="intro">
         <p>The previous dynamic proxy logged <strong>every</strong> method. Real frameworks are more selective: they add behavior only to methods marked with an annotation, such as Spring's <code>@Transactional</code> or <code>@Cacheable</code>.</p>
         <p>We can build the same idea ourselves. A custom <code>@Timed</code> annotation marks the methods whose execution time should be measured, and an <code>InvocationHandler</code> reads that annotation at runtime to decide whether to add timing or simply pass the call through.</p>
-        <p><strong>Define the Annotation</strong></p>
+        <p class="minor-heading"><strong>Define the Annotation</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-annotation">@Retention</span>(<span class="code-class">RetentionPolicy</span>.RUNTIME)
 <span class="code-annotation">@Target</span>(<span class="code-class">ElementType</span>.METHOD)
@@ -614,7 +614,7 @@ After: pay</code></pre></div>
     <div class="intro">
         <p><code>@Retention(RetentionPolicy.RUNTIME)</code> is essential. Without it, the annotation is discarded by the compiler and<br> is invisible to reflection, so the proxy could never find it.</p>
         <p><code>@Target(ElementType.METHOD)</code> restricts the annotation to methods.</p>
-        <p><strong>Define the interface and annotate the implementation</strong></p>
+        <p class="minor-heading"><strong>Define the interface and annotate the implementation</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">OrderService</span> {
     <span class="code-keyword">void</span> placeOrder(<span class="code-class">String</span> orderId);
@@ -644,7 +644,7 @@ After: pay</code></pre></div>
 }</code></pre></div>
     <div class="intro">
         <p>Only <code>placeOrder()</code> carries <code>@Timed</code>. The <code>getStatus()</code> method is not annotated, so the proxy should leave it alone.</p>
-        <p><strong>Create an annotation-aware InvocationHandler</strong></p>
+        <p class="minor-heading"><strong>Create an annotation-aware InvocationHandler</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">TimedInvocationHandler</span> <span class="code-keyword">implements</span> <span class="code-class">InvocationHandler</span> {
     <span class="code-keyword">public</span> <span class="code-class">Object</span> target;
@@ -678,7 +678,7 @@ After: pay</code></pre></div>
     }
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Create a small proxy factory</strong></p>
+        <p class="minor-heading"><strong>Create a small proxy factory</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProxyFactory</span> {
     <span class="code-annotation">@SuppressWarnings</span>(<span class="code-string">"unchecked"</span>)
@@ -689,7 +689,7 @@ After: pay</code></pre></div>
 }</code></pre></div>
     <div class="intro">
         <p>The factory hides the reflection boilerplate. Callers ask for an <code>OrderService</code> and receive a proxy that looks exactly alike.</p>
-        <p><strong>Client code</strong></p>
+        <p class="minor-heading"><strong>Client code</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
     <span class="code-class">OrderService</span> service = <span class="code-class">ProxyFactory</span>.create(<span class="code-keyword">new</span> <span class="code-class">OrderServiceImpl</span>(), <span class="code-class">OrderService</span>.<span class="code-keyword">class</span>);
@@ -697,14 +697,14 @@ After: pay</code></pre></div>
     <span class="code-class">System</span>.out.println(<span class="code-string">"Status: "</span> + service.getStatus(<span class="code-string">"ORD-101"</span>));
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Output:</strong></p>
+        <p class="minor-heading"><strong>Output:</strong></p>
     </div>
     <div class="code-block"><pre><code>Placing order: ORD-101
 placeOrder took 201 ms
 Status: SHIPPED</code></pre></div>
     <div class="intro">
         <p>Measured time varies slightly from run to run. Notice that <code>getStatus</code> produced no timing line as it is not annotated.</p>
-        <p><strong>How it works</strong></p>
+        <p class="minor-heading"><strong>How it works</strong></p>
     </div>
     <div class="steps">
         <div class="step"><div class="step-title">The client calls <code>service.placeOrder("ORD-101")</code></div><div class="step-body">The call goes to the generated proxy, not directly to <code>OrderServiceImpl</code>.</div></div>
@@ -715,7 +715,7 @@ Status: SHIPPED</code></pre></div>
     </div>
     <div class="callout callout-note"><p><strong>Why look up the implementation method?</strong> The <code>Method</code> passed to <code>invoke()</code> belongs to the <strong>interface</strong>. Annotations on the implementation class are not visible on it. An alternative is to place <code>@Timed</code> on the interface method instead, then check <code>method.isAnnotationPresent(Timed.class)</code> directly.</p></div>
     <div class="intro">
-        <p><strong>Things to keep in mind</strong></p>
+        <p class="minor-heading"><strong>Things to keep in mind</strong></p>
     </div>
     <div class="intro"><ul>
         <li><strong>Interfaces only:</strong> JDK dynamic proxies can only implement interfaces. Proxying a concrete class needs a bytecode library such as ByteBuddy, which is what frameworks like Spring use internally.</li>
@@ -737,7 +737,7 @@ Status: SHIPPED</code></pre></div>
         <li>Method security annotations such as <code>@PreAuthorize</code> &mdash; access control.</li>
     </ul></div>
     <div class="intro">
-        <p><strong>Example: Spring transaction management</strong></p>
+        <p class="minor-heading"><strong>Example: Spring transaction management</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-annotation">@Service</span>
 <span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderService</span> {
@@ -775,7 +775,7 @@ Status: SHIPPED</code></pre></div>
 }</code></pre></div>
     <div class="callout callout-note"><p>This is illustrative pseudocode showing the proxy's responsibility, not a replacement for Spring's transaction implementation.</p></div>
     <div class="intro">
-        <p><strong>Important: The Spring self-invocation problem</strong></p>
+        <p class="minor-heading"><strong>Important: The Spring self-invocation problem</strong></p>
         <p>One subtle limitation of Spring's proxy-based AOP is that calls made from one method to another method on the same object may bypass the proxy. For example:</p>
     </div>
     <div class="code-block"><pre><code><span class="code-annotation">@Service</span>
@@ -818,7 +818,7 @@ Status: SHIPPED</code></pre></div>
         </table>
     </div></div>
     <div class="intro">
-        <p><strong>Proxy vs Decorator</strong></p>
+        <p class="minor-heading"><strong>Proxy vs Decorator</strong></p>
         <p>This distinction is especially important because both patterns may use nearly identical code.</p>
         <p>Consider:</p>
     </div>
@@ -849,19 +849,19 @@ Status: SHIPPED</code></pre></div>
     </ul></div>
     <div class="intro">
         <p>There is overlap. A logging wrapper, for instance, can reasonably be viewed as a logging proxy or a decorator, depending on its intended role and architecture.</p>
-        <p><strong>Proxy vs Adapter</strong></p>
+        <p class="minor-heading"><strong>Proxy vs Adapter</strong></p>
         <p>An <strong>Adapter</strong> changes how an interface is presented.</p>
         <p>For example:</p>
     </div>
     <div class="scenario-layout scenario-layout-equal scenario-layout-tight scenario-layout-stretch">
         <div>
-            <div class="intro"><p><strong>Existing external interface</strong></p></div>
+            <div class="intro"><p class="minor-heading"><strong>Existing external interface</strong></p></div>
             <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">LegacyPaymentGateway</span> {
     <span class="code-keyword">void</span> makeTransaction(<span class="code-keyword">long</span> amount);
 }</code></pre></div>
         </div>
         <div>
-            <div class="intro"><p><strong>Interface expected by the client</strong></p></div>
+            <div class="intro"><p class="minor-heading"><strong>Interface expected by the client</strong></p></div>
             <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">PaymentService</span> {
     <span class="code-keyword">void</span> pay(<span class="code-keyword">long</span> amount);
 }</code></pre></div>
@@ -874,7 +874,7 @@ Status: SHIPPED</code></pre></div>
 
     <div class="subheading">Advantages and Disadvantages</div>
     <div class="intro">
-        <p><strong>Advantages</strong></p>
+        <p class="minor-heading"><strong>Advantages</strong></p>
     </div>
     <div class="intro"><ul>
         <li><strong>Separation of concerns:</strong> Business code remains focused on business logic.</li>
@@ -885,7 +885,7 @@ Status: SHIPPED</code></pre></div>
         <li><strong>Centralized cross-cutting functionality:</strong> Logging, metrics, authorization and other behaviors can be applied consistently.</li>
     </ul></div>
     <div class="intro">
-        <p><strong>Disadvantages</strong></p>
+        <p class="minor-heading"><strong>Disadvantages</strong></p>
     </div>
     <div class="intro"><ul>
         <li>Adds extra classes or runtime interception mechanisms.</li>

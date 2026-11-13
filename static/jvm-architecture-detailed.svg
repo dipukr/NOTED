@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 672 590" font-family="Arial, Helvetica, sans-serif" fill="#000">
+<rect width="672" height="590" fill="#fff"/>
+<path d="M108 22 L124 6 L475 6 L459 22 Z" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<path d="M459 22 L475 6 L475 156 L459 172 Z" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<rect x="108" y="22" width="351" height="150" fill="#fff" stroke="#000" stroke-width="1.5"/>
+<text x="299" y="14" font-size="13" font-weight="700" font-style="normal" text-anchor="middle" dominant-baseline="central">Class Loader SubSystem</text>
+<text x="34" y="79" font-size="12" font-weight="400" font-style="normal" text-anchor="middle" dominant-baseline="central">Class</text><text x="34" y="95" font-size="12" font-weight="400" font-style="normal" text-anchor="middle" dominant-baseline="central">File</text>
+<path d="M62 87 L104 87" stroke="#000" stroke-width="1.1"/><path d="M104 87 L98.0 84.3 L98.0 89.7 Z" fill="#000"/>
+<text x="192" y="32" font-size="11.5" font-weight="700" font-style="normal" text-anchor="middle" dominant-baseline="central">Loading</text>
+<rect x="143" y="40" width="97" height="122" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<rect x="152" y="48" width="79" height="28" fill="#fff" stroke="#000" stroke-width="1.1"/>
+<text x="191.5" y="56" font-size="10.5" font-weight="400" font-style="normal" text-anchor="middle" dominant-baseline="central">Bootstrap</text><text x="191.5" y="68" font-size="10.5" font-weight="400" font-style="normal" text-anchor="middle" dominant-baseline="central">Class Loader</text>
+<rect x="152" y="88" width="79" height="28" fill="#fff" stroke="#000" stroke-width="1.1"/>
+<text x="191.5" y="96" font-size="10.5" font-weight="400" font-style="normal" text-anchor="middle" dominant-baseline="central">Extension</text><text x="191.5" y="108" font-size="10.5" font-weight="400" font-style="normal" text-anchor="middle" dominant-baseline="central">Class Loader</text>
+<rect x="152" y="126" width="79" height="28" fill="#fff" stroke="#000" stroke-width="1.1"/>
+<text x="191.5" y="134" font-size="10.5" font-weight="400" font-style="normal" text-anchor="middle" dominant-baseline="central">Application</text><text x="191.5" y="146" font-size="10.5" font-weight="400" font-style="normal" text-anchor="middle" dominant-baseline="central">Class Loader</text>
+<path d="M191.5 76 L191.5 87" stroke="#000" stroke-width="1"/><path d="M191.5 87 L193.8 82.0 L189.2 82.0 Z" fill="#000"/>
+<path d="M191.5 116 L191.5 125" stroke="#000" stroke-width="1"/><path d="M191.5 125 L193.8 120.0 L189.2 120.0 Z" fill="#000"/>
+<path d="M240 87 L248 87 L248 83 L258 90 L248 97 L248 93 L240 93 Z" fill="#000"/>
+<text x="306" y="32" font-size="11.5" font-weight="700" font-style="normal" text-anchor="middle" dominant-baseline="central">Linking</text>
+<rect x="258" y="40" width="97" height="122" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<rect x="266" y="48" width="81" height="28" fill="#fff" stroke="#000" stroke-width="1.1"/>
+<text x="306.5" y="62" font-size="10.5" font-weight="400" font-style="normal" text-anchor="middle" dominant-baseline="central">Verify</text>
+<rect x="266" y="88" width="81" height="28" fill="#fff" stroke="#000" stroke-width="1.1"/>
+<text x="306.5" y="102" font-size="10.5" font-weight="400" font-style="normal" text-anchor="middle" dominant-baseline="central">Prepare</text>
+<rect x="266" y="126" width="81" height="28" fill="#fff" stroke="#000" stroke-width="1.1"/>
+<text x="306.5" y="140" font-size="10.5" font-weight="400" font-style="normal" text-anchor="middle" dominant-baseline="central">Resolve</text>
+<path d="M306.5 76 L306.5 87" stroke="#000" stroke-width="1"/><path d="M306.5 87 L308.8 82.0 L304.2 82.0 Z" fill="#000"/>
+<path d="M306.5 116 L306.5 125" stroke="#000" stroke-width="1"/><path d="M306.5 125 L308.8 120.0 L304.2 120.0 Z" fill="#000"/>
+<path d="M355 87 L366 87 L366 83 L376 90 L366 97 L366 93 L355 93 Z" fill="#000"/>
+<text x="421" y="32" font-size="11.5" font-weight="700" font-style="normal" text-anchor="middle" dominant-baseline="central">Initialization</text>
+<rect x="376" y="62" width="92" height="62" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="422" y="93" font-size="10.5" font-weight="400" font-style="normal" text-anchor="middle" dominant-baseline="central">Initialization</text>
+<path d="M303.5 174 L303.5 208 L298.5 208 L307 222 L315.5 208 L310.5 208 L310.5 174 Z" fill="#000"/>
+<path d="M326.5 222 L326.5 188 L321.5 188 L330 174 L338.5 188 L333.5 188 L333.5 222 Z" fill="#000"/>
+<rect x="14" y="222" width="652" height="164" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<rect x="40" y="238" width="72" height="124" fill="#fff" stroke="#000" stroke-width="1.1"/>
+<text x="76" y="293.5" font-size="10.5" font-weight="700" font-style="normal" text-anchor="middle" dominant-baseline="central">Method</text><text x="76" y="306.5" font-size="10.5" font-weight="700" font-style="normal" text-anchor="middle" dominant-baseline="central">Area</text>
+<rect x="120" y="238" width="70" height="124" fill="#fff" stroke="#000" stroke-width="1.1"/>
+<text x="155" y="300" font-size="10.5" font-weight="700" font-style="normal" text-anchor="middle" dominant-baseline="central">Heap Area</text>
+<text x="306" y="231" font-size="10.5" font-weight="700" font-style="normal" text-anchor="middle" dominant-baseline="central">Stack Area</text>
+<rect x="207" y="238" width="212" height="124" fill="#fff" stroke="#000" stroke-width="1.1"/>
+<rect x="212" y="256" width="62" height="89" rx="3" fill="#fff" stroke="#000" stroke-width="1"/>
+<text x="243" y="269" font-size="10.5" font-weight="700" font-style="normal" text-anchor="middle" dominant-baseline="central">Thread 1</text>
+<path d="M212 281 H274" stroke="#000" stroke-width="0.9"/>
+<path d="M212 295 H274" stroke="#000" stroke-width="0.9"/>
+<path d="M212 309 H274" stroke="#000" stroke-width="0.9"/>
+<path d="M212 328 H274" stroke="#000" stroke-width="0.9"/>
+<text x="243" y="319" font-size="9" font-weight="400" font-style="normal" text-anchor="middle" dominant-baseline="central">Stack Frame</text>
+<path d="M232 328 V345 M254 328 V345" stroke="#000" stroke-width="0.9"/>
+<text x="222" y="337" font-size="7" font-weight="400" font-style="normal" text-anchor="middle" dominant-baseline="central">LVA</text>
+<text x="243" y="337" font-size="7" font-weight="400" font-style="normal" text-anchor="middle" dominant-baseline="central">OS</text>
+<text x="264" y="337" font-size="7" font-weight="400" font-style="normal" text-anchor="middle" dominant-baseline="central">FD</text>
+<rect x="279" y="256" width="62" height="89" rx="3" fill="#fff" stroke="#000" stroke-width="1"/>
+<text x="310" y="269" font-size="10.5" font-weight="700" font-style="normal" text-anchor="middle" dominant-baseline="central">Thread 2</text>
+<path d="M279 281 H341" stroke="#000" stroke-width="0.9"/>
+<path d="M279 295 H341" stroke="#000" stroke-width="0.9"/>
+<path d="M279 309 H341" stroke="#000" stroke-width="0.9"/>
+<path d="M279 328 H341" stroke="#000" stroke-width="0.9"/>
+<text x="310" y="319" font-size="9" font-weight="400" font-style="normal" text-anchor="middle" dominant-baseline="central">Stack Frame</text>
+<path d="M299 328 V345 M321 328 V345" stroke="#000" stroke-width="0.9"/>
+<text x="289" y="337" font-size="7" font-weight="400" font-style="normal" text-anchor="middle" dominant-baseline="central">LVA</text>
+<text x="310" y="337" font-size="7" font-weight="400" font-style="normal" text-anchor="middle" dominant-baseline="central">OS</text>
+<text x="331" y="337" font-size="7" font-weight="400" font-style="normal" text-anchor="middle" dominant-baseline="central">FD</text>
+<rect x="351" y="256" width="62" height="89" rx="3" fill="#fff" stroke="#000" stroke-width="1"/>
+<text x="382" y="269" font-size="10.5" font-weight="700" font-style="normal" text-anchor="middle" dominant-baseline="central">Thread n</text>
+<path d="M351 281 H413" stroke="#000" stroke-width="0.9"/>
+<path d="M351 295 H413" stroke="#000" stroke-width="0.9"/>
+<path d="M351 309 H413" stroke="#000" stroke-width="0.9"/>
+<path d="M351 328 H413" stroke="#000" stroke-width="0.9"/>
+<text x="382" y="319" font-size="9" font-weight="400" font-style="normal" text-anchor="middle" dominant-baseline="central">Stack Frame</text>
+<path d="M371 328 V345 M393 328 V345" stroke="#000" stroke-width="0.9"/>
+<text x="361" y="337" font-size="7" font-weight="400" font-style="normal" text-anchor="middle" dominant-baseline="central">LVA</text>
+<text x="382" y="337" font-size="7" font-weight="400" font-style="normal" text-anchor="middle" dominant-baseline="central">OS</text>
+<text x="403" y="337" font-size="7" font-weight="400" font-style="normal" text-anchor="middle" dominant-baseline="central">FD</text>
+<text x="484" y="231" font-size="10.5" font-weight="700" font-style="normal" text-anchor="middle" dominant-baseline="central">PC Registers</text>
+<rect x="428" y="238" width="113" height="124" fill="#fff" stroke="#000" stroke-width="1.1"/>
+<rect x="432" y="246" width="105" height="18" fill="#fff" stroke="#000" stroke-width="0.9"/>
+<text x="484.5" y="255" font-size="7.5" font-weight="400" font-style="normal" text-anchor="middle" dominant-baseline="central">PC Register for Thread 1</text>
+<rect x="432" y="272" width="105" height="18" fill="#fff" stroke="#000" stroke-width="0.9"/>
+<text x="484.5" y="281" font-size="7.5" font-weight="400" font-style="normal" text-anchor="middle" dominant-baseline="central">PC Register for Thread 2</text>
+<rect x="432" y="340" width="105" height="18" fill="#fff" stroke="#000" stroke-width="0.9"/>
+<text x="484.5" y="349" font-size="7.5" font-weight="400" font-style="normal" text-anchor="middle" dominant-baseline="central">PC Register for Thread n</text>
+<rect x="551" y="240" width="71" height="122" fill="#fff" stroke="#000" stroke-width="1.1"/>
+<text x="586.5" y="289" font-size="10.5" font-weight="700" font-style="normal" text-anchor="middle" dominant-baseline="central">Native</text><text x="586.5" y="302" font-size="10.5" font-weight="700" font-style="normal" text-anchor="middle" dominant-baseline="central">Method</text><text x="586.5" y="315" font-size="10.5" font-weight="700" font-style="normal" text-anchor="middle" dominant-baseline="central">Stack</text>
+<text x="322" y="374" font-size="13" font-weight="700" font-style="normal" text-anchor="middle" dominant-baseline="central">Runtime Data Areas</text>
+<path d="M266.5 386 L266.5 414 L261.5 414 L270 428 L278.5 414 L273.5 414 L273.5 386 Z" fill="#000"/>
+<path d="M289.5 428 L289.5 400 L284.5 400 L293 386 L301.5 400 L296.5 400 L296.5 428 Z" fill="#000"/>
+<path d="M454.5 386 L454.5 414 L449.5 414 L458 428 L466.5 414 L461.5 414 L461.5 386 Z" fill="#000"/>
+<path d="M477.5 428 L477.5 400 L472.5 400 L481 386 L489.5 400 L484.5 400 L484.5 428 Z" fill="#000"/>
+<text x="183" y="417" font-size="15" font-weight="700" font-style="normal" text-anchor="middle" dominant-baseline="central">Execution Engine</text>
+<rect x="14" y="428" width="361" height="150" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<path d="M105 428 V578 M295 428 V578" stroke="#000" stroke-width="1"/>
+<text x="58" y="505" font-size="10.5" font-weight="700" font-style="normal" text-anchor="middle" dominant-baseline="central">Interpreter</text>
+<text x="214" y="440" font-size="10.5" font-weight="700" font-style="normal" text-anchor="middle" dominant-baseline="central">JIT Compiler</text>
+<rect x="113" y="446" width="99" height="126" fill="#fff" stroke="#000" stroke-width="1.1"/>
+<rect x="119" y="454" width="88" height="32" fill="#fff" stroke="#000" stroke-width="1"/>
+<text x="163" y="464.5" font-size="8.5" font-weight="400" font-style="normal" text-anchor="middle" dominant-baseline="central">IntermediateCode</text><text x="163" y="475.5" font-size="8.5" font-weight="400" font-style="normal" text-anchor="middle" dominant-baseline="central">generator</text>
+<rect x="119" y="498" width="88" height="26" fill="#fff" stroke="#000" stroke-width="1"/>
+<text x="163" y="511" font-size="8.5" font-weight="400" font-style="normal" text-anchor="middle" dominant-baseline="central">CodeOptimizer</text>
+<rect x="119" y="536" width="88" height="30" fill="#fff" stroke="#000" stroke-width="1"/>
+<text x="163" y="545.5" font-size="8.5" font-weight="400" font-style="normal" text-anchor="middle" dominant-baseline="central">TargetCode</text><text x="163" y="556.5" font-size="8.5" font-weight="400" font-style="normal" text-anchor="middle" dominant-baseline="central">Generator</text>
+<path d="M163 486 L163 497" stroke="#000" stroke-width="1"/><path d="M163 497 L165.2 492.0 L160.8 492.0 Z" fill="#000"/>
+<path d="M163 524 L163 535" stroke="#000" stroke-width="1"/><path d="M163 535 L165.2 530.0 L160.8 530.0 Z" fill="#000"/>
+<rect x="219" y="489" width="69" height="29" fill="#fff" stroke="#000" stroke-width="1.1"/>
+<text x="253.5" y="503.5" font-size="10.5" font-weight="700" font-style="normal" text-anchor="middle" dominant-baseline="central">Profiler</text>
+<text x="335" y="483.5" font-size="10.5" font-weight="700" font-style="normal" text-anchor="middle" dominant-baseline="central">Garbage</text><text x="335" y="496.5" font-size="10.5" font-weight="700" font-style="normal" text-anchor="middle" dominant-baseline="central">Collection</text>
+<rect x="413" y="428" width="102" height="150" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="464" y="487" font-size="10.5" font-weight="700" font-style="normal" text-anchor="middle" dominant-baseline="central">Native Method</text><text x="464" y="500" font-size="10.5" font-weight="700" font-style="normal" text-anchor="middle" dominant-baseline="central">Interface</text><text x="464" y="513" font-size="10.5" font-weight="700" font-style="normal" text-anchor="middle" dominant-baseline="central">(JNI)</text>
+<path d="M413 483.5 L390 483.5 L390 478.5 L376 487 L390 495.5 L390 490.5 L413 490.5 Z" fill="#000"/>
+<path d="M376 503.5 L399 503.5 L399 498.5 L413 507 L399 515.5 L399 510.5 L376 510.5 Z" fill="#000"/>
+<rect x="553" y="432" width="105" height="146" fill="#fff" stroke="#000" stroke-width="1.2"/>
+<text x="605.5" y="498.5" font-size="10.5" font-weight="700" font-style="normal" text-anchor="middle" dominant-baseline="central">Native Method</text><text x="605.5" y="511.5" font-size="10.5" font-weight="700" font-style="normal" text-anchor="middle" dominant-baseline="central">Library</text>
+<path d="M552 483.5 L530 483.5 L530 478.5 L516 487 L530 495.5 L530 490.5 L552 490.5 Z" fill="#000"/>
+<path d="M516 503.5 L538 503.5 L538 498.5 L552 507 L538 515.5 L538 510.5 L516 510.5 Z" fill="#000"/>
+</svg>

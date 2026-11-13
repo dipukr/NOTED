@@ -5,88 +5,1339 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Caching (Strategies, Eviction, Stampede, Invalidation) - Notes</title>
 <link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    if (window.katex) document.querySelectorAll("[data-tex]").forEach(function (el) {
+        katex.render(el.dataset.tex, el, {displayMode: el.dataset.display === "1", throwOnError: false});
+    });
+
+    var fifo = document.getElementById("gw-fifo");
+    if (fifo) {
+        var steps = [
+            {cells: ["A", "B", "C"], op: "put(A), put(B), put(C)", ev: "None"},
+            {cells: ["A", "B", "C"], op: "get(A)", ev: "None"},
+            {cells: ["B", "C", "D"], op: "put(D)", ev: "A"}
+        ];
+        var at = 0, cells = fifo.querySelectorAll(".gw-cell"), prev = fifo.querySelector('[data-step="-1"]'), next = fifo.querySelector('[data-step="1"]');
+        var drawFifo = function () {
+            var s = steps[at];
+            cells.forEach(function (c, i) { c.textContent = s.cells[i]; });
+            fifo.querySelector(".gw-op").textContent = s.op;
+            fifo.querySelector(".gw-status .gw-small").textContent = "Evicted: " + s.ev;
+            prev.disabled = at === 0; next.disabled = at === steps.length - 1;
+        };
+        prev.onclick = function () { at = Math.max(0, at - 1); drawFifo(); };
+        next.onclick = function () { at = Math.min(steps.length - 1, at + 1); drawFifo(); };
+        drawFifo();
+    }
+
+    var lru = document.getElementById("gw-lru");
+    if (lru) {
+        var order = [], log = [], slots = lru.querySelectorAll(".gw-cell"), box = lru.querySelector(".gw-log");
+        var drawLru = function () {
+            slots.forEach(function (c, i) { c.textContent = order[i] || "—"; });
+            box.innerHTML = "";
+            (log.length ? log.slice(0, 4) : ["Cache initially empty"]).concat(log.length && log.length < 4 ? ["Cache initially empty"] : [])
+                .forEach(function (t) { var p = document.createElement("p"); p.textContent = t; box.appendChild(p); });
+        };
+        lru.querySelectorAll("[data-key]").forEach(function (b) {
+            b.onclick = function () {
+                var k = b.dataset.key, msg = "Access " + k, i = order.indexOf(k);
+                if (i >= 0) order.splice(i, 1);
+                else if (order.length === 3) msg += " → evict " + order.pop();
+                order.unshift(k); log.unshift(msg); drawLru();
+            };
+        });
+        lru.querySelector("[data-reset]").onclick = function () { order = []; log = []; drawLru(); };
+        drawLru();
+    }
+
+    var calc = document.getElementById("gw-calc");
+    if (calc) {
+        var st = {hit: 90, hitMs: 2, missMs: 50};
+        var out = function (k, v) { calc.querySelector('[data-out="' + k + '"]').textContent = v; };
+        var drawCalc = function () {
+            var h = st.hit / 100, avg = h * st.hitMs + (1 - h) * st.missMs;
+            out("hit", st.hit); out("hitMs", st.hitMs); out("missMs", st.missMs);
+            out("avg", Math.round(avg * 10) / 10); out("hits", st.hit); out("miss", 100 - st.hit);
+            calc.querySelector('[data-out="bar"]').style.width = st.hit + "%";
+        };
+        calc.querySelector("#gw-hit").oninput = function (e) { st.hit = +e.target.value; drawCalc(); };
+        calc.querySelectorAll("[data-f]").forEach(function (b) {
+            b.onclick = function () { st[b.dataset.f] = Math.max(0, st[b.dataset.f] + +b.dataset.d); drawCalc(); };
+        });
+        drawCalc();
+    }
+});
+</script>
 </head>
 <body>
 <div class="note">
-    <div class="title">Caching (Strategies, Eviction, Stampede, Invalidation)</div>
-
-    <div class="intro">
-        <p>Caching stores expensive results close to consumers to cut latency and load.</p>
-        <p>Strategies include cache-aside, read-through, write-through, and write-behind.</p>
-        <p>Eviction policies (LRU, LFU, TTL) decide what to drop when the cache is full.</p>
-        <p>Invalidation and stampede protection keep cached data correct and stable.</p>
-    </div>
-
-    <div class="section when-use">
-        <div class="section-title">When to use / Key points</div>
-        <div class="section-content"><ul>
-            <li>Cache read-heavy, expensive, and relatively stable data.</li>
-            <li>Cache-aside: app loads on miss and populates the cache itself.</li>
-            <li>Prevent stampedes with locks, request coalescing, or jittered TTLs.</li>
-            <li>Invalidate on write, or accept staleness bounded by a TTL.</li>
-        </ul></div>
-    </div>
-
-    <div class="subheading">Pros and Cons</div>
-    <div class="pc-grid">
-        <div class="pc-card pro">
-            <div class="pc-title">Lower Latency</div>
-            <p>Cache hits are served dramatically faster than recomputing or refetching the result.</p>
-        </div>
-        <div class="pc-card pro">
-            <div class="pc-title">Reduced Load</div>
-            <p>Serving from cache reduces load on databases and downstream services.</p>
-        </div>
-        <div class="pc-card pro">
-            <div class="pc-title">Better Throughput</div>
-            <p>Caching improves throughput and cost efficiency at scale.</p>
-        </div>
+    <div class="title">Caching</div>
     
-
-        <div class="pc-card con">
-            <div class="pc-title">Stale Data</div>
-            <p>Data can become stale if invalidation is wrong or missing.</p>
-        </div>
-        <div class="pc-card con">
-            <div class="pc-title">Cache Stampede</div>
-            <p>A stampede on expiry can overwhelm the origin with simultaneous misses.</p>
-        </div>
-        <div class="pc-card con">
-            <div class="pc-title">Added Complexity</div>
-            <p>Consistency, eviction tuning, and warm-up add operational complexity.</p>
-        </div>
+    <div class="intro">
+        <p>Caching is one of the most important concepts in backend engineering, distributed systems, database optimization, and high-performance application design.</p>
+        <p>We&rsquo;ll cover caching from fundamentals to production-level implementations, including algorithms written from scratch in Java and a Spring Boot application using Redis.</p>
     </div>
 
-    <div class="section code-section">
-        <div class="section-title">Code</div>
-        <div class="code-layout">
-            <div class="code-wrapper">
-<pre><code><span class="code-comment">// Cache-aside with Spring Cache abstraction</span>
-<span class="code-class">@Service</span>
-<span class="code-keyword">public class</span> <span class="code-class">ProductService</span> {
+    <div class="subheading">1. What is caching?</div>
+    <div class="intro">
+        <p><strong>Caching is a technique of storing copies of frequently or recently accessed data in a faster storage layer so that subsequent requests can be served without repeatedly accessing the original, usually slower, data source.</strong></p>
+        <p>Caching is the process of storing frequently accessed data in temporary storage (cache) to serve future requests faster without repeatedly hitting the main database or service.</p>
+        <p>Cache stores frequently accessed data for faster access and reduced database load.</p>
+        <p>A cache sits between the consumer of data and its original source.</p>
+        <p>The cache is a high-speed storage layer that sits between the application and the original source of the data, such as a database, a file system, or a remote web service. When data is requested by the application, it is first checked in the cache. If the data is found in the cache, it is returned to the application. If the data is not found in the cache, it is retrieved from its original source, stored in the cache for future use, and returned to the application.</p>
+        <p>Caching can be used for various types of data, such as web pages, database queries, API responses, images, and videos. The goal of caching is to reduce the number of times data needs to be fetched from its original source, which can result in faster processing and reduced latency.</p>
+        <p>For example, imagine an e-commerce application where customers repeatedly request product details.</p>
+        <p>Without caching:</p>
+    </div>
+    <div class="gw-card">
+        <div class="gw-flow">
+            <div class="gw-node"><svg class="gw-icon" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M7.5 5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5ZM3 7.5a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM17 6a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm-4 2a4 4 0 1 1 8 0 4 4 0 0 1-8 0Zm-8.96 8.247C3.137 17.048 2.5 18.271 2.5 20a1 1 0 1 1-2 0c0-2.271.862-4.049 2.210-5.248C4.042 13.57 5.788 13 7.5 13s3.459.57 4.79 1.752c1.348 1.2 2.21 2.977 2.21 5.248a1 1 0 1 1-2 0c0-1.729-.638-2.952-1.54-3.753C10.042 15.43 8.788 15 7.5 15s-2.541.43-3.46 1.247Zm15.757-.607c-1.009-.638-2.338-.807-3.526-.472a1 1 0 0 1-.542-1.925c1.695-.478 3.616-.255 5.136.706 1.558.984 2.635 2.707 2.635 5.051a1 1 0 1 1-2 0c0-1.665-.732-2.746-1.703-3.36Z" clip-rule="evenodd"/></svg>Clients</div><svg class="gw-arrow" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M18.707 12.707a1 1 0 0 0 0-1.414l-5-5a1 1 0 1 0-1.414 1.414L15.586 11H6a1 1 0 1 0 0 2h9.586l-3.293 3.293a1 1 0 0 0 1.414 1.414l5-5Z" clip-rule="evenodd"/></svg>
+            <div class="gw-node"><svg class="gw-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"/><rect width="20" height="8" x="2" y="14" rx="2" ry="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/></svg>Application</div><svg class="gw-arrow" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M18.707 12.707a1 1 0 0 0 0-1.414l-5-5a1 1 0 1 0-1.414 1.414L15.586 11H6a1 1 0 1 0 0 2h9.586l-3.293 3.293a1 1 0 0 0 1.414 1.414l5-5Z" clip-rule="evenodd"/></svg>
+            <div class="gw-node"><svg class="gw-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5.5" rx="7" ry="2.5"/><path d="M5 5.5v13c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-13"/><path d="M5 12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5"/></svg>Database</div>
+        </div>
+        <p class="gw-note">Every request potentially requires a database query.</p>
+    </div>
+    <div class="intro">
+        <p>With caching:</p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/caching-with-redis.svg" alt="Client calls the Spring Boot application, which first checks Redis and queries the database only on a miss" style="width:100%;max-width:520px">
+    </div>
+    <div class="intro">
+        <p>The application checks Redis first. It queries the database only when necessary.</p>
+        <p>Suppose retrieving a product directly from the database takes 40 ms, while retrieving it from Redis takes 2 ms.</p>
+    </div>
+    <div class="gw-grid2">
+        <div class="gw-stat"><p class="gw-k">Database lookup</p><p class="gw-v">40 ms</p><p class="gw-s">Illustrative latency</p></div>
+        <div class="gw-stat"><p class="gw-k">Redis lookup</p><p class="gw-v good">2 ms</p><p class="gw-s">Illustrative latency</p></div>
+    </div>
+    <div class="intro">
+        <p>In this hypothetical case, the cached retrieval is 20 times faster. Actual improvements depend on the workload, network, serialization, and database performance.</p>
+        <p class="minor-heading"><strong>Key terminology and concepts</strong></p>
+        <p><strong>1. Cache:</strong> A temporary storage location for data or computation results, typically designed for fast access and retrieval.</p>
+        <p><strong>2. Cache hit:</strong> When a requested data item or computation result is found in the cache.</p>
+        <p><strong>3. Cache miss:</strong> When a requested data item or computation result is not found in the cache and needs to be fetched from the original data source or recalculated.</p>
+        <p><strong>4. Cache eviction:</strong> The process of removing data from the cache, typically to make room for new data or based on a predefined cache eviction policy.</p>
+        <p><strong>5. Cache staleness:</strong> When the data in the cache is outdated compared to the original data source.</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+            <tbody>
+                <tr><td>Hit ratio</td><td>Fraction of cache lookups that are hits</td></tr>
+                <tr><td>TTL</td><td>Time to Live: duration before cached data expires</td></tr>
+                <tr><td>Invalidation</td><td>Marking or removing data that should no longer be trusted</td></tr>
+                <tr><td>Warm cache</td><td>Cache already populated with useful data</td></tr>
+                <tr><td>Cold cache</td><td>Cache empty or not sufficiently populated</td></tr>
+                <tr><td>Working set</td><td>Data actively accessed during a particular period</td></tr>
+            </tbody>
+        </table></div>
+    </div>
 
-    <span class="code-comment">// populate on miss, return cached value on hit</span>
-    <span class="code-class">@Cacheable</span>(value = <span class="code-string">"products"</span>, key = <span class="code-string">"#id"</span>)
-    <span class="code-keyword">public</span> <span class="code-class">Product</span> getProduct(<span class="code-class">Long</span> id) {
-        <span class="code-keyword">return</span> productRepository.findById(id).orElseThrow();
-    }
+    <div class="subheading">2. Why caching matters</div>
+    <div class="intro">
+        <p>Caching can improve several aspects of system performance:</p>
+        <ul>
+            <li><strong>Latency:</strong> Avoid expensive database queries, calculations, or remote API requests.</li>
+            <li><strong>Throughput:</strong> Serve more requests with the same backend resources.</li>
+            <li><strong>Scalability:</strong> Reduce pressure on databases and dependent services.</li>
+            <li><strong>Cost:</strong> Reduce database compute, I/O, and external API usage.</li>
+            <li><strong>Resilience:</strong> Some systems can continue serving suitable cached data during temporary downstream failures.</li>
+        </ul>
+        <p>However, caching introduces additional state, complexity, and consistency problems. A fast response containing incorrect data may be worse than a slower, accurate response.</p>
+    </div>
 
-    <span class="code-comment">// invalidate the entry when the product changes</span>
-    <span class="code-class">@CacheEvict</span>(value = <span class="code-string">"products"</span>, key = <span class="code-string">"#product.id"</span>)
-    <span class="code-keyword">public</span> <span class="code-class">Product</span> update(<span class="code-class">Product</span> product) {
-        <span class="code-keyword">return</span> productRepository.save(product);
-    }
-}</code></pre>
+    <div class="subheading">3. Types of caching</div>
+    <div class="intro">
+        <p>Caching can be implemented in various ways, including in-memory caching, disk caching, database caching, and CDN caching. In-memory caching stores data in the main memory of the computer, which is faster to access than disk storage. Disk caching stores data on the hard disk, which is slower than main memory but faster than retrieving data from a remote source. Database caching stores frequently accessed data in the database itself, reducing the need to access external storage. CDN caching stores data on a distributed network of servers, reducing the latency of accessing data from remote locations.</p>
+        <p>Caching can be classified by where the data is stored and what is being cached.</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Cache type</th><th>Location</th><th>Example</th></tr></thead>
+            <tbody>
+                <tr><td>CPU cache</td><td>Processor L1/L2/L3</td><td>Frequently accessed memory</td></tr>
+                <tr><td>Application/local cache</td><td>Application process</td><td>Java <code>HashMap</code>, Caffeine</td></tr>
+                <tr><td>Distributed cache</td><td>Separate shared cache service</td><td>Redis, Memcached</td></tr>
+                <tr><td>Database cache</td><td>Database engine</td><td>PostgreSQL shared buffers</td></tr>
+                <tr><td>Browser cache</td><td>User&rsquo;s browser</td><td>CSS, JavaScript, images</td></tr>
+                <tr><td>CDN/edge cache</td><td>Edge servers near users</td><td>Static assets, public API responses</td></tr>
+                <tr><td>HTTP reverse-proxy cache</td><td>Gateway/proxy</td><td>Varnish, Nginx</td></tr>
+                <tr><td>Query/result cache</td><td>Application or database layer</td><td>Cached analytics report</td></tr>
+            </tbody>
+        </table></div>
+        <p class="minor-heading"><strong>Local cache vs distributed cache</strong></p>
+    </div>
+    <div class="gw-grid2">
+        <div class="gw-card">
+            <p class="gw-title">Local cache (L1)</p>
+            <div class="gw-stack">
+                <div class="gw-box"><svg class="gw-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"/><rect width="20" height="8" x="2" y="14" rx="2" ry="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/></svg><span class="gw-name">Spring Boot A</span><span class="gw-sub"><svg class="gw-icon" style="width:16px;height:16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 19v-3"/><path d="M10 19v-3"/><path d="M14 19v-3"/><path d="M18 19v-3"/><path d="M8 11V9"/><path d="M16 11V9"/><path d="M12 11V9"/><path d="M2 15h20"/><path d="M2 7a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v1.1a2 2 0 0 0 0 3.837V17a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-5.1a2 2 0 0 0 0-3.837Z"/></svg>In-memory cache A</span></div>
+                <div class="gw-box"><svg class="gw-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"/><rect width="20" height="8" x="2" y="14" rx="2" ry="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/></svg><span class="gw-name">Spring Boot B</span><span class="gw-sub"><svg class="gw-icon" style="width:16px;height:16px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 19v-3"/><path d="M10 19v-3"/><path d="M14 19v-3"/><path d="M18 19v-3"/><path d="M8 11V9"/><path d="M16 11V9"/><path d="M12 11V9"/><path d="M2 15h20"/><path d="M2 7a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v1.1a2 2 0 0 0 0 3.837V17a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-5.1a2 2 0 0 0 0-3.837Z"/></svg>In-memory cache B</span></div>
             </div>
-            <div class="code-explanation">
-                <div class="code-explanation-title">How it works</div>
-                <p><code>@Cacheable</code> checks the cache first and only hits the DB on a miss.<br><br>
-                    The <code>key = "#id"</code> expression derives the cache key from the argument.<br><br>
-                    <code>@CacheEvict</code> removes the stale entry on update for correct invalidation.<br><br>
-                    Configuring TTL and a max size on the backing cache handles eviction and stampede control.</p>
+            <p class="gw-small" style="margin:10px 0 0">Very low lookup overhead, but each instance has independent data.</p>
+        </div>
+        <div class="gw-card">
+            <p class="gw-title">Distributed cache (L2)</p>
+            <div class="gw-stack">
+                <div class="gw-row">
+                    <div class="gw-box"><svg class="gw-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"/><rect width="20" height="8" x="2" y="14" rx="2" ry="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/></svg><span class="gw-small" style="color:#0d0d0d">App A</span></div>
+                    <div class="gw-box"><svg class="gw-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="8" x="2" y="2" rx="2" ry="2"/><rect width="20" height="8" x="2" y="14" rx="2" ry="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/></svg><span class="gw-small" style="color:#0d0d0d">App B</span></div>
+                </div>
+                <svg class="gw-down" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12.707 18.707a1 1 0 0 1-1.414 0l-5-5a1 1 0 1 1 1.414-1.414L11 15.586V6a1 1 0 1 1 2 0v9.586l3.293-3.293a1 1 0 0 1 1.414 1.414l-5 5Z" clip-rule="evenodd"/></svg>
+                <div class="gw-box green"><svg class="gw-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5.5" rx="7" ry="2.5"/><path d="M5 5.5v13c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-13"/><path d="M5 12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5"/></svg><span class="gw-name">Shared Redis</span></div>
+                <svg class="gw-down" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12.707 18.707a1 1 0 0 1-1.414 0l-5-5a1 1 0 1 1 1.414-1.414L11 15.586V6a1 1 0 1 1 2 0v9.586l3.293-3.293a1 1 0 0 1 1.414 1.414l-5 5Z" clip-rule="evenodd"/></svg>
+                <div class="gw-box"><span class="gw-small" style="color:#0d0d0d">Primary Database</span></div>
+            </div>
+            <p class="gw-small" style="margin:10px 0 0">Shared data across instances, but requires network access.</p>
+        </div>
+    </div>
+    <div class="intro">
+        <p><strong>Local caching</strong> is an excellent choice for immutable configuration, lookup tables, and data where each application instance can tolerate independent cache contents.</p>
+        <p><strong>Distributed caching</strong> is particularly useful for horizontally scaled microservices that need access to the same cached values.</p>
+        <p>A combination of both is called <strong>multi-level caching</strong>:</p>
+        <p><code>L1 (Caffeine) → L2 (Redis) → Database</code></p>
+        <p>The fastest layer is checked first. The challenge is keeping the layers sufficiently consistent.</p>
+    </div>
+
+    <div class="subheading">4. Caching strategies and patterns</div>
+    <div class="intro">
+        <p>Caching strategies determine when data enters the cache, how reads work, and how updates are handled.</p>
+        <p class="minor-heading"><strong>4.1 Cache-aside (Lazy Loading)</strong></p>
+    </div>
+    <span class="gw-badge">Common for backend applications</span>
+    <div class="intro">
+        <p>The application manages the cache explicitly.</p>
+        <p>Read algorithm:</p>
+        <ol>
+            <li>Check the cache.</li>
+            <li>If the value exists, return it.</li>
+            <li>On a miss, retrieve the value from the database.</li>
+            <li>Save the retrieved value in the cache.</li>
+            <li>Return the result.</li>
+        </ol>
+    </div>
+    <div class="code-block"><pre><code>sequenceDiagram
+    autonumber
+    participant C as Client
+    participant A as Application
+    participant R as Redis
+    participant D as Database
+    C-&gt;&gt;A: GET /products/42
+    A-&gt;&gt;R: GET products::42
+    alt Cache Hit
+        R--&gt;&gt;A: Cached Product
+    else Cache Miss
+        R--&gt;&gt;A: No Value
+        A-&gt;&gt;D: SELECT product WHERE id=42
+        D--&gt;&gt;A: Product
+        A-&gt;&gt;R: SET product with TTL
+    end
+    A--&gt;&gt;C: Product Response</code></pre></div>
+    <div class="intro">
+        <p>A minimal Java-style implementation:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-class">Product</span> getProduct(long id) {
+    <span class="code-class">Product</span> cached = cache.get(id);
+    <span class="code-keyword">if</span> (cached != <span class="code-keyword">null</span>) {
+        <span class="code-keyword">return</span> cached;
+    }
+    <span class="code-class">Product</span> product = database.findById(id);
+    <span class="code-keyword">if</span> (product != <span class="code-keyword">null</span>) {
+        cache.put(id, product);
+    }
+    <span class="code-keyword">return</span> product;
+}</code></pre></div>
+    <div class="intro">
+        <p>For updates, a common approach is:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">void</span> updateProduct(<span class="code-class">Product</span> product) {
+    database.save(product);
+    cache.remove(product.getId());
+}</code></pre></div>
+    <div class="intro">
+        <p>For this simplified example, assume the database write commits before the eviction and that there are no concurrent read/write races. A production implementation must handle those concerns.</p>
+        <p><strong>Advantages:</strong> Only accessed data is cached, the cache can be rebuilt, and the application controls the cache policy.</p>
+        <p><strong>Disadvantages:</strong> The first request is slower, application logic must manage invalidation, and concurrent misses can overload the database.</p>
+        <p class="minor-heading"><strong>4.2 Read-through caching</strong></p>
+        <p>In read-through caching, the application interacts with a cache abstraction that automatically loads data from the database on a miss.</p>
+    </div>
+    <div class="code-block"><pre><code>Application
+    |
+    v
+Cache.get(key)
+    |
+    +-- Hit  --&gt; Return cached value
+    |
+    +-- Miss --&gt; Cache loader queries database
+                 |
+                 +--&gt; Store result
+                 +--&gt; Return result</code></pre></div>
+    <div class="intro">
+        <p>Conceptual Java example:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">LoadingCache</span>&lt;<span class="code-class">Long</span>, <span class="code-class">Product</span>&gt; cache = <span class="code-class">Caffeine</span>.newBuilder()
+                                            .maximumSize(<span class="code-number">1000</span>)
+                                            .build(id -&gt; repository.findById(id).orElse(<span class="code-keyword">null</span>));
+
+<span class="code-class">Product</span> product = cache.get(42L);</code></pre></div>
+    <div class="intro">
+        <p>This example uses Caffeine to demonstrate the interface. The cache automatically invokes the loader on a miss.</p>
+        <p>The main difference is <strong>who owns the loading logic</strong>: in cache-aside, the application loads explicitly; in read-through, the cache abstraction performs the loading.</p>
+        <p class="minor-heading"><strong>4.3 Write-through caching</strong></p>
+        <p>Every write updates the authoritative database and the cache synchronously.</p>
+    </div>
+    <div class="code-block"><pre><code>Application
+    |
+    v
+Write-through caching layer
+    |
+    +--&gt; Database write
+    |
+    +--&gt; Cache update
+    |
+    v
+Return write result</code></pre></div>
+    <div class="intro">
+        <p>The operation should report success only after the required writes succeed.</p>
+        <p><strong>Advantages:</strong> Frequently accessed updated data can be served immediately without another database read.</p>
+        <p><strong>Disadvantages:</strong> Additional write latency, unnecessary caching of cold data, and difficulty handling partial failures. Writing to a database and Redis is not automatically atomic.</p>
+        <p class="minor-heading"><strong>4.4 Write-behind (Write-back) caching</strong></p>
+        <p>Writes are accepted into the cache or a buffer and later propagated asynchronously to the database.</p>
+    </div>
+    <div class="code-block"><pre><code>Client
+   |
+   v
+Cache / Durable Write Buffer
+   |                  |
+   v                  v
+Fast response    Async worker
+                      |
+                      v
+                   Database</code></pre></div>
+    <div class="intro">
+        <p>This can produce excellent write throughput by batching writes.</p>
+        <p>However, <strong>acknowledged writes may be lost</strong> if they only exist in volatile cache memory when a failure occurs. Reliable write-behind systems typically require a durable log or queue, replay, retry, and idempotency.</p>
+        <p>Use it selectively for workloads such as telemetry, buffered counters, and noncritical aggregate updates. Ordinary Redis cache-aside usage is not write-behind.</p>
+        <p class="minor-heading"><strong>4.5 Write-around caching</strong></p>
+        <p>Writes go directly to the database without populating the cache.</p>
+    </div>
+    <div class="code-block"><pre><code>Write: Application → Database
+Read:  Application → Cache → Database on miss</code></pre></div>
+    <div class="intro">
+        <p>The application must also invalidate an existing cached value for the affected key.</p>
+        <p>This is useful for write-heavy workloads where newly written data is unlikely to be read soon.</p>
+        <p class="minor-heading"><strong>Strategy comparison</strong></p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Strategy</th><th>Reads</th><th>Writes</th><th>Suitable for</th></tr></thead>
+            <tbody>
+                <tr><td>Cache-aside</td><td>Application checks and fills cache</td><td>DB + invalidate or update cache</td><td>General microservices</td></tr>
+                <tr><td>Read-through</td><td>Cache loader fetches missing data</td><td>Separate write handling</td><td>Read-heavy applications</td></tr>
+                <tr><td>Write-through</td><td>Cache serves reads</td><td>DB and cache updated synchronously</td><td>Frequently read, updated data</td></tr>
+                <tr><td>Write-behind</td><td>Cache serves recent values</td><td>Buffered, asynchronous DB write</td><td>High write throughput</td></tr>
+                <tr><td>Write-around</td><td>Cache on subsequent reads</td><td>DB directly, invalidate old copy</td><td>Write-heavy, cold data</td></tr>
+            </tbody>
+        </table></div>
+        <p>These strategies can be combined. For example, use cache-aside for reads and database-first cache invalidation for writes.</p>
+    </div>
+
+    <div class="subheading">5. Cache eviction policies</div>
+    <div class="intro">
+        <p>A cache has limited capacity. When it becomes full, it must decide which entry to remove to make space for new data.</p>
+        <p>This decision is controlled by an <strong>eviction policy</strong>.</p>
+        <p>Suppose a cache can hold only three items:</p>
+    </div>
+    <div class="code-block"><pre><code>Capacity = 3
+
+Cache = [A, B, C]
+
+New entry D arrives.
+
+Which entry should be removed?</code></pre></div>
+    <div class="intro">
+        <p>Different eviction algorithms make different decisions.</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Algorithm</th><th>Full name</th><th>Eviction decision</th><th>Typical complexity</th></tr></thead>
+            <tbody>
+                <tr><td>FIFO</td><td>First In, First Out</td><td>Oldest inserted item</td><td>O(1)</td></tr>
+                <tr><td>LRU</td><td>Least Recently Used</td><td>Least recently accessed item</td><td>O(1)</td></tr>
+                <tr><td>LFU</td><td>Least Frequently Used</td><td>Item with fewest accesses</td><td>O(1) average with suitable structures</td></tr>
+                <tr><td>MRU</td><td>Most Recently Used</td><td>Most recently accessed item</td><td>O(1)</td></tr>
+                <tr><td>Random</td><td>Random Replacement</td><td>Randomly chosen item</td><td>O(1)</td></tr>
+                <tr><td>CLOCK</td><td>Second Chance</td><td>Approximate LRU using reference bits</td><td>O(1) amortized</td></tr>
+                <tr><td>TTL</td><td>Time to Live</td><td>Item whose expiration time has passed</td><td>Depends on implementation</td></tr>
+                <tr><td>TinyLFU</td><td>Approximate frequency-based admission</td><td>Determines which data deserves cache space</td><td>Implementation-dependent</td></tr>
+            </tbody>
+        </table></div>
+        <p><strong>Important distinction:</strong> TTL expiration is not the same thing as capacity-based eviction. A cache can use LRU to handle memory pressure and TTL to discard old values.</p>
+        <p class="minor-heading"><strong>5.1 FIFO — First In, First Out</strong></p>
+        <p>FIFO removes the entry that was inserted earliest, regardless of how often it has been accessed.</p>
+    </div>
+    <div class="gw-card" id="gw-fifo">
+        <p class="gw-label">FIFO example — capacity 3</p>
+        <div class="gw-panel">
+            <div class="gw-ends"><span>Oldest</span><span>Newest</span></div>
+            <div class="gw-cells"><div class="gw-cell"></div><div class="gw-cell"></div><div class="gw-cell"></div></div>
+        </div>
+        <div class="gw-status"><p class="gw-op"></p><span class="gw-small"></span></div>
+        <div class="gw-btns"><button class="gw-btn" data-step="-1">Previous</button><button class="gw-btn primary" data-step="1">Next step</button></div>
+    </div>
+    <div class="intro">
+        <p>FIFO is easy to implement with a <code>HashMap</code> and a queue.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">FIFOCache</span>&lt;<span class="code-class">K</span>, <span class="code-class">V</span>&gt; {
+    <span class="code-keyword">private</span> int capacity;
+    <span class="code-keyword">private</span> <span class="code-class">Map</span>&lt;<span class="code-class">K</span>, <span class="code-class">V</span>&gt; map = <span class="code-keyword">new</span> <span class="code-class">HashMap</span>&lt;&gt;();
+    <span class="code-keyword">private</span> <span class="code-class">Queue</span>&lt;<span class="code-class">K</span>&gt; queue = <span class="code-keyword">new</span> <span class="code-class">ArrayDeque</span>&lt;&gt;();
+
+    <span class="code-keyword">public</span> <span class="code-class">FIFOCache</span>(int capacity) {
+        <span class="code-keyword">if</span> (capacity &lt;= <span class="code-number">0</span>) <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>();
+        <span class="code-keyword">this</span>.capacity = capacity;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">V</span> get(<span class="code-class">K</span> key) { <span class="code-keyword">return</span> map.get(key); }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> put(<span class="code-class">K</span> key, <span class="code-class">V</span> value) {
+        <span class="code-class">Objects</span>.requireNonNull(key);
+        <span class="code-class">Objects</span>.requireNonNull(value);
+        <span class="code-keyword">if</span> (map.containsKey(key)) {
+            map.put(key, value);
+            <span class="code-keyword">return</span>;
+        }
+        <span class="code-keyword">if</span> (map.size() == capacity) {
+            <span class="code-class">K</span> oldest = queue.remove();
+            map.remove(oldest);
+        }
+        queue.add(key);
+        map.put(key, value);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>The example assumes non-null keys and values.</p>
+        <p><strong>Drawback:</strong> Reading an entry repeatedly does not protect it from eviction. Even a very popular item can be removed merely because it was inserted first.</p>
+        <p class="minor-heading"><strong>5.2 LRU — Least Recently Used</strong></p>
+        <p>LRU evicts the item that has not been accessed for the longest time.</p>
+        <p>LRU is based on temporal locality: data accessed recently is likely to be accessed again.</p>
+        <p>Consider capacity 3:</p>
+    </div>
+    <div class="gw-card" id="gw-lru">
+        <p class="gw-label">Interactive LRU simulation</p>
+        <div class="gw-cells"><span class="gw-end">MRU</span><div class="gw-cell" style="background:#f9f9f9">—</div><div class="gw-cell" style="background:#f9f9f9">—</div><div class="gw-cell" style="background:#f9f9f9">—</div><span class="gw-end">LRU</span></div>
+        <div class="gw-btns" style="margin-top:12px"><button class="gw-btn" data-key="A">Access A</button><button class="gw-btn" data-key="B">Access B</button><button class="gw-btn" data-key="C">Access C</button><button class="gw-btn" data-key="D">Access D</button></div>
+        <div class="gw-status"><span class="gw-small">Click keys to see how recency changes.</span><button class="gw-btn" data-reset="1">Reset</button></div>
+        <div class="gw-log"><p>Cache initially empty</p></div>
+    </div>
+    <div class="intro">
+        <p class="minor-heading"><strong>How to implement O(1) LRU</strong></p>
+        <p>Use two data structures together:</p>
+        <ol>
+            <li><code>HashMap&lt;K, Node&gt;</code> for O(1) average lookup.</li>
+            <li>A custom doubly linked list for O(1) movement and removal.</li>
+        </ol>
+        <p>Keep the most recently used item near the head and the least recently used item near the tail.</p>
+    </div>
+    <div class="code-block"><pre><code>HEAD &lt;-&gt; C &lt;-&gt; A &lt;-&gt; B &lt;-&gt; TAIL
+         ^               ^
+        MRU             LRU</code></pre></div>
+    <div class="intro">
+        <p>The <code>HashMap</code> locates a node; the linked list maintains recency.</p>
+        <p class="minor-heading"><strong>Java implementation from scratch</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">LRUCache</span>&lt;<span class="code-class">K</span>, <span class="code-class">V</span>&gt; {
+    <span class="code-keyword">private</span> <span class="code-keyword">class</span> <span class="code-class">Node</span> {
+        <span class="code-class">K</span> key;
+        <span class="code-class">V</span> value;
+        <span class="code-class">Node</span> prev, next;
+
+        <span class="code-class">Node</span>(<span class="code-class">K</span> key, <span class="code-class">V</span> value) {
+            <span class="code-keyword">this</span>.key = key;
+            <span class="code-keyword">this</span>.value = value;
+        }
+    }
+
+    <span class="code-keyword">private</span> int capacity;
+    <span class="code-keyword">private</span> <span class="code-class">Map</span>&lt;<span class="code-class">K</span>, <span class="code-class">Node</span>&gt; map = <span class="code-keyword">new</span> <span class="code-class">HashMap</span>&lt;&gt;();
+    <span class="code-keyword">private</span> <span class="code-class">Node</span> head = <span class="code-keyword">new</span> <span class="code-class">Node</span>(<span class="code-keyword">null</span>, <span class="code-keyword">null</span>);
+    <span class="code-keyword">private</span> <span class="code-class">Node</span> tail = <span class="code-keyword">new</span> <span class="code-class">Node</span>(<span class="code-keyword">null</span>, <span class="code-keyword">null</span>);
+
+    <span class="code-keyword">public</span> <span class="code-class">LRUCache</span>(int capacity) {
+        <span class="code-keyword">if</span> (capacity &lt;= <span class="code-number">0</span>) <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>();
+        <span class="code-keyword">this</span>.capacity = capacity;
+        head.next = tail;
+        tail.prev = head;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">V</span> get(<span class="code-class">K</span> key) {
+        <span class="code-class">Node</span> node = map.get(key);
+        <span class="code-keyword">if</span> (node == <span class="code-keyword">null</span>) {
+            <span class="code-keyword">return</span> <span class="code-keyword">null</span>;
+        }
+        removeNode(node); <span class="code-comment"># Recently accessed: move to front.</span>
+        addToFront(node);
+        <span class="code-keyword">return</span> node.value;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> put(<span class="code-class">K</span> key, <span class="code-class">V</span> value) {
+        <span class="code-class">Objects</span>.requireNonNull(key);
+        <span class="code-class">Objects</span>.requireNonNull(value);
+        <span class="code-class">Node</span> existing = map.get(key);
+        <span class="code-keyword">if</span> (existing != <span class="code-keyword">null</span>) {
+            existing.value = value;
+            removeNode(existing);
+            addToFront(existing);
+            <span class="code-keyword">return</span>;
+        }
+        <span class="code-keyword">if</span> (map.size() == capacity) {
+            <span class="code-class">Node</span> lru = tail.prev; <span class="code-comment"># Least recently used node.</span>
+            removeNode(lru);
+            map.remove(lru.key);
+        }
+        <span class="code-class">Node</span> newNode = <span class="code-keyword">new</span> <span class="code-class">Node</span>(key, value);
+        addToFront(newNode);
+        map.put(key, newNode);
+    }
+
+    <span class="code-keyword">private</span> <span class="code-keyword">void</span> removeNode(<span class="code-class">Node</span> node) {
+        node.prev.next = node.next;
+        node.next.prev = node.prev;
+    }
+
+    <span class="code-keyword">private</span> <span class="code-keyword">void</span> addToFront(<span class="code-class">Node</span> node) {
+        node.next = head.next;
+        node.prev = head;
+        head.next.prev = node;
+        head.next = node;
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Usage:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">LRUCache</span>&lt;<span class="code-class">Integer</span>, <span class="code-class">String</span>&gt; cache = <span class="code-keyword">new</span> <span class="code-class">LRUCache</span>&lt;&gt;(<span class="code-number">3</span>);
+
+cache.put(<span class="code-number">1</span>, <span class="code-string">"A"</span>);
+cache.put(<span class="code-number">2</span>, <span class="code-string">"B"</span>);
+cache.put(<span class="code-number">3</span>, <span class="code-string">"C"</span>);
+
+cache.get(<span class="code-number">1</span>);            <span class="code-comment"># 1 becomes most recent</span>
+
+cache.put(<span class="code-number">4</span>, <span class="code-string">"D"</span>);       <span class="code-comment"># Evicts 2</span>
+
+<span class="code-class">System</span>.out.println(cache.get(<span class="code-number">2</span>)); <span class="code-comment"># null</span>
+<span class="code-class">System</span>.out.println(cache.get(<span class="code-number">1</span>)); <span class="code-comment"># A</span></code></pre></div>
+    <div class="intro">
+        <p>Complexity:</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Operation</th><th>Time</th></tr></thead>
+            <tbody>
+                <tr><td><code>get()</code></td><td>O(1) average</td></tr>
+                <tr><td><code>put()</code></td><td>O(1) average</td></tr>
+                <tr><td>Remove least recent</td><td>O(1)</td></tr>
+                <tr><td>Memory</td><td>O(capacity)</td></tr>
+            </tbody>
+        </table></div>
+        <p>This implementation is not thread-safe. A real concurrent cache must synchronize access to both its map and linked list, or use a production library.</p>
+        <p class="minor-heading"><strong>5.3 LFU — Least Frequently Used</strong></p>
+        <p>LFU evicts the item with the lowest access count.</p>
+        <p>Suppose capacity is 3:</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Key</th><th>Access frequency</th></tr></thead>
+            <tbody>
+                <tr><td>A</td><td>8</td></tr>
+                <tr><td>B</td><td>2</td></tr>
+                <tr><td>C</td><td>5</td></tr>
+            </tbody>
+        </table></div>
+        <p>When D is inserted, <strong>B is evicted</strong> because it has the lowest frequency.</p>
+        <p>If multiple items have the same frequency, a common tie-breaking rule is LRU.</p>
+        <p class="minor-heading"><strong>O(1) LFU design</strong></p>
+        <p>Use two maps:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">Map</span>&lt;<span class="code-class">K</span>, <span class="code-class">Entry</span>&lt;<span class="code-class">V</span>&gt;&gt; values;
+<span class="code-class">Map</span>&lt;<span class="code-class">Integer</span>, <span class="code-class">LinkedHashSet</span>&lt;<span class="code-class">K</span>&gt;&gt; frequencyBuckets;</code></pre></div>
+    <div class="intro">
+        <p>The first stores each value and its frequency. The second groups keys by frequency; insertion order inside each group supports the LRU tie-break.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">LFUCache</span>&lt;<span class="code-class">K</span>, <span class="code-class">V</span>&gt; {
+    <span class="code-keyword">private</span> <span class="code-keyword">static</span> <span class="code-keyword">class</span> <span class="code-class">Entry</span>&lt;<span class="code-class">V</span>&gt; {
+        <span class="code-class">V</span> value;
+        int frequency = <span class="code-number">1</span>;
+
+        <span class="code-class">Entry</span>(<span class="code-class">V</span> value) { <span class="code-keyword">this</span>.value = value; }
+    }
+
+    <span class="code-keyword">private</span> int capacity;
+    <span class="code-keyword">private</span> int minFrequency = <span class="code-number">0</span>;
+    <span class="code-keyword">private</span> <span class="code-class">Map</span>&lt;<span class="code-class">K</span>, <span class="code-class">Entry</span>&lt;<span class="code-class">V</span>&gt;&gt; values = <span class="code-keyword">new</span> <span class="code-class">HashMap</span>&lt;&gt;();
+    <span class="code-keyword">private</span> <span class="code-class">Map</span>&lt;<span class="code-class">Integer</span>, <span class="code-class">LinkedHashSet</span>&lt;<span class="code-class">K</span>&gt;&gt; buckets = <span class="code-keyword">new</span> <span class="code-class">HashMap</span>&lt;&gt;();
+
+    <span class="code-keyword">public</span> <span class="code-class">LFUCache</span>(int capacity) {
+        <span class="code-keyword">if</span> (capacity &lt;= <span class="code-number">0</span>) <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>();
+        <span class="code-keyword">this</span>.capacity = capacity;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">V</span> get(<span class="code-class">K</span> key) {
+        <span class="code-class">Entry</span>&lt;<span class="code-class">V</span>&gt; entry = values.get(key);
+        <span class="code-keyword">if</span> (entry == <span class="code-keyword">null</span>) {
+            <span class="code-keyword">return</span> <span class="code-keyword">null</span>;
+        }
+        increaseFrequency(key, entry);
+        <span class="code-keyword">return</span> entry.value;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> put(<span class="code-class">K</span> key, <span class="code-class">V</span> value) {
+        <span class="code-class">Objects</span>.requireNonNull(key);
+        <span class="code-class">Objects</span>.requireNonNull(value);
+        <span class="code-class">Entry</span>&lt;<span class="code-class">V</span>&gt; existing = values.get(key);
+        <span class="code-keyword">if</span> (existing != <span class="code-keyword">null</span>) {
+            existing.value = value;
+            increaseFrequency(key, existing);
+            <span class="code-keyword">return</span>;
+        }
+        <span class="code-keyword">if</span> (values.size() == capacity) {
+            <span class="code-class">LinkedHashSet</span>&lt;<span class="code-class">K</span>&gt; keys = buckets.get(minFrequency);
+            <span class="code-class">K</span> victim = keys.iterator().next(); <span class="code-comment"># Oldest key among least-frequent keys.</span>
+            keys.remove(victim);
+            values.remove(victim);
+            <span class="code-keyword">if</span> (keys.isEmpty()) {
+                buckets.remove(minFrequency);
+            }
+        }
+        values.put(key, <span class="code-keyword">new</span> <span class="code-class">Entry</span>&lt;&gt;(value));
+        buckets.computeIfAbsent(<span class="code-number">1</span>, ignored -&gt; <span class="code-keyword">new</span> <span class="code-class">LinkedHashSet</span>&lt;&gt;()).add(key);
+        minFrequency = <span class="code-number">1</span>;
+    }
+
+    <span class="code-keyword">private</span> <span class="code-keyword">void</span> increaseFrequency(<span class="code-class">K</span> key, <span class="code-class">Entry</span>&lt;<span class="code-class">V</span>&gt; entry) {
+        int oldFrequency = entry.frequency;
+        <span class="code-class">LinkedHashSet</span>&lt;<span class="code-class">K</span>&gt; oldBucket = buckets.get(oldFrequency);
+        oldBucket.remove(key);
+        <span class="code-keyword">if</span> (oldBucket.isEmpty()) {
+            buckets.remove(oldFrequency);
+            <span class="code-keyword">if</span> (minFrequency == oldFrequency) {
+                minFrequency++;
+            }
+        }
+        entry.frequency++;
+        buckets.computeIfAbsent(entry.frequency, ignored -&gt; <span class="code-keyword">new</span> <span class="code-class">LinkedHashSet</span>&lt;&gt;()).add(key);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Usage:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">LFUCache</span>&lt;<span class="code-class">Integer</span>, <span class="code-class">String</span>&gt; cache = <span class="code-keyword">new</span> <span class="code-class">LFUCache</span>&lt;&gt;(<span class="code-number">3</span>);
+
+cache.put(<span class="code-number">1</span>, <span class="code-string">"A"</span>);
+cache.put(<span class="code-number">2</span>, <span class="code-string">"B"</span>);
+cache.put(<span class="code-number">3</span>, <span class="code-string">"C"</span>);
+
+cache.get(<span class="code-number">1</span>);
+cache.get(<span class="code-number">1</span>);
+cache.get(<span class="code-number">2</span>);
+
+cache.put(<span class="code-number">4</span>, <span class="code-string">"D"</span>);   <span class="code-comment"># Evicts 3</span>
+
+<span class="code-class">System</span>.out.println(cache.get(<span class="code-number">3</span>)); <span class="code-comment"># null</span></code></pre></div>
+    <div class="intro">
+        <p>The LFU implementation has O(1) average operations under normal hash-table assumptions.</p>
+        <p>Its main weakness is that frequency history can become outdated. A once-popular entry may remain cached long after it stops being useful. Production LFU variants often use frequency aging or approximate frequency counters.</p>
+        <p class="minor-heading"><strong>5.4 TTL — Time to Live</strong></p>
+        <p>TTL defines how long a cached entry may remain valid following a particular event, usually its insertion or last write.</p>
+        <p>For example:</p>
+    </div>
+    <div class="code-block"><pre><code>Product cached at 10:00:00
+TTL = 5 minutes
+
+Before 10:05:00: Eligible to be served
+At/after 10:05:00: Expired</code></pre></div>
+    <div class="intro">
+        <p>There are two common expiration styles:</p>
+        <ul>
+            <li><strong>Expire after write:</strong> The expiration deadline resets when the value is written or replaced.</li>
+            <li><strong>Expire after access (time-to-idle):</strong> The deadline resets when the value is accessed, subject to implementation semantics.</li>
+        </ul>
+        <p>A simple lazy-expiration implementation:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">TTLCache</span>&lt;<span class="code-class">K</span>, <span class="code-class">V</span>&gt; {
+    <span class="code-keyword">private</span> <span class="code-keyword">record</span> <span class="code-class">Entry</span>&lt;<span class="code-class">V</span>&gt;(<span class="code-class">V</span> value, long writtenAt) {}
+
+    <span class="code-keyword">private</span> <span class="code-class">Map</span>&lt;<span class="code-class">K</span>, <span class="code-class">Entry</span>&lt;<span class="code-class">V</span>&gt;&gt; cache = <span class="code-keyword">new</span> <span class="code-class">HashMap</span>&lt;&gt;();
+    <span class="code-keyword">private</span> long ttlNanos;
+
+    <span class="code-keyword">public</span> <span class="code-class">TTLCache</span>(<span class="code-class">Duration</span> ttl) {
+        <span class="code-keyword">if</span> (ttl.isZero() || ttl.isNegative()) <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>();
+        ttlNanos = ttl.toNanos();
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> put(<span class="code-class">K</span> key, <span class="code-class">V</span> value) { cache.put(key, <span class="code-keyword">new</span> <span class="code-class">Entry</span>&lt;&gt;(value, <span class="code-class">System</span>.nanoTime())); }
+
+    <span class="code-keyword">public</span> <span class="code-class">V</span> get(<span class="code-class">K</span> key) {
+        <span class="code-class">Entry</span>&lt;<span class="code-class">V</span>&gt; entry = cache.get(key);
+        <span class="code-keyword">if</span> (entry == <span class="code-keyword">null</span>) <span class="code-keyword">return</span> <span class="code-keyword">null</span>;
+        long elapsed = <span class="code-class">System</span>.nanoTime() - entry.writtenAt();
+        <span class="code-keyword">if</span> (elapsed &gt;= ttlNanos) {
+            cache.remove(key);
+            <span class="code-keyword">return</span> <span class="code-keyword">null</span>;
+        }
+        <span class="code-keyword">return</span> entry.value();
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Using <code>System.nanoTime()</code> is suitable for measuring elapsed time within one running process. It is not a timestamp to persist or exchange across machines.</p>
+        <p>The code implements <strong>lazy expiration</strong>: expired entries are removed when read. Therefore expired values that are never requested can remain in memory. Production caches also employ periodic cleanup or other expiration mechanisms.</p>
+        <p class="minor-heading"><strong>5.5 CLOCK (Second-Chance Algorithm)</strong></p>
+        <p>CLOCK approximates LRU with less bookkeeping than a full recency-ordered linked list.</p>
+        <p>Each cached entry has a reference bit:</p>
+    </div>
+    <div class="code-block"><pre><code>Slot:           0     1     2     3
+Cached item:    A     B     C     D
+Reference bit:  1     0     1     1
+                      ^
+                 Clock hand</code></pre></div>
+    <div class="intro">
+        <p>When eviction is required:</p>
+        <ol>
+            <li>If the current entry&rsquo;s reference bit is <code>1</code>, reset it to <code>0</code> and advance the hand.</li>
+            <li>If the bit is <code>0</code>, evict that entry.</li>
+            <li>Insert the new entry and mark its reference bit as <code>1</code>.</li>
+        </ol>
+        <p>A cache hit sets the corresponding bit to <code>1</code>.</p>
+        <p>The downloadable project includes a complete array-based CLOCK implementation with a hash map for locating slots.</p>
+        <p class="minor-heading"><strong>LRU vs LFU: Which is better?</strong></p>
+    </div>
+    <div class="gw-card">
+        <p class="gw-label">Example access patterns</p>
+        <div class="gw-grid2" style="margin:0">
+            <div>
+                <p class="gw-title" style="font-size:14px">Recency-based workload</p>
+                <div class="gw-chart" style="margin-top:22px"><div class="gw-bar" style="height:12.5%"><span>3</span></div><div class="gw-bar" style="height:83%"><span>20</span></div><div class="gw-bar" style="height:75%"><span>18</span></div><div class="gw-bar" style="height:92%"><span>22</span></div></div>
+                <div class="gw-axis"><span>A</span><span>B</span><span>C</span><span>D</span></div>
+                <p class="gw-small" style="margin:8px 0 2px">Illustrative changing access patterns</p>
+                <p class="gw-small" style="margin:0;color:#0d0d0d">Recently accessed entries matter most. LRU is often suitable.</p>
+            </div>
+            <div>
+                <p class="gw-title" style="font-size:14px">Frequency-based workload</p>
+                <div class="gw-chart" style="margin-top:22px"><div class="gw-bar" style="height:75%"><span>45</span></div><div class="gw-bar" style="height:8.5%"><span>5</span></div><div class="gw-bar" style="height:65%"><span>39</span></div><div class="gw-bar" style="height:12%"><span>7</span></div></div>
+                <div class="gw-axis"><span>A</span><span>B</span><span>C</span><span>D</span></div>
+                <p class="gw-small" style="margin:8px 0 2px">Illustrative stable popularity</p>
+                <p class="gw-small" style="margin:0;color:#0d0d0d">A few keys dominate demand. LFU can retain them more effectively.</p>
             </div>
         </div>
     </div>
+    <div class="intro">
+        <p><strong>LRU</strong> is typically easier to reason about and reacts quickly to changing access patterns. <strong>LFU</strong> can perform better when stable, frequently accessed keys dominate the workload.</p>
+        <p>Modern cache libraries may combine recency, frequency estimation, and admission decisions rather than relying on a pure textbook algorithm.</p>
+    </div>
+
+    <div class="subheading">6. Download the complete Java implementations</div>
+    <div class="gw-card">
+        <div class="gw-file"><svg class="gw-icon" style="width:24px;height:24px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 18v-6"/><path d="m9 15 3 3 3-3"/></svg><div><p class="gw-title" style="margin:0">Java Caching + Spring Boot Project</p><p class="gw-small" style="margin:2px 0 0">Java 17+ · Spring Boot 4.1.2 · Redis · H2 · Maven</p></div></div>
+        <p style="margin:12px 0 4px">Download complete source code (ZIP)</p>
+        <p style="margin:0">Includes FIFO, LRU, LFU, TTL, CLOCK, runnable algorithm checks, and a Spring Boot REST application with Redis caching.</p>
+    </div>
+    <div class="intro">
+        <p>I compiled and ran the plain Java algorithm examples successfully. The Spring Boot source follows the verified current APIs, but I couldn&rsquo;t execute the Maven application in this environment.</p>
+    </div>
+
+    <div class="subheading">7. Spring Boot caching implementation with Redis</div>
+    <div class="intro">
+        <p>Now let&rsquo;s implement caching in a practical backend application.</p>
+        <p>We&rsquo;ll build a product API using:</p>
+        <ul>
+            <li>Spring Boot 4.1.2 and Java 17+</li>
+            <li>Spring Data JPA with H2 as the database</li>
+            <li>Redis as the distributed cache</li>
+            <li>Spring Cache abstraction for caching annotations</li>
+            <li>REST APIs for creating, reading, updating, and deleting products</li>
+        </ul>
+        <p>Spring Boot 4.1.2 is a stable release and supports the caching infrastructure used here.</p>
+        <p class="minor-heading"><strong>7.1 Project architecture</strong></p>
+    </div>
+    <div class="code-block"><pre><code>flowchart TD
+    A["REST API Client"] --&gt; B["ProductController"]
+    B --&gt; C["ProductService"]
+    C --&gt; D{"Spring Cache"}
+    D --&gt;|"Cache hit"| E[("Redis")]
+    D --&gt;|"Cache miss"| F["Repository"]
+    F --&gt; G[("H2 Database")]
+    G --&gt; F
+    F --&gt;|"Return Product"| C
+    C --&gt;|"Populate Cache"| E
+    C --&gt; B
+    B --&gt; A</code></pre></div>
+    <div class="intro">
+        <p>For <code>GET /products/1</code>, Spring&rsquo;s caching proxy checks Redis before invoking the service method.</p>
+        <p>For updates and deletes, the application must maintain the corresponding cached entry.</p>
+        <p class="minor-heading"><strong>7.2 Maven dependencies</strong></p>
+        <p>The full <code>pom.xml</code> is included in the ZIP. Its key dependencies are:</p>
+    </div>
+    <div class="code-block"><pre><code>&lt;<span class="code-keyword">parent</span>&gt;
+    &lt;<span class="code-keyword">groupId</span>&gt;org.springframework.boot&lt;/<span class="code-keyword">groupId</span>&gt;
+    &lt;<span class="code-keyword">artifactId</span>&gt;spring-boot-starter-parent&lt;/<span class="code-keyword">artifactId</span>&gt;
+    &lt;<span class="code-keyword">version</span>&gt;4.1.2&lt;/<span class="code-keyword">version</span>&gt;
+    &lt;relativePath/&gt;
+&lt;/<span class="code-keyword">parent</span>&gt;
+
+&lt;<span class="code-keyword">properties</span>&gt;
+    &lt;<span class="code-keyword">java.version</span>&gt;17&lt;/<span class="code-keyword">java.version</span>&gt;
+&lt;/<span class="code-keyword">properties</span>&gt;
+
+&lt;<span class="code-keyword">dependencies</span>&gt;
+    &lt;<span class="code-keyword">dependency</span>&gt;
+        &lt;<span class="code-keyword">groupId</span>&gt;org.springframework.boot&lt;/<span class="code-keyword">groupId</span>&gt;
+        &lt;<span class="code-keyword">artifactId</span>&gt;spring-boot-starter-webmvc&lt;/<span class="code-keyword">artifactId</span>&gt;
+    &lt;/<span class="code-keyword">dependency</span>&gt;
+
+    &lt;<span class="code-keyword">dependency</span>&gt;
+        &lt;<span class="code-keyword">groupId</span>&gt;org.springframework.boot&lt;/<span class="code-keyword">groupId</span>&gt;
+        &lt;<span class="code-keyword">artifactId</span>&gt;spring-boot-starter-data-jpa&lt;/<span class="code-keyword">artifactId</span>&gt;
+    &lt;/<span class="code-keyword">dependency</span>&gt;
+
+    &lt;<span class="code-keyword">dependency</span>&gt;
+        &lt;<span class="code-keyword">groupId</span>&gt;org.springframework.boot&lt;/<span class="code-keyword">groupId</span>&gt;
+        &lt;<span class="code-keyword">artifactId</span>&gt;spring-boot-starter-data-redis&lt;/<span class="code-keyword">artifactId</span>&gt;
+    &lt;/<span class="code-keyword">dependency</span>&gt;
+
+    &lt;<span class="code-keyword">dependency</span>&gt;
+        &lt;<span class="code-keyword">groupId</span>&gt;org.springframework.boot&lt;/<span class="code-keyword">groupId</span>&gt;
+        &lt;<span class="code-keyword">artifactId</span>&gt;spring-boot-starter-cache&lt;/<span class="code-keyword">artifactId</span>&gt;
+    &lt;/<span class="code-keyword">dependency</span>&gt;
+
+    &lt;<span class="code-keyword">dependency</span>&gt;
+        &lt;<span class="code-keyword">groupId</span>&gt;org.springframework.boot&lt;/<span class="code-keyword">groupId</span>&gt;
+        &lt;<span class="code-keyword">artifactId</span>&gt;spring-boot-starter-validation&lt;/<span class="code-keyword">artifactId</span>&gt;
+    &lt;/<span class="code-keyword">dependency</span>&gt;
+
+    &lt;<span class="code-keyword">dependency</span>&gt;
+        &lt;<span class="code-keyword">groupId</span>&gt;com.h2database&lt;/<span class="code-keyword">groupId</span>&gt;
+        &lt;<span class="code-keyword">artifactId</span>&gt;h2&lt;/<span class="code-keyword">artifactId</span>&gt;
+        &lt;<span class="code-keyword">scope</span>&gt;runtime&lt;/<span class="code-keyword">scope</span>&gt;
+    &lt;/<span class="code-keyword">dependency</span>&gt;
+&lt;/<span class="code-keyword">dependencies</span>&gt;</code></pre></div>
+    <div class="intro">
+        <p class="minor-heading"><strong>7.3 Configure Redis and H2</strong></p>
+        <p><code>src/main/resources/application.properties</code></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">spring.application.name</span>=cachedemo
+
+<span class="code-comment"># Database</span>
+<span class="code-keyword">spring.datasource.url</span>=jdbc:h2:mem:cachingdb;DB_CLOSE_DELAY=-1
+<span class="code-keyword">spring.datasource.driver-class-name</span>=org.h2.Driver
+<span class="code-keyword">spring.jpa.hibernate.ddl-auto</span>=update
+<span class="code-keyword">spring.jpa.open-in-view</span>=false
+
+<span class="code-comment"># Cache</span>
+<span class="code-keyword">spring.cache.type</span>=redis
+
+<span class="code-comment"># Redis connection</span>
+<span class="code-keyword">spring.data.redis.host</span>=localhost
+<span class="code-keyword">spring.data.redis.port</span>=6379
+
+<span class="code-comment"># Logging</span>
+<span class="code-keyword">logging.level.com.example.cachedemo</span>=INFO</code></pre></div>
+    <div class="intro">
+        <p class="minor-heading"><strong>7.4 Configure Redis CacheManager</strong></p>
+        <p><code>CacheConfig.java</code></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@Configuration</span>
+<span class="code-annotation">@EnableCaching</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CacheConfig</span> {
+    <span class="code-annotation">@Bean</span>
+    <span class="code-keyword">public</span> <span class="code-class">RedisCacheManager</span> cacheManager(<span class="code-class">RedisConnectionFactory</span> factory) {
+        <span class="code-keyword">var</span> serializer = <span class="code-keyword">new</span> <span class="code-class">JacksonJsonRedisSerializer</span>&lt;&gt;(<span class="code-class">ProductResponse</span>.<span class="code-keyword">class</span>);
+        <span class="code-keyword">var</span> config = <span class="code-class">RedisCacheConfiguration</span>.defaultCacheConfig()
+                .entryTtl(<span class="code-class">Duration</span>.ofMinutes(<span class="code-number">10</span>))
+                .disableCachingNullValues()
+                .computePrefixWith(name -&gt; <span class="code-string">"cachedemo:"</span> + name + <span class="code-string">"::"</span>)
+                .serializeValuesWith(<span class="code-class">RedisSerializationContext</span>.<span class="code-class">SerializationPair</span>.fromSerializer(serializer));
+        <span class="code-keyword">return</span> <span class="code-class">RedisCacheManager</span>.builder(factory)
+                .cacheDefaults(config)
+                .withInitialCacheConfigurations(<span class="code-class">Map</span>.of(<span class="code-string">"products"</span>, config))
+                .disableCreateOnMissingCache()
+                .build();
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>What this configuration does:</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Configuration</th><th>Purpose</th></tr></thead>
+            <tbody>
+                <tr><td><code>@EnableCaching</code></td><td>Activates Spring&rsquo;s cache interceptor</td></tr>
+                <tr><td><code>RedisCacheManager</code></td><td>Uses Redis as cache storage</td></tr>
+                <tr><td><code>entryTtl(10 minutes)</code></td><td>Expires cached entries after ten minutes</td></tr>
+                <tr><td><code>disableCachingNullValues()</code></td><td>Prevents storing null values</td></tr>
+                <tr><td><code>computePrefixWith(...)</code></td><td>Creates namespaced keys</td></tr>
+                <tr><td>JSON serializer</td><td>Stores product responses in JSON instead of Java native serialization</td></tr>
+                <tr><td><code>disableCreateOnMissingCache()</code></td><td>Rejects undeclared cache regions</td></tr>
+            </tbody>
+        </table></div>
+        <p>This example intentionally configures one cache, <code>products</code>, containing <code>ProductResponse</code> objects. Other cache regions might need different serializers and TTLs.</p>
+        <p>Spring Data Redis supports customization of TTL, key prefixes, and serialization through <code>RedisCacheConfiguration</code>.</p>
+        <p class="minor-heading"><strong>7.5 Entity and repository</strong></p>
+        <p>The product entity has three fields: <code>id</code>, <code>name</code>, and <code>price</code>.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@Entity</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Product</span> {
+    <span class="code-annotation">@Id</span>
+    <span class="code-annotation">@GeneratedValue</span>(strategy = <span class="code-class">GenerationType</span>.<span class="code-class">IDENTITY</span>)
+    <span class="code-keyword">private</span> <span class="code-class">Long</span> id;
+    <span class="code-keyword">private</span> <span class="code-class">String</span> name;
+    <span class="code-keyword">private</span> <span class="code-class">BigDecimal</span> price;
+
+    <span class="code-keyword">protected</span> <span class="code-class">Product</span>() {}
+
+    <span class="code-keyword">public</span> <span class="code-class">Product</span>(<span class="code-class">String</span> name, <span class="code-class">BigDecimal</span> price) {
+        <span class="code-keyword">this</span>.name = name;
+        <span class="code-keyword">this</span>.price = price;
+    }
+
+    <span class="code-comment"># Getters and setters</span>
+}</code></pre></div>
+    <div class="intro">
+        <p>Repository:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">ProductRepository</span> <span class="code-keyword">extends</span> <span class="code-class">JpaRepository</span>&lt;<span class="code-class">Product</span>, <span class="code-class">Long</span>&gt; {}</code></pre></div>
+    <div class="intro">
+        <p>Our cached response will be an immutable DTO:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">ProductResponse</span>(<span class="code-class">Long</span> id, <span class="code-class">String</span> name, <span class="code-class">BigDecimal</span> price) {
+    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-class">ProductResponse</span> from(<span class="code-class">Product</span> p) { <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">ProductResponse</span>(p.getId(), p.getName(), p.getPrice()); }
+}</code></pre></div>
+    <div class="intro">
+        <p>Caching a DTO rather than a JPA entity avoids problems involving Hibernate proxies, lazy relationships, and exposing persistence objects through Redis serialization.</p>
+        <p class="minor-heading"><strong>7.6 Service layer: @Cacheable, @CachePut, and @CacheEvict</strong></p>
+        <p><code>ProductService.java</code></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@Service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductService</span> {
+    <span class="code-keyword">private</span> <span class="code-keyword">static</span> <span class="code-class">Logger</span> log = <span class="code-class">LoggerFactory</span>.getLogger(<span class="code-class">ProductService</span>.<span class="code-keyword">class</span>);
+    <span class="code-keyword">private</span> <span class="code-class">ProductRepository</span> repository;
+
+    <span class="code-keyword">public</span> <span class="code-class">ProductService</span>(<span class="code-class">ProductRepository</span> repository) { <span class="code-keyword">this</span>.repository = repository; }
+
+    <span class="code-annotation">@Cacheable</span>(cacheNames = <span class="code-string">"products"</span>, key = <span class="code-string">"#id"</span>) <span class="code-comment"># READ: cache-aside behavior</span>
+    <span class="code-keyword">public</span> <span class="code-class">ProductResponse</span> get(long id) {
+        log.info(<span class="code-string">"DATABASE QUERY: id={}"</span>, id);
+        <span class="code-class">Product</span> product = repository.findById(id)
+                .orElseThrow(() -&gt; <span class="code-keyword">new</span> <span class="code-class">ResponseStatusException</span>(<span class="code-class">HttpStatus</span>.<span class="code-class">NOT_FOUND</span>, <span class="code-string">"Product not found: "</span> + id));
+        <span class="code-keyword">return</span> <span class="code-class">ProductResponse</span>.from(product);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">ProductResponse</span> create(<span class="code-class">ProductRequest</span> request) { <span class="code-comment"># CREATE: database first</span>
+        <span class="code-class">Product</span> product = <span class="code-keyword">new</span> <span class="code-class">Product</span>(request.name(), request.price());
+        <span class="code-keyword">return</span> <span class="code-class">ProductResponse</span>.from(repository.save(product));
+    }
+
+    <span class="code-annotation">@CachePut</span>(cacheNames = <span class="code-string">"products"</span>, key = <span class="code-string">"#id"</span>) <span class="code-comment"># UPDATE: update database and cached response</span>
+    <span class="code-keyword">public</span> <span class="code-class">ProductResponse</span> update(long id, <span class="code-class">ProductRequest</span> request) {
+        <span class="code-class">Product</span> product = repository.findById(id)
+                .orElseThrow(() -&gt; <span class="code-keyword">new</span> <span class="code-class">ResponseStatusException</span>(<span class="code-class">HttpStatus</span>.<span class="code-class">NOT_FOUND</span>, <span class="code-string">"Product not found: "</span> + id));
+        product.setName(request.name());
+        product.setPrice(request.price());
+        <span class="code-keyword">return</span> <span class="code-class">ProductResponse</span>.from(repository.save(product));
+    }
+
+    <span class="code-annotation">@CacheEvict</span>(cacheNames = <span class="code-string">"products"</span>, key = <span class="code-string">"#id"</span>) <span class="code-comment"># DELETE: invalidate cache after DB deletion</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> delete(long id) {
+        <span class="code-keyword">if</span> (!repository.existsById(id)) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">ResponseStatusException</span>(<span class="code-class">HttpStatus</span>.<span class="code-class">NOT_FOUND</span>, <span class="code-string">"Product not found: "</span> + id);
+        }
+        repository.deleteById(id);
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Imports and the validated ProductRequest record are included in the downloadable project.</p>
+        <p>The three primary Spring Cache annotations behave differently:</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Annotation</th><th>Does method execute?</th><th>Cache operation</th></tr></thead>
+            <tbody>
+                <tr><td><code>@Cacheable</code></td><td>Only on miss</td><td>Read, then populate</td></tr>
+                <tr><td><code>@CachePut</code></td><td>Always</td><td>Update cached value</td></tr>
+                <tr><td><code>@CacheEvict</code></td><td>Normally always</td><td>Remove cached value after successful execution</td></tr>
+            </tbody>
+        </table></div>
+        <p>These semantics are defined by Spring Framework&rsquo;s caching abstraction.</p>
+        <p class="minor-heading"><strong>7.7 REST controller</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@RestController</span>
+<span class="code-annotation">@RequestMapping</span>(<span class="code-string">"/products"</span>)
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductController</span> {
+    <span class="code-keyword">private</span> <span class="code-class">ProductService</span> service;
+
+    <span class="code-keyword">public</span> <span class="code-class">ProductController</span>(<span class="code-class">ProductService</span> service) { <span class="code-keyword">this</span>.service = service; }
+
+    <span class="code-annotation">@GetMapping</span>(<span class="code-string">"/{id}"</span>)
+    <span class="code-keyword">public</span> <span class="code-class">ProductResponse</span> get(<span class="code-annotation">@PathVariable</span> long id) { <span class="code-keyword">return</span> service.get(id); }
+
+    <span class="code-annotation">@PostMapping</span>
+    <span class="code-annotation">@ResponseStatus</span>(<span class="code-class">HttpStatus</span>.<span class="code-class">CREATED</span>)
+    <span class="code-keyword">public</span> <span class="code-class">ProductResponse</span> create(<span class="code-annotation">@Valid</span> <span class="code-annotation">@RequestBody</span> <span class="code-class">ProductRequest</span> request) { <span class="code-keyword">return</span> service.create(request); }
+
+    <span class="code-annotation">@PutMapping</span>(<span class="code-string">"/{id}"</span>)
+    <span class="code-keyword">public</span> <span class="code-class">ProductResponse</span> update(<span class="code-annotation">@PathVariable</span> long id, <span class="code-annotation">@Valid</span> <span class="code-annotation">@RequestBody</span> <span class="code-class">ProductRequest</span> request) {
+        <span class="code-keyword">return</span> service.update(id, request);
+    }
+
+    <span class="code-annotation">@DeleteMapping</span>(<span class="code-string">"/{id}"</span>)
+    <span class="code-annotation">@ResponseStatus</span>(<span class="code-class">HttpStatus</span>.<span class="code-class">NO_CONTENT</span>)
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> delete(<span class="code-annotation">@PathVariable</span> long id) { service.delete(id); }
+}</code></pre></div>
+    <div class="intro">
+        <p class="minor-heading"><strong>7.8 Run and test the application</strong></p>
+        <p>Start Redis:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">docker</span> run --name cache-redis --rm \
+    -p 6379:6379 redis:7-alpine</code></pre></div>
+    <div class="intro">
+        <p>Run Spring Boot from the <code>springboot</code> directory:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">mvn</span> spring-boot:run</code></pre></div>
+    <div class="intro">
+        <p>Create a product:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">curl</span> -X POST http://localhost:8080/products \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Keyboard","price":1999.00}'</code></pre></div>
+    <div class="intro">
+        <p>Assuming this creates product ID <code>1</code>, send two GET requests:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">curl</span> http://localhost:8080/products/1
+
+<span class="code-keyword">curl</span> http://localhost:8080/products/1</code></pre></div>
+    <div class="intro">
+        <p>On the first request, the service logs:</p>
+    </div>
+    <div class="code-block"><pre><code>DATABASE QUERY: id=1</code></pre></div>
+    <div class="intro">
+        <p>On the second request, while the cached entry remains valid, that log message should not appear because Spring returns the cached response without executing the method.</p>
+        <p>Inspect Redis:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">docker</span> exec -it cache-redis redis-cli</code></pre></div>
+    <div class="intro">
+        <p>Then:</p>
+    </div>
+    <div class="code-block"><pre><code>GET cachedemo:products::1
+TTL cachedemo:products::1</code></pre></div>
+    <div class="intro">
+        <p>The first command displays the cached JSON; the second shows the remaining TTL in seconds.</p>
+        <p>Update the product:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">curl</span> -X PUT http://localhost:8080/products/1 \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Mechanical Keyboard","price":2999.00}'</code></pre></div>
+    <div class="intro">
+        <p><code>@CachePut</code> executes the update and refreshes the cached value.</p>
+        <p>Delete the product:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">curl</span> -X DELETE http://localhost:8080/products/1</code></pre></div>
+    <div class="intro">
+        <p>The cache entry is removed by <code>@CacheEvict</code>.</p>
+        <p><strong>Transaction detail:</strong> This demo relies on each Spring Data repository write committing before the outer service method completes. In a larger service with <code>@Transactional</code> spanning multiple operations, cache changes must be coordinated with transaction commit. A transaction-aware cache strategy or after-commit invalidation may be needed, and this still does not eliminate every concurrent read/write race.</p>
+        <p class="minor-heading"><strong>7.9 Important Spring caching pitfalls</strong></p>
+        <p class="minor-heading"><strong>Self-invocation</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@Service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ProductService</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> process() {
+        get(1L); <span class="code-comment"># Calling this.get() internally</span>
+    }
+
+    <span class="code-annotation">@Cacheable</span>(<span class="code-string">"products"</span>)
+    <span class="code-keyword">public</span> <span class="code-class">ProductResponse</span> get(<span class="code-class">Long</span> id) {
+        <span class="code-comment"># ...</span>
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>By default, Spring uses proxy-based interception. Calling a cached method from another method inside the same class bypasses the caching proxy.</p>
+        <p>Call the method through another injected Spring bean instead.</p>
+        <p class="minor-heading"><strong>Cache key correctness</strong></p>
+        <p>Suppose a product&rsquo;s visibility depends on the tenant:</p>
+    </div>
+    <div class="code-block"><pre><code>getProduct(<span class="code-class">String</span> tenantId, <span class="code-class">Long</span> productId)</code></pre></div>
+    <div class="intro">
+        <p>Using only the product ID as a cache key can cause tenant-specific data to be mixed. The key must include every input that affects the returned value.</p>
+        <p class="minor-heading"><strong>Redis failure</strong></p>
+        <p>Under default behavior, a Redis lookup failure may cause an application request to fail. If caching is merely an optimization, you may want a carefully designed fallback to the database using a <code>CacheErrorHandler</code>, circuit breaker, and bounded backend concurrency.</p>
+        <p>A fallback should not silently serve stale or unauthorized data.</p>
+        <p class="minor-heading"><strong>7.10 Alternative: local caching with Caffeine</strong></p>
+        <p>For a single Spring Boot instance, or independently cached immutable data, Caffeine can be simpler than Redis.</p>
+        <p>Add the dependency:</p>
+    </div>
+    <div class="code-block"><pre><code>&lt;<span class="code-keyword">dependency</span>&gt;
+    &lt;<span class="code-keyword">groupId</span>&gt;com.github.ben-manes.caffeine&lt;/<span class="code-keyword">groupId</span>&gt;
+    &lt;<span class="code-keyword">artifactId</span>&gt;caffeine&lt;/<span class="code-keyword">artifactId</span>&gt;
+&lt;/<span class="code-keyword">dependency</span>&gt;</code></pre></div>
+    <div class="intro">
+        <p>Then configure:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">spring.cache.type</span>=caffeine
+<span class="code-keyword">spring.cache.cache-names</span>=products
+<span class="code-keyword">spring.cache.caffeine.spec</span>=maximumSize=10000,expireAfterWrite=600s</code></pre></div>
+    <div class="intro">
+        <p>Remove the custom Redis <code>CacheManager</code> configuration from the earlier example when switching providers.</p>
+        <p>Caffeine provides local size-bounded caches with sophisticated eviction behavior. It is often a better production choice than implementing basic LRU or LFU manually. Spring Boot supports Caffeine directly.</p>
+    </div>
+
+    <div class="subheading">8. Challenges and problems in caching</div>
+    <div class="intro">
+        <p>Caching introduces a second place where data exists. This creates difficult problems in distributed systems, especially when data changes frequently.</p>
+        <p class="minor-heading"><strong>8.1 Cache stampede (Thundering Herd)</strong></p>
+        <p>A cache stampede occurs when many concurrent requests attempt to regenerate the same missing or expired cached value.</p>
+        <p>Imagine a popular product receiving 10,000 requests per second.</p>
+        <p>Its cached entry expires.</p>
+    </div>
+    <div class="code-block"><pre><code>                  Cache expired
+                       |
+        +--------------+--------------+
+        |              |              |
+    Request 1      Request 2      Request 3
+        |              |              |
+    Cache miss     Cache miss     Cache miss
+        |              |              |
+        +--------------+--------------+
+                       |
+                Database overload</code></pre></div>
+    <div class="intro">
+        <p>Instead of one database query, potentially thousands of requests execute the same query.</p>
+        <p class="minor-heading"><strong>Solution: Single-flight request coalescing</strong></p>
+        <p>Allow one thread to load the data while other threads wait for that result.</p>
+        <p>Here is a reusable Java implementation:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">SingleFlight</span>&lt;<span class="code-class">K</span>, <span class="code-class">V</span>&gt; {
+    <span class="code-keyword">private</span> <span class="code-class">ConcurrentHashMap</span>&lt;<span class="code-class">K</span>, <span class="code-class">CompletableFuture</span>&lt;<span class="code-class">V</span>&gt;&gt; inFlight = <span class="code-keyword">new</span> <span class="code-class">ConcurrentHashMap</span>&lt;&gt;();
+
+    <span class="code-keyword">public</span> <span class="code-class">V</span> execute(<span class="code-class">K</span> key, <span class="code-class">Supplier</span>&lt;<span class="code-class">V</span>&gt; loader) {
+        <span class="code-class">CompletableFuture</span>&lt;<span class="code-class">V</span>&gt; mine = <span class="code-keyword">new</span> <span class="code-class">CompletableFuture</span>&lt;&gt;();
+        <span class="code-class">CompletableFuture</span>&lt;<span class="code-class">V</span>&gt; existing = inFlight.putIfAbsent(key, mine);
+        <span class="code-keyword">if</span> (existing != <span class="code-keyword">null</span>) { <span class="code-comment"># Another thread is already loading this key.</span>
+            <span class="code-keyword">return</span> existing.join();
+        }
+        <span class="code-keyword">try</span> {
+            <span class="code-class">V</span> value = loader.get();
+            mine.complete(value);
+            <span class="code-keyword">return</span> value;
+        } <span class="code-keyword">catch</span> (<span class="code-class">RuntimeException</span> | <span class="code-class">Error</span> e) {
+            mine.completeExceptionally(e);
+            <span class="code-keyword">throw</span> e;
+        } <span class="code-keyword">finally</span> {
+            inFlight.remove(key, mine);
+        }
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>Usage:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">SingleFlight</span>&lt;<span class="code-class">Long</span>, <span class="code-class">Product</span>&gt; singleFlight = <span class="code-keyword">new</span> <span class="code-class">SingleFlight</span>&lt;&gt;();
+
+<span class="code-class">Product</span> product = singleFlight.execute(productId, () -&gt; repository.findById(productId).orElseThrow());</code></pre></div>
+    <div class="intro">
+        <p>This prevents duplicate concurrent loads <strong>within one JVM</strong> for the same key.</p>
+        <p>For multiple Spring Boot instances, a JVM-local single-flight implementation is insufficient. Distributed coalescing, a lease/lock with a safe expiry policy, or serving stale values while refreshing may be required.</p>
+        <p class="minor-heading"><strong>8.2 Cache penetration</strong></p>
+        <p>Cache penetration happens when requests repeatedly ask for data that does not exist.</p>
+        <p>For example:</p>
+    </div>
+    <div class="code-block"><pre><code>GET /products/999999
+
+Redis miss
+    ↓
+Database: not found
+    ↓
+Next request repeats the same process</code></pre></div>
+    <div class="intro">
+        <p><strong>Solutions:</strong> Negative caching with a short TTL, input validation, rate limiting, and appropriate protection against abusive requests.</p>
+        <p>For instance, you can cache a not-found marker for 30 seconds. Be careful when the requested data might be created during that period.</p>
+        <p class="minor-heading"><strong>8.3 Cache avalanche</strong></p>
+        <p>A cache avalanche occurs when many cached entries expire around the same time, causing a large surge of requests against the database.</p>
+        <p>For example, loading 100,000 entries with the exact same TTL can synchronize their expiration.</p>
+        <p>One mitigation is TTL jitter:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-class">Duration</span> ttlWithJitter() {
+    long seconds = <span class="code-number">300</span> + <span class="code-class">ThreadLocalRandom</span>.current().nextLong(<span class="code-number">0</span>, <span class="code-number">61</span>);
+    <span class="code-keyword">return</span> <span class="code-class">Duration</span>.ofSeconds(seconds);
+}</code></pre></div>
+    <div class="intro">
+        <p>The entries now expire over a spread of times rather than at one exact instant.</p>
+        <p>Other mitigations include staggered prewarming, request coalescing, rate limiting, and refreshing popular entries before they expire.</p>
+        <p class="minor-heading"><strong>8.4 Cache inconsistency and stale data</strong></p>
+        <p>Cache consistency is among the hardest parts of caching.</p>
+        <p>Consider this sequence:</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Time</th><th>Request A (reader)</th><th>Request B (writer)</th></tr></thead>
+            <tbody>
+                <tr><td>T1</td><td>Cache miss</td><td></td></tr>
+                <tr><td>T2</td><td>Reads old DB value <code>V1</code></td><td></td></tr>
+                <tr><td>T3</td><td></td><td>Updates DB to <code>V2</code></td></tr>
+                <tr><td>T4</td><td></td><td>Updates/invalidates cache</td></tr>
+                <tr><td>T5</td><td>Stores old <code>V1</code> in cache</td><td></td></tr>
+                <tr><td>T6</td><td>Future reads may receive <code>V1</code></td><td></td></tr>
+            </tbody>
+        </table></div>
+        <p>Even though the writer correctly updated the cache, an overlapping reader reintroduced stale data.</p>
+        <p>This is why <strong>database-first writes followed by cache invalidation do not guarantee strong consistency under concurrency</strong>.</p>
+        <p>Possible solutions include versioned cache entries, carefully coordinated per-key operations, change-data-capture invalidation, and stronger consistency protocols where required.</p>
+        <p>For sensitive operations such as financial balance changes, a database transaction or other authoritative consistency mechanism should remain the source of truth.</p>
+        <p class="minor-heading"><strong>8.5 Hot keys</strong></p>
+        <p>A hot key is one cached entry receiving a disproportionately large number of requests.</p>
+        <p>Examples include a popular celebrity profile, a major sale&rsquo;s product details, or an application-wide configuration object.</p>
+        <p>Even Redis can become a bottleneck if an extreme amount of traffic concentrates on one key.</p>
+        <p>Possible solutions include adding a local L1 cache, distributing replicated read traffic, reducing request frequency, and precomputing frequently requested values.</p>
+        <p class="minor-heading"><strong>8.6 Cache pollution</strong></p>
+        <p>Cache pollution occurs when low-value data consumes cache capacity and evicts more valuable entries.</p>
+        <p>Consider a workload that scans millions of unique records once. A pure LRU cache may repeatedly admit these one-time-use records, evicting frequently used entries.</p>
+        <p>Admission policies help decide whether a new entry deserves space at all. This is one reason advanced cache algorithms may outperform simple LRU.</p>
+        <p class="minor-heading"><strong>Other important challenges</strong></p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Challenge</th><th>Why it matters</th><th>Common mitigation</th></tr></thead>
+            <tbody>
+                <tr><td>Cold start</td><td>Empty caches increase DB traffic</td><td>Warmup and staged traffic</td></tr>
+                <tr><td>Cache/database partial failure</td><td>One write succeeds, another fails</td><td>Retries, recovery, and careful write ordering</td></tr>
+                <tr><td>Redis downtime</td><td>Reads may fail or fall back to DB</td><td>Timeouts, circuit breaker, bounded fallback</td></tr>
+                <tr><td>Memory exhaustion</td><td>Cache can grow beyond capacity</td><td>Size limits and eviction</td></tr>
+                <tr><td>Serialization changes</td><td>Old cached objects may not deserialize</td><td>Schema versioning and key namespaces</td></tr>
+                <tr><td>Multi-tenant data leakage</td><td>Incorrect keys can mix tenant data</td><td>Tenant-aware keys and authorization</td></tr>
+                <tr><td>Large cached objects</td><td>Memory and network costs increase</td><td>Cache smaller DTOs or fields</td></tr>
+                <tr><td>Nonuniform load</td><td>Hot keys overload individual nodes</td><td>Distribution, replication, L1 caching</td></tr>
+            </tbody>
+        </table></div>
+    </div>
+
+    <div class="subheading">9. Cache invalidation strategies</div>
+    <div class="intro">
+        <p>Invalidation determines when an existing cache entry must no longer be trusted.</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Strategy</th><th>Behavior</th><th>Trade-off</th></tr></thead>
+            <tbody>
+                <tr><td>TTL-based</td><td>Automatically expire after a duration</td><td>Simple but allows stale data</td></tr>
+                <tr><td>Write-triggered eviction</td><td>Remove entry after DB update</td><td>Fresh data on next miss, subject to races</td></tr>
+                <tr><td>Write-triggered replacement</td><td>Update cache after DB update</td><td>Fast subsequent reads; potential ordering issues</td></tr>
+                <tr><td>Event-driven invalidation</td><td>Publish changes to interested services</td><td>Scalable but requires reliable event delivery</td></tr>
+                <tr><td>Versioned keys</td><td>Cache entries use a version in their key</td><td>Avoids overwriting newer versions when designed correctly</td></tr>
+                <tr><td>Full-region invalidation</td><td>Clear a group of cached entries</td><td>Easy but expensive and disruptive</td></tr>
+            </tbody>
+        </table></div>
+        <p>In a microservices architecture, a product service might publish <code>ProductUpdated</code> events through Kafka. Other services consuming the event can invalidate affected local caches.</p>
+        <p>For reliable invalidation, handle duplicate events, missed deliveries, ordering, event versioning, and replay. A transactional outbox can help avoid losing an invalidation event when a database write succeeds.</p>
+    </div>
+
+    <div class="subheading">10. Redis eviction policies</div>
+    <div class="intro">
+        <p>Redis supports memory-pressure eviction policies including LRU, LFU, random eviction, and TTL-based selection. Its LRU and LFU mechanisms use approximations rather than the exact textbook implementations we wrote earlier.</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Redis policy</th><th>Behavior</th></tr></thead>
+            <tbody>
+                <tr><td><code>noeviction</code></td><td>Reject memory-increasing writes when the memory limit is reached</td></tr>
+                <tr><td><code>allkeys-lru</code></td><td>Evict approximately least-recently-used keys</td></tr>
+                <tr><td><code>allkeys-lfu</code></td><td>Evict approximately least-frequently-used keys</td></tr>
+                <tr><td><code>allkeys-random</code></td><td>Randomly evict keys</td></tr>
+                <tr><td><code>volatile-lru</code></td><td>LRU among keys that have expiration set</td></tr>
+                <tr><td><code>volatile-lfu</code></td><td>LFU among keys that have expiration set</td></tr>
+                <tr><td><code>volatile-random</code></td><td>Randomly evict expiring keys</td></tr>
+                <tr><td><code>volatile-ttl</code></td><td>Prefer expiring keys with the nearest expiry</td></tr>
+            </tbody>
+        </table></div>
+        <p>For a Redis instance dedicated entirely to disposable cached values, an illustrative configuration is:</p>
+    </div>
+    <div class="code-block"><pre><code>CONFIG SET maxmemory 512mb
+CONFIG SET maxmemory-policy allkeys-lfu</code></pre></div>
+    <div class="intro">
+        <p>These commands change a running Redis instance. Persistent configuration and deployment-specific memory headroom should also be considered.</p>
+        <p>The optimal policy depends on workload measurements; LFU is not automatically better than LRU.</p>
+    </div>
+
+    <div class="subheading">11. Cache performance metrics</div>
+    <div class="intro">
+        <p>A cache should be evaluated through measurements rather than assumptions.</p>
+        <p class="minor-heading"><strong>Cache hit ratio</strong></p>
+    </div>
+    <div class="intro"><p class="math-display"><span class="math" data-tex="\text{Hit Ratio}=\frac{\text{Cache Hits}}{\text{Hits}+\text{Misses}}" data-display="1">Hit Ratio = (Cache Hits)/(Hits+Misses)</span></p></div>
+    <div class="intro">
+        <p class="minor-heading"><strong>Average read latency</strong></p>
+        <p>For a simplified workload:</p>
+    </div>
+    <div class="intro"><p class="math-display"><span class="math" data-tex="L_{\text{avg}}=H\times L_{\text{hit}}+(1-H)\times L_{\text{miss}}" data-display="1">L<sub>avg</sub> = H× L<sub>hit</sub>+(1-H)× L<sub>miss</sub></span></p></div>
+    <div class="intro">
+        <p>Where:</p>
+        <ul>
+            <li><span class="math" data-tex="H">H</span> is the hit ratio.</li>
+            <li><span class="math" data-tex="L_{\text{hit}}">L<sub>hit</sub></span> is the latency of a successful cached request.</li>
+            <li><span class="math" data-tex="L_{\text{miss}}">L<sub>miss</sub></span> is the end-to-end latency of a missed request.</li>
+        </ul>
+    </div>
+    <div class="gw-card" id="gw-calc">
+        <p class="gw-title" style="margin-bottom:4px">Cache performance calculator</p>
+        <p class="gw-note" style="margin:0 0 14px">Explore how a changing cache hit ratio affects average request latency in a simplified model.</p>
+        <div class="gw-field">
+            <div class="gw-status" style="margin:0"><label for="gw-hit">Cache hit ratio</label><strong><span data-out="hit">90</span>%</strong></div>
+            <input class="gw-range" id="gw-hit" type="range" min="0" max="100" step="1" value="90">
+        </div>
+        <div class="gw-grid2">
+            <div class="gw-field"><label>Cache-hit latency (ms)</label><div class="gw-stepper"><button class="gw-btn" data-f="hitMs" data-d="-1">−</button><span class="gw-val"><span data-out="hitMs">2</span> ms</span><button class="gw-btn" data-f="hitMs" data-d="1">+</button></div></div>
+            <div class="gw-field"><label>Cache-miss latency (ms)</label><div class="gw-stepper"><button class="gw-btn" data-f="missMs" data-d="-1">−</button><span class="gw-val"><span data-out="missMs">50</span> ms</span><button class="gw-btn" data-f="missMs" data-d="1">+</button></div></div>
+        </div>
+        <div class="gw-stat">
+            <p class="gw-k" style="font-weight:400">Calculated average read latency</p>
+            <p class="gw-v"><span data-out="avg">6.8</span> ms</p>
+            <div class="gw-meter"><div data-out="bar" style="width:90%"></div></div>
+            <div class="gw-ends" style="margin:0;font-size:10px"><span>Hits: <span data-out="hits">90</span> %</span><span>Misses: <span data-out="miss">10</span> %</span></div>
+        </div>
+        <p class="gw-note">These are hypothetical values. Real request latency also depends on variance, contention, queuing, and downstream behavior.</p>
+    </div>
+    <div class="intro">
+        <p>In production, monitor hit and miss rates together with P50/P95/P99 latency, database query load, eviction rate, Redis memory usage, CPU, connection utilization, and cache rebuild times.</p>
+        <p>A high hit ratio alone does not prove that caching is helping. A cache might have many cheap hits while still missing on the most expensive queries.</p>
+    </div>
+
+    <div class="subheading">12. Advantages and disadvantages of caching</div>
+    <div class="intro">
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Advantages</th><th>Disadvantages</th></tr></thead>
+            <tbody>
+                <tr><td>Lower response latency</td><td>Stale data</td></tr>
+                <tr><td>Higher read throughput</td><td>Complex invalidation logic</td></tr>
+                <tr><td>Reduced database workload</td><td>Additional infrastructure</td></tr>
+                <tr><td>Lower cost for repeated expensive operations</td><td>Memory consumption</td></tr>
+                <tr><td>Better performance under read-heavy load</td><td>Cache stampedes</td></tr>
+                <tr><td>Possible resilience to backend failures</td><td>More failure modes</td></tr>
+                <tr><td>Reduced external API calls</td><td>Debugging and monitoring complexity</td></tr>
+            </tbody>
+        </table></div>
+        <p class="minor-heading"><strong>When should you use caching?</strong></p>
+        <p>Caching is particularly useful when data is expensive to calculate or retrieve, access patterns repeat, and the business permits some defined degree of staleness.</p>
+        <p>Examples include product catalogs, public profiles, reference data, expensive analytics, and public API responses.</p>
+        <p>It may be inappropriate when data changes on almost every request, there is little reuse, or every read must reflect the latest committed state.</p>
+    </div>
+
+    <div class="subheading">13. Recommended caching architecture for a production microservice</div>
+    <div class="intro">
+        <p>A practical design for a read-heavy e-commerce backend is:</p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/caching-multilevel.svg" alt="API request reaches the Spring Boot service, which checks the L1 Caffeine cache, then the L2 Redis cache on a miss, then the primary database; loaded data fills both caches" style="width:100%;max-width:520px">
+    </div>
+    <div class="intro">
+        <p>Conceptual multi-level architecture. Cache fills travel back up from the database; read responses use the earliest available hit.</p>
+        <p>For this architecture, consider an L1 cache of small, frequently accessed or relatively stable data; a shared Redis cache with TTL and memory limits; and a database remaining authoritative.</p>
+        <p>When a product changes, update the database and invalidate the relevant cache keys. For L1 entries across multiple application instances, propagate invalidation events or use short TTLs if temporary inconsistency is acceptable.</p>
+        <p><strong>For a first production implementation, I would generally start with one caching layer rather than immediately introducing L1 + L2.</strong> Use Redis when data needs to be shared across instances, or Caffeine when a local cache is sufficient. Add another layer only when measurements justify the extra complexity.</p>
+    </div>
+
+    <div class="subheading">14. Key takeaways</div>
+    <div class="intro">
+        <p>Caching is primarily a trade-off between <strong>performance, memory consumption, freshness, and complexity</strong>.</p>
+        <p>The fundamental distinctions to master are:</p>
+        <ul>
+            <li><strong>Cache-aside vs read-through:</strong> Who loads data on a miss?</li>
+            <li><strong>Write-through vs write-behind:</strong> When does the database receive the write?</li>
+            <li><strong>LRU vs LFU:</strong> Is recency or frequency more useful for eviction?</li>
+            <li><strong>TTL vs eviction:</strong> Is data removed because it is old or because capacity is needed?</li>
+            <li><strong>Local vs distributed cache:</strong> Is cached state per-process or shared?</li>
+            <li><strong>Expiration vs invalidation:</strong> Does an entry become unusable due to time passing or because its source changed?</li>
+            <li><strong>Availability vs consistency:</strong> Should a cache failure trigger database fallback, and how fresh must the data be?</li>
+        </ul>
+        <p>For Java backend engineering, mastering the LRU and LFU implementations, Spring&rsquo;s cache interception, Redis TTL and eviction policies, cache-aside concurrency races, and stampede prevention provides a strong foundation for designing scalable systems.</p>
+        <p>The complete downloadable project includes the runnable plain Java algorithms and the Spring Boot Redis example.</p>
+    </div>
+<!-- chatgpt-guide:end -->
 </div>
 </body>
 </html>

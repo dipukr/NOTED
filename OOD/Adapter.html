@@ -241,7 +241,7 @@
 }</code></pre></div>
 
     <div class="intro">
-        <p><strong>Client</strong></p>
+        <p class="minor-heading"><strong>Client</strong></p>
     </div>
 
     <div class="code-block"><pre><code><span class="code-keyword">public class</span> <span class="code-class">CheckoutService</span> {
@@ -257,7 +257,7 @@
 }</code></pre></div>
 
     <div class="intro">
-        <p><strong>Main</strong></p>
+        <p class="minor-heading"><strong>Main</strong></p>
     </div>
 
     <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
@@ -286,7 +286,7 @@
 
     <div class="intro">
         <p>The Adapter Pattern becomes especially useful when an application integrates several third-party providers.</p>
-        <p><strong>Common Application Interface</strong></p>
+        <p class="minor-heading"><strong>Common Application Interface</strong></p>
     </div>
 
     <div class="code-block"><pre><code><span class="code-keyword">public interface</span> <span class="code-class">PaymentProcessor</span> {
@@ -294,7 +294,7 @@
 }</code></pre></div>
 
     <div class="intro">
-        <p><strong>Stripe API and Adapter</strong></p>
+        <p class="minor-heading"><strong>Stripe API and Adapter</strong></p>
     </div>
 
     <div class="code-block"><pre><code><span class="code-keyword">public class</span> <span class="code-class">StripeApi</span> {
@@ -317,7 +317,7 @@
 }</code></pre></div>
 
     <div class="intro">
-        <p><strong>PayPal API and Adapter</strong></p>
+        <p class="minor-heading"><strong>PayPal API and Adapter</strong></p>
     </div>
 
     <div class="code-block"><pre><code><span class="code-keyword">public class</span> <span class="code-class">PayPalApi</span> {
@@ -340,7 +340,7 @@
 }</code></pre></div>
 
     <div class="intro">
-        <p><strong>Razorpay API and Adapter</strong></p>
+        <p class="minor-heading"><strong>Razorpay API and Adapter</strong></p>
     </div>
 
     <div class="code-block"><pre><code><span class="code-keyword">public class</span> <span class="code-class">RazorpayApi</span> {
@@ -402,7 +402,7 @@ processor = <span class="code-keyword">new</span> <span class="code-class">Razor
 
     <div class="intro">
         <p>An adapter does not have to translate only method names. It can translate parameters, return values, data models, units, exceptions, and other API conventions.</p>
-        <p><strong>Legacy API</strong></p>
+        <p class="minor-heading"><strong>Legacy API</strong></p>
     </div>
 
     <div class="code-block"><pre><code><span class="code-keyword">public class</span> <span class="code-class">LegacyPaymentApi</span> {
@@ -412,7 +412,7 @@ processor = <span class="code-keyword">new</span> <span class="code-class">Razor
 }</code></pre></div>
 
     <div class="intro">
-        <p><strong>Application Interface</strong></p>
+        <p class="minor-heading"><strong>Application Interface</strong></p>
     </div>
 
     <div class="code-block"><pre><code><span class="code-keyword">public interface</span> <span class="code-class">PaymentProcessor</span> {
@@ -420,7 +420,7 @@ processor = <span class="code-keyword">new</span> <span class="code-class">Razor
 }</code></pre></div>
 
     <div class="intro">
-        <p><strong>Adapter</strong></p>
+        <p class="minor-heading"><strong>Adapter</strong></p>
     </div>
 
     <div class="code-block"><pre><code><span class="code-keyword">public class</span> <span class="code-class">LegacyPaymentAdapter</span> <span class="code-keyword">implements</span> <span class="code-class">PaymentProcessor</span> {
@@ -491,7 +491,7 @@ processor = <span class="code-keyword">new</span> <span class="code-class">Razor
 
     <div class="intro">
         <p>Adapters are very common in Spring applications, especially at integration boundaries.</p>
-        <p><strong>Application Interface</strong></p>
+        <p class="minor-heading"><strong>Application Interface</strong></p>
     </div>
 
     <div class="code-block"><pre><code><span class="code-keyword">public interface</span> <span class="code-class">NotificationService</span> {
@@ -499,7 +499,7 @@ processor = <span class="code-keyword">new</span> <span class="code-class">Razor
 }</code></pre></div>
 
     <div class="intro">
-        <p><strong>External Provider</strong></p>
+        <p class="minor-heading"><strong>External Provider</strong></p>
     </div>
 
     <div class="code-block"><pre><code><span class="code-keyword">public class</span> <span class="code-class">SmsProvider</span> {
@@ -509,7 +509,7 @@ processor = <span class="code-keyword">new</span> <span class="code-class">Razor
 }</code></pre></div>
 
     <div class="intro">
-        <p><strong>Adapter</strong></p>
+        <p class="minor-heading"><strong>Adapter</strong></p>
     </div>
 
     <div class="code-block"><pre><code><span class="code-annotation">@Service</span>
@@ -524,7 +524,7 @@ processor = <span class="code-keyword">new</span> <span class="code-class">Razor
 }</code></pre></div>
 
     <div class="intro">
-        <p><strong>Business Service</strong></p>
+        <p class="minor-heading"><strong>Business Service</strong></p>
     </div>
 
     <div class="code-block"><pre><code><span class="code-annotation">@Service</span>

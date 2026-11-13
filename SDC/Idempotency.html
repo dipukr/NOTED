@@ -12,6 +12,8 @@
 
     <div class="intro">
         <p><strong>Idempotency means repeating the same operation has the same intended effect as performing it once.</strong></p>
+        <p>Idempotency is a property of an operation where doing it twice leaves the system in the same state as doing it once..retries don't produce duplicate effects.</p>
+        <p>Deduplication is an action of actively detecting and removing or ignoring duplicates before they get processed.</p>
         <p>For an API, this matters because clients often retry requests after timeouts or network failures. An idempotent API prevents those retries from accidentally creating duplicate orders, deducting money twice, or processing the same operation multiple times.</p>
         <p>Let us build up the concept and then implement an idempotent order-creation API using <strong>Spring Boot</strong>.</p>
     </div>
@@ -243,7 +245,7 @@ Idempotency-Key: &lt;unique-key&gt;</code></pre></div>
         <p>Package declarations and routine imports are omitted.</p>
     </div>
     <div class="intro">
-        <p><strong>Dependencies</strong></p>
+        <p class="minor-heading"><strong>Dependencies</strong></p>
         <p>Add these dependencies to an existing Spring Boot 3.x Maven project:</p>
     </div>
     <div class="code-block"><pre><code>&lt;dependencies&gt;
@@ -269,7 +271,7 @@ Idempotency-Key: &lt;unique-key&gt;</code></pre></div>
     &lt;/dependency&gt;
 &lt;/dependencies&gt;</code></pre></div>
     <div class="intro">
-        <p><strong>Configuration</strong></p>
+        <p class="minor-heading"><strong>Configuration</strong></p>
     </div>
     <div class="code-block"><pre><code>spring.datasource.url=jdbc:postgresql://localhost:5432/orders_db
 spring.datasource.username=${DB_USERNAME}
@@ -282,7 +284,7 @@ spring.sql.init.mode=always</code></pre></div>
         <p>Create <code>orders_db</code> before starting the application.</p>
     </div>
     <div class="intro">
-        <p><strong>Database schema</strong></p>
+        <p class="minor-heading"><strong>Database schema</strong></p>
         <p>Create <code>src/main/resources/schema.sql</code>:</p>
     </div>
     <div class="code-block"><pre><code>CREATE TABLE IF NOT EXISTS orders (
@@ -318,7 +320,7 @@ CREATE TABLE IF NOT EXISTS idempotency_records (
         <p>The response fields are initially empty inside the transaction. They are filled before commit, so another request should never observe a committed incomplete record through this code path.</p>
     </div>
     <div class="intro">
-        <p><strong>Request and response models</strong></p>
+        <p class="minor-heading"><strong>Request and response models</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">CreateOrderRequest</span>(<span class="code-annotation">@NotNull</span> <span class="code-annotation">@Positive</span> <span class="code-class">Long</span> productId, <span class="code-annotation">@Min</span>(<span class="code-number">1</span>) <span class="code-keyword">int</span> quantity) {}</code></pre></div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">OrderResponse</span>(UUID orderId, <span class="code-class">Long</span> productId, <span class="code-keyword">int</span> quantity, <span class="code-class">String</span> status) {}</code></pre></div>
@@ -330,7 +332,7 @@ CREATE TABLE IF NOT EXISTS idempotency_records (
         <p>Storing the serialized body avoids rebuilding the response from an order that may have changed since creation.</p>
     </div>
     <div class="intro">
-        <p><strong>Request fingerprint</strong></p>
+        <p class="minor-heading"><strong>Request fingerprint</strong></p>
         <p>We need to detect this misuse:</p>
     </div>
     <div class="code-block"><pre><code>Key: abc
@@ -361,7 +363,7 @@ Second request: product 101, quantity 10</code></pre></div>
         <p>For complex payloads, define a canonical representation carefully. Include every field that changes the operation, including relevant path parameters and semantic headers. Do not blindly concatenate arbitrary strings with delimiters.</p>
     </div>
     <div class="intro">
-        <p><strong>Transactional service</strong></p>
+        <p class="minor-heading"><strong>Transactional service</strong></p>
         <p>This is the core implementation:</p>
     </div>
     <div class="code-block"><pre><code><span class="code-annotation">@Service</span>
@@ -477,7 +479,7 @@ Second request: product 101, quantity 10</code></pre></div>
         <p>Spring applies <code>Transactional</code> through a proxy. Calling the service from the controller goes through that proxy; calling an annotated method from another method on the same object generally does not. The explicit rollback rule also covers checked exceptions.</p>
     </div>
     <div class="intro">
-        <p><strong>Controller</strong></p>
+        <p class="minor-heading"><strong>Controller</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-annotation">@RestController</span>
 <span class="code-annotation">@RequestMapping</span>(<span class="code-string">"/orders"</span>)
@@ -647,7 +649,7 @@ FAILED</code></pre></div>
 
     <div class="subheading">Important design decisions</div>
     <div class="intro">
-        <p><strong>Which errors should be stored?</strong></p>
+        <p class="minor-heading"><strong>Which errors should be stored?</strong></p>
         <p>Our example stores successful results only.</p>
     </div>
     <div class="section cmp"><div class="section-content">
@@ -667,14 +669,14 @@ FAILED</code></pre></div>
         <p>If you want to retain a business rejection, store that response and commit it deliberately. Throwing an exception that rolls back the transaction would also remove the result.</p>
     </div>
     <div class="intro">
-        <p><strong>How long should keys be retained?</strong></p>
+        <p class="minor-heading"><strong>How long should keys be retained?</strong></p>
         <p>Retention must cover the period during which clients, queues, or recovery jobs might retry.</p>
         <p>After deleting the record, the same key can create another order. Therefore, retention limits the duration of the deduplication guarantee.</p>
         <p>For business operations that must never repeat, also consider a durable domain constraint, such as:</p>
     </div>
     <div class="code-block"><pre><code>UNIQUE (merchant_id, merchant_order_reference)</code></pre></div>
     <div class="intro">
-        <p><strong>Is idempotency the same as caching?</strong></p>
+        <p class="minor-heading"><strong>Is idempotency the same as caching?</strong></p>
         <p>No.</p>
     </div>
     <div class="section cmp"><div class="section-content">
@@ -692,7 +694,7 @@ FAILED</code></pre></div>
         <p>An idempotency result store may resemble a cache, but it is part of the correctness mechanism.</p>
     </div>
     <div class="intro">
-        <p><strong>Does idempotency prevent all concurrency problems?</strong></p>
+        <p class="minor-heading"><strong>Does idempotency prevent all concurrency problems?</strong></p>
         <p>No. It coordinates requests with the <strong>same operation identity</strong>.</p>
         <p>Two different keys can still try to purchase the last unit of stock. Inventory correctness needs its own controls, such as an atomic conditional update:</p>
     </div>
@@ -704,7 +706,7 @@ WHERE product_id = :productId
         <p>Check that exactly one row was updated.</p>
     </div>
     <div class="intro">
-        <p><strong>Does idempotency mean exactly-once execution?</strong></p>
+        <p class="minor-heading"><strong>Does idempotency mean exactly-once execution?</strong></p>
         <p>No. The server may receive and begin handling a request many times.</p>
         <p>The goal here is <strong>at most one committed order creation for a retained caller-operation-key combination</strong>, with retries returning the saved result.</p>
     </div>

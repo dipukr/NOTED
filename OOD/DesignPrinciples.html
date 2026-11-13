@@ -1,0 +1,2431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design Principles</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Object-Oriented Software Design Principles — Comprehensive Guide with Java Examples</div>
+
+    <div class="intro">
+        <p>Object-Oriented Software Design (OOD) is the process of designing software systems using <strong>objects, classes, interfaces, responsibilities, and relationships</strong> so that the resulting software is maintainable, extensible, testable, reusable, and easy to understand.</p>
+        <p>Writing object-oriented code does not automatically mean that the software is well-designed.</p>
+        <p>For example, a Java application can use classes, inheritance, interfaces, and polymorphism and still suffer from tight coupling, duplicated logic, poor encapsulation, and fragile dependencies.</p>
+        <p><strong>Object-oriented design principles guide us in deciding what responsibilities each class should have, how classes should collaborate, and how a system should evolve when requirements change.</strong></p>
+    </div>
+
+    <div class="subheading">1. Overview of Object-Oriented Design Principles</div>
+    <div class="intro">
+        <p>Object-oriented design encompasses several related groups of principles.</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Category</th><th>Important principles</th></tr></thead>
+            <tbody>
+                <tr><td>OOP foundations</td><td>Encapsulation, Abstraction, Inheritance, Polymorphism</td></tr>
+                <tr><td>SOLID</td><td>SRP, OCP, LSP, ISP, DIP</td></tr>
+                <tr><td>General design</td><td>DRY, KISS, YAGNI, Separation of Concerns</td></tr>
+                <tr><td>Class relationships</td><td>High Cohesion, Low Coupling, Composition over Inheritance</td></tr>
+                <tr><td>Object interactions</td><td>Law of Demeter, Tell Don&rsquo;t Ask, Information Hiding</td></tr>
+                <tr><td>Change management</td><td>Encapsulate What Varies, Program to Interfaces, Protected Variations</td></tr>
+                <tr><td>Behavioral design</td><td>Design by Contract, Immutability, Command–Query Separation</td></tr>
+                <tr><td>GRASP</td><td>Information Expert, Creator, Controller, Polymorphism, Indirection, Pure Fabrication, and others</td></tr>
+                <tr><td>Architectural principles</td><td>Stable Dependencies, Acyclic Dependencies, Dependency Direction</td></tr>
+            </tbody>
+        </table></div>
+        <p>These concepts are interconnected. SOLID provides guidance for organizing classes and dependencies, while GRASP helps assign responsibilities to objects. Other principles address simplicity, extensibility, and communication between components.</p>
+    </div>
+
+    <div class="subheading">2. OOP Foundations</div>
+    <div class="intro">
+        <p>Before exploring software design principles, we should understand the four fundamental concepts of object-oriented programming.</p>
+        <p class="minor-heading"><strong>2.1 Encapsulation</strong></p>
+        <p><strong>Encapsulation is the practice of bundling data and the operations that manipulate that data inside an object, while restricting direct access to its internal state.</strong></p>
+        <p>A well-encapsulated object controls how its state changes and protects its business invariants.</p>
+        <p>Consider a bank account.</p>
+        <p>Poor design — exposed mutable state</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">BankAccount</span> {
+    <span class="code-keyword">public</span> <span class="code-class">BigDecimal</span> balance;
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Any external code can manipulate the balance:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">BankAccount</span> account = <span class="code-keyword">new</span> <span class="code-class">BankAccount</span>();
+account.balance = <span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"-50000"</span>);</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>This bypasses all business rules.</p>
+        <p>Better design — encapsulated state</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">final</span> <span class="code-keyword">class</span> <span class="code-class">BankAccount</span> {
+    <span class="code-keyword">private</span> <span class="code-class">BigDecimal</span> balance;
+
+    <span class="code-keyword">public</span> <span class="code-class">BankAccount</span>(<span class="code-class">BigDecimal</span> openingBalance) {
+        <span class="code-keyword">if</span> (openingBalance == <span class="code-keyword">null</span> || openingBalance.signum() &lt; <span class="code-number">0</span>) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>(<span class="code-string">"Opening balance cannot be negative"</span>);
+        }
+        <span class="code-keyword">this</span>.balance = openingBalance;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> deposit(<span class="code-class">BigDecimal</span> amount) {
+        validateAmount(amount);
+        balance = balance.add(amount);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> withdraw(<span class="code-class">BigDecimal</span> amount) {
+        validateAmount(amount);
+        <span class="code-keyword">if</span> (balance.compareTo(amount) &lt; <span class="code-number">0</span>) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalStateException</span>(<span class="code-string">"Insufficient funds"</span>);
+        }
+        balance = balance.subtract(amount);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">BigDecimal</span> getBalance() {
+        <span class="code-keyword">return</span> balance;
+    }
+
+    <span class="code-keyword">private</span> <span class="code-keyword">void</span> validateAmount(<span class="code-class">BigDecimal</span> amount) {
+        <span class="code-keyword">if</span> (amount == <span class="code-keyword">null</span> || amount.signum() &lt;= <span class="code-number">0</span>) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>(<span class="code-string">"Amount must be positive"</span>);
+        }
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Usage:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">BankAccount</span> account = <span class="code-keyword">new</span> <span class="code-class">BankAccount</span>(<span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"1000.00"</span>));
+account.deposit(<span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"500.00"</span>));
+account.withdraw(<span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"200.00"</span>));
+<span class="code-class">System</span>.out.println(account.getBalance()); <span class="code-comment"># 1300.00</span></code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>The object&rsquo;s balance cannot be modified directly. Every balance change must go through an operation that enforces the relevant rules.</p>
+        <p>This example demonstrates encapsulation, not concurrency control. A real banking implementation would also require atomic updates, transaction boundaries, and appropriate persistence guarantees.</p>
+        <p><strong>Important distinction:</strong> Encapsulation is not simply declaring fields <code>private</code> and generating getters and setters. Providing unrestricted setters may expose essentially the same design problem.</p>
+        <p>The goal is to protect behavior and invariants, not merely hide variables.</p>
+        <p class="minor-heading"><strong>2.2 Abstraction</strong></p>
+        <p><strong>Abstraction exposes the essential capabilities of an object while hiding its implementation details.</strong></p>
+        <p>For example, a checkout service should know how to initiate a payment, but it should not necessarily know how a payment provider handles HTTP requests, authentication, or response parsing.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">PaymentGateway</span> {
+    <span class="code-class">PaymentResult</span> charge(<span class="code-class">String</span> orderId, <span class="code-class">BigDecimal</span> amount);
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Possible implementations:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CardPaymentGateway</span> <span class="code-keyword">implements</span> <span class="code-class">PaymentGateway</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">PaymentResult</span> charge(<span class="code-class">String</span> orderId, <span class="code-class">BigDecimal</span> amount) {
+        <span class="code-keyword">return</span> <span class="code-class">PaymentResult</span>.SUCCESS; <span class="code-comment"># Integrate with a card payment provider</span>
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">WalletPaymentGateway</span> <span class="code-keyword">implements</span> <span class="code-class">PaymentGateway</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">PaymentResult</span> charge(<span class="code-class">String</span> orderId, <span class="code-class">BigDecimal</span> amount) {
+        <span class="code-keyword">return</span> <span class="code-class">PaymentResult</span>.SUCCESS; <span class="code-comment"># Integrate with a wallet provider</span>
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>With the common result type:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">enum</span> <span class="code-class">PaymentResult</span> {
+    SUCCESS, DECLINED
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>The business code can depend on <code>PaymentGateway</code> without knowing which provider implements it.</p>
+        <p>The interface describes <strong>what is available</strong>, while implementations determine <strong>how it works</strong>.</p>
+        <p>In Java, abstraction can be implemented using interfaces, abstract classes, and carefully designed public APIs.</p>
+        <p class="minor-heading"><strong>2.3 Inheritance</strong></p>
+        <p>Inheritance allows one class to extend another class, inheriting accessible state and behavior and optionally redefining certain operations.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">abstract</span> <span class="code-keyword">class</span> <span class="code-class">Employee</span> {
+    <span class="code-keyword">protected</span> <span class="code-class">String</span> name;
+
+    <span class="code-keyword">protected</span> <span class="code-class">Employee</span>(<span class="code-class">String</span> name) {
+        <span class="code-keyword">this</span>.name = name;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">String</span> getName() {
+        <span class="code-keyword">return</span> name;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">abstract</span> <span class="code-class">BigDecimal</span> calculateSalary();
+}</code></pre>
+        </div>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">SalariedEmployee</span> <span class="code-keyword">extends</span> <span class="code-class">Employee</span> {
+    <span class="code-keyword">private</span> <span class="code-class">BigDecimal</span> monthlySalary;
+
+    <span class="code-keyword">public</span> <span class="code-class">SalariedEmployee</span>(<span class="code-class">String</span> name, <span class="code-class">BigDecimal</span> monthlySalary) {
+        <span class="code-keyword">super</span>(name);
+        <span class="code-keyword">this</span>.monthlySalary = monthlySalary;
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">BigDecimal</span> calculateSalary() {
+        <span class="code-keyword">return</span> monthlySalary;
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>A <code>SalariedEmployee</code> is an <code>Employee</code>, and it supplies a specific implementation for salary calculation.</p>
+        <p>However, inheritance introduces strong relationships between classes. A change in a superclass can affect its subclasses.</p>
+        <p>Therefore:</p>
+        <p><strong>Use inheritance primarily for genuine subtype relationships that preserve the superclass contract, rather than merely to reuse code.</strong></p>
+        <p>Later, we will examine why composition is often a better alternative.</p>
+        <p class="minor-heading"><strong>2.4 Polymorphism</strong></p>
+        <p>Polymorphism means that different objects can be treated through a common type while providing different behavior.</p>
+        <p>Consider the following interface:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">Shape</span> {
+    <span class="code-keyword">double</span> area();
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Implementations:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">Circle</span>(<span class="code-keyword">double</span> radius) <span class="code-keyword">implements</span> <span class="code-class">Shape</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">double</span> area() {
+        <span class="code-keyword">return</span> <span class="code-class">Math</span>.<span class="code-class">PI</span> * radius * radius;
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">Rectangle</span>(<span class="code-keyword">double</span> width, <span class="code-keyword">double</span> height) <span class="code-keyword">implements</span> <span class="code-class">Shape</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">double</span> area() {
+        <span class="code-keyword">return</span> width * height;
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Usage:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">List</span>&lt;<span class="code-class">Shape</span>&gt; shapes = <span class="code-class">List</span>.of(<span class="code-keyword">new</span> <span class="code-class">Circle</span>(<span class="code-number">5</span>), <span class="code-keyword">new</span> <span class="code-class">Rectangle</span>(<span class="code-number">4</span>, <span class="code-number">6</span>));
+<span class="code-keyword">for</span> (<span class="code-class">Shape</span> shape : shapes) {
+    <span class="code-class">System</span>.out.println(shape.area());
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Each object responds to the same <code>area()</code> operation using its own implementation.</p>
+        <p>The client does not require separate logic for every concrete shape.</p>
+        <p>This makes polymorphism particularly useful for eliminating complex conditional statements and implementing extensible behavior.</p>
+        <p class="minor-heading"><strong>Summary of the four foundations</strong></p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Concept</th><th>Main purpose</th><th>Typical Java mechanism</th></tr></thead>
+            <tbody>
+                <tr><td>Encapsulation</td><td>Protect internal state and invariants</td><td><code>private</code>, controlled methods</td></tr>
+                <tr><td>Abstraction</td><td>Hide implementation details</td><td>Interfaces, abstract classes</td></tr>
+                <tr><td>Inheritance</td><td>Establish subtype relationships and share behavior</td><td><code>extends</code></td></tr>
+                <tr><td>Polymorphism</td><td>Allow interchangeable implementations</td><td>Interface dispatch, overriding</td></tr>
+            </tbody>
+        </table></div>
+    </div>
+
+    <div class="subheading">3. SOLID Principles</div>
+    <div class="intro">
+        <p>SOLID is an acronym for five influential object-oriented design principles popularized by Robert C. Martin.</p>
+        <p>Its primary goal is to help developers create software that is easier to change, extend, understand, and test.</p>
+    </div>
+
+    <div class="subheading">3.1 S — Single Responsibility Principle (SRP)</div>
+    <div class="intro">
+        <p>Definition</p>
+        <p><strong>A module or class should have one reason to change.</strong></p>
+        <p>This does not mean a class must contain only one method or perform only one tiny operation.</p>
+        <p>It means that the class should have one coherent responsibility associated with a particular area of business or technical concern.</p>
+        <p class="minor-heading"><strong>Example: Invoice processing</strong></p>
+        <p>Suppose we design an invoice-processing class.</p>
+        <p>Poor design</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">InvoiceService</span> {
+    <span class="code-keyword">public</span> <span class="code-class">BigDecimal</span> calculateTotal(<span class="code-class">Invoice</span> invoice) {
+        <span class="code-keyword">return</span> <span class="code-class">BigDecimal</span>.ZERO; <span class="code-comment"># Calculate invoice totals</span>
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">byte</span>[] generatePdf(<span class="code-class">Invoice</span> invoice) {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-keyword">byte</span>[<span class="code-number">0</span>]; <span class="code-comment"># Generate PDF document</span>
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> sendEmail(<span class="code-class">Invoice</span> invoice, <span class="code-class">String</span> recipient) {
+        <span class="code-comment"># Send invoice by email</span>
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> saveToDatabase(<span class="code-class">Invoice</span> invoice) {
+        <span class="code-comment"># Persist invoice</span>
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>This class has several independent reasons to change.</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Requirement change</th><th>Affected responsibility</th></tr></thead>
+            <tbody>
+                <tr><td>New tax calculation rules</td><td>Invoice calculation</td></tr>
+                <tr><td>New invoice PDF layout</td><td>Document generation</td></tr>
+                <tr><td>New email provider</td><td>Email communication</td></tr>
+                <tr><td>Database migration</td><td>Persistence</td></tr>
+            </tbody>
+        </table></div>
+        <p>Even if the invoice calculation logic remains unchanged, modifying the email provider requires changing the same class.</p>
+        <p>The class is tightly coupled to several unrelated concerns.</p>
+        <p class="minor-heading"><strong>Better design: Separate responsibilities</strong></p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">InvoiceCalculator</span> {
+    <span class="code-keyword">public</span> <span class="code-class">BigDecimal</span> calculateTotal(<span class="code-class">Invoice</span> invoice) {
+        <span class="code-keyword">return</span> <span class="code-class">BigDecimal</span>.ZERO; <span class="code-comment"># Invoice calculations</span>
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">InvoicePdfGenerator</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">byte</span>[] generate(<span class="code-class">Invoice</span> invoice) {
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-keyword">byte</span>[<span class="code-number">0</span>]; <span class="code-comment"># PDF generation</span>
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">InvoiceEmailSender</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> send(<span class="code-keyword">byte</span>[] pdf, <span class="code-class">String</span> recipient) {
+        <span class="code-comment"># Email delivery</span>
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">InvoiceRepository</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> save(<span class="code-class">Invoice</span> invoice) {
+        <span class="code-comment"># Database persistence</span>
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>A coordinating service can compose them:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">InvoiceWorkflow</span> {
+    <span class="code-keyword">private</span> <span class="code-class">InvoiceCalculator</span> calculator;
+    <span class="code-keyword">private</span> <span class="code-class">InvoicePdfGenerator</span> pdfGenerator;
+    <span class="code-keyword">private</span> <span class="code-class">InvoiceEmailSender</span> emailSender;
+    <span class="code-keyword">private</span> <span class="code-class">InvoiceRepository</span> repository;
+
+    <span class="code-keyword">public</span> <span class="code-class">InvoiceWorkflow</span>(<span class="code-class">InvoiceCalculator</span> calculator, <span class="code-class">InvoicePdfGenerator</span> pdfGenerator,
+                           <span class="code-class">InvoiceEmailSender</span> emailSender, <span class="code-class">InvoiceRepository</span> repository) {
+        <span class="code-keyword">this</span>.calculator = calculator;
+        <span class="code-keyword">this</span>.pdfGenerator = pdfGenerator;
+        <span class="code-keyword">this</span>.emailSender = emailSender;
+        <span class="code-keyword">this</span>.repository = repository;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> process(<span class="code-class">Invoice</span> invoice, <span class="code-class">String</span> recipient) {
+        <span class="code-class">BigDecimal</span> total = calculator.calculateTotal(invoice);
+        <span class="code-comment"># Use the calculated total in the invoice workflow as required.</span>
+        repository.save(invoice);
+        <span class="code-keyword">byte</span>[] pdf = pdfGenerator.generate(invoice);
+        emailSender.send(pdf, recipient);
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>The coordinating service is responsible for orchestrating the invoice workflow, not for implementing each technical operation itself.</p>
+    </div>
+    <div class="gw-card gw-vflow">
+        <p class="gw-label" style="margin:0">Responsibility separation</p>
+        <div class="gw-pool" style="align-items:stretch">
+            <div class="gw-vbox"><p><strong>InvoiceWorkflow</strong></p><p class="gw-cap">Orchestration responsibility</p></div>
+            <div class="gw-vlink"><svg class="gw-i" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12.707 18.707a1 1 0 0 1-1.414 0l-5-5a1 1 0 1 1 1.414-1.414L11 15.586V6a1 1 0 1 1 2 0v9.586l3.293-3.293a1 1 0 0 1 1.414 1.414l-5 5Z" clip-rule="evenodd"/></svg></div>
+            <div class="gw-cols2">
+                <div class="gw-vbox line"><p class="gw-n">InvoiceCalculator</p></div>
+                <div class="gw-vbox line"><p class="gw-n">InvoicePdfGenerator</p></div>
+                <div class="gw-vbox line"><p class="gw-n">InvoiceEmailSender</p></div>
+                <div class="gw-vbox line"><p class="gw-n">InvoiceRepository</p></div>
+            </div>
+        </div>
+    </div>
+    <div class="intro">
+        <p class="minor-heading"><strong>Benefits</strong></p>
+        <p>SRP improves cohesion, makes tests more focused, reduces the number of unrelated changes within a class, and can make code easier to maintain.</p>
+        <p class="minor-heading"><strong>Important clarification</strong></p>
+        <p>SRP does not suggest creating a separate class for every individual statement or method.</p>
+        <p>For example, an <code>Order</code> class may legitimately contain:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">void</span> addItem(<span class="code-class">OrderItem</span> item);
+<span class="code-keyword">public</span> <span class="code-keyword">void</span> removeItem(<span class="code-class">String</span> productId);
+<span class="code-keyword">public</span> <span class="code-class">BigDecimal</span> calculateTotal();
+<span class="code-keyword">public</span> <span class="code-keyword">void</span> cancel();</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>All these operations can belong to the cohesive responsibility of managing an order.</p>
+        <p>The relevant question is: <strong>Do these methods belong to the same responsibility, and are they likely to change for related reasons?</strong></p>
+    </div>
+
+    <div class="subheading">3.2 O — Open/Closed Principle (OCP)</div>
+    <div class="intro">
+        <p>Definition</p>
+        <p><strong>Software entities should be open for extension but closed for modification.</strong></p>
+        <p>This means we should be able to introduce new behavior without repeatedly modifying stable, existing business logic.</p>
+        <p>It does not mean existing classes must never be modified.</p>
+        <p class="minor-heading"><strong>Example: Discount calculation</strong></p>
+        <p>Suppose an e-commerce system supports several discount types.</p>
+        <p>Poor design — conditional logic</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">DiscountCalculator</span> {
+    <span class="code-keyword">public</span> <span class="code-class">BigDecimal</span> calculate(<span class="code-class">String</span> discountType, <span class="code-class">BigDecimal</span> amount) {
+        <span class="code-keyword">if</span> (<span class="code-string">"REGULAR"</span>.equals(discountType)) {
+            <span class="code-keyword">return</span> amount.multiply(<span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"0.05"</span>));
+        } <span class="code-keyword">else</span> <span class="code-keyword">if</span> (<span class="code-string">"PREMIUM"</span>.equals(discountType)) {
+            <span class="code-keyword">return</span> amount.multiply(<span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"0.10"</span>));
+        } <span class="code-keyword">else</span> <span class="code-keyword">if</span> (<span class="code-string">"FESTIVAL"</span>.equals(discountType)) {
+            <span class="code-keyword">return</span> amount.multiply(<span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"0.20"</span>));
+        }
+        <span class="code-keyword">return</span> <span class="code-class">BigDecimal</span>.ZERO;
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Every new discount type requires modifying <code>DiscountCalculator</code>.</p>
+        <p>Adding <code>"LOYALTY"</code> means editing the existing conditional logic.</p>
+        <p>As the application grows, this can become difficult to maintain and test.</p>
+        <p class="minor-heading"><strong>Better design — polymorphism</strong></p>
+        <p>Define a common abstraction.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">DiscountPolicy</span> {
+    <span class="code-class">BigDecimal</span> calculateDiscount(<span class="code-class">BigDecimal</span> amount);
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Regular discount:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">RegularDiscount</span> <span class="code-keyword">implements</span> <span class="code-class">DiscountPolicy</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">BigDecimal</span> calculateDiscount(<span class="code-class">BigDecimal</span> amount) {
+        <span class="code-keyword">return</span> amount.multiply(<span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"0.05"</span>));
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Premium discount:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">PremiumDiscount</span> <span class="code-keyword">implements</span> <span class="code-class">DiscountPolicy</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">BigDecimal</span> calculateDiscount(<span class="code-class">BigDecimal</span> amount) {
+        <span class="code-keyword">return</span> amount.multiply(<span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"0.10"</span>));
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Festival discount:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">FestivalDiscount</span> <span class="code-keyword">implements</span> <span class="code-class">DiscountPolicy</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">BigDecimal</span> calculateDiscount(<span class="code-class">BigDecimal</span> amount) {
+        <span class="code-keyword">return</span> amount.multiply(<span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"0.20"</span>));
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Now the calculator depends on the abstraction:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">DiscountCalculator</span> {
+    <span class="code-keyword">private</span> <span class="code-class">DiscountPolicy</span> discountPolicy;
+
+    <span class="code-keyword">public</span> <span class="code-class">DiscountCalculator</span>(<span class="code-class">DiscountPolicy</span> discountPolicy) {
+        <span class="code-keyword">this</span>.discountPolicy = discountPolicy;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">BigDecimal</span> calculate(<span class="code-class">BigDecimal</span> amount) {
+        <span class="code-keyword">return</span> discountPolicy.calculateDiscount(amount);
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Usage:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">DiscountPolicy</span> policy = <span class="code-keyword">new</span> <span class="code-class">PremiumDiscount</span>();
+<span class="code-class">DiscountCalculator</span> calculator = <span class="code-keyword">new</span> <span class="code-class">DiscountCalculator</span>(policy);
+<span class="code-class">BigDecimal</span> discount = calculator.calculate(<span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"1000"</span>));
+<span class="code-class">System</span>.out.println(discount); <span class="code-comment"># 100.00</span></code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>To introduce a new discount, create another implementation.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">LoyaltyDiscount</span> <span class="code-keyword">implements</span> <span class="code-class">DiscountPolicy</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">BigDecimal</span> calculateDiscount(<span class="code-class">BigDecimal</span> amount) {
+        <span class="code-keyword">return</span> amount.multiply(<span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"0.15"</span>));
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p><code>DiscountCalculator</code> does not need to change.</p>
+        <p>However, the application still needs to select or configure the appropriate policy. OCP does not eliminate all changes; it attempts to localize them to the relevant extension points.</p>
+        <p class="minor-heading"><strong>Relationship with design patterns</strong></p>
+        <p>This design uses the Strategy Design Pattern.</p>
+        <p>OCP is also commonly supported by the Factory Method, Template Method, Decorator, and other patterns.</p>
+        <p class="minor-heading"><strong>When to apply OCP</strong></p>
+        <p>OCP is especially valuable when a behavior has several known variations, when plugins or providers need to be added, or when a stable component must support new implementations.</p>
+        <p>Avoid creating elaborate extension mechanisms for behavior that is unlikely to vary.</p>
+        <p><strong>The objective is to encapsulate likely changes, not to predict every possible future requirement.</strong></p>
+    </div>
+
+    <div class="subheading">3.3 L — Liskov Substitution Principle (LSP)</div>
+    <div class="intro">
+        <p>Definition</p>
+        <p><strong>Objects of a subtype should be usable wherever objects of their base type are expected, without violating the correctness or expected behavior of the program.</strong></p>
+        <p>LSP was introduced by Barbara Liskov and concerns behavioral compatibility between types.</p>
+        <p>Just because Java allows a class to extend another class does not mean the resulting relationship is a valid design.</p>
+        <p class="minor-heading"><strong>Example: Bank accounts</strong></p>
+        <p>Suppose we have an account that supports withdrawals.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">SavingsAccount</span> {
+    <span class="code-keyword">protected</span> <span class="code-class">BigDecimal</span> balance;
+
+    <span class="code-keyword">public</span> <span class="code-class">SavingsAccount</span>(<span class="code-class">BigDecimal</span> balance) {
+        <span class="code-keyword">this</span>.balance = balance;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> withdraw(<span class="code-class">BigDecimal</span> amount) {
+        <span class="code-keyword">if</span> (amount.signum() &lt;= <span class="code-number">0</span> || balance.compareTo(amount) &lt; <span class="code-number">0</span>) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>();
+        }
+        balance = balance.subtract(amount);
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Now consider a fixed-deposit account that does not allow withdrawals before maturity.</p>
+        <p>Poor design</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">FixedDepositAccount</span> <span class="code-keyword">extends</span> <span class="code-class">SavingsAccount</span> {
+    <span class="code-keyword">public</span> <span class="code-class">FixedDepositAccount</span>(<span class="code-class">BigDecimal</span> balance) {
+        <span class="code-keyword">super</span>(balance);
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> withdraw(<span class="code-class">BigDecimal</span> amount) {
+        <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">UnsupportedOperationException</span>(<span class="code-string">"Withdrawals not supported"</span>);
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Client code:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">void</span> payBill(<span class="code-class">SavingsAccount</span> account) {
+    account.withdraw(<span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"500"</span>));
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>This works for an eligible savings account but unexpectedly fails for a fixed-deposit account, even when its balance is sufficient.</p>
+        <p>The subtype has strengthened the preconditions for a successful withdrawal.</p>
+        <p>It violates the behavioral expectations of the base type.</p>
+        <p class="minor-heading"><strong>Better design — model capabilities correctly</strong></p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">DepositableAccount</span> {
+    <span class="code-keyword">void</span> deposit(<span class="code-class">BigDecimal</span> amount);
+}</code></pre>
+        </div>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">WithdrawableAccount</span> <span class="code-keyword">extends</span> <span class="code-class">DepositableAccount</span> {
+    <span class="code-keyword">void</span> withdraw(<span class="code-class">BigDecimal</span> amount);
+}</code></pre>
+        </div>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">SavingsAccount</span> <span class="code-keyword">implements</span> <span class="code-class">WithdrawableAccount</span> {
+    <span class="code-comment"># Valid deposit and withdrawal implementations</span>
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> deposit(<span class="code-class">BigDecimal</span> amount) {
+        <span class="code-comment"># Deposit rules</span>
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> withdraw(<span class="code-class">BigDecimal</span> amount) {
+        <span class="code-comment"># Withdrawal rules</span>
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">FixedDepositAccount</span> <span class="code-keyword">implements</span> <span class="code-class">DepositableAccount</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> deposit(<span class="code-class">BigDecimal</span> amount) {
+        <span class="code-comment"># Deposit rules</span>
+    }
+
+    <span class="code-comment"># Does not promise ordinary withdrawals.</span>
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>The billing operation now explicitly requires the capability it needs.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">void</span> payBill(<span class="code-class">WithdrawableAccount</span> account, <span class="code-class">BigDecimal</span> amount) {
+    account.withdraw(amount);
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>A fixed-deposit account cannot accidentally be passed to this method.</p>
+        <p>In a real application, maturity withdrawals could be modeled with a separate contract describing the applicable preconditions.</p>
+        <p class="minor-heading"><strong>The deeper meaning of LSP</strong></p>
+        <p>Behavioral subtyping involves more than compatible Java method signatures.</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Contract element</th><th>LSP guideline</th></tr></thead>
+            <tbody>
+                <tr><td>Preconditions</td><td>A subtype must not demand stronger conditions</td></tr>
+                <tr><td>Postconditions</td><td>A subtype must preserve the guarantees promised by the base type</td></tr>
+                <tr><td>Invariants</td><td>A subtype must maintain the relevant invariants</td></tr>
+                <tr><td>Exceptions</td><td>A subtype should not introduce unexpected failure behavior that violates the contract</td></tr>
+                <tr><td>Observable behavior</td><td>Clients relying on the base contract should continue to work</td></tr>
+            </tbody>
+        </table></div>
+        <p>For example, suppose an interface promises:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-comment"># Returns a non-null list.</span>
+<span class="code-comment"># Returns an empty list when no records exist.</span>
+<span class="code-class">List</span>&lt;<span class="code-class">Order</span>&gt; findOrders();</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>An implementation that returns <code>null</code> when there are no orders violates the contract even though Java permits it.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-annotation">@Override</span> <span class="code-comment"># Incorrect</span>
+<span class="code-keyword">public</span> <span class="code-class">List</span>&lt;<span class="code-class">Order</span>&gt; findOrders() {
+    <span class="code-keyword">return</span> <span class="code-keyword">null</span>;
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>A compatible implementation returns an empty list.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-annotation">@Override</span>
+<span class="code-keyword">public</span> <span class="code-class">List</span>&lt;<span class="code-class">Order</span>&gt; findOrders() {
+    <span class="code-keyword">return</span> <span class="code-class">List</span>.of();
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p class="minor-heading"><strong>LSP and the Rectangle–Square problem</strong></p>
+        <p>The classic example involves a mutable <code>Rectangle</code> with independently configurable width and height.</p>
+        <p>If <code>Square</code> extends <code>Rectangle</code>, overriding width and height setters so both dimensions remain equal, code expecting independent dimension changes can break.</p>
+        <p>Mathematically, every square is a rectangle. But that does not imply that every mutable square object is a behavioral subtype of a mutable rectangle API.</p>
+        <p><strong>A valid inheritance relationship depends on the software contract, not merely on a conceptual “is-a” relationship.</strong></p>
+    </div>
+
+    <div class="subheading">3.4 I — Interface Segregation Principle (ISP)</div>
+    <div class="intro">
+        <p>Definition</p>
+        <p><strong>Clients should not be forced to depend on interfaces containing methods they do not use.</strong></p>
+        <p>Large, general-purpose interfaces can create unnecessary dependencies and force implementations to support inappropriate operations.</p>
+        <p class="minor-heading"><strong>Example: Office machines</strong></p>
+        <p>Poor design</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">OfficeMachine</span> {
+    <span class="code-keyword">void</span> print(<span class="code-class">Document</span> document);
+
+    <span class="code-keyword">void</span> scan(<span class="code-class">Document</span> document);
+
+    <span class="code-keyword">void</span> fax(<span class="code-class">Document</span> document);
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>A basic printer only supports printing.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">BasicPrinter</span> <span class="code-keyword">implements</span> <span class="code-class">OfficeMachine</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> print(<span class="code-class">Document</span> document) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Printing..."</span>);
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> scan(<span class="code-class">Document</span> document) {
+        <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">UnsupportedOperationException</span>();
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> fax(<span class="code-class">Document</span> document) {
+        <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">UnsupportedOperationException</span>();
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>The class must implement methods that have nothing to do with its capabilities.</p>
+        <p class="minor-heading"><strong>Better design — segregated interfaces</strong></p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">Printer</span> {
+    <span class="code-keyword">void</span> print(<span class="code-class">Document</span> document);
+}</code></pre>
+        </div>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">Scanner</span> {
+    <span class="code-keyword">void</span> scan(<span class="code-class">Document</span> document);
+}</code></pre>
+        </div>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">FaxMachine</span> {
+    <span class="code-keyword">void</span> fax(<span class="code-class">Document</span> document);
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>A basic printer implements only the required contract:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">BasicPrinter</span> <span class="code-keyword">implements</span> <span class="code-class">Printer</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> print(<span class="code-class">Document</span> document) {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Printing..."</span>);
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>A multifunction printer can support multiple interfaces.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">MultiFunctionPrinter</span> <span class="code-keyword">implements</span> <span class="code-class">Printer</span>, <span class="code-class">Scanner</span>, <span class="code-class">FaxMachine</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> print(<span class="code-class">Document</span> document) {
+        <span class="code-comment"># Print</span>
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> scan(<span class="code-class">Document</span> document) {
+        <span class="code-comment"># Scan</span>
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> fax(<span class="code-class">Document</span> document) {
+        <span class="code-comment"># Fax</span>
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p class="minor-heading"><strong>ISP in backend development</strong></p>
+        <p>Suppose a service exposes all repository operations through one interface:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">UserRepository</span> {
+    <span class="code-class">User</span> findById(<span class="code-keyword">long</span> id);
+
+    <span class="code-keyword">void</span> save(<span class="code-class">User</span> user);
+
+    <span class="code-keyword">void</span> delete(<span class="code-keyword">long</span> id);
+
+    <span class="code-keyword">void</span> exportAllUsers();
+
+    <span class="code-keyword">void</span> rebuildIndexes();
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>A read-only reporting service should not need to depend on user deletion or index maintenance capabilities.</p>
+        <p>A narrower interface can better communicate its responsibilities:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">UserReader</span> {
+    <span class="code-class">Optional</span>&lt;<span class="code-class">User</span>&gt; findById(<span class="code-keyword">long</span> id);
+}</code></pre>
+        </div>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">UserWriter</span> {
+    <span class="code-keyword">void</span> save(<span class="code-class">User</span> user);
+
+    <span class="code-keyword">void</span> delete(<span class="code-keyword">long</span> id);
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Different consumers can depend on the contracts they actually need.</p>
+        <p class="minor-heading"><strong>Important clarification</strong></p>
+        <p>ISP does not mean every method needs its own interface.</p>
+        <p>An interface with ten closely related methods may be better than ten tiny interfaces if those methods genuinely form one coherent capability.</p>
+        <p>The goal is <strong>client-specific, cohesive abstractions</strong>, not arbitrary fragmentation.</p>
+    </div>
+
+    <div class="subheading">3.5 D — Dependency Inversion Principle (DIP)</div>
+    <div class="intro">
+        <p>Definition</p>
+        <p>The Dependency Inversion Principle states:</p>
+        <ol>
+            <li>High-level modules should not depend directly on low-level modules. Both should depend on abstractions.</li>
+            <li>Abstractions should not depend on implementation details. Implementation details should depend on abstractions.</li>
+        </ol>
+        <p>DIP is particularly important for enterprise Java, Spring Boot, microservices, testing, and Clean Architecture.</p>
+        <p class="minor-heading"><strong>Example: Order payment processing</strong></p>
+        <p>A high-level checkout service contains business workflow logic.</p>
+        <p>A payment provider integration is a lower-level infrastructure detail.</p>
+        <p>Poor design — direct dependency</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CheckoutService</span> {
+    <span class="code-keyword">private</span> <span class="code-class">StripePaymentGateway</span> gateway = <span class="code-keyword">new</span> <span class="code-class">StripePaymentGateway</span>();
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> checkout(<span class="code-class">Order</span> order) {
+        gateway.charge(order.getTotal());
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p><code>CheckoutService</code> is directly coupled to one concrete payment provider.</p>
+        <p>This creates several problems: switching payment providers requires changing business code; isolated testing is difficult; and business logic becomes dependent on infrastructure choices.</p>
+        <p class="minor-heading"><strong>Better design — depend on an abstraction</strong></p>
+        <p>First define the contract:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">PaymentGateway</span> {
+    <span class="code-keyword">void</span> charge(<span class="code-class">BigDecimal</span> amount);
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Create the implementation:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">StripePaymentGateway</span> <span class="code-keyword">implements</span> <span class="code-class">PaymentGateway</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> charge(<span class="code-class">BigDecimal</span> amount) {
+        <span class="code-comment"># Stripe integration logic</span>
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Now the high-level service depends on the abstraction.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CheckoutService</span> {
+    <span class="code-keyword">private</span> <span class="code-class">PaymentGateway</span> paymentGateway;
+
+    <span class="code-keyword">public</span> <span class="code-class">CheckoutService</span>(<span class="code-class">PaymentGateway</span> paymentGateway) {
+        <span class="code-keyword">this</span>.paymentGateway = paymentGateway;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> checkout(<span class="code-class">Order</span> order) {
+        paymentGateway.charge(order.getTotal());
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Usage:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">PaymentGateway</span> gateway = <span class="code-keyword">new</span> <span class="code-class">StripePaymentGateway</span>();
+<span class="code-class">CheckoutService</span> checkoutService = <span class="code-keyword">new</span> <span class="code-class">CheckoutService</span>(gateway);
+checkoutService.checkout(order);</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>The <code>CheckoutService</code> no longer creates or imports a specific payment provider implementation.</p>
+        <p class="minor-heading"><strong>How dependency inversion works</strong></p>
+    </div>
+    <div class="gw-card">
+        <div class="gw-cols2" style="gap:12px">
+            <div class="gw-vflow">
+                <p class="gw-n" style="text-align:center">Without DIP</p>
+                <div class="gw-vbox"><p class="gw-n">CheckoutService</p><p class="gw-cap">Business logic</p></div>
+                <div class="gw-vlink"><svg class="gw-i" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12.707 18.707a1 1 0 0 1-1.414 0l-5-5a1 1 0 1 1 1.414-1.414L11 15.586V6a1 1 0 1 1 2 0v9.586l3.293-3.293a1 1 0 0 1 1.414 1.414l-5 5Z" clip-rule="evenodd"/></svg><span>depends on</span></div>
+                <div class="gw-vbox line"><p class="gw-n">StripeGateway</p><p class="gw-cap">Concrete implementation</p></div>
+            </div>
+            <div class="gw-vflow">
+                <p class="gw-n" style="text-align:center">With DIP</p>
+                <div class="gw-vbox"><p class="gw-n">CheckoutService</p><p class="gw-cap">Business logic</p></div>
+                <div class="gw-vlink"><svg class="gw-i" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12.707 18.707a1 1 0 0 1-1.414 0l-5-5a1 1 0 1 1 1.414-1.414L11 15.586V6a1 1 0 1 1 2 0v9.586l3.293-3.293a1 1 0 0 1 1.414 1.414l-5 5Z" clip-rule="evenodd"/></svg><span>depends on</span></div>
+                <div class="gw-vbox plain"><p class="gw-n">PaymentGateway</p><p class="gw-cap">Interface</p></div>
+                <div class="gw-vlink"><svg class="gw-i" style="transform:rotate(180deg)" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12.707 18.707a1 1 0 0 1-1.414 0l-5-5a1 1 0 1 1 1.414-1.414L11 15.586V6a1 1 0 1 1 2 0v9.586l3.293-3.293a1 1 0 0 1 1.414 1.414l-5 5Z" clip-rule="evenodd"/></svg><span>implemented by</span></div>
+                <div class="gw-vbox line"><p class="gw-n">StripeGateway</p><p class="gw-cap">Infrastructure</p></div>
+            </div>
+        </div>
+    </div>
+    <div class="intro">
+        <p>The important inversion is that the lower-level implementation now conforms to a contract that the business layer can own.</p>
+        <p class="minor-heading"><strong>DIP vs Dependency Injection vs IoC</strong></p>
+        <p>These concepts are related but different.</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Concept</th><th>Meaning</th></tr></thead>
+            <tbody>
+                <tr><td>Dependency Inversion Principle</td><td>A design principle governing dependency direction</td></tr>
+                <tr><td>Dependency Injection (DI)</td><td>A technique for supplying dependencies to an object</td></tr>
+                <tr><td>Inversion of Control (IoC)</td><td>A broader approach in which control of activities such as object construction is delegated to another component or framework</td></tr>
+            </tbody>
+        </table></div>
+        <p>Constructor injection is one way to implement DIP, but <strong>dependency injection does not automatically guarantee dependency inversion</strong>.</p>
+        <p>For example:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-class">CheckoutService</span>(<span class="code-class">StripePaymentGateway</span> gateway) {
+    <span class="code-comment"># ...</span>
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>This uses constructor injection but still depends directly on the concrete class.</p>
+        <p class="minor-heading"><strong>DIP with Spring Boot</strong></p>
+        <p>Spring Boot supports this design naturally.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">PaymentGateway</span> {
+    <span class="code-keyword">void</span> charge(<span class="code-class">BigDecimal</span> amount);
+}</code></pre>
+        </div>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-annotation">@Component</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">StripePaymentGateway</span> <span class="code-keyword">implements</span> <span class="code-class">PaymentGateway</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> charge(<span class="code-class">BigDecimal</span> amount) {
+        <span class="code-comment"># Payment provider integration</span>
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-annotation">@Service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CheckoutService</span> {
+    <span class="code-keyword">private</span> <span class="code-class">PaymentGateway</span> paymentGateway;
+
+    <span class="code-keyword">public</span> <span class="code-class">CheckoutService</span>(<span class="code-class">PaymentGateway</span> paymentGateway) {
+        <span class="code-keyword">this</span>.paymentGateway = paymentGateway;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> checkout(<span class="code-class">BigDecimal</span> amount) {
+        paymentGateway.charge(amount);
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Spring supplies the registered implementation to <code>CheckoutService</code>.</p>
+        <p>If multiple <code>PaymentGateway</code> implementations exist, they must be selected explicitly, for example through qualifiers, a primary bean, configuration, or an appropriate strategy registry.</p>
+        <p class="minor-heading"><strong>Testing benefit</strong></p>
+        <p>DIP makes it easy to substitute infrastructure dependencies.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">FakePaymentGateway</span> <span class="code-keyword">implements</span> <span class="code-class">PaymentGateway</span> {
+    <span class="code-keyword">private</span> <span class="code-class">BigDecimal</span> chargedAmount;
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> charge(<span class="code-class">BigDecimal</span> amount) {
+        chargedAmount = amount;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">BigDecimal</span> chargedAmount() {
+        <span class="code-keyword">return</span> chargedAmount;
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Test:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-annotation">@Test</span>
+<span class="code-keyword">void</span> checkoutShouldChargeCorrectAmount() {
+    <span class="code-class">FakePaymentGateway</span> gateway = <span class="code-keyword">new</span> <span class="code-class">FakePaymentGateway</span>();
+    <span class="code-class">CheckoutService</span> checkout = <span class="code-keyword">new</span> <span class="code-class">CheckoutService</span>(gateway);
+    checkout.checkout(<span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"500.00"</span>));
+    assertEquals(<span class="code-number">0</span>, <span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"500.00"</span>).compareTo(gateway.chargedAmount()));
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>No Spring container, database, or real payment system is necessary for this unit test.</p>
+        <p class="minor-heading"><strong>SOLID at a glance</strong></p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Principle</th><th>Question it answers</th></tr></thead>
+            <tbody>
+                <tr><td>SRP</td><td>Who should be responsible for this behavior?</td></tr>
+                <tr><td>OCP</td><td>How can we add behavior without repeatedly changing stable code?</td></tr>
+                <tr><td>LSP</td><td>Can implementations safely substitute for their declared types?</td></tr>
+                <tr><td>ISP</td><td>Does each client depend only on the capabilities it needs?</td></tr>
+                <tr><td>DIP</td><td>Should business logic depend on concrete infrastructure or abstractions?</td></tr>
+            </tbody>
+        </table></div>
+        <p>These five principles work best together rather than independently.</p>
+    </div>
+
+    <div class="subheading">4. Other Essential Object-Oriented Design Principles</div>
+    <div class="intro">
+        <p>SOLID is only one part of object-oriented design. The following principles are equally important when building maintainable software.</p>
+    </div>
+
+    <div class="subheading">4.1 DRY — Don&rsquo;t Repeat Yourself</div>
+    <div class="intro">
+        <p><strong>Every piece of knowledge or business logic should have one authoritative representation within a system.</strong></p>
+        <p>DRY is not simply about eliminating duplicated lines of code. Its deeper purpose is to avoid duplicating knowledge that must remain synchronized.</p>
+        <p class="minor-heading"><strong>Example: Tax calculation</strong></p>
+        <p>Suppose tax calculation is duplicated across multiple services.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderService</span> {
+    <span class="code-keyword">public</span> <span class="code-class">BigDecimal</span> calculateTax(<span class="code-class">BigDecimal</span> amount) {
+        <span class="code-keyword">return</span> amount.multiply(<span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"0.18"</span>));
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">InvoiceService</span> {
+    <span class="code-keyword">public</span> <span class="code-class">BigDecimal</span> calculateTax(<span class="code-class">BigDecimal</span> amount) {
+        <span class="code-keyword">return</span> amount.multiply(<span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"0.18"</span>));
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>If the applicable tax rate or calculation rules change, both classes must be updated.</p>
+        <p>A developer may update one class and forget the other.</p>
+        <p>A better design centralizes the shared policy.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">TaxCalculator</span> {
+    <span class="code-keyword">private</span> <span class="code-class">BigDecimal</span> taxRate;
+
+    <span class="code-keyword">public</span> <span class="code-class">TaxCalculator</span>(<span class="code-class">BigDecimal</span> taxRate) {
+        <span class="code-keyword">this</span>.taxRate = taxRate;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">BigDecimal</span> calculateTax(<span class="code-class">BigDecimal</span> taxableAmount) {
+        <span class="code-keyword">return</span> taxableAmount.multiply(taxRate);
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Now both services use <code>TaxCalculator</code>.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderService</span> {
+    <span class="code-keyword">private</span> <span class="code-class">TaxCalculator</span> taxCalculator;
+
+    <span class="code-keyword">public</span> <span class="code-class">OrderService</span>(<span class="code-class">TaxCalculator</span> taxCalculator) {
+        <span class="code-keyword">this</span>.taxCalculator = taxCalculator;
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>The same instance or configuration can serve multiple consumers.</p>
+        <p>For a real tax system, applicable rates may depend on jurisdiction, product, date, and other rules. The centralization should cover the actual shared policy rather than assuming one universal percentage.</p>
+        <p class="minor-heading"><strong>Important consideration</strong></p>
+        <p>Two pieces of code that look similar may represent different business rules.</p>
+        <p>If domestic shipping and international shipping happen to use the same fee calculation today, combining them into one implementation could create unnecessary coupling when the rules diverge.</p>
+        <p><strong>DRY means avoid duplicated knowledge, not blindly eliminate all similar-looking code.</strong></p>
+    </div>
+
+    <div class="subheading">4.2 KISS — Keep It Simple, Stupid</div>
+    <div class="intro">
+        <p>KISS encourages developers to choose the simplest design that correctly satisfies the requirements.</p>
+        <p>Complexity makes software harder to understand, test, debug, and modify.</p>
+        <p class="minor-heading"><strong>Example</strong></p>
+        <p>Suppose we need to determine whether a list contains any active users.</p>
+        <p>Overcomplicated approach:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">List</span>&lt;<span class="code-class">User</span>&gt; activeUsers = users.stream().filter(<span class="code-class">User</span>::isActive).collect(<span class="code-class">Collectors</span>.toList());
+<span class="code-keyword">boolean</span> hasActiveUsers = activeUsers.size() &gt; <span class="code-number">0</span>;</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Simpler approach:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">boolean</span> hasActiveUsers = users.stream().anyMatch(<span class="code-class">User</span>::isActive);</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>The second implementation expresses the intention directly, avoids creating an unnecessary list, and can stop as soon as an active user is found.</p>
+        <p>KISS applies to architecture as well.</p>
+        <p>For example, a small application may not need microservices, Kafka, a distributed cache, an event-sourcing framework, and multiple database technologies.</p>
+        <p>A modular monolith may be easier to operate and sufficiently scalable.</p>
+        <p><strong>Simplicity is not the same as minimal code length.</strong> A longer implementation that clearly handles errors and business rules may be much simpler to maintain than a short but obscure one.</p>
+    </div>
+
+    <div class="subheading">4.3 YAGNI — You Aren&rsquo;t Gonna Need It</div>
+    <div class="intro">
+        <p>YAGNI means:</p>
+        <p><strong>Do not implement functionality merely because you think it might be required in the future.</strong></p>
+        <p>Suppose your current application sends email through one provider.</p>
+        <p>You could build a sophisticated plugin framework supporting hundreds of providers, runtime module loading, plugin versioning, dynamic discovery, and fallback chains.</p>
+        <p>But if the requirement only calls for one email provider, most of that infrastructure may be unnecessary.</p>
+        <p>A simple implementation might be sufficient:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">EmailService</span> {
+    <span class="code-keyword">private</span> <span class="code-class">EmailClient</span> client;
+
+    <span class="code-keyword">public</span> <span class="code-class">EmailService</span>(<span class="code-class">EmailClient</span> client) {
+        <span class="code-keyword">this</span>.client = client;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> send(<span class="code-class">String</span> <span class="code-keyword">to</span>, <span class="code-class">String</span> message) {
+        client.send(<span class="code-keyword">to</span>, message);
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>If supporting multiple providers becomes a real requirement, the abstraction and implementation can be extended.</p>
+        <p>YAGNI does not prohibit good design. It discourages expensive speculation.</p>
+        <p class="minor-heading"><strong>DRY vs KISS vs YAGNI</strong></p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Principle</th><th>Main concern</th></tr></thead>
+            <tbody>
+                <tr><td>DRY</td><td>Avoid multiple authoritative copies of the same knowledge</td></tr>
+                <tr><td>KISS</td><td>Avoid unnecessary complexity</td></tr>
+                <tr><td>YAGNI</td><td>Avoid implementing speculative requirements</td></tr>
+            </tbody>
+        </table></div>
+        <p>These principles help prevent overengineering, including excessive application of SOLID.</p>
+    </div>
+
+    <div class="subheading">4.4 High Cohesion</div>
+    <div class="intro">
+        <p><strong>Cohesion measures how closely related the responsibilities within a module or class are.</strong></p>
+        <p>High cohesion means the elements of a class work together to accomplish a clearly defined responsibility.</p>
+        <p>Consider:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">UserManager</span> {
+    <span class="code-keyword">void</span> registerUser() {}
+
+    <span class="code-keyword">void</span> generateSalaryReport() {}
+
+    <span class="code-keyword">void</span> clearSystemCache() {}
+
+    <span class="code-keyword">void</span> sendMarketingEmail() {}
+
+    <span class="code-keyword">void</span> backupDatabase() {}
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>The methods are largely unrelated.</p>
+        <p>This is low cohesion.</p>
+        <p>A more cohesive design might have:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">UserRegistrationService</span> {
+    <span class="code-keyword">void</span> registerUser() {}
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">PayrollReportService</span> {
+    <span class="code-keyword">void</span> generateSalaryReport() {}
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CacheMaintenanceService</span> {
+    <span class="code-keyword">void</span> clearSystemCache() {}
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Each class has a more focused purpose.</p>
+        <p>High cohesion and SRP are closely related, but cohesion describes how strongly a module&rsquo;s elements belong together, while SRP focuses on reasons for change.</p>
+    </div>
+
+    <div class="subheading">4.5 Low Coupling</div>
+    <div class="intro">
+        <p><strong>Coupling describes how dependent one software component is on another.</strong></p>
+        <p>A tightly coupled component knows too much about other components&rsquo; implementation details.</p>
+        <p>Consider:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderService</span> {
+    <span class="code-keyword">private</span> <span class="code-class">MySqlOrderRepository</span> repository = <span class="code-keyword">new</span> <span class="code-class">MySqlOrderRepository</span>();
+    <span class="code-keyword">private</span> <span class="code-class">SmtpEmailSender</span> emailSender = <span class="code-keyword">new</span> <span class="code-class">SmtpEmailSender</span>();
+    <span class="code-keyword">private</span> <span class="code-class">StripePaymentClient</span> paymentClient = <span class="code-keyword">new</span> <span class="code-class">StripePaymentClient</span>();
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>This class directly constructs and depends on several infrastructure implementations.</p>
+        <p>A less coupled design:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderService</span> {
+    <span class="code-keyword">private</span> <span class="code-class">OrderRepository</span> repository;
+    <span class="code-keyword">private</span> <span class="code-class">NotificationSender</span> notificationSender;
+    <span class="code-keyword">private</span> <span class="code-class">PaymentGateway</span> paymentGateway;
+
+    <span class="code-keyword">public</span> <span class="code-class">OrderService</span>(<span class="code-class">OrderRepository</span> repository, <span class="code-class">NotificationSender</span> notificationSender,
+                        <span class="code-class">PaymentGateway</span> paymentGateway) {
+        <span class="code-keyword">this</span>.repository = repository;
+        <span class="code-keyword">this</span>.notificationSender = notificationSender;
+        <span class="code-keyword">this</span>.paymentGateway = paymentGateway;
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>The service still has dependencies, but they are dependencies on defined contracts instead of concrete infrastructure implementations.</p>
+        <p class="minor-heading"><strong>Coupling vs Cohesion</strong></p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>High cohesion</th><th>Low coupling</th></tr></thead>
+            <tbody>
+                <tr><td>Focuses on responsibilities inside a component</td><td>Focuses on dependencies between components</td></tr>
+                <tr><td>Related behavior stays together</td><td>Unnecessary knowledge is minimized</td></tr>
+                <tr><td>Encourages focused classes</td><td>Encourages stable boundaries</td></tr>
+                <tr><td>Helps SRP</td><td>Helps DIP and modularity</td></tr>
+            </tbody>
+        </table></div>
+        <p>General design objective</p>
+    </div>
+    <div class="gw-card">
+        <div class="gw-cols2" style="gap:12px">
+            <div class="gw-vbox green line-green"><svg class="gw-i ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg><p><strong>High Cohesion</strong></p><p class="gw-cap" style="color:#0d0d0d">Closely related responsibilities</p></div>
+            <div class="gw-vbox green line-green"><svg class="gw-i ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg><p><strong>Low Coupling</strong></p><p class="gw-cap" style="color:#0d0d0d">Minimal unnecessary dependencies</p></div>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Low coupling does not mean zero coupling. Collaborating objects necessarily depend on each other&rsquo;s contracts.</p>
+        <p>The objective is to make those dependencies explicit, limited, and stable.</p>
+    </div>
+
+    <div class="subheading">4.6 Composition over Inheritance</div>
+    <div class="intro">
+        <p><strong>Favor combining objects with complementary behaviors over creating inheritance hierarchies solely for code reuse.</strong></p>
+        <p>Inheritance creates a relationship between types. Composition creates a relationship between collaborating objects.</p>
+        <p class="minor-heading"><strong>Problem: Inheritance explosion</strong></p>
+        <p>Imagine a file-backup system that supports different compression algorithms and storage locations.</p>
+        <p>An inheritance-heavy design might produce classes such as:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code>ZipLocalBackup
+ZipS3Backup
+ZipAzureBackup
+GzipLocalBackup
+GzipS3Backup
+GzipAzureBackup</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>As compression strategies and storage backends grow, the number of combinations can become large.</p>
+        <p class="minor-heading"><strong>Better design: Composition</strong></p>
+        <p>Define the interchangeable behaviors.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">Compressor</span> {
+    <span class="code-keyword">byte</span>[] compress(<span class="code-keyword">byte</span>[] input);
+}</code></pre>
+        </div>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">Storage</span> {
+    <span class="code-keyword">void</span> save(<span class="code-class">String</span> key, <span class="code-keyword">byte</span>[] data);
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Implement the compression behavior:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">GzipCompressor</span> <span class="code-keyword">implements</span> <span class="code-class">Compressor</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">byte</span>[] compress(<span class="code-keyword">byte</span>[] input) {
+        <span class="code-keyword">return</span> input; <span class="code-comment"># Apply GZIP compression</span>
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Implement storage behavior:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">LocalStorage</span> <span class="code-keyword">implements</span> <span class="code-class">Storage</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> save(<span class="code-class">String</span> key, <span class="code-keyword">byte</span>[] data) {
+        <span class="code-comment"># Write data to the filesystem</span>
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Compose them:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">BackupService</span> {
+    <span class="code-keyword">private</span> <span class="code-class">Compressor</span> compressor;
+    <span class="code-keyword">private</span> <span class="code-class">Storage</span> storage;
+
+    <span class="code-keyword">public</span> <span class="code-class">BackupService</span>(<span class="code-class">Compressor</span> compressor, <span class="code-class">Storage</span> storage) {
+        <span class="code-keyword">this</span>.compressor = compressor;
+        <span class="code-keyword">this</span>.storage = storage;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> backup(<span class="code-class">String</span> key, <span class="code-keyword">byte</span>[] data) {
+        <span class="code-keyword">byte</span>[] compressed = compressor.compress(data);
+        storage.save(key, compressed);
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Usage:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">BackupService</span> backupService = <span class="code-keyword">new</span> <span class="code-class">BackupService</span>(<span class="code-keyword">new</span> <span class="code-class">GzipCompressor</span>(), <span class="code-keyword">new</span> <span class="code-class">LocalStorage</span>());
+backupService.backup(<span class="code-string">"orders.dat"</span>, fileData);</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Changing compression or storage requires changing the composed object, not the <code>BackupService</code> implementation.</p>
+        <p>The actual compressor and storage implementations would need to perform real compression and I/O; the methods above are illustrative placeholders.</p>
+        <p class="minor-heading"><strong>Inheritance vs Composition</strong></p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Inheritance</th><th>Composition</th></tr></thead>
+            <tbody>
+                <tr><td>Models subtype relationships</td><td>Models collaboration</td></tr>
+                <tr><td>Uses <code>extends</code></td><td>Uses fields and injected dependencies</td></tr>
+                <tr><td>Can share implementation</td><td>Delegates work to other objects</td></tr>
+                <tr><td>Usually binds structure at compile time</td><td>Can support runtime substitution</td></tr>
+                <tr><td>Changes to base classes may affect subclasses</td><td>Implementations can evolve independently</td></tr>
+                <tr><td>Useful for valid hierarchical contracts</td><td>Useful for combining independent behaviors</td></tr>
+            </tbody>
+        </table></div>
+        <p>Composition also supports the Strategy, Decorator, Bridge, and other patterns.</p>
+    </div>
+
+    <div class="subheading">4.7 Program to an Interface, Not an Implementation</div>
+    <div class="intro">
+        <p>This principle encourages clients to depend on contracts rather than unnecessary concrete implementation details.</p>
+        <p>For example:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">List</span>&lt;<span class="code-class">String</span>&gt; names = <span class="code-keyword">new</span> <span class="code-class">ArrayList</span>&lt;&gt;();</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>is usually preferable to declaring the variable as:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">ArrayList</span>&lt;<span class="code-class">String</span>&gt; names = <span class="code-keyword">new</span> <span class="code-class">ArrayList</span>&lt;&gt;();</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>when the code only needs operations from <code>List</code>.</p>
+        <p>Likewise:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">PaymentGateway</span> gateway;</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>can be preferable to:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">StripePaymentGateway</span> gateway;</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>when business code should be independent of the payment provider.</p>
+        <p>However, an interface is not automatically useful for every class.</p>
+        <p>A stable immutable value object such as <code>Money</code>, <code>Address</code>, or <code>DateRange</code> often does not need a separate interface.</p>
+        <p>Use abstractions where they create meaningful boundaries or interchangeable behavior.</p>
+    </div>
+
+    <div class="subheading">4.8 Encapsulate What Varies</div>
+    <div class="intro">
+        <p><strong>Identify aspects of a system likely to change and isolate them behind stable boundaries.</strong></p>
+        <p>Suppose an application calculates shipping charges.</p>
+        <p>Potential sources of change include the delivery provider, weight-based pricing, international shipping rules, insurance, and delivery speed.</p>
+        <p>Rather than embedding every rule inside <code>OrderService</code>, isolate the variable behavior.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">ShippingCostPolicy</span> {
+    <span class="code-class">BigDecimal</span> calculate(<span class="code-class">Shipment</span> shipment);
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Implementations can include:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">StandardShippingPolicy</span> <span class="code-keyword">implements</span> <span class="code-class">ShippingCostPolicy</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">BigDecimal</span> calculate(<span class="code-class">Shipment</span> shipment) {
+        <span class="code-keyword">return</span> <span class="code-class">BigDecimal</span>.ZERO; <span class="code-comment"># Standard pricing</span>
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ExpressShippingPolicy</span> <span class="code-keyword">implements</span> <span class="code-class">ShippingCostPolicy</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">BigDecimal</span> calculate(<span class="code-class">Shipment</span> shipment) {
+        <span class="code-keyword">return</span> <span class="code-class">BigDecimal</span>.ZERO; <span class="code-comment"># Express pricing</span>
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>The order-processing workflow interacts with the common shipping contract.</p>
+        <p>This principle is one of the central ideas behind the Strategy pattern and OCP.</p>
+    </div>
+
+    <div class="subheading">4.9 Law of Demeter — Principle of Least Knowledge</div>
+    <div class="intro">
+        <p>The Law of Demeter encourages objects to interact with a limited set of collaborators rather than navigating deeply into other objects&rsquo; internal structures.</p>
+        <p class="minor-heading"><strong>Example: Deep object navigation</strong></p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">String</span> postalCode = order.getCustomer().getAddress().getPostalCode();</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>The calling component now knows the internal navigation path through <code>Order</code>, <code>Customer</code>, and <code>Address</code>.</p>
+        <p>If the customer or address model changes, the calling component may also require modification.</p>
+        <p>An alternative is to expose an operation at the appropriate boundary.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Order</span> {
+    <span class="code-keyword">private</span> <span class="code-class">Customer</span> customer;
+
+    <span class="code-keyword">public</span> <span class="code-class">String</span> shippingPostalCode() {
+        <span class="code-keyword">return</span> customer.getShippingAddress().getPostalCode();
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Client code:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">String</span> postalCode = order.shippingPostalCode();</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>The client depends on the meaning of the operation rather than on the internal navigation path.</p>
+        <p>This is often summarized as avoiding excessive object chains.</p>
+        <p class="minor-heading"><strong>Important nuance</strong></p>
+        <p>Not every chained method call violates the Law of Demeter.</p>
+        <p>For example:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code>orders.stream().filter(<span class="code-class">Order</span>::isPaid).toList();</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>is not inherently problematic. The issue is unnecessary knowledge of collaborators&rsquo; internal structures, not the number of dots in an expression.</p>
+        <p>Similarly, simple navigation through data transfer objects can be entirely appropriate. Avoid creating forwarding methods with no meaningful design benefit.</p>
+    </div>
+
+    <div class="subheading">4.10 Tell, Don&rsquo;t Ask</div>
+    <div class="intro">
+        <p><strong>Prefer telling an object to perform a business operation instead of extracting its internal state, making decisions externally, and then modifying it.</strong></p>
+        <p>This principle emphasizes behavior-rich domain objects.</p>
+        <p class="minor-heading"><strong>Poor design</strong></p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">if</span> (order.getStatus() == <span class="code-class">OrderStatus</span>.PENDING) {
+    order.setStatus(<span class="code-class">OrderStatus</span>.PAID);
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>The caller is responsible for checking and enforcing the business transition.</p>
+        <p>Multiple callers may repeat this logic inconsistently.</p>
+        <p class="minor-heading"><strong>Better design</strong></p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Order</span> {
+    <span class="code-keyword">private</span> <span class="code-class">OrderStatus</span> status;
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> markPaid() {
+        <span class="code-keyword">if</span> (status != <span class="code-class">OrderStatus</span>.PENDING) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalStateException</span>(<span class="code-string">"Only pending orders can be paid"</span>);
+        }
+        status = <span class="code-class">OrderStatus</span>.PAID;
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Client:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code>order.markPaid();</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>The <code>Order</code> object now owns the rules governing its status.</p>
+        <p>This helps maintain invariants and reduce duplicated business decisions.</p>
+        <p>Tell, Don&rsquo;t Ask is particularly valuable for domain entities and aggregates in Domain-Driven Design.</p>
+        <p>It does not mean getters or queries are forbidden. Reporting, serialization, and other operations often legitimately require reading data.</p>
+    </div>
+
+    <div class="subheading">4.11 Separation of Concerns (SoC)</div>
+    <div class="intro">
+        <p>Separation of Concerns states that different areas of responsibility should be separated to make software easier to understand and change.</p>
+        <p>Unlike SRP, which is frequently applied to classes and modules, SoC applies across multiple architectural levels.</p>
+        <p>For example, a typical Spring Boot application might separate:</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Component</th><th>Concern</th></tr></thead>
+            <tbody>
+                <tr><td>Controller</td><td>HTTP request/response handling</td></tr>
+                <tr><td>Application service</td><td>Workflow coordination</td></tr>
+                <tr><td>Domain model</td><td>Business rules and invariants</td></tr>
+                <tr><td>Repository abstraction</td><td>Persistence contract</td></tr>
+                <tr><td>Repository implementation</td><td>Database interaction</td></tr>
+                <tr><td>Infrastructure adapter</td><td>External system integration</td></tr>
+            </tbody>
+        </table></div>
+        <p>A controller should not usually contain all the business rules, payment API calls, SQL queries, and email delivery logic.</p>
+        <p>Likewise, a domain entity generally should not depend on Spring MVC request objects.</p>
+        <p>Separating concerns helps establish meaningful architectural boundaries.</p>
+    </div>
+
+    <div class="subheading">4.12 Information Hiding</div>
+    <div class="intro">
+        <p>Information Hiding means concealing design decisions that should not be exposed to other modules.</p>
+        <p>Encapsulation is one technique for achieving information hiding, but the idea is broader than private fields.</p>
+        <p>Suppose a service returns account data. Consumers should not need to know whether the data is stored in PostgreSQL, MongoDB, an API, or an in-memory cache.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">AccountRepository</span> {
+    <span class="code-class">Optional</span>&lt;<span class="code-class">Account</span>&gt; findById(UUID id);
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>The interface hides the persistence mechanism.</p>
+        <p>Information hiding protects consumers from changes in implementation decisions.</p>
+    </div>
+
+    <div class="subheading">4.13 Design by Contract</div>
+    <div class="intro">
+        <p>Design by Contract expresses the behavioral obligations between a component and its clients.</p>
+        <p>A contract can specify:</p>
+        <ul>
+            <li><strong>Preconditions:</strong> What must be true before an operation is executed.</li>
+            <li><strong>Postconditions:</strong> What the operation guarantees after successful execution.</li>
+            <li><strong>Invariants:</strong> What must remain true for the object or system.</li>
+        </ul>
+        <p>Consider a transfer between bank accounts.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">void</span> transfer(<span class="code-class">BankAccount</span> from, <span class="code-class">BankAccount</span> <span class="code-keyword">to</span>, <span class="code-class">BigDecimal</span> amount) {
+    <span class="code-keyword">if</span> (amount == <span class="code-keyword">null</span> || amount.signum() &lt;= <span class="code-number">0</span>) {
+        <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>(<span class="code-string">"Amount must be positive"</span>);
+    }
+    <span class="code-comment"># Perform the transfer through a suitable transactionally consistent mechanism.</span>
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>The precondition requires a positive amount.</p>
+        <p>A postcondition could require that the intended amount is transferred exactly once, provided the operation succeeds.</p>
+        <p>An invariant might require that the total funds across the two accounts remain unchanged by the transfer, assuming there are no fees.</p>
+        <p>In distributed systems, these guarantees require more than object-level method checks. Database transactions, idempotency, recovery, and consistency mechanisms may be necessary.</p>
+        <p>Design by Contract is closely related to LSP because subtype implementations must respect the contracts on which clients rely.</p>
+    </div>
+
+    <div class="subheading">4.14 Favor Immutability</div>
+    <div class="intro">
+        <p>An immutable object cannot change its observable state after construction.</p>
+        <p>Immutable objects are useful because they reduce accidental state changes, make reasoning easier, and can simplify concurrent programming.</p>
+        <p>Java records are convenient for representing immutable value objects.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">Money</span>(<span class="code-class">BigDecimal</span> amount, <span class="code-class">String</span> currency) {
+    <span class="code-keyword">public</span> <span class="code-class">Money</span> {
+        <span class="code-class">Objects</span>.requireNonNull(amount);
+        <span class="code-class">Objects</span>.requireNonNull(currency);
+        <span class="code-keyword">if</span> (currency.isBlank()) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>(<span class="code-string">"Currency is required"</span>);
+        }
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">Money</span> add(<span class="code-class">Money</span> other) {
+        <span class="code-keyword">if</span> (!currency.equals(other.currency())) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>(<span class="code-string">"Currency mismatch"</span>);
+        }
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">Money</span>(amount.add(other.amount()), currency);
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Usage:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">Money</span> a = <span class="code-keyword">new</span> <span class="code-class">Money</span>(<span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"100.00"</span>), <span class="code-string">"INR"</span>);
+<span class="code-class">Money</span> b = <span class="code-keyword">new</span> <span class="code-class">Money</span>(<span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"50.00"</span>), <span class="code-string">"INR"</span>);
+<span class="code-class">Money</span> total = a.add(b);
+<span class="code-class">System</span>.out.println(total.amount()); <span class="code-comment"># 150.00</span></code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>The original <code>Money</code> objects remain unchanged.</p>
+        <p>Records provide shallow immutability: their component references are final, but referenced mutable objects can still change. The example is safe in that respect because <code>BigDecimal</code> and <code>String</code> are immutable.</p>
+        <p>A production money type would typically also standardize currency identifiers, precision, and rounding rules.</p>
+        <p class="minor-heading"><strong>Where immutability is useful</strong></p>
+        <p>Value objects such as money, coordinates, date ranges, configuration values, and identifiers are often excellent candidates.</p>
+        <p>Mutable entities may still be appropriate when their identity persists through legitimate state transitions.</p>
+    </div>
+
+    <div class="subheading">4.15 Command–Query Separation (CQS)</div>
+    <div class="intro">
+        <p>The Command–Query Separation principle distinguishes between operations that modify state and operations that retrieve information.</p>
+        <p>A <strong>command</strong> changes state. A <strong>query</strong> returns information without changing observable state.</p>
+        <p>Example:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ShoppingCart</span> {
+    <span class="code-keyword">private</span> <span class="code-class">List</span>&lt;<span class="code-class">CartItem</span>&gt; items = <span class="code-keyword">new</span> <span class="code-class">ArrayList</span>&lt;&gt;();
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> addItem(<span class="code-class">CartItem</span> item) { <span class="code-comment"># Command</span>
+        items.add(item);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">int</span> itemCount() { <span class="code-comment"># Query</span>
+        <span class="code-keyword">return</span> items.size();
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p><code>addItem()</code> modifies the cart, while <code>itemCount()</code> reads its state without modifying it.</p>
+        <p>This separation makes APIs easier to reason about.</p>
+        <p>CQS is related to but distinct from CQRS (Command Query Responsibility Segregation). CQRS is an architectural approach that separates read and write models or responsibilities, potentially using different storage or processing arrangements.</p>
+        <p>CQS does not require separate databases, microservices, or event sourcing.</p>
+        <p>Pragmatic APIs may combine commands with useful results, such as returning the identifier of a newly created order. The principle is a guideline for clarity, not an absolute prohibition.</p>
+    </div>
+
+    <div class="subheading">4.16 Principle of Least Astonishment</div>
+    <div class="intro">
+        <p>The Principle of Least Astonishment suggests that software components should behave in ways consistent with users&rsquo; and developers&rsquo; reasonable expectations.</p>
+        <p>For example, a method named:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">List</span>&lt;<span class="code-class">Order</span>&gt; getOrders();</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>should not unexpectedly delete expired orders, send notifications, or initiate payments as part of its ordinary behavior.</p>
+        <p>Likewise, a method named <code>calculateTotal()</code> should usually calculate and return the total rather than also persisting the result and modifying unrelated state.</p>
+        <p>Clear method names, predictable error behavior, consistent return values, and stable contracts help achieve this principle.</p>
+    </div>
+
+    <div class="subheading">5. GRASP — General Responsibility Assignment Software Patterns</div>
+    <div class="intro">
+        <p>GRASP is a set of nine principles and patterns introduced by Craig Larman to guide the assignment of responsibilities in object-oriented systems.</p>
+        <p>SOLID focuses heavily on maintainability and extensibility; GRASP is especially useful when deciding <strong>which object should perform which operation</strong>.</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>GRASP principle</th><th>Central idea</th><th>Example</th></tr></thead>
+            <tbody>
+                <tr><td>Information Expert</td><td>Give a responsibility to the object possessing the necessary information</td><td><code>Order.calculateTotal()</code></td></tr>
+                <tr><td>Creator</td><td>Assign object creation to a closely related object</td><td><code>OrderFactory.createOrder()</code></td></tr>
+                <tr><td>Controller</td><td>Assign system-event coordination to an appropriate controller</td><td><code>CheckoutService.placeOrder()</code></td></tr>
+                <tr><td>Low Coupling</td><td>Minimize unnecessary dependencies</td><td>Depend on a payment contract</td></tr>
+                <tr><td>High Cohesion</td><td>Keep responsibilities focused</td><td>Dedicated pricing component</td></tr>
+                <tr><td>Polymorphism</td><td>Delegate variant behavior to subtypes</td><td>Different discount policies</td></tr>
+                <tr><td>Pure Fabrication</td><td>Create a supporting class when no domain object is a good fit</td><td><code>OrderRepository</code></td></tr>
+                <tr><td>Indirection</td><td>Introduce an intermediary to reduce direct coupling</td><td>Payment adapter</td></tr>
+                <tr><td>Protected Variations</td><td>Protect stable code from likely sources of change</td><td><code>PaymentGateway</code> interface</td></tr>
+            </tbody>
+        </table></div>
+        <p class="minor-heading"><strong>5.1 Information Expert</strong></p>
+        <p>A responsibility should generally be assigned to the object that has the information needed to fulfill it.</p>
+        <p>For example, an order contains its line items.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Order</span> {
+    <span class="code-keyword">private</span> <span class="code-class">List</span>&lt;<span class="code-class">OrderItem</span>&gt; items;
+
+    <span class="code-keyword">public</span> <span class="code-class">Order</span>(<span class="code-class">List</span>&lt;<span class="code-class">OrderItem</span>&gt; items) {
+        <span class="code-keyword">this</span>.items = <span class="code-class">List</span>.copyOf(items);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">BigDecimal</span> calculateTotal() {
+        <span class="code-keyword">return</span> items.stream().map(<span class="code-class">OrderItem</span>::getSubtotal).reduce(<span class="code-class">BigDecimal</span>.ZERO, <span class="code-class">BigDecimal</span>::add);
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>The order knows its contents, so calculating the total from those contents is often a natural responsibility.</p>
+        <p>This is typically preferable to making an unrelated <code>UserService</code> navigate an order&rsquo;s internal data to calculate its total.</p>
+        <p>However, taxes, discounts, and other context-dependent pricing rules may belong in dedicated policy or domain services.</p>
+        <p class="minor-heading"><strong>5.2 Creator</strong></p>
+        <p>GRASP&rsquo;s Creator principle helps determine which object should create another.</p>
+        <p>A good creation candidate may aggregate, contain, closely use, or possess the initialization data needed for the new object.</p>
+        <p>For example, a shopping cart may have the information necessary to create an order draft.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-class">OrderDraft</span> createOrderDraft() {
+    <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">OrderDraft</span>(<span class="code-class">List</span>.copyOf(items));
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>If construction is complex, requires several external dependencies, or spans multiple domain objects, a factory may be more appropriate.</p>
+        <p>The goal is not to create a factory for every class.</p>
+        <p class="minor-heading"><strong>5.3 Controller</strong></p>
+        <p>The GRASP Controller coordinates requests corresponding to system operations.</p>
+        <p>For example, placing an order involves selecting products, calculating prices, charging payment, and persisting the resulting order.</p>
+        <p>An application-level <code>CheckoutService</code> can coordinate these operations.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CheckoutService</span> {
+    <span class="code-keyword">public</span> <span class="code-class">Order</span> placeOrder(<span class="code-class">CheckoutCommand</span> command) {
+        <span class="code-comment"># Coordinate the use case</span>
+        <span class="code-comment"># Delegate domain logic to appropriate objects</span>
+        <span class="code-comment"># Delegate infrastructure through ports</span>
+        <span class="code-comment"># Return the resulting order</span>
+        <span class="code-keyword">return</span> <span class="code-keyword">null</span>;
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>This is distinct from a Spring MVC <code>@RestController</code>.</p>
+        <p>The MVC controller handles the HTTP interaction, while the application service coordinates the business use case.</p>
+        <p class="minor-heading"><strong>5.4 Pure Fabrication</strong></p>
+        <p>Not every responsibility fits naturally within a business entity.</p>
+        <p>For example, database persistence is a technical responsibility.</p>
+        <p>Adding SQL directly to an <code>Order</code> entity may increase coupling and reduce cohesion.</p>
+        <p>Creating an <code>OrderRepository</code> abstraction provides a suitable home for that responsibility without forcing it into the domain object.</p>
+        <p>This is called Pure Fabrication: introducing a non-domain class to improve the design.</p>
+        <p class="minor-heading"><strong>5.5 Indirection and Protected Variations</strong></p>
+        <p>Suppose checkout logic communicates with a third-party payment API.</p>
+        <p>Directly coupling checkout logic to provider-specific requests and responses exposes the workflow to external API changes.</p>
+        <p>A <code>PaymentGateway</code> abstraction introduces indirection and protects the checkout code from those variations.</p>
+        <p>The remaining GRASP principles—Low Coupling, High Cohesion, and Polymorphism—were discussed earlier and complement these responsibility-assignment decisions.</p>
+    </div>
+
+    <div class="subheading">6. Additional Package and Architectural Design Principles</div>
+    <div class="intro">
+        <p>Object-oriented design also applies beyond individual classes.</p>
+        <p>Robert C. Martin described principles for organizing packages and their dependencies, which remain useful when considering Java packages, modules, and application boundaries.</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Principle</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td>REP — Reuse/Release Equivalence</td><td>Group reusable elements into meaningful, releasable units</td></tr>
+                <tr><td>CCP — Common Closure</td><td>Group components that tend to change for the same reasons</td></tr>
+                <tr><td>CRP — Common Reuse</td><td>Avoid forcing consumers to depend on components they do not actually use</td></tr>
+                <tr><td>ADP — Acyclic Dependencies</td><td>Avoid cycles in package/module dependencies</td></tr>
+                <tr><td>SDP — Stable Dependencies</td><td>Prefer dependencies pointing toward more stable modules</td></tr>
+                <tr><td>SAP — Stable Abstractions</td><td>Highly stable modules should expose appropriate abstraction and extensibility</td></tr>
+            </tbody>
+        </table></div>
+        <p class="minor-heading"><strong>Example: Circular dependencies</strong></p>
+        <p>Consider three modules:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code>order-module → payment-module
+payment-module → notification-module
+notification-module → order-module</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>These form a cycle.</p>
+        <p>Changes, testing, build configuration, and independent evolution become more difficult.</p>
+        <p>Possible remedies include separating shared contracts, moving a responsibility to the correct module, introducing an application-level coordinator, or replacing an unnecessary dependency with an event or appropriate abstraction.</p>
+        <p>The goal is not to mechanically introduce interfaces everywhere. It is to establish a coherent dependency structure.</p>
+        <p class="minor-heading"><strong>Dependency direction in layered architecture</strong></p>
+        <p>A common design is:</p>
+    </div>
+    <div class="gw-card gw-vflow">
+        <div class="gw-vbox"><p><strong>Presentation Layer</strong></p><p class="gw-cap">REST Controllers, request DTOs</p></div>
+        <div class="gw-vlink"><svg class="gw-i" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12.707 18.707a1 1 0 0 1-1.414 0l-5-5a1 1 0 1 1 1.414-1.414L11 15.586V6a1 1 0 1 1 2 0v9.586l3.293-3.293a1 1 0 0 1 1.414 1.414l-5 5Z" clip-rule="evenodd"/></svg></div>
+        <div class="gw-vbox"><p><strong>Application Layer</strong></p><p class="gw-cap">Use cases, workflow orchestration</p></div>
+        <div class="gw-vlink"><svg class="gw-i" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12.707 18.707a1 1 0 0 1-1.414 0l-5-5a1 1 0 1 1 1.414-1.414L11 15.586V6a1 1 0 1 1 2 0v9.586l3.293-3.293a1 1 0 0 1 1.414 1.414l-5 5Z" clip-rule="evenodd"/></svg></div>
+        <div class="gw-vbox plain"><p><strong>Domain Layer</strong></p><p class="gw-cap">Entities, value objects, policies, core contracts</p></div>
+        <div class="gw-vlink"><svg class="gw-i" style="transform:rotate(180deg)" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12.707 18.707a1 1 0 0 1-1.414 0l-5-5a1 1 0 1 1 1.414-1.414L11 15.586V6a1 1 0 1 1 2 0v9.586l3.293-3.293a1 1 0 0 1 1.414 1.414l-5 5Z" clip-rule="evenodd"/></svg><span>Infrastructure implements inward-facing ports</span></div>
+        <div class="gw-vbox line"><p><strong>Infrastructure Adapters</strong></p><p class="gw-cap">Database, email, external APIs</p></div>
+    </div>
+    <div class="intro">
+        <p>Here the arrows represent conceptual source-code dependencies, not the chronological flow of runtime calls.</p>
+        <p>In a layered or hexagonal design, business rules should generally avoid depending on provider-specific infrastructure. Infrastructure can instead implement the contracts required by the business layer.</p>
+        <p>This makes it easier to replace databases, external APIs, message brokers, and other implementation details without rewriting the domain logic.</p>
+    </div>
+
+    <div class="subheading">7. Practical Example: Applying OOD Principles in Spring Boot</div>
+    <div class="intro">
+        <p>Now let&rsquo;s combine these principles into an actual Spring Boot checkout application.</p>
+        <p>The application will accept an order request, look up a trusted product price, calculate a discount, create a pending order, invoke a payment gateway, and update the order status.</p>
+        <p>We will use Java 17+, Spring Boot, and an in-memory repository so that the focus remains on object-oriented design rather than database configuration.</p>
+    </div>
+
+    <div class="subheading">7.1 Architecture</div>
+    <div class="gw-card gw-vflow">
+        <div class="gw-vbox"><p><strong>CheckoutController</strong></p><p class="gw-cap">HTTP requests and responses</p></div>
+        <div class="gw-vlink"><svg class="gw-i" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12.707 18.707a1 1 0 0 1-1.414 0l-5-5a1 1 0 1 1 1.414-1.414L11 15.586V6a1 1 0 1 1 2 0v9.586l3.293-3.293a1 1 0 0 1 1.414 1.414l-5 5Z" clip-rule="evenodd"/></svg></div>
+        <div class="gw-vbox"><p><strong>CheckoutService</strong></p><p class="gw-cap">Coordinates the checkout use case</p></div>
+        <div class="gw-vlink"><svg class="gw-i" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12.707 18.707a1 1 0 0 1-1.414 0l-5-5a1 1 0 1 1 1.414-1.414L11 15.586V6a1 1 0 1 1 2 0v9.586l3.293-3.293a1 1 0 0 1 1.414 1.414l-5 5Z" clip-rule="evenodd"/></svg></div>
+        <div class="gw-cols2"><div class="gw-vbox plain"><p class="gw-n">ProductCatalog</p><p class="gw-mini">Contract</p></div><div class="gw-vbox plain"><p class="gw-n">DiscountPolicy</p><p class="gw-mini">Contract</p></div><div class="gw-vbox plain"><p class="gw-n">PaymentGateway</p><p class="gw-mini">Contract</p></div><div class="gw-vbox plain"><p class="gw-n">OrderRepository</p><p class="gw-mini">Contract</p></div></div>
+        <div class="gw-vlink"><svg class="gw-i" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M12.707 18.707a1 1 0 0 1-1.414 0l-5-5a1 1 0 1 1 1.414-1.414L11 15.586V6a1 1 0 1 1 2 0v9.586l3.293-3.293a1 1 0 0 1 1.414 1.414l-5 5Z" clip-rule="evenodd"/></svg></div>
+        <div class="gw-cols2"><div class="gw-vbox"><p class="gw-n">InMemoryCatalog</p><p class="gw-mini">Implementation</p></div><div class="gw-vbox"><p class="gw-n">TenPercentDiscount</p><p class="gw-mini">Implementation</p></div><div class="gw-vbox"><p class="gw-n">DemoPaymentGateway</p><p class="gw-mini">Implementation</p></div><div class="gw-vbox"><p class="gw-n">InMemoryOrderRepository</p><p class="gw-mini">Implementation</p></div></div>
+    </div>
+    <div class="intro">
+        <p>The contracts isolate business logic from infrastructure details. The domain <code>Order</code> model owns the rules governing order-state transitions.</p>
+    </div>
+
+    <div class="subheading">7.2 Project structure</div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code>src/main/java/com/example/checkout/
+│
+├── CheckoutApplication.java
+├── CheckoutController.java
+├── CheckoutService.java
+│
+├── Order.java
+├── Contracts.java
+│
+└── DemoAdapters.java</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>The example keeps related files in one package for simplicity. A larger application could separate them into <code>domain</code>, <code>application</code>, <code>ports</code>, <code>adapters</code>, and <code>api</code> packages.</p>
+        <p class="minor-heading"><strong>Step 1: Create the order domain model</strong></p>
+        <p><code>Order.java</code></p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">package</span> com.example.checkout;
+
+<span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">Order</span>(UUID id, <span class="code-class">String</span> sku, <span class="code-keyword">int</span> quantity, <span class="code-class">BigDecimal</span> total, <span class="code-class">Status</span> status) {
+    <span class="code-keyword">public</span> <span class="code-keyword">enum</span> <span class="code-class">Status</span> {
+        PENDING, PAID, DECLINED
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">Order</span> {
+        <span class="code-class">Objects</span>.requireNonNull(id);
+        <span class="code-class">Objects</span>.requireNonNull(total);
+        <span class="code-class">Objects</span>.requireNonNull(status);
+        <span class="code-keyword">if</span> (sku == <span class="code-keyword">null</span> || sku.isBlank()) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>(<span class="code-string">"SKU is required"</span>);
+        }
+        <span class="code-keyword">if</span> (quantity &lt;= <span class="code-number">0</span>) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>(<span class="code-string">"Quantity must be positive"</span>);
+        }
+        <span class="code-keyword">if</span> (total.signum() &lt; <span class="code-number">0</span>) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>(<span class="code-string">"Total cannot be negative"</span>);
+        }
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">Order</span> complete(<span class="code-class">Status</span> newStatus) {
+        <span class="code-keyword">if</span> (status != <span class="code-class">Status</span>.PENDING) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalStateException</span>(<span class="code-string">"Order is not pending"</span>);
+        }
+        <span class="code-keyword">if</span> (newStatus != <span class="code-class">Status</span>.PAID &amp;&amp; newStatus != <span class="code-class">Status</span>.DECLINED) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>(<span class="code-string">"Invalid final status"</span>);
+        }
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">Order</span>(id, sku, quantity, total, newStatus);
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p><strong>Principles applied:</strong> Encapsulation, immutability, Tell Don&rsquo;t Ask, Design by Contract, and Information Expert.</p>
+        <p>The order controls which state transitions are valid. External code cannot mutate its fields directly.</p>
+        <p class="minor-heading"><strong>Step 2: Define abstraction contracts</strong></p>
+        <p><code>Contracts.java</code></p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">package</span> com.example.checkout;
+
+<span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">ProductCatalog</span> {
+    <span class="code-class">BigDecimal</span> priceFor(<span class="code-class">String</span> sku);
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">DiscountPolicy</span> {
+    <span class="code-class">BigDecimal</span> discountFor(<span class="code-class">BigDecimal</span> subtotal);
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">PaymentGateway</span> {
+    <span class="code-class">ChargeOutcome</span> charge(UUID orderId, <span class="code-class">BigDecimal</span> amount);
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">enum</span> <span class="code-class">ChargeOutcome</span> {
+    APPROVED, DECLINED
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">OrderRepository</span> {
+    <span class="code-keyword">void</span> save(<span class="code-class">Order</span> order);
+
+    <span class="code-class">Optional</span>&lt;<span class="code-class">Order</span>&gt; findById(UUID id);
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Each interface describes a coherent capability.</p>
+        <p>These abstractions allow the checkout workflow to remain independent of product storage, pricing-policy implementations, payment providers, and database technology.</p>
+        <p class="minor-heading"><strong>Step 3: Implement the checkout service</strong></p>
+        <p><code>CheckoutService.java</code></p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">package</span> com.example.checkout;
+
+<span class="code-annotation">@Service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CheckoutService</span> {
+    <span class="code-keyword">private</span> <span class="code-class">ProductCatalog</span> productCatalog;
+    <span class="code-keyword">private</span> <span class="code-class">DiscountPolicy</span> discountPolicy;
+    <span class="code-keyword">private</span> <span class="code-class">PaymentGateway</span> paymentGateway;
+    <span class="code-keyword">private</span> <span class="code-class">OrderRepository</span> orderRepository;
+
+    <span class="code-keyword">public</span> <span class="code-class">CheckoutService</span>(<span class="code-class">ProductCatalog</span> productCatalog, <span class="code-class">DiscountPolicy</span> discountPolicy,
+                           <span class="code-class">PaymentGateway</span> paymentGateway, <span class="code-class">OrderRepository</span> orderRepository) {
+        <span class="code-keyword">this</span>.productCatalog = productCatalog;
+        <span class="code-keyword">this</span>.discountPolicy = discountPolicy;
+        <span class="code-keyword">this</span>.paymentGateway = paymentGateway;
+        <span class="code-keyword">this</span>.orderRepository = orderRepository;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">Order</span> checkout(<span class="code-class">String</span> sku, <span class="code-keyword">int</span> quantity) {
+        <span class="code-keyword">if</span> (sku == <span class="code-keyword">null</span> || sku.isBlank()) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>(<span class="code-string">"SKU is required"</span>);
+        }
+        <span class="code-keyword">if</span> (quantity &lt;= <span class="code-number">0</span>) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>(<span class="code-string">"Quantity must be positive"</span>);
+        }
+        <span class="code-class">BigDecimal</span> unitPrice = productCatalog.priceFor(sku); <span class="code-comment"># Trusted price comes from the product catalog.</span>
+        <span class="code-class">BigDecimal</span> subtotal = unitPrice.multiply(<span class="code-class">BigDecimal</span>.valueOf(quantity));
+        <span class="code-class">BigDecimal</span> discount = discountPolicy.discountFor(subtotal);
+        <span class="code-keyword">if</span> (discount == <span class="code-keyword">null</span> || discount.signum() &lt; <span class="code-number">0</span> || discount.compareTo(subtotal) &gt; <span class="code-number">0</span>) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalStateException</span>(<span class="code-string">"Invalid discount"</span>);
+        }
+        <span class="code-class">BigDecimal</span> total = subtotal.subtract(discount);
+        <span class="code-comment"># Create pending order.</span>
+        <span class="code-class">Order</span> order = <span class="code-keyword">new</span> <span class="code-class">Order</span>(UUID.randomUUID(), sku, quantity, total, <span class="code-class">Order</span>.<span class="code-class">Status</span>.PENDING);
+        orderRepository.save(order);
+        <span class="code-comment"># Payment adapter receives order ID for use as a provider idempotency reference.</span>
+        <span class="code-class">ChargeOutcome</span> outcome = paymentGateway.charge(order.id(), order.total());
+        <span class="code-class">Order</span>.<span class="code-class">Status</span> finalStatus = outcome == <span class="code-class">ChargeOutcome</span>.APPROVED ? <span class="code-class">Order</span>.<span class="code-class">Status</span>.PAID : <span class="code-class">Order</span>.<span class="code-class">Status</span>.DECLINED;
+        <span class="code-class">Order</span> completedOrder = order.complete(finalStatus);
+        orderRepository.save(completedOrder);
+        <span class="code-keyword">return</span> completedOrder;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">Optional</span>&lt;<span class="code-class">Order</span>&gt; findById(UUID id) {
+        <span class="code-keyword">return</span> orderRepository.findById(id);
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>This service does not know how prices are stored, how discounts are implemented, which payment provider is used, or which persistence technology saves orders.</p>
+        <p>It coordinates the workflow through interfaces.</p>
+        <p>This is an application of SRP, DIP, OCP, ISP, Separation of Concerns, and composition.</p>
+        <p class="minor-heading"><strong>Step 4: Create implementations</strong></p>
+        <p><code>DemoAdapters.java</code></p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">package</span> com.example.checkout;
+
+<span class="code-annotation">@Component</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">InMemoryCatalog</span> <span class="code-keyword">implements</span> <span class="code-class">ProductCatalog</span> {
+    <span class="code-keyword">private</span> <span class="code-class">Map</span>&lt;<span class="code-class">String</span>, <span class="code-class">BigDecimal</span>&gt; prices = <span class="code-class">Map</span>.of(<span class="code-string">"BOOK-1"</span>, <span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"499.00"</span>), <span class="code-string">"COURSE-1"</span>,
+                                                    <span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"1999.00"</span>));
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">BigDecimal</span> priceFor(<span class="code-class">String</span> sku) {
+        <span class="code-class">BigDecimal</span> price = prices.get(sku);
+        <span class="code-keyword">if</span> (price == <span class="code-keyword">null</span>) {
+            <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>(<span class="code-string">"Unknown product: "</span> + sku);
+        }
+        <span class="code-keyword">return</span> price;
+    }
+}
+
+<span class="code-annotation">@Component</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">TenPercentDiscount</span> <span class="code-keyword">implements</span> <span class="code-class">DiscountPolicy</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">BigDecimal</span> discountFor(<span class="code-class">BigDecimal</span> subtotal) {
+        <span class="code-keyword">return</span> subtotal.multiply(<span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"0.10"</span>));
+    }
+}
+
+<span class="code-annotation">@Component</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">DemoPaymentGateway</span> <span class="code-keyword">implements</span> <span class="code-class">PaymentGateway</span> {
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">ChargeOutcome</span> charge(UUID orderId, <span class="code-class">BigDecimal</span> amount) {
+        <span class="code-comment"># Simulated payment provider.</span>
+        <span class="code-comment"># No actual charge is performed.</span>
+        <span class="code-keyword">return</span> <span class="code-class">ChargeOutcome</span>.APPROVED;
+    }
+}
+
+<span class="code-annotation">@Repository</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">InMemoryOrderRepository</span> <span class="code-keyword">implements</span> <span class="code-class">OrderRepository</span> {
+    <span class="code-keyword">private</span> <span class="code-class">Map</span>&lt;UUID, <span class="code-class">Order</span>&gt; orders = <span class="code-keyword">new</span> <span class="code-class">ConcurrentHashMap</span>&lt;&gt;();
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> save(<span class="code-class">Order</span> order) {
+        orders.put(order.id(), order);
+    }
+
+    <span class="code-annotation">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-class">Optional</span>&lt;<span class="code-class">Order</span>&gt; findById(UUID id) {
+        <span class="code-keyword">return</span> <span class="code-class">Optional</span>.ofNullable(orders.get(id));
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Because each implementation fulfills one contract, we can replace it without changing the checkout workflow.</p>
+        <p>For example, a new discount policy can implement <code>DiscountPolicy</code>. Spring configuration would then select which implementation to inject.</p>
+        <p>A PostgreSQL repository could replace <code>InMemoryOrderRepository</code>, and a production payment adapter could replace <code>DemoPaymentGateway</code>.</p>
+        <p class="minor-heading"><strong>Step 5: Create the REST controller</strong></p>
+        <p><code>CheckoutController.java</code></p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">package</span> com.example.checkout;
+
+<span class="code-annotation">@RestController</span>
+<span class="code-annotation">@RequestMapping</span>(<span class="code-string">"/orders"</span>)
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CheckoutController</span> {
+    <span class="code-keyword">private</span> <span class="code-class">CheckoutService</span> checkoutService;
+
+    <span class="code-keyword">public</span> <span class="code-class">CheckoutController</span>(<span class="code-class">CheckoutService</span> checkoutService) {
+        <span class="code-keyword">this</span>.checkoutService = checkoutService;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">CheckoutRequest</span>(<span class="code-class">String</span> sku, <span class="code-keyword">int</span> quantity) {}
+
+    <span class="code-annotation">@PostMapping</span>
+    <span class="code-keyword">public</span> <span class="code-class">ResponseEntity</span>&lt;<span class="code-class">Order</span>&gt; checkout(<span class="code-annotation">@RequestBody</span> <span class="code-class">CheckoutRequest</span> request) {
+        <span class="code-class">Order</span> order = checkoutService.checkout(request.sku(), request.quantity());
+        <span class="code-keyword">return</span> <span class="code-class">ResponseEntity</span>.status(<span class="code-class">HttpStatus</span>.CREATED).body(order);
+    }
+
+    <span class="code-annotation">@GetMapping</span>(<span class="code-string">"/{id}"</span>)
+    <span class="code-keyword">public</span> <span class="code-class">ResponseEntity</span>&lt;<span class="code-class">Order</span>&gt; findById(<span class="code-annotation">@PathVariable</span> UUID id) {
+        <span class="code-class">Optional</span>&lt;<span class="code-class">Order</span>&gt; result = checkoutService.findById(id);
+        <span class="code-keyword">return</span> result.map(<span class="code-class">ResponseEntity</span>::ok).orElseGet(() -&gt; <span class="code-class">ResponseEntity</span>.notFound().build());
+    }
+
+    <span class="code-annotation">@ExceptionHandler</span>(<span class="code-class">IllegalArgumentException</span>.<span class="code-keyword">class</span>)
+    <span class="code-keyword">public</span> <span class="code-class">ResponseEntity</span>&lt;<span class="code-class">Map</span>&lt;<span class="code-class">String</span>, <span class="code-class">String</span>&gt;&gt; handleBadRequest(<span class="code-class">IllegalArgumentException</span> ex) {
+        <span class="code-keyword">return</span> <span class="code-class">ResponseEntity</span>.badRequest().body(<span class="code-class">Map</span>.of(<span class="code-string">"error"</span>, ex.getMessage()));
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p class="minor-heading"><strong>Step 6: Spring Boot entry point</strong></p>
+        <p><code>CheckoutApplication.java</code></p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">package</span> com.example.checkout;
+
+<span class="code-annotation">@SpringBootApplication</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CheckoutApplication</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+        <span class="code-class">SpringApplication</span>.run(<span class="code-class">CheckoutApplication</span>.<span class="code-keyword">class</span>, args);
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>The example needs the Spring Boot Web starter, an appropriate Spring Boot build setup, and Java 17 or newer.</p>
+        <p class="minor-heading"><strong>Step 7: Test the API</strong></p>
+        <p>Start the Spring Boot application, then execute:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">curl</span> -X POST http://localhost:8080/orders \
+  -H "Content-Type: application/json" \
+  -d '{
+    "sku": "BOOK-1",
+    "quantity": 2
+  }'</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Expected response structure:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code>{
+  "id": "generated-order-uuid",
+  "sku": "BOOK-1",
+  "quantity": 2,
+  "total": 898.2000,
+  "status": "PAID"
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>The calculation is:</p>
+        <ul>
+            <li>Unit price: ₹499</li>
+            <li>Quantity: 2</li>
+            <li>Subtotal: ₹998</li>
+            <li>Discount: ₹99.80</li>
+            <li>Final payable amount: ₹898.20</li>
+        </ul>
+        <p>The JSON total above may retain additional decimal places because <code>BigDecimal</code> preserves scale. A production monetary model should standardize amount representation and currency explicitly.</p>
+        <p class="minor-heading"><strong>Step 8: Unit testing without Spring</strong></p>
+        <p>One advantage of the design is that <code>CheckoutService</code> can be tested by providing alternative implementations of its interfaces.</p>
+        <p>For example, we can simulate a payment being declined.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">package</span> com.example.checkout;
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CheckoutServiceTest</span> {
+    <span class="code-annotation">@Test</span>
+    <span class="code-keyword">void</span> declinedPaymentMustNotCreatePaidOrder() {
+        <span class="code-class">ProductCatalog</span> catalog = sku -&gt; <span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"100.00"</span>);
+        <span class="code-class">DiscountPolicy</span> discount = subtotal -&gt; <span class="code-class">BigDecimal</span>.ZERO;
+        <span class="code-class">PaymentGateway</span> paymentGateway = (orderId, amount) -&gt; <span class="code-class">ChargeOutcome</span>.DECLINED;
+        <span class="code-class">OrderRepository</span> repository = <span class="code-keyword">new</span> <span class="code-class">OrderRepository</span>() {
+            <span class="code-keyword">private</span> <span class="code-class">Map</span>&lt;UUID, <span class="code-class">Order</span>&gt; data = <span class="code-keyword">new</span> <span class="code-class">HashMap</span>&lt;&gt;();
+
+            <span class="code-annotation">@Override</span>
+            <span class="code-keyword">public</span> <span class="code-keyword">void</span> save(<span class="code-class">Order</span> order) {
+                data.put(order.id(), order);
+            }
+
+            <span class="code-annotation">@Override</span>
+            <span class="code-keyword">public</span> <span class="code-class">Optional</span>&lt;<span class="code-class">Order</span>&gt; findById(UUID id) {
+                <span class="code-keyword">return</span> <span class="code-class">Optional</span>.ofNullable(data.get(id));
+            }
+        };
+        <span class="code-class">CheckoutService</span> service = <span class="code-keyword">new</span> <span class="code-class">CheckoutService</span>(catalog, discount, paymentGateway, repository);
+        <span class="code-class">Order</span> result = service.checkout(<span class="code-string">"BOOK-1"</span>, <span class="code-number">2</span>);
+        assertEquals(<span class="code-class">Order</span>.<span class="code-class">Status</span>.DECLINED, result.status());
+        assertEquals(<span class="code-keyword">new</span> <span class="code-class">BigDecimal</span>(<span class="code-string">"200.00"</span>), result.total());
+        assertEquals(<span class="code-class">Order</span>.<span class="code-class">Status</span>.DECLINED, repository.findById(result.id()).orElseThrow().status());
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Notice that the test does not require a database, HTTP server, Spring application context, or real payment provider.</p>
+        <p>The dependencies are ordinary Java objects.</p>
+        <p>This illustrates why well-designed abstractions can make automated testing significantly easier.</p>
+    </div>
+
+    <div class="subheading">7.3 Which principles are applied?</div>
+    <div class="intro">
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Component</th><th>Principles demonstrated</th></tr></thead>
+            <tbody>
+                <tr><td><code>Order</code></td><td>Encapsulation, Immutability, Design by Contract</td></tr>
+                <tr><td><code>DiscountPolicy</code></td><td>OCP, Polymorphism, Strategy</td></tr>
+                <tr><td><code>PaymentGateway</code></td><td>DIP, ISP, Protected Variations</td></tr>
+                <tr><td><code>CheckoutService</code></td><td>SRP, Composition, Low Coupling</td></tr>
+                <tr><td><code>OrderRepository</code></td><td>DIP, Information Hiding, Pure Fabrication</td></tr>
+                <tr><td><code>CheckoutController</code></td><td>Separation of Concerns</td></tr>
+                <tr><td>Constructor injection</td><td>Dependency Injection, Composition</td></tr>
+                <tr><td>Fake implementations in tests</td><td>Testability through abstractions</td></tr>
+            </tbody>
+        </table></div>
+    </div>
+
+    <div class="subheading">7.4 Important production considerations</div>
+    <div class="intro">
+        <p>The example demonstrates object-oriented design, but it is intentionally not a production-complete payment implementation.</p>
+        <p>A real checkout system must address several additional concerns.</p>
+        <p><strong>Payment state uncertainty:</strong> If a payment provider completes a charge but the network response is lost, the application must not automatically assume the payment was declined. An unknown state may require reconciliation.</p>
+        <p><strong>Idempotency:</strong> Retrying checkout must not create duplicate payments. The system needs a stable client request idempotency key, and the payment adapter must actually enforce or forward a suitable provider idempotency key. The demonstration does not implement these mechanisms.</p>
+        <p><strong>Persistence consistency:</strong> Saving a pending order, performing an external payment, and saving the final status are not one atomic transaction. A crash between these steps may require recovery.</p>
+        <p><strong>Concurrency:</strong> A real repository may need optimistic locking or other controls to prevent competing requests from overwriting order state.</p>
+        <p><strong>External side effects:</strong> Sending order-confirmation emails or publishing events should use an appropriately reliable mechanism, such as a transactional outbox with asynchronous processing, where warranted.</p>
+        <p>Good object-oriented design improves separation of responsibilities, but it does not replace distributed-systems reliability patterns.</p>
+    </div>
+
+    <div class="subheading">8. Common Object-Oriented Design Mistakes</div>
+    <div class="intro">
+        <p>Understanding design principles is also about recognizing situations where they have been violated.</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Code smell</th><th>Meaning</th><th>Likely improvement</th></tr></thead>
+            <tbody>
+                <tr><td>God Object</td><td>A class manages too many unrelated responsibilities</td><td>SRP, high cohesion</td></tr>
+                <tr><td>Shotgun Surgery</td><td>One change requires modifications across many classes</td><td>DRY, encapsulation, better ownership</td></tr>
+                <tr><td>Divergent Change</td><td>One class changes for several unrelated reasons</td><td>SRP, separation of concerns</td></tr>
+                <tr><td>Feature Envy</td><td>A method operates heavily on another object&rsquo;s data</td><td>Information Expert, Tell Don&rsquo;t Ask</td></tr>
+                <tr><td>Long Parameter List</td><td>Methods require many loosely associated arguments</td><td>Value objects, cohesive abstractions</td></tr>
+                <tr><td>Primitive Obsession</td><td>Domain concepts are represented by unrestricted primitive values</td><td>Value objects</td></tr>
+                <tr><td>Deep Inheritance</td><td>Excessive inheritance makes behavior difficult to understand</td><td>Composition</td></tr>
+                <tr><td>Refused Bequest</td><td>A subclass cannot meaningfully support inherited operations</td><td>LSP, ISP</td></tr>
+                <tr><td>Switch Explosion</td><td>Similar type-based conditionals are scattered across the system</td><td>Polymorphism, OCP</td></tr>
+                <tr><td>Circular Dependencies</td><td>Components depend on each other in cycles</td><td>Clear dependency direction</td></tr>
+                <tr><td>Anemic Domain Model</td><td>Domain objects contain only data while rules are scattered elsewhere</td><td>Encapsulation, Information Expert</td></tr>
+                <tr><td>Premature Abstraction</td><td>Interfaces and frameworks are introduced without meaningful need</td><td>KISS, YAGNI</td></tr>
+            </tbody>
+        </table></div>
+        <p>These are diagnostic clues, not absolute rules. For example, data-transfer objects are intentionally data-oriented, and a simple conditional may be clearer than a hierarchy of strategies.</p>
+    </div>
+
+    <div class="subheading">9. How the Principles Work Together</div>
+    <div class="intro">
+        <p>Consider a requirement:</p>
+    </div>
+    <div class="callout callout-note"><p>Add a new payment provider to an existing checkout application.</p></div>
+    <div class="intro">
+        <p>A well-designed system can apply several principles simultaneously.</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Principle</th><th>How it helps</th></tr></thead>
+            <tbody>
+                <tr><td>SRP</td><td>Checkout workflow and payment integration have different responsibilities</td></tr>
+                <tr><td>OCP</td><td>Add a provider implementation without rewriting checkout logic</td></tr>
+                <tr><td>LSP</td><td>The provider must respect the shared payment contract</td></tr>
+                <tr><td>ISP</td><td>The payment contract exposes only the required capabilities</td></tr>
+                <tr><td>DIP</td><td>Checkout depends on <code>PaymentGateway</code>, not a provider SDK</td></tr>
+                <tr><td>Composition</td><td>The desired provider is supplied to the checkout service</td></tr>
+                <tr><td>Low Coupling</td><td>Provider changes have limited effects on the business layer</td></tr>
+                <tr><td>Protected Variations</td><td>Provider-specific API behavior remains inside the adapter</td></tr>
+                <tr><td>KISS</td><td>Avoid building a complex provider framework if one simple adapter is sufficient</td></tr>
+            </tbody>
+        </table></div>
+        <p>This demonstrates an important point: <strong>design principles are not independent rules. They reinforce one another to solve the underlying problems of responsibility assignment, dependency management, and change.</strong></p>
+    </div>
+
+    <div class="subheading">10. How to Decide Which Principle to Apply</div>
+    <div class="intro">
+        <p>You do not need to introduce an interface, factory, strategy, or additional class every time you write a method.</p>
+        <p>Instead, use the following questions while designing a component.</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Design question</th><th>Relevant principle</th></tr></thead>
+            <tbody>
+                <tr><td>Does this class have unrelated responsibilities?</td><td>SRP</td></tr>
+                <tr><td>Will adding another implementation require editing multiple conditionals?</td><td>OCP, Polymorphism</td></tr>
+                <tr><td>Does a subclass violate expected behavior?</td><td>LSP</td></tr>
+                <tr><td>Must a class implement methods it cannot support?</td><td>ISP</td></tr>
+                <tr><td>Is business logic tied to a database, SDK, or framework?</td><td>DIP</td></tr>
+                <tr><td>Is the same business rule implemented in several places?</td><td>DRY</td></tr>
+                <tr><td>Is the design becoming unnecessarily complicated?</td><td>KISS</td></tr>
+                <tr><td>Am I implementing hypothetical future requirements?</td><td>YAGNI</td></tr>
+                <tr><td>Is this inheritance relationship only being used for code reuse?</td><td>Composition over Inheritance</td></tr>
+                <tr><td>Does a method repeatedly inspect another object&rsquo;s internal state?</td><td>Information Expert, Tell Don&rsquo;t Ask</td></tr>
+                <tr><td>Does one component know too much about another&rsquo;s internal structure?</td><td>Law of Demeter, Information Hiding</td></tr>
+                <tr><td>Can this value object be immutable?</td><td>Favor Immutability</td></tr>
+                <tr><td>Is a supposedly read-only operation unexpectedly changing state?</td><td>CQS</td></tr>
+                <tr><td>Are packages or modules depending on each other in cycles?</td><td>Acyclic Dependencies</td></tr>
+            </tbody>
+        </table></div>
+    </div>
+
+    <div class="subheading">11. Principle vs Design Pattern vs Architecture Pattern</div>
+    <div class="intro">
+        <p>These terms are related but should not be confused.</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Concept</th><th>Description</th><th>Examples</th></tr></thead>
+            <tbody>
+                <tr><td>Design Principle</td><td>General guidance for making design decisions</td><td>SRP, OCP, DIP, DRY</td></tr>
+                <tr><td>Design Pattern</td><td>Reusable arrangement of classes or objects solving a recurring design problem</td><td>Strategy, Factory, Observer, Decorator</td></tr>
+                <tr><td>Architecture Pattern</td><td>System-level organizational approach</td><td>Layered Architecture, Hexagonal Architecture, CQRS</td></tr>
+                <tr><td>Programming Paradigm</td><td>General approach to structuring programs</td><td>Object-Oriented, Functional, Procedural</td></tr>
+            </tbody>
+        </table></div>
+        <p>For example, OCP is a principle; Strategy is one design pattern that can help implement OCP.</p>
+        <p>DIP is a principle; Dependency Injection is a technique that can help achieve it.</p>
+        <p>Separation of Concerns is a general principle; Hexagonal Architecture is one architectural approach that applies it along with dependency inversion.</p>
+    </div>
+
+    <div class="subheading">12. Final Summary</div>
+    <div class="gw-card gw-vflow" style="gap:12px">
+        <p style="font-weight:500">The most important OOD objectives</p>
+        <div class="gw-cols2" style="gap:12px">
+            <div class="gw-obj"><svg class="gw-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg><div><p><strong>High Cohesion</strong></p><p class="gw-t">Keep related responsibilities together.</p></div></div>
+            <div class="gw-obj"><svg class="gw-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" x2="6" y1="3" y2="15"/><circle cx="18" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M18 9a9 9 0 0 1-9 9"/></svg><div><p><strong>Low Coupling</strong></p><p class="gw-t">Reduce unnecessary dependencies.</p></div></div>
+            <div class="gw-obj"><svg class="gw-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg><div><p><strong>Strong Encapsulation</strong></p><p class="gw-t">Protect state and business rules.</p></div></div>
+            <div class="gw-obj"><svg class="gw-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19.439 7.85c-.049.322.059.648.289.878l1.568 1.568c.47.47.706 1.087.706 1.704s-.235 1.233-.706 1.704l-1.611 1.611a.98.98 0 0 1-.837.276c-.47-.07-.802-.48-.968-.925a2.501 2.501 0 1 0-3.214 3.214c.446.166.855.497.925.968a.979.979 0 0 1-.276.837l-1.61 1.61a2.404 2.404 0 0 1-1.705.707 2.402 2.402 0 0 1-1.704-.706l-1.568-1.568a1.026 1.026 0 0 0-.877-.29c-.493.074-.84.504-1.02.968a2.5 2.5 0 1 1-3.237-3.237c.464-.18.894-.527.967-1.02a1.026 1.026 0 0 0-.289-.877l-1.568-1.568A2.402 2.402 0 0 1 1.998 12c0-.617.236-1.234.706-1.704L4.23 8.77c.24-.24.581-.353.917-.303.515.077.877.528 1.073 1.01a2.5 2.5 0 1 0 3.259-3.259c-.482-.196-.933-.558-1.01-1.073-.05-.336.062-.676.303-.917l1.525-1.525A2.402 2.402 0 0 1 12 1.998c.617 0 1.234.236 1.704.706l1.568 1.568c.23.23.556.338.877.29.493-.074.84-.504 1.02-.968a2.5 2.5 0 1 1 3.237 3.237c-.464.18-.894.527-.967 1.02Z"/></svg><div><p><strong>Controlled Extensibility</strong></p><p class="gw-t">Isolate behavior likely to change.</p></div></div>
+            <div class="gw-obj"><svg class="gw-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2"/><path d="M6.453 15h11.094"/><path d="M8.5 2h7"/></svg><div><p><strong>Testability</strong></p><p class="gw-t">Make dependencies substitutable.</p></div></div>
+            <div class="gw-obj"><svg class="gw-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9Z"/></svg><div><p><strong>Simplicity</strong></p><p class="gw-t">Avoid speculative abstractions.</p></div></div>
+        </div>
+    </div>
+    <div class="intro">
+        <p>A useful mental model is:</p>
+        <p><strong>OOP provides the programming mechanisms. SOLID and GRASP guide how those mechanisms are used. General design principles keep the resulting system simple, cohesive, and maintainable. Design patterns provide reusable solutions for recurring problems.</strong></p>
+        <p>The ultimate goal of object-oriented design is not to maximize the number of interfaces, classes, or patterns in a codebase. It is to build software whose responsibilities are clear, whose behavior is correct, and whose inevitable changes can be made with minimal disruption.</p>
+    </div>
+</div>
+</body>
+</html>

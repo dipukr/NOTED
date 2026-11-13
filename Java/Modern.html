@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Modern Java</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Modern Java: Features After Java 8</div>
+
+    <div class="intro">
+        <p>Java 8 (2014) was a turning point: it brought lambdas, streams, <code>Optional</code> and the <code>java.time</code> API. The releases after it changed the language and the platform even more. Since Java 10 (2018) a new feature release ships every six months, and every few releases is a <strong>long-term support (LTS)</strong> release: 11, 17, 21 and 25.</p>
+        <p>This page covers the important features from <strong>Java 9 to Java 25</strong>, grouped by topic, with an example for each. The examples print with <code>IO.println</code>, which was added in Java 25; on older versions use <code>System.out.println</code>. For Java basics, see <a href="Java.html">Java</a>.</p>
+    </div>
+
+    <div class="subheading">Features by Release</div>
+    <div class="intro">
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Version</th><th>Year</th><th>Key features</th></tr></thead>
+            <tbody>
+                <tr><td>Java 9</td><td>2017</td><td>Module system (JPMS), <code>jshell</code>, collection factory methods (<code>List.of</code>), private interface methods, Stream and <code>Optional</code> additions, Process API, G1 as the default GC, multi-release JARs</td></tr>
+                <tr><td>Java 10</td><td>2018</td><td><code>var</code> for local variables, unmodifiable copies (<code>List.copyOf</code>), <code>Optional.orElseThrow()</code>, container-aware JVM</td></tr>
+                <tr><td><strong>Java 11 (LTS)</strong></td><td>2018</td><td>HTTP Client, new <code>String</code> methods, <code>Files.readString</code> and <code>writeString</code>, <code>var</code> in lambda parameters, running a single source file, Epsilon GC, Flight Recorder open-sourced, Java EE and CORBA modules removed</td></tr>
+                <tr><td>Java 12</td><td>2019</td><td><code>Collectors.teeing</code>, <code>String.indent</code> and <code>transform</code>, compact number formatting, Shenandoah GC (experimental)</td></tr>
+                <tr><td>Java 13</td><td>2019</td><td>Previews of text blocks and switch expressions</td></tr>
+                <tr><td>Java 14</td><td>2020</td><td>Switch expressions, helpful <code>NullPointerException</code> messages</td></tr>
+                <tr><td>Java 15</td><td>2020</td><td>Text blocks, ZGC and Shenandoah production-ready, hidden classes, Nashorn JavaScript engine removed</td></tr>
+                <tr><td>Java 16</td><td>2021</td><td>Records, pattern matching for <code>instanceof</code>, <code>Stream.toList()</code>, <code>Stream.mapMulti</code>, <code>jpackage</code></td></tr>
+                <tr><td><strong>Java 17 (LTS)</strong></td><td>2021</td><td>Sealed classes, strong encapsulation of JDK internals, enhanced pseudo-random number generators</td></tr>
+                <tr><td>Java 18</td><td>2022</td><td>UTF-8 by default, simple web server (<code>jwebserver</code>), <code>@snippet</code> in Javadoc, finalization deprecated for removal</td></tr>
+                <tr><td>Java 19</td><td>2022</td><td>Previews of virtual threads and record patterns, structured concurrency (incubator)</td></tr>
+                <tr><td>Java 20</td><td>2023</td><td>Scoped values (incubator), further previews</td></tr>
+                <tr><td><strong>Java 21 (LTS)</strong></td><td>2023</td><td>Virtual threads, sequenced collections, pattern matching for <code>switch</code>, record patterns, generational ZGC, <code>Math.clamp</code>, <code>StringBuilder.repeat</code></td></tr>
+                <tr><td>Java 22</td><td>2024</td><td>Unnamed variables and patterns (<code>_</code>), Foreign Function and Memory API, launching multi-file source programs</td></tr>
+                <tr><td>Java 23</td><td>2024</td><td>Markdown documentation comments, ZGC generational mode by default, <code>sun.misc.Unsafe</code> memory access deprecated for removal</td></tr>
+                <tr><td>Java 24</td><td>2025</td><td>Stream gatherers, Class-File API, ahead-of-time class loading and linking, Security Manager permanently disabled, virtual threads no longer pinned by <code>synchronized</code></td></tr>
+                <tr><td><strong>Java 25 (LTS)</strong></td><td>2025</td><td>Compact source files and instance <code>main</code> methods, <code>java.lang.IO</code>, flexible constructor bodies, module import declarations, scoped values, compact object headers</td></tr>
+            </tbody>
+        </table></div>
+        <p>Features marked as <strong>preview</strong> are complete but may still change. They must be enabled explicitly with <code>--enable-preview</code> and are not covered on this page unless noted.</p>
+    </div>
+
+    <div class="subheading">1. Local Variable Type Inference: var (Java 10)</div>
+    <div class="intro">
+        <p><code>var</code> lets the compiler infer the type of a local variable from its initializer. The variable is still statically typed: <code>var</code> only saves you from writing the type.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">var</span> names = <span class="code-keyword">new</span> <span class="code-class">ArrayList</span>&lt;<span class="code-class">String</span>&gt;(); <span class="code-comment"># Inferred as ArrayList&lt;String&gt;</span>
+<span class="code-keyword">var</span> counts = <span class="code-keyword">new</span> <span class="code-class">HashMap</span>&lt;<span class="code-class">String</span>, <span class="code-class">Integer</span>&gt;();
+<span class="code-keyword">for</span> (<span class="code-keyword">var</span> entry : counts.entrySet()) {
+    <span class="code-class">IO</span>.println(entry.getKey() + <span class="code-string">" = "</span> + entry.getValue());
+}
+<span class="code-class">BiFunction</span>&lt;<span class="code-class">Integer</span>, <span class="code-class">Integer</span>, <span class="code-class">Integer</span>&gt; add = (<span class="code-annotation">@NonNull</span> <span class="code-keyword">var</span> a, <span class="code-annotation">@NonNull</span> <span class="code-keyword">var</span> b) -&gt; a + b; <span class="code-comment"># Java 11: var in lambda parameters</span></code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <ul>
+            <li><strong>Allowed:</strong> local variables with an initializer, the variable of an enhanced <code>for</code> loop, a classic <code>for</code> loop index, and try-with-resources variables.</li>
+            <li><strong>Not allowed:</strong> fields, method parameters, return types, variables without an initializer, and <code>var x = null;</code>.</li>
+            <li><strong>Lambda parameters (Java 11):</strong> <code>var</code> in lambda parameters is mainly useful for adding annotations to them.</li>
+        </ul>
+        <p>Use <code>var</code> when the type is obvious from the right-hand side, as in <code>var list = new ArrayList&lt;String&gt;()</code>. Spell out the type when it helps the reader, for example when the value comes from a method call whose return type is not obvious.</p>
+    </div>
+
+    <div class="subheading">2. Switch Expressions (Java 14)</div>
+    <div class="intro">
+        <p><code>switch</code> can now be an <strong>expression</strong> that produces a value. The arrow form <code>case X -&gt;</code> does not fall through, so <code>break</code> is no longer needed, and one case can list several labels. A block uses <code>yield</code> to return its value. For enums and sealed types, the compiler checks that every case is covered.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">enum</span> <span class="code-class">Day</span> { MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY }
+
+<span class="code-keyword">int</span> letters = <span class="code-keyword">switch</span> (day) {
+    <span class="code-keyword">case</span> MONDAY, FRIDAY, SUNDAY -&gt; <span class="code-number">6</span>;
+    <span class="code-keyword">case</span> TUESDAY -&gt; <span class="code-number">7</span>;
+    <span class="code-keyword">case</span> THURSDAY, SATURDAY -&gt; <span class="code-number">8</span>;
+    <span class="code-keyword">case</span> WEDNESDAY -&gt; {
+        <span class="code-keyword">int</span> length = day.name().length(); <span class="code-comment"># A block returns its value with yield</span>
+        <span class="code-keyword">yield</span> length;
+    }
+};</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>The arrow form also works in a <code>switch</code> <strong>statement</strong>, which removes the risk of accidental fall-through in ordinary code.</p>
+    </div>
+
+    <div class="subheading">3. Text Blocks (Java 15)</div>
+    <div class="intro">
+        <p>A text block is a multi-line string literal between <code>"""</code> delimiters. The compiler removes the common leading indentation, so the text can be indented together with the code. Inside a text block, <code>\</code> at the end of a line joins it with the next line, and <code>\s</code> keeps a trailing space.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">String</span> json = <span class="code-string">"""
+        {
+          "id": 42,
+          "name": "Laptop Pro"
+        }
+        """</span>;
+<span class="code-class">String</span> sql = <span class="code-string">"""
+        SELECT id, name
+        FROM orders
+        WHERE status = 'NEW'\
+        """</span>; <span class="code-comment"># The \ at the end of a line removes the final newline</span></code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Text blocks are useful for JSON, SQL, HTML and test data. Combine them with <code>formatted(...)</code> to fill in values.</p>
+    </div>
+
+    <div class="subheading">4. Records (Java 16)</div>
+    <div class="intro">
+        <p>A record is a concise, immutable data carrier. From the header <code>record Point(int x, int y)</code>, the compiler generates private fields, a canonical constructor, accessor methods <code>x()</code> and <code>y()</code> (not <code>getX()</code>), and <code>equals</code>, <code>hashCode</code> and <code>toString</code>. A <strong>compact constructor</strong> validates or normalizes the arguments before the fields are assigned.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">Point</span>(<span class="code-keyword">int</span> x, <span class="code-keyword">int</span> y) {
+    <span class="code-keyword">public</span> <span class="code-class">Point</span> { <span class="code-comment"># Compact constructor: runs before the fields are assigned</span>
+        <span class="code-keyword">if</span> (x &lt; <span class="code-number">0</span> || y &lt; <span class="code-number">0</span>) <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>(<span class="code-string">"Coordinates must be positive"</span>);
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">double</span> distanceToOrigin() {
+        <span class="code-keyword">return</span> <span class="code-class">Math</span>.sqrt(x * x + y * y);
+    }
+}
+
+<span class="code-keyword">var</span> p = <span class="code-keyword">new</span> <span class="code-class">Point</span>(<span class="code-number">3</span>, <span class="code-number">4</span>);
+<span class="code-class">IO</span>.println(p.x()); <span class="code-comment"># 3</span>
+<span class="code-class">IO</span>.println(p); <span class="code-comment"># Point[x=3, y=4]</span>
+<span class="code-class">IO</span>.println(p.equals(<span class="code-keyword">new</span> <span class="code-class">Point</span>(<span class="code-number">3</span>, <span class="code-number">4</span>))); <span class="code-comment"># true</span></code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <ul>
+            <li>Records are implicitly <code>final</code> and cannot extend another class, but they can implement interfaces.</li>
+            <li>Their fields cannot be changed after construction. A record can still hold a reference to a mutable object, such as a <code>List</code>, so copy such arguments with <code>List.copyOf</code> in the compact constructor.</li>
+            <li>Records can have static fields and methods, instance methods and nested types, but no extra instance fields.</li>
+            <li>Records work well as DTOs, API responses, map keys, value objects and results of multi-value methods.</li>
+        </ul>
+    </div>
+
+    <div class="subheading">5. Pattern Matching for instanceof (Java 16)</div>
+    <div class="intro">
+        <p><code>instanceof</code> can declare a variable that is bound when the test succeeds, so the cast disappears. The variable is in scope only where the match is known to have succeeded.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">if</span> (obj <span class="code-keyword">instanceof</span> <span class="code-class">String</span>) { <span class="code-comment"># Before Java 16</span>
+    <span class="code-class">String</span> s = (<span class="code-class">String</span>) obj;
+    <span class="code-class">IO</span>.println(s.length());
+}
+
+<span class="code-keyword">if</span> (obj <span class="code-keyword">instanceof</span> <span class="code-class">String</span> s &amp;&amp; !s.isBlank()) { <span class="code-comment"># Java 16: test, cast and bind in one step</span>
+    <span class="code-class">IO</span>.println(s.toUpperCase());
+}</code></pre>
+        </div>
+    </div>
+
+    <div class="subheading">6. Sealed Classes and Interfaces (Java 17)</div>
+    <div class="intro">
+        <p>A sealed class or interface lists exactly which types may extend or implement it, with <code>permits</code>. Each permitted subclass must be <code>final</code>, <code>sealed</code> or <code>non-sealed</code>. Records are implicitly final, so they fit naturally. Because the set of subtypes is closed, the compiler can check that a <code>switch</code> covers all of them.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">sealed</span> <span class="code-keyword">interface</span> <span class="code-class">Shape</span> <span class="code-keyword">permits</span> <span class="code-class">Circle</span>, <span class="code-class">Square</span>, <span class="code-class">Rectangle</span> {}
+
+<span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">Circle</span>(<span class="code-keyword">double</span> radius) <span class="code-keyword">implements</span> <span class="code-class">Shape</span> {}
+
+<span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">Square</span>(<span class="code-keyword">double</span> side) <span class="code-keyword">implements</span> <span class="code-class">Shape</span> {}
+
+<span class="code-keyword">public</span> <span class="code-keyword">non-sealed</span> <span class="code-keyword">class</span> <span class="code-class">Rectangle</span> <span class="code-keyword">implements</span> <span class="code-class">Shape</span> { <span class="code-comment"># non-sealed: open again for further subclassing</span>
+    <span class="code-keyword">private</span> <span class="code-keyword">double</span> width;
+    <span class="code-keyword">private</span> <span class="code-keyword">double</span> height;
+
+    <span class="code-keyword">public</span> <span class="code-keyword">double</span> area() {
+        <span class="code-keyword">return</span> width * height;
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Sealed types model a fixed set of alternatives, such as payment methods, events or the outcome of an operation. They are the Java equivalent of algebraic data types in functional languages.</p>
+    </div>
+
+    <div class="subheading">7. Pattern Matching for switch (Java 21)</div>
+    <div class="intro">
+        <p><code>switch</code> can match on the <strong>type</strong> of any object. A <code>case</code> can add a guard with <code>when</code>, <code>case null</code> handles <code>null</code> explicitly, and a <code>switch</code> over a sealed type needs no <code>default</code> when all subtypes are covered.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">double</span> area(<span class="code-class">Shape</span> shape) {
+    <span class="code-keyword">return</span> <span class="code-keyword">switch</span> (shape) {
+        <span class="code-keyword">case</span> <span class="code-class">Circle</span> c -&gt; <span class="code-class">Math</span>.<span class="code-class">PI</span> * c.radius() * c.radius();
+        <span class="code-keyword">case</span> <span class="code-class">Square</span> s <span class="code-keyword">when</span> s.side() == <span class="code-number">0</span> -&gt; <span class="code-number">0</span>; <span class="code-comment"># Guard: an extra condition after when</span>
+        <span class="code-keyword">case</span> <span class="code-class">Square</span> s -&gt; s.side() * s.side();
+        <span class="code-keyword">case</span> <span class="code-class">Rectangle</span> r -&gt; r.area();
+    };
+}
+
+<span class="code-class">String</span> describe(<span class="code-class">Object</span> obj) {
+    <span class="code-keyword">return</span> <span class="code-keyword">switch</span> (obj) {
+        <span class="code-keyword">case</span> <span class="code-keyword">null</span> -&gt; <span class="code-string">"null"</span>; <span class="code-comment"># Without this case, a null selector throws NullPointerException</span>
+        <span class="code-keyword">case</span> <span class="code-class">Integer</span> i <span class="code-keyword">when</span> i &gt; <span class="code-number">0</span> -&gt; <span class="code-string">"positive int "</span> + i;
+        <span class="code-keyword">case</span> <span class="code-class">Integer</span> i -&gt; <span class="code-string">"int "</span> + i;
+        <span class="code-keyword">case</span> <span class="code-class">String</span> s -&gt; <span class="code-string">"string of length "</span> + s.length();
+        <span class="code-keyword">default</span> -&gt; <span class="code-string">"something else"</span>;
+    };
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>If a new class is added to <code>permits Circle, Square, Rectangle</code>, the <code>area</code> method stops compiling until the new case is handled. More specific cases must come before more general ones; the compiler reports a case that can never match.</p>
+    </div>
+
+    <div class="subheading">8. Record Patterns (Java 21)</div>
+    <div class="intro">
+        <p>A record pattern matches a record and <strong>deconstructs</strong> it into its components in one step. Patterns can be nested, and <code>var</code> can be used for component types.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">Line</span>(<span class="code-class">Point</span> start, <span class="code-class">Point</span> end) {}
+
+<span class="code-keyword">if</span> (obj <span class="code-keyword">instanceof</span> <span class="code-class">Point</span>(<span class="code-keyword">int</span> x, <span class="code-keyword">int</span> y)) {
+    <span class="code-class">IO</span>.println(<span class="code-string">"x = "</span> + x + <span class="code-string">", y = "</span> + y);
+}
+<span class="code-class">Line</span> line = <span class="code-keyword">new</span> <span class="code-class">Line</span>(<span class="code-keyword">new</span> <span class="code-class">Point</span>(<span class="code-number">0</span>, <span class="code-number">0</span>), <span class="code-keyword">new</span> <span class="code-class">Point</span>(<span class="code-number">3</span>, <span class="code-number">4</span>));
+<span class="code-keyword">if</span> (line <span class="code-keyword">instanceof</span> <span class="code-class">Line</span>(<span class="code-class">Point</span>(<span class="code-keyword">var</span> x1, <span class="code-keyword">var</span> y1), <span class="code-class">Point</span>(<span class="code-keyword">var</span> x2, <span class="code-keyword">var</span> y2))) { <span class="code-comment"># Nested record patterns</span>
+    <span class="code-class">IO</span>.println(<span class="code-string">"dx = "</span> + (x2 - x1) + <span class="code-string">", dy = "</span> + (y2 - y1));
+}</code></pre>
+        </div>
+    </div>
+
+    <div class="subheading">9. Unnamed Variables and Patterns (Java 22)</div>
+    <div class="intro">
+        <p>An underscore <code>_</code> declares a variable or pattern component that is never used. It makes the intent clear and removes warnings about unused variables.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">int</span> total = <span class="code-number">0</span>;
+<span class="code-keyword">for</span> (<span class="code-class">Order</span> _ : orders) { <span class="code-comment"># The element itself is not needed</span>
+    total++;
+}
+<span class="code-keyword">try</span> {
+    <span class="code-class">Integer</span>.parseInt(text);
+} <span class="code-keyword">catch</span> (<span class="code-class">NumberFormatException</span> _) { <span class="code-comment"># The exception object is not needed</span>
+    <span class="code-class">IO</span>.println(<span class="code-string">"Not a number"</span>);
+}
+map.forEach((_, value) -&gt; <span class="code-class">IO</span>.println(value)); <span class="code-comment"># Ignore the key</span>
+<span class="code-keyword">if</span> (obj <span class="code-keyword">instanceof</span> <span class="code-class">Line</span>(<span class="code-class">Point</span>(<span class="code-keyword">var</span> x, _), _)) { <span class="code-comment"># Bind only the components that are used</span>
+    <span class="code-class">IO</span>.println(<span class="code-string">"start x = "</span> + x);
+}</code></pre>
+        </div>
+    </div>
+
+    <div class="subheading">10. Compact Source Files and Instance main Methods (Java 25)</div>
+    <div class="intro">
+        <p>A source file can now contain a <code>main</code> method, fields and other methods without declaring a class; the compiler wraps them in an implicitly declared class. <code>main</code> no longer has to be <code>public static</code>, and the <code>String[] args</code> parameter is optional. A compact source file automatically imports all packages of the <code>java.base</code> module, so <code>List</code>, <code>Map</code> and other common classes need no imports. The new <code>java.lang.IO</code> class provides <code>IO.println</code>, <code>IO.print</code> and <code>IO.readln</code> for simple console input and output.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+    <span class="code-class">String</span> name = <span class="code-class">IO</span>.readln(<span class="code-string">"What is your name? "</span>);
+    <span class="code-class">IO</span>.println(<span class="code-string">"Hello, "</span> + name + <span class="code-string">"!"</span>);
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>This makes small programs and scripts much shorter, and it is a gentler start for learners. Larger programs still use ordinary classes.</p>
+    </div>
+
+    <div class="subheading">11. Flexible Constructor Bodies (Java 25)</div>
+    <div class="intro">
+        <p>A constructor may now run statements <strong>before</strong> calling <code>super(...)</code> or <code>this(...)</code>, as long as they do not use the object being constructed. This lets you validate or prepare arguments before calling the superclass constructor, instead of squeezing that logic into a static helper.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">PositiveBigInteger</span> <span class="code-keyword">extends</span> <span class="code-class">BigInteger</span> {
+    <span class="code-keyword">public</span> <span class="code-class">PositiveBigInteger</span>(<span class="code-keyword">long</span> value) {
+        <span class="code-keyword">if</span> (value &lt;= <span class="code-number">0</span>) <span class="code-keyword">throw</span> <span class="code-keyword">new</span> <span class="code-class">IllegalArgumentException</span>(<span class="code-string">"Value must be positive"</span>); <span class="code-comment"># Runs before super()</span>
+        <span class="code-keyword">super</span>(<span class="code-class">String</span>.valueOf(value));
+    }
+}</code></pre>
+        </div>
+    </div>
+
+    <div class="subheading">12. Module Import Declarations (Java 25)</div>
+    <div class="intro">
+        <p><code>import module java.sql;</code> imports all public top-level types from every package that the <code>java.sql</code> module exports, and from the modules it requires transitively. It replaces long lists of single-type and on-demand imports. If two imported packages contain a type with the same simple name, a single-type import resolves the conflict.</p>
+    </div>
+
+    <div class="subheading">13. Private Interface Methods (Java 9)</div>
+    <div class="intro">
+        <p>Java 8 added <code>default</code> and <code>static</code> methods to interfaces. Java 9 adds <code>private</code> methods, so default methods can share code without exposing a helper to implementing classes.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">Logger</span> {
+    <span class="code-keyword">default</span> <span class="code-keyword">void</span> info(<span class="code-class">String</span> message) {
+        log(<span class="code-string">"INFO"</span>, message);
+    }
+
+    <span class="code-keyword">default</span> <span class="code-keyword">void</span> error(<span class="code-class">String</span> message) {
+        log(<span class="code-string">"ERROR"</span>, message);
+    }
+
+    <span class="code-keyword">private</span> <span class="code-keyword">void</span> log(<span class="code-class">String</span> level, <span class="code-class">String</span> message) { <span class="code-comment"># Shared helper, not visible to implementing classes</span>
+        <span class="code-class">IO</span>.println(<span class="code-string">"["</span> + level + <span class="code-string">"] "</span> + message);
+    }
+}</code></pre>
+        </div>
+    </div>
+
+    <div class="subheading">14. Smaller Language Improvements</div>
+    <div class="intro">
+        <ul>
+            <li><strong>Try-with-resources (Java 9):</strong> An effectively final variable declared before the <code>try</code> can be used as a resource directly: <code>try (reader) { ... }</code>.</li>
+            <li><strong>Diamond with anonymous classes (Java 9):</strong> <code>new Comparator&lt;&gt;() { ... }</code> infers the type argument.</li>
+            <li><strong>Underscore (Java 9):</strong> <code>_</code> is no longer a valid identifier. Java 22 reused it for unnamed variables.</li>
+            <li><strong>Helpful NullPointerExceptions (Java 14):</strong> The message names exactly what was <code>null</code>. For <code>order.getCustomer().getName().length()</code>, it says: <code>Cannot invoke "String.length()" because the return value of "Customer.getName()" is null</code>.</li>
+            <li><strong>Markdown documentation comments (Java 23):</strong> Javadoc comments can be written in Markdown using <code>///</code> lines instead of HTML inside <code>/** ... */</code>.</li>
+        </ul>
+    </div>
+
+    <div class="subheading">15. Module System (Java 9)</div>
+    <div class="intro">
+        <p>The Java Platform Module System (JPMS) groups packages into <strong>modules</strong>. A module declares, in <code>module-info.java</code>, which modules it depends on and which of its packages other modules may use. Packages that are not exported are inaccessible from outside, even through reflection, unless they are explicitly opened.</p>
+    </div>
+    <div class="section code-section">
+        <div class="section-title">module-info.java</div>
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">module</span> com.example.orders {
+    <span class="code-keyword">requires</span> java.net.http; <span class="code-comment"># A module this module depends on</span>
+    <span class="code-keyword">requires</span> <span class="code-keyword">transitive</span> com.example.common; <span class="code-comment"># Modules that read this one also read com.example.common</span>
+    <span class="code-keyword">exports</span> com.example.orders.api; <span class="code-comment"># Only exported packages can be used by other modules</span>
+    <span class="code-keyword">opens</span> com.example.orders.model <span class="code-keyword">to</span> com.fasterxml.jackson.databind; <span class="code-comment"># Allow reflection for one module</span>
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>The JDK itself was split into about 70 modules, such as <code>java.base</code>, <code>java.sql</code> and <code>java.net.http</code>. That allows <code>jlink</code> to build a small runtime containing only the modules an application needs. Applications are not required to use modules: code on the class path keeps working as before, in the unnamed module.</p>
+    </div>
+
+    <div class="subheading">16. Collection Factory Methods (Java 9 and 10)</div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">List</span>&lt;<span class="code-class">String</span>&gt; list = <span class="code-class">List</span>.of(<span class="code-string">"a"</span>, <span class="code-string">"b"</span>, <span class="code-string">"c"</span>); <span class="code-comment"># Unmodifiable: add() throws UnsupportedOperationException</span>
+<span class="code-class">Set</span>&lt;<span class="code-class">Integer</span>&gt; set = <span class="code-class">Set</span>.of(<span class="code-number">1</span>, <span class="code-number">2</span>, <span class="code-number">3</span>);
+<span class="code-class">Map</span>&lt;<span class="code-class">String</span>, <span class="code-class">Integer</span>&gt; map = <span class="code-class">Map</span>.of(<span class="code-string">"one"</span>, <span class="code-number">1</span>, <span class="code-string">"two"</span>, <span class="code-number">2</span>);
+<span class="code-class">Map</span>&lt;<span class="code-class">String</span>, <span class="code-class">Integer</span>&gt; big = <span class="code-class">Map</span>.ofEntries(<span class="code-class">Map</span>.entry(<span class="code-string">"one"</span>, <span class="code-number">1</span>), <span class="code-class">Map</span>.entry(<span class="code-string">"two"</span>, <span class="code-number">2</span>)); <span class="code-comment"># For more than 10 pairs</span>
+<span class="code-class">List</span>&lt;<span class="code-class">String</span>&gt; copy = <span class="code-class">List</span>.copyOf(names); <span class="code-comment"># Java 10: unmodifiable copy of any collection</span></code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <ul>
+            <li>The collections are unmodifiable and do not allow <code>null</code> elements, keys or values.</li>
+            <li><code>Set.of</code> and <code>Map.of</code> reject duplicate elements or keys, and their iteration order is not specified.</li>
+            <li><code>Collectors.toUnmodifiableList()</code> (Java 10) and <code>Stream.toList()</code> (Java 16) also produce unmodifiable lists.</li>
+        </ul>
+    </div>
+
+    <div class="subheading">17. Sequenced Collections (Java 21)</div>
+    <div class="intro">
+        <p>New interfaces <code>SequencedCollection</code>, <code>SequencedSet</code> and <code>SequencedMap</code> give every collection with a defined order the same methods for the first and last elements and a reversed view. <code>List</code>, <code>Deque</code>, <code>LinkedHashSet</code>, <code>SortedSet</code>, <code>LinkedHashMap</code> and <code>SortedMap</code> implement them.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">List</span>&lt;<span class="code-class">String</span>&gt; letters = <span class="code-keyword">new</span> <span class="code-class">ArrayList</span>&lt;&gt;(<span class="code-class">List</span>.of(<span class="code-string">"a"</span>, <span class="code-string">"b"</span>, <span class="code-string">"c"</span>));
+<span class="code-class">IO</span>.println(letters.getFirst()); <span class="code-comment"># a (before: letters.get(0))</span>
+<span class="code-class">IO</span>.println(letters.getLast()); <span class="code-comment"># c (before: letters.get(letters.size() - 1))</span>
+letters.addFirst(<span class="code-string">"z"</span>);
+<span class="code-class">IO</span>.println(letters.reversed()); <span class="code-comment"># [c, b, a, z]</span>
+<span class="code-keyword">var</span> scores = <span class="code-keyword">new</span> <span class="code-class">LinkedHashMap</span>&lt;<span class="code-class">String</span>, <span class="code-class">Integer</span>&gt;();
+scores.put(<span class="code-string">"x"</span>, <span class="code-number">1</span>);
+scores.put(<span class="code-string">"y"</span>, <span class="code-number">2</span>);
+<span class="code-class">IO</span>.println(scores.firstEntry()); <span class="code-comment"># x=1</span>
+<span class="code-class">IO</span>.println(scores.pollLastEntry()); <span class="code-comment"># y=2, and removes it</span></code></pre>
+        </div>
+    </div>
+
+    <div class="subheading">18. Stream API Additions</div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">Stream</span>.of(<span class="code-number">1</span>, <span class="code-number">2</span>, <span class="code-number">3</span>, <span class="code-number">4</span>, <span class="code-number">1</span>).takeWhile(n -&gt; n &lt; <span class="code-number">3</span>).toList(); <span class="code-comment"># [1, 2] (Java 9)</span>
+<span class="code-class">Stream</span>.of(<span class="code-number">1</span>, <span class="code-number">2</span>, <span class="code-number">3</span>, <span class="code-number">4</span>, <span class="code-number">1</span>).dropWhile(n -&gt; n &lt; <span class="code-number">3</span>).toList(); <span class="code-comment"># [3, 4, 1] (Java 9)</span>
+<span class="code-class">Stream</span>.iterate(<span class="code-number">1</span>, n -&gt; n &lt;= <span class="code-number">100</span>, n -&gt; n * <span class="code-number">2</span>).toList(); <span class="code-comment"># [1, 2, 4, 8, 16, 32, 64] (Java 9)</span>
+<span class="code-class">Stream</span>.ofNullable(value).count(); <span class="code-comment"># 0 if value is null (Java 9)</span>
+<span class="code-class">List</span>&lt;<span class="code-class">String</span>&gt; names = people.stream().map(<span class="code-class">Person</span>::name).toList(); <span class="code-comment"># Unmodifiable list (Java 16)</span></code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p class="minor-heading"><strong>Stream gatherers (Java 24)</strong></p>
+        <p><code>Stream.gather(...)</code> adds custom intermediate operations, the way <code>collect(...)</code> allows custom terminal operations. The <code>Gatherers</code> class provides ready-made ones.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">Stream</span>.of(<span class="code-number">1</span>, <span class="code-number">2</span>, <span class="code-number">3</span>, <span class="code-number">4</span>, <span class="code-number">5</span>).gather(<span class="code-class">Gatherers</span>.windowFixed(<span class="code-number">2</span>)).toList(); <span class="code-comment"># [[1, 2], [3, 4], [5]]</span>
+<span class="code-class">Stream</span>.of(<span class="code-number">1</span>, <span class="code-number">2</span>, <span class="code-number">3</span>, <span class="code-number">4</span>).gather(<span class="code-class">Gatherers</span>.windowSliding(<span class="code-number">2</span>)).toList(); <span class="code-comment"># [[1, 2], [2, 3], [3, 4]]</span>
+<span class="code-class">Stream</span>.of(<span class="code-number">1</span>, <span class="code-number">2</span>, <span class="code-number">3</span>, <span class="code-number">4</span>).gather(<span class="code-class">Gatherers</span>.scan(() -&gt; <span class="code-number">0</span>, <span class="code-class">Integer</span>::sum)).toList(); <span class="code-comment"># Running totals: [1, 3, 6, 10]</span></code></pre>
+        </div>
+    </div>
+
+    <div class="subheading">19. Optional Additions</div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code>optional.ifPresentOrElse(v -&gt; <span class="code-class">IO</span>.println(v), () -&gt; <span class="code-class">IO</span>.println(<span class="code-string">"empty"</span>)); <span class="code-comment"># Java 9</span>
+<span class="code-class">Optional</span>&lt;<span class="code-class">String</span>&gt; result = optional.or(() -&gt; <span class="code-class">Optional</span>.of(<span class="code-string">"fallback"</span>)); <span class="code-comment"># Java 9: fall back to another Optional</span>
+<span class="code-class">Stream</span>&lt;<span class="code-class">String</span>&gt; values = optional.stream(); <span class="code-comment"># Java 9: a stream of zero or one element</span>
+<span class="code-class">String</span> value = optional.orElseThrow(); <span class="code-comment"># Java 10: like get(), with a clearer name</span>
+<span class="code-keyword">boolean</span> missing = optional.isEmpty(); <span class="code-comment"># Java 11</span></code></pre>
+        </div>
+    </div>
+
+    <div class="subheading">20. String Additions</div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-string">"   "</span>.isBlank(); <span class="code-comment"># true (Java 11)</span>
+<span class="code-string">"  hi  "</span>.strip(); <span class="code-comment"># "hi": Unicode-aware version of trim() (Java 11)</span>
+<span class="code-string">"ab"</span>.repeat(<span class="code-number">3</span>); <span class="code-comment"># "ababab" (Java 11)</span>
+<span class="code-string">"a\nb\nc"</span>.lines().count(); <span class="code-comment"># 3 (Java 11)</span>
+<span class="code-string">"line"</span>.indent(<span class="code-number">4</span>); <span class="code-comment"># "    line\n" (Java 12)</span>
+<span class="code-string">"text"</span>.transform(s -&gt; s + <span class="code-string">"!"</span>); <span class="code-comment"># "text!" (Java 12)</span>
+<span class="code-string">"Hello %s, you are %d"</span>.formatted(<span class="code-string">"Sam"</span>, <span class="code-number">30</span>); <span class="code-comment"># Same as String.format (Java 15)</span></code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p><code>stripLeading()</code>, <code>stripTrailing()</code> (Java 11) and <code>stripIndent()</code> (Java 15) complete the set.</p>
+    </div>
+
+    <div class="subheading">21. Files and Paths (Java 11)</div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">Path</span> path = <span class="code-class">Path</span>.of(<span class="code-string">"notes.txt"</span>); <span class="code-comment"># Path.of replaces Paths.get</span>
+<span class="code-class">Files</span>.writeString(path, <span class="code-string">"Hello, file!"</span>);
+<span class="code-class">String</span> content = <span class="code-class">Files</span>.readString(path);</code></pre>
+        </div>
+    </div>
+
+    <div class="subheading">22. HTTP Client (Java 11)</div>
+    <div class="intro">
+        <p><code>java.net.http.HttpClient</code> replaces the old <code>HttpURLConnection</code>. It supports HTTP/1.1 and HTTP/2, synchronous and asynchronous calls, and WebSockets.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">HttpClient</span> client = <span class="code-class">HttpClient</span>.newHttpClient();
+<span class="code-class">HttpRequest</span> request = <span class="code-class">HttpRequest</span>.newBuilder(URI.create(<span class="code-string">"https://api.example.com/orders/42"</span>))
+                                 .header(<span class="code-string">"Accept"</span>, <span class="code-string">"application/json"</span>).GET().build();
+<span class="code-class">HttpResponse</span>&lt;<span class="code-class">String</span>&gt; response = client.send(request, <span class="code-class">HttpResponse</span>.<span class="code-class">BodyHandlers</span>.ofString()); <span class="code-comment"># Synchronous</span>
+<span class="code-class">IO</span>.println(response.statusCode() + <span class="code-string">" "</span> + response.body());
+client.sendAsync(request, <span class="code-class">HttpResponse</span>.<span class="code-class">BodyHandlers</span>.ofString())
+      .thenApply(<span class="code-class">HttpResponse</span>::body).thenAccept(<span class="code-class">IO</span>::println); <span class="code-comment"># Asynchronous: returns a CompletableFuture</span></code></pre>
+        </div>
+    </div>
+
+    <div class="subheading">23. Other Useful API Additions</div>
+    <div class="intro">
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>API</th><th>Version</th><th>What it does</th></tr></thead>
+            <tbody>
+                <tr><td><code>ProcessHandle.current().pid()</code></td><td>9</td><td>Process API: PID, parent, children and info of operating system processes</td></tr>
+                <tr><td><code>Objects.requireNonNullElse(value, fallback)</code></td><td>9</td><td>Returns <code>value</code>, or <code>fallback</code> if <code>value</code> is <code>null</code></td></tr>
+                <tr><td><code>InputStream.transferTo(out)</code></td><td>9</td><td>Copies all bytes from an input stream to an output stream</td></tr>
+                <tr><td><code>Predicate.not(String::isBlank)</code></td><td>11</td><td>Negates a method reference</td></tr>
+                <tr><td><code>Collectors.teeing(c1, c2, merger)</code></td><td>12</td><td>Sends each element to two collectors and merges their results</td></tr>
+                <tr><td><code>Stream.mapMulti(...)</code></td><td>16</td><td>Maps each element to zero or more elements without creating a stream per element</td></tr>
+                <tr><td><code>HexFormat.of().formatHex(bytes)</code></td><td>17</td><td>Converts between bytes and hexadecimal strings</td></tr>
+                <tr><td><code>RandomGenerator.of("L64X128MixRandom")</code></td><td>17</td><td>Common interface for all random number generators</td></tr>
+                <tr><td><code>Thread.sleep(Duration.ofSeconds(1))</code></td><td>19</td><td>Sleep with a <code>Duration</code></td></tr>
+                <tr><td><code>Math.clamp(value, min, max)</code></td><td>21</td><td>Limits a value to a range</td></tr>
+                <tr><td><code>StringBuilder.repeat("ab", 3)</code></td><td>21</td><td>Appends a string several times</td></tr>
+                <tr><td><code>String.splitWithDelimiters(regex, limit)</code></td><td>21</td><td>Splits a string and keeps the delimiters</td></tr>
+            </tbody>
+        </table></div>
+    </div>
+
+    <div class="subheading">24. Virtual Threads (Java 21)</div>
+    <div class="intro">
+        <p>Virtual threads are lightweight threads managed by the JVM instead of the operating system. Many virtual threads run on a small pool of platform (carrier) threads. When a virtual thread blocks, for example on I/O or <code>Thread.sleep</code>, the JVM unmounts it and the carrier thread runs another virtual thread. An application can therefore run millions of concurrent blocking tasks in the simple thread-per-request style, without reactive code.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">try</span> (<span class="code-keyword">var</span> executor = <span class="code-class">Executors</span>.newVirtualThreadPerTaskExecutor()) { <span class="code-comment"># One new virtual thread per task</span>
+    <span class="code-keyword">for</span> (<span class="code-keyword">int</span> i = <span class="code-number">0</span>; i &lt; <span class="code-number">10_000</span>; i++) {
+        <span class="code-keyword">int</span> id = i;
+        executor.submit(() -&gt; {
+            <span class="code-class">Thread</span>.sleep(<span class="code-class">Duration</span>.ofSeconds(<span class="code-number">1</span>)); <span class="code-comment"># Blocking parks the virtual thread, not an OS thread</span>
+            <span class="code-keyword">return</span> id;
+        });
+    }
+} <span class="code-comment"># close() waits until all tasks finish: about 1 second in total, not 10,000</span>
+<span class="code-class">Thread</span>.ofVirtual().start(() -&gt; <span class="code-class">IO</span>.println(<span class="code-string">"Hello from "</span> + <span class="code-class">Thread</span>.currentThread()));
+<span class="code-class">Thread</span>.startVirtualThread(() -&gt; <span class="code-class">IO</span>.println(<span class="code-string">"Another virtual thread"</span>));</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <ul>
+            <li>Virtual threads are best for <strong>I/O-bound</strong> work, such as web requests, database calls and remote APIs. They do not make CPU-bound code faster.</li>
+            <li>Do not pool virtual threads. Create one per task; they are cheap. To limit access to a scarce resource, use a <code>Semaphore</code>.</li>
+            <li>Since Java 24, blocking inside a <code>synchronized</code> block no longer pins the virtual thread to its carrier thread.</li>
+            <li>In Spring Boot 3.2 and later, <code>spring.threads.virtual.enabled=true</code> runs request handling on virtual threads.</li>
+        </ul>
+    </div>
+
+    <div class="subheading">25. Scoped Values (Java 25)</div>
+    <div class="intro">
+        <p>A scoped value shares immutable data with the methods a thread calls, and with child threads, for a bounded period. It is a safer, cheaper alternative to <code>ThreadLocal</code> for passing context such as the current user or request ID: the value cannot be changed, and it is automatically unbound when the scope ends.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">RequestContext</span> {
+    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-class">ScopedValue</span>&lt;<span class="code-class">String</span>&gt; USER = <span class="code-class">ScopedValue</span>.newInstance();
+}
+
+<span class="code-class">ScopedValue</span>.where(<span class="code-class">RequestContext</span>.USER, <span class="code-string">"sam"</span>).run(() -&gt; handleRequest()); <span class="code-comment"># USER is bound only while run() executes</span>
+
+<span class="code-keyword">void</span> handleRequest() {
+    <span class="code-class">IO</span>.println(<span class="code-string">"Current user: "</span> + <span class="code-class">RequestContext</span>.USER.get());
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p class="minor-heading"><strong>Structured concurrency (preview)</strong></p>
+        <p>Structured concurrency, a preview feature in Java 25, treats a group of related tasks running in different threads as one unit of work. If one subtask fails, the others are cancelled, and the parent waits for all of them before continuing, so no task is left running in the background.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">Response</span> handle() <span class="code-keyword">throws</span> <span class="code-class">InterruptedException</span> {
+    <span class="code-keyword">try</span> (<span class="code-keyword">var</span> scope = <span class="code-class">StructuredTaskScope</span>.open()) {
+        <span class="code-class">Subtask</span>&lt;<span class="code-class">String</span>&gt; user = scope.fork(() -&gt; findUser());
+        <span class="code-class">Subtask</span>&lt;<span class="code-class">Integer</span>&gt; order = scope.fork(() -&gt; fetchOrder());
+        scope.join(); <span class="code-comment"># Waits for both; throws if either subtask failed</span>
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">Response</span>(user.get(), order.get());
+    }
+}</code></pre>
+        </div>
+    </div>
+
+    <div class="subheading">26. Foreign Function and Memory API (Java 22)</div>
+    <div class="intro">
+        <p>The Foreign Function and Memory API (<code>java.lang.foreign</code>) lets Java call native libraries and work with memory outside the heap safely, without writing JNI code in C. It replaces most uses of JNI and of <code>sun.misc.Unsafe</code> for off-heap memory.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-class">Linker</span> linker = <span class="code-class">Linker</span>.nativeLinker();
+<span class="code-class">MethodHandle</span> strlen = linker.downcallHandle(linker.defaultLookup().find(<span class="code-string">"strlen"</span>).orElseThrow(),
+                                            <span class="code-class">FunctionDescriptor</span>.of(<span class="code-class">ValueLayout</span>.JAVA_LONG, <span class="code-class">ValueLayout</span>.ADDRESS));
+<span class="code-keyword">try</span> (<span class="code-class">Arena</span> arena = <span class="code-class">Arena</span>.ofConfined()) { <span class="code-comment"># Off-heap memory is freed when the arena closes</span>
+    <span class="code-class">MemorySegment</span> text = arena.allocateFrom(<span class="code-string">"Hello"</span>);
+    <span class="code-keyword">long</span> length = (<span class="code-keyword">long</span>) strlen.invokeExact(text); <span class="code-comment"># Calls the C function strlen: 5</span>
+}</code></pre>
+        </div>
+    </div>
+
+    <div class="subheading">27. Tools and Running Programs</div>
+    <div class="intro">
+        <p class="minor-heading"><strong>JShell (Java 9)</strong></p>
+        <p><code>jshell</code> is an interactive shell (REPL) for trying out Java expressions, statements and APIs without creating a class or compiling.</p>
+        <p class="minor-heading"><strong>Running source files directly (Java 11 and 22)</strong></p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">java</span> Hello.java<span class="code-comment"> # Java 11: compiles in memory and runs a single source file</span>
+<span class="code-keyword">java</span> Main.java<span class="code-comment"> # Java 22: Main.java may use other source files in the same directory</span>
+<span class="code-keyword">java</span> --enable-preview --source 25 Main.java<span class="code-comment"> # Run a program that uses preview features</span></code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p class="minor-heading"><strong>Packaging and other tools</strong></p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">jlink</span> --add-modules java.base,java.net.http --output runtime<span class="code-comment"> # Java 9: a custom runtime with only two modules</span>
+<span class="code-keyword">jpackage</span> --input target --main-jar app.jar --name OrderApp<span class="code-comment"> # Java 16: native installer (.msi, .deb, .dmg)</span>
+<span class="code-keyword">jwebserver</span> -p 8000<span class="code-comment"> # Java 18: serves static files from the current directory</span></code></pre>
+        </div>
+    </div>
+
+    <div class="subheading">28. JVM and Performance</div>
+    <div class="intro">
+        <p class="minor-heading"><strong>Garbage collectors</strong></p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Collector</th><th>Since</th><th>Best for</th><th>Enable with</th></tr></thead>
+            <tbody>
+                <tr><td>G1</td><td>Default since Java 9</td><td>Balanced throughput and pause times for most applications</td><td>Default, or <code>-XX:+UseG1GC</code></td></tr>
+                <tr><td>ZGC</td><td>Production in Java 15, generational in Java 21</td><td>Very short pauses (under a millisecond) with heaps up to terabytes</td><td><code>-XX:+UseZGC</code></td></tr>
+                <tr><td>Shenandoah</td><td>Production in Java 15</td><td>Low pause times through concurrent compaction</td><td><code>-XX:+UseShenandoahGC</code></td></tr>
+                <tr><td>Parallel</td><td>Before Java 9</td><td>Maximum throughput for batch jobs, with longer pauses</td><td><code>-XX:+UseParallelGC</code></td></tr>
+                <tr><td>Epsilon</td><td>Java 11</td><td>Testing: allocates memory but never collects it</td><td><code>-XX:+UnlockExperimentalVMOptions -XX:+UseEpsilonGC</code></td></tr>
+            </tbody>
+        </table></div>
+        <p class="minor-heading"><strong>Container awareness (Java 10)</strong></p>
+        <p>The JVM reads the CPU and memory limits of its Docker or Kubernetes container instead of the host machine&rsquo;s resources. Size the heap relative to the container with <code>-XX:MaxRAMPercentage=75</code>.</p>
+        <p class="minor-heading"><strong>Faster startup: CDS and AOT cache (Java 10 to 25)</strong></p>
+        <p>Class Data Sharing stores pre-parsed classes in an archive that is shared between JVM runs. Java 24 and 25 extend it into an <strong>ahead-of-time (AOT) cache</strong>: a training run records which classes are loaded and linked, and which methods are hot, so later runs start and warm up faster.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">java</span> -XX:AOTCacheOutput=app.aot -jar app.jar<span class="code-comment"> # Java 25: training run that creates the cache</span>
+<span class="code-keyword">java</span> -XX:AOTCache=app.aot -jar app.jar<span class="code-comment"> # Later runs use the cache</span></code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p class="minor-heading"><strong>Other JVM improvements</strong></p>
+        <ul>
+            <li><strong>Compact object headers (Java 25):</strong> <code>-XX:+UseCompactObjectHeaders</code> shrinks object headers on 64-bit platforms from 12 to 8 bytes, which reduces heap usage.</li>
+            <li><strong>Java Flight Recorder (Java 11):</strong> A low-overhead profiler built into the JVM, now open source: <code>java -XX:StartFlightRecording=duration=60s,filename=app.jfr -jar app.jar</code>.</li>
+            <li><strong>UTF-8 by default (Java 18):</strong> File and stream APIs use UTF-8 when no charset is given, on every operating system.</li>
+            <li><strong>Multi-release JARs (Java 9):</strong> One JAR can contain different class versions for different Java releases.</li>
+        </ul>
+    </div>
+
+    <div class="subheading">29. Removed and Deprecated</div>
+    <div class="intro">
+        <ul>
+            <li><strong>Java EE and CORBA modules removed (Java 11):</strong> JAXB (<code>javax.xml.bind</code>), JAX-WS and <code>javax.annotation</code> are no longer in the JDK. Add them as separate dependencies, now under the Jakarta EE names.</li>
+            <li><strong>Nashorn removed (Java 15):</strong> The JavaScript engine is gone; use GraalJS if needed.</li>
+            <li><strong>Strong encapsulation (Java 16 and 17):</strong> Code can no longer reach JDK internals through reflection; the <code>--illegal-access</code> option was removed. Use <code>--add-opens</code> for the rare cases that still need it.</li>
+            <li><strong>Finalization deprecated for removal (Java 18):</strong> Use try-with-resources or <code>Cleaner</code> instead of <code>finalize()</code>.</li>
+            <li><strong>Security Manager permanently disabled (Java 24).</strong></li>
+            <li><strong>sun.misc.Unsafe memory access deprecated for removal (Java 23):</strong> Use <code>VarHandle</code> and the Foreign Function and Memory API instead.</li>
+        </ul>
+    </div>
+
+    <div class="subheading">Example: Result Type Instead of Exceptions</div>
+    <div class="intro">
+        <p>This example combines records, sealed interfaces, pattern matching for <code>switch</code> and record patterns. A service method returns a sealed <code>Result</code> that is either a success or one of a fixed set of failures, instead of returning <code>null</code> or throwing exceptions. The caller must handle every outcome, and the compiler enforces it.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">sealed</span> <span class="code-keyword">interface</span> <span class="code-class">Result</span>&lt;<span class="code-class">T</span>&gt; <span class="code-keyword">permits</span> <span class="code-class">Ok</span>, <span class="code-class">NotFound</span>, <span class="code-class">InvalidInput</span>, <span class="code-class">Forbidden</span> {}
+
+<span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">Ok</span>&lt;<span class="code-class">T</span>&gt;(<span class="code-class">T</span> value) <span class="code-keyword">implements</span> <span class="code-class">Result</span>&lt;<span class="code-class">T</span>&gt; {}
+
+<span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">NotFound</span>&lt;<span class="code-class">T</span>&gt;() <span class="code-keyword">implements</span> <span class="code-class">Result</span>&lt;<span class="code-class">T</span>&gt; {}
+
+<span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">InvalidInput</span>&lt;<span class="code-class">T</span>&gt;(<span class="code-class">String</span> reason) <span class="code-keyword">implements</span> <span class="code-class">Result</span>&lt;<span class="code-class">T</span>&gt; {}
+
+<span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">Forbidden</span>&lt;<span class="code-class">T</span>&gt;(<span class="code-class">String</span> message) <span class="code-keyword">implements</span> <span class="code-class">Result</span>&lt;<span class="code-class">T</span>&gt; {}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderService</span> {
+    <span class="code-keyword">public</span> <span class="code-class">Result</span>&lt;<span class="code-class">Order</span>&gt; getOrderById(<span class="code-keyword">long</span> id, <span class="code-class">User</span> user) {
+        <span class="code-keyword">if</span> (id &lt;= <span class="code-number">0</span>) <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">InvalidInput</span>&lt;<span class="code-class">Order</span>&gt;(<span class="code-string">"Order ID must be positive"</span>);
+        <span class="code-keyword">if</span> (user == <span class="code-keyword">null</span> || !user.hasRole(<span class="code-string">"VIEW_ORDERS"</span>))
+            <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">Forbidden</span>&lt;<span class="code-class">Order</span>&gt;(<span class="code-string">"Not authorized to view orders"</span>);
+        <span class="code-keyword">return</span> id == <span class="code-number">1001</span> ? <span class="code-keyword">new</span> <span class="code-class">Ok</span>&lt;<span class="code-class">Order</span>&gt;(<span class="code-keyword">new</span> <span class="code-class">Order</span>(id, <span class="code-string">"Laptop Pro"</span>, <span class="code-number">1299.99</span>)) : <span class="code-keyword">new</span> <span class="code-class">NotFound</span>&lt;<span class="code-class">Order</span>&gt;();
+    }
+}
+
+<span class="code-keyword">public</span> <span class="code-class">String</span> describeOrder(<span class="code-keyword">long</span> id, <span class="code-class">User</span> user) { <span class="code-comment"># The compiler ensures every case is handled</span>
+    <span class="code-keyword">return</span> <span class="code-keyword">switch</span> (orderService.getOrderById(id, user)) {
+        <span class="code-keyword">case</span> <span class="code-class">Ok</span>(<span class="code-class">Order</span> o)                 -&gt; <span class="code-string">"Order %d: %s ($%.2f)"</span>.formatted(o.id(), o.name(), o.price());
+        <span class="code-keyword">case</span> <span class="code-class">NotFound</span>()                  -&gt; <span class="code-string">"Order not found"</span>;
+        <span class="code-keyword">case</span> <span class="code-class">InvalidInput</span>(<span class="code-class">String</span> reason) -&gt; <span class="code-string">"Invalid request: "</span> + reason;
+        <span class="code-keyword">case</span> <span class="code-class">Forbidden</span>(<span class="code-class">String</span> message)   -&gt; <span class="code-string">"Access denied: "</span> + message;
+    };
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <ul>
+            <li>Each failure record is generic (<code>NotFound&lt;T&gt;</code> and so on), so it can stand in for any <code>Result&lt;T&gt;</code>. A failure that implements <code>Result&lt;Void&gt;</code> could not be returned from a method declared to return <code>Result&lt;Order&gt;</code>.</li>
+            <li>The <code>switch</code> has no <code>default</code> branch. Because <code>Result</code> is sealed, the compiler knows these four cases cover every possibility.</li>
+            <li>Record patterns such as <code>case InvalidInput(String reason)</code> test the type and pull out the component in one step, so no cast or accessor call is needed.</li>
+        </ul>
+    </div>
+
+    <div class="subheading">Example: Sealed Interface in a Compact Source File</div>
+    <div class="intro">
+        <p>This Java 25 program uses a sealed interface, records, a pattern-matching <code>switch</code> and an unnamed variable <code>_</code> for the case that needs no data. Types declared in a compact source file become members of the implicitly declared class.</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">sealed</span> <span class="code-keyword">interface</span> <span class="code-class">Answer</span> <span class="code-keyword">permits</span> <span class="code-class">RealAnswer</span>, <span class="code-class">NoAnswer</span> {}
+
+<span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">RealAnswer</span>(<span class="code-class">String</span> value) <span class="code-keyword">implements</span> <span class="code-class">Answer</span> {}
+
+<span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">NoAnswer</span>() <span class="code-keyword">implements</span> <span class="code-class">Answer</span> {}
+
+<span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+    <span class="code-class">List</span>&lt;<span class="code-class">Answer</span>&gt; answers = <span class="code-class">List</span>.of(<span class="code-keyword">new</span> <span class="code-class">RealAnswer</span>(<span class="code-string">"Yes, absolutely"</span>), <span class="code-keyword">new</span> <span class="code-class">NoAnswer</span>(), <span class="code-keyword">new</span> <span class="code-class">RealAnswer</span>(<span class="code-string">"42"</span>), <span class="code-keyword">new</span> <span class="code-class">NoAnswer</span>());
+    <span class="code-keyword">for</span> (<span class="code-class">Answer</span> a : answers) {
+        <span class="code-keyword">switch</span> (a) {
+            <span class="code-keyword">case</span> <span class="code-class">RealAnswer</span> r -&gt; <span class="code-class">IO</span>.println(<span class="code-string">"Answer: "</span> + r.value());
+            <span class="code-keyword">case</span> <span class="code-class">NoAnswer</span> _ -&gt; <span class="code-class">IO</span>.println(<span class="code-string">"No answer provided"</span>);
+        }
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Output:</p>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code>Answer: Yes, absolutely
+No answer provided
+Answer: 42
+No answer provided</code></pre>
+        </div>
+    </div>
+</div>
+</body>
+</html>

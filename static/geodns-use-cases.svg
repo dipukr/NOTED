@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1290 728" font-family="Nunito, 'Segoe UI', Roboto, Arial, sans-serif">
+  <defs>
+    <linearGradient id="card" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fbfbfb"/>
+      <stop offset="1" stop-color="#efefef"/>
+    </linearGradient>
+  </defs>
+  <rect width="1290" height="728" fill="#ececec"/>
+
+  <rect x="32" y="24" width="597" height="324" rx="10" fill="url(#card)"/>
+  <rect x="654" y="24" width="597" height="324" rx="10" fill="url(#card)"/>
+  <rect x="32" y="378" width="597" height="324" rx="10" fill="url(#card)"/>
+  <rect x="654" y="378" width="597" height="324" rx="10" fill="url(#card)"/>
+
+  <g fill="none" stroke="#ff6624" stroke-width="3.5" stroke-linecap="round">
+    <circle cx="330" cy="93" r="26"/>
+    <ellipse cx="330" cy="93" rx="11" ry="26"/>
+    <path d="M304 93h52M308 80h44M308 106h44M330 67v52"/>
+    <path d="M330 59v8M330 119v8M307 70l-9-6M353 70l9-6M307 116l-9 6M353 116l9 6M304 93h-8M356 93h8"/>
+  </g>
+  <g fill="#ff6624">
+    <rect x="323" y="53" width="14" height="8" rx="2"/>
+    <rect x="323" y="125" width="14" height="8" rx="2"/>
+    <rect x="291" y="61" width="14" height="8" rx="2"/>
+    <rect x="355" y="61" width="14" height="8" rx="2"/>
+    <rect x="291" y="117" width="14" height="8" rx="2"/>
+    <rect x="355" y="117" width="14" height="8" rx="2"/>
+    <rect x="288" y="89" width="10" height="8" rx="2"/>
+    <rect x="362" y="89" width="10" height="8" rx="2"/>
+  </g>
+
+  <rect x="912" y="60" width="68" height="62" rx="7" fill="#ff6624"/>
+  <g stroke="#ffffff" stroke-width="5" stroke-linecap="round">
+    <path d="M922 73h46M922 86h30M922 98h22M922 110h18"/>
+  </g>
+  <circle cx="970" cy="109" r="24" fill="#ffffff"/>
+  <g fill="none" stroke="#ff6624" stroke-width="3">
+    <circle cx="970" cy="109" r="19"/>
+    <ellipse cx="970" cy="109" rx="8" ry="19"/>
+    <path d="M951 109h38M954 99h32M954 119h32"/>
+  </g>
+
+  <g fill="none" stroke="#ff6624" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M292 420h11l14 37h46l6-26h-62"/>
+    <path d="M328 440h26M332 450h18"/>
+  </g>
+  <circle cx="320" cy="472" r="6" fill="#ff6624"/>
+  <circle cx="362" cy="472" r="6" fill="#ff6624"/>
+
+  <path d="M924 412l56 36-56 36z" fill="#ff6624"/>
+
+  <g font-size="19" font-weight="700" fill="#2b2b2b" text-anchor="middle">
+    <text x="330" y="174">Content Delivery Networks (CDNs)</text>
+    <text x="952" y="174">Online Services and Apps</text>
+    <text x="330" y="528">E-commerce Websites</text>
+    <text x="952" y="528">Online Gaming Platforms</text>
+  </g>
+
+  <g font-size="15" fill="#3a3a3a">
+    <text x="62" y="225">CDNs can leverage GeoDNS to direct users to the nearest server, reducing</text>
+    <text x="62" y="244">latency and improving the speed of content delivery. This helps high-traffic</text>
+    <text x="62" y="263">websites deliver media-rich content, images, and videos faster to end-</text>
+    <text x="62" y="282">users.</text>
+
+    <text x="684" y="225">Companies providing online services, such as streaming platforms, VoIP</text>
+    <text x="684" y="244">service providers, social media networks, and collaboration tools, can use</text>
+    <text x="684" y="263">GeoDNS to enhance the performance and responsiveness of their services</text>
+    <text x="684" y="282">for users around the world.</text>
+
+    <text x="62" y="579">E-commerce sites can use GeoDNS to direct users to the nearest server,</text>
+    <text x="62" y="598">improving website load times and minimizing latency. That way, it can</text>
+    <text x="62" y="617">enhance the overall user experience and potentially increase sales.</text>
+
+    <text x="684" y="579">GeoDNS is valuable for online gaming platforms to reduce latency by</text>
+    <text x="684" y="598">directing players to servers located closest to their geographic location,</text>
+    <text x="684" y="617">making the gaming experience incredible. It boosts the overall</text>
+    <text x="684" y="636">responsiveness of the gaming environment.</text>
+  </g>
+</svg>

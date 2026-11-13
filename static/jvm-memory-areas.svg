@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2000 1187" font-family="'Avenir Next', Avenir, 'Segoe UI', Arial, sans-serif" fill="#000">
+<rect width="2000" height="1187" fill="#fff"/>
+<text x="380" y="32" font-size="48" font-weight="700" text-anchor="middle" dominant-baseline="central">Stack</text>
+<text x="1017" y="32" font-size="48" font-weight="700" text-anchor="middle" dominant-baseline="central">Non Heap</text>
+<text x="1710" y="32" font-size="48" font-weight="700" text-anchor="middle" dominant-baseline="central">Heap</text>
+<rect x="258" y="197" width="370" height="381" fill="#fff" stroke="#000" stroke-width="4"/>
+<rect x="221" y="159" width="370" height="381" fill="#fff" stroke="#000" stroke-width="4"/>
+<rect x="184" y="121" width="370" height="380" fill="#fff" stroke="#000" stroke-width="4"/>
+<text x="195" y="142" font-size="20" font-weight="700" text-anchor="start" dominant-baseline="central">Thread</text>
+<rect x="209" y="175" width="193" height="43" fill="#fff" stroke="#000" stroke-width="3.5"/>
+<text x="305.5" y="197" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="central">Program Counter</text>
+<rect x="209" y="240" width="142" height="243" fill="#fff" stroke="#000" stroke-width="3.5"/>
+<text x="280" y="260" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="central">Stack</text>
+<path d="M280 314 V363" stroke="#000" stroke-width="6"/>
+<path d="M280 292 L267 316 L293 316 Z M280 385 L267 361 L293 361 Z" fill="#000"/>
+<path d="M209 385 H351" stroke="#000" stroke-width="3"/>
+<path d="M209 418 H351" stroke="#000" stroke-width="3"/>
+<path d="M209 451 H351" stroke="#000" stroke-width="3"/>
+<rect x="383" y="240" width="144" height="243" fill="#fff" stroke="#000" stroke-width="3.5"/>
+<text x="455" y="260" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="central">Native Stack</text>
+<path d="M455 314 V363" stroke="#000" stroke-width="6"/>
+<path d="M455 292 L442 316 L468 316 Z M455 385 L442 361 L468 361 Z" fill="#000"/>
+<path d="M383 385 H527" stroke="#000" stroke-width="3"/>
+<path d="M383 418 H527" stroke="#000" stroke-width="3"/>
+<path d="M383 451 H527" stroke="#000" stroke-width="3"/>
+<path d="M256 476 C228 540 222 575 213 603 C202 640 110 640 100 733" fill="none" stroke="#000" stroke-width="4"/>
+<rect x="21" y="743" width="758" height="162" fill="#fff" stroke="#000" stroke-width="4"/>
+<text x="32" y="763" font-size="20" font-weight="700" text-anchor="start" dominant-baseline="central">Frame</text>
+<rect x="59" y="810" width="134" height="32" fill="#fff" stroke="#000" stroke-width="3.5"/>
+<text x="126" y="826" font-size="18" font-weight="700" text-anchor="middle" dominant-baseline="central">Return Value</text>
+<text x="290" y="795" font-size="18" font-weight="700" text-anchor="middle" dominant-baseline="central">Local Variables</text>
+<rect x="222" y="808" width="158" height="32" fill="#fff" stroke="#000" stroke-width="3.5"/>
+<path d="M237.8 808 V840" stroke="#000" stroke-width="2.5"/>
+<path d="M253.6 808 V840" stroke="#000" stroke-width="2.5"/>
+<path d="M269.4 808 V840" stroke="#000" stroke-width="2.5"/>
+<path d="M285.2 808 V840" stroke="#000" stroke-width="2.5"/>
+<path d="M301 808 V840" stroke="#000" stroke-width="2.5"/>
+<path d="M316.8 808 V840" stroke="#000" stroke-width="2.5"/>
+<path d="M332.6 808 V840" stroke="#000" stroke-width="2.5"/>
+<path d="M348.4 808 V840" stroke="#000" stroke-width="2.5"/>
+<path d="M364.2 808 V840" stroke="#000" stroke-width="2.5"/>
+<rect x="421" y="759" width="73" height="129" fill="#fff" stroke="#000" stroke-width="3.5"/>
+<text x="458" y="775.5" font-size="12" font-weight="700" text-anchor="middle" dominant-baseline="central">Operand</text>
+<text x="458" y="788.5" font-size="12" font-weight="700" text-anchor="middle" dominant-baseline="central">Stack</text>
+<path d="M458 803 V831" stroke="#000" stroke-width="1.5"/><path d="M452 809 L458 800 L464 809 M452 825 L458 834 L464 825" fill="none" stroke="#000" stroke-width="1.5"/>
+<path d="M421 836 H494" stroke="#000" stroke-width="3"/>
+<path d="M421 853 H494" stroke="#000" stroke-width="3"/>
+<path d="M421 870 H494" stroke="#000" stroke-width="3"/>
+<rect x="542" y="791" width="197" height="66" fill="#fff" stroke="#000" stroke-width="3.5"/>
+<text x="641" y="806" font-size="18" font-weight="700" text-anchor="middle" dominant-baseline="central">Current Class</text>
+<text x="641" y="824" font-size="18" font-weight="700" text-anchor="middle" dominant-baseline="central">Constant Pool</text>
+<text x="641" y="842" font-size="18" font-weight="700" text-anchor="middle" dominant-baseline="central">Reference</text>
+<path d="M713 832 V848" stroke="#000" stroke-width="4"/>
+<path d="M716 840 L990 893" stroke="#000" stroke-width="4" stroke-dasharray="12 9"/>
+<path d="M978 879 L1003 896 L975 906" fill="none" stroke="#000" stroke-width="4" stroke-linejoin="miter"/>
+<text x="913" y="128" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="central">Code Cache</text>
+<rect x="813" y="163" width="203" height="439" fill="#fff" stroke="#000" stroke-width="4"/>
+<text x="1153" y="118" font-size="18" font-weight="700" text-anchor="middle" dominant-baseline="central">Permanent</text>
+<text x="1153" y="138" font-size="18" font-weight="700" text-anchor="middle" dominant-baseline="central">Generation</text>
+<rect x="1050" y="163" width="204" height="439" fill="#fff" stroke="#000" stroke-width="4"/>
+<rect x="1085" y="201" width="133" height="64" fill="#fff" stroke="#000" stroke-width="3.5"/>
+<text x="1151.5" y="223" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="central">Interned</text>
+<text x="1151.5" y="243" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="central">Strings</text>
+<rect x="1067" y="413" width="173" height="162" fill="#fff" stroke="#000" stroke-width="3.5"/>
+<text x="1076" y="428" font-size="18" font-weight="700" text-anchor="start" dominant-baseline="central">Method Area</text>
+<rect x="1122" y="474" width="89" height="85" fill="#fff" stroke="#000" stroke-width="3.5"/>
+<rect x="1109" y="462" width="89" height="85" fill="#fff" stroke="#000" stroke-width="3.5"/>
+<rect x="1097" y="450" width="89" height="85" fill="#fff" stroke="#000" stroke-width="3.5"/>
+<path d="M1149 527 C1128 600 1152 640 1142 680 C1128 735 1035 735 1025 797" fill="none" stroke="#000" stroke-width="4"/>
+<rect x="956" y="808" width="443" height="365" fill="#fff" stroke="#000" stroke-width="4"/>
+<text x="969" y="829" font-size="20" font-weight="700" text-anchor="start" dominant-baseline="central">Class Data</text>
+<text x="1108" y="879" font-size="16" font-weight="700" text-anchor="middle" dominant-baseline="central">Run-Time Constant Pool</text>
+<rect x="1013" y="898" width="192" height="35.2" fill="#fff" stroke="#000" stroke-width="3.5"/>
+<text x="1109" y="916" font-size="14" font-weight="700" text-anchor="middle" dominant-baseline="central">string constants</text>
+<rect x="1013" y="933.2" width="192" height="35.2" fill="#fff" stroke="#000" stroke-width="3.5"/>
+<text x="1109" y="951.2" font-size="14" font-weight="700" text-anchor="middle" dominant-baseline="central">numeric constants</text>
+<rect x="1013" y="968.4" width="192" height="35.2" fill="#fff" stroke="#000" stroke-width="3.5"/>
+<text x="1109" y="986.4" font-size="14" font-weight="700" text-anchor="middle" dominant-baseline="central">class references</text>
+<rect x="1013" y="1003.6" width="192" height="35.2" fill="#fff" stroke="#000" stroke-width="3.5"/>
+<text x="1109" y="1021.6" font-size="14" font-weight="700" text-anchor="middle" dominant-baseline="central">field references</text>
+<rect x="1013" y="1038.8" width="192" height="35.2" fill="#fff" stroke="#000" stroke-width="3.5"/>
+<text x="1109" y="1056.8" font-size="14" font-weight="700" text-anchor="middle" dominant-baseline="central">method references</text>
+<rect x="1013" y="1074" width="192" height="35.2" fill="#fff" stroke="#000" stroke-width="3.5"/>
+<text x="1109" y="1092" font-size="14" font-weight="700" text-anchor="middle" dominant-baseline="central">name and type</text>
+<rect x="1013" y="1109.2" width="192" height="35.2" fill="#fff" stroke="#000" stroke-width="3.5"/>
+<text x="1109" y="1127.2" font-size="14" font-weight="700" text-anchor="middle" dominant-baseline="central">invoke dynamic</text>
+<rect x="1247" y="900" width="114" height="243" fill="#fff" stroke="#000" stroke-width="3.5"/>
+<text x="1304" y="1012.5" font-size="18" font-weight="700" text-anchor="middle" dominant-baseline="central">Method</text>
+<text x="1304" y="1031.5" font-size="18" font-weight="700" text-anchor="middle" dominant-baseline="central">Code</text>
+<text x="1628" y="128" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="central">Young Generation</text>
+<text x="1876" y="118" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="central">Old / Tenured</text>
+<text x="1876" y="138" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="central">Generation</text>
+<rect x="1491" y="163" width="275" height="439" fill="#fff" stroke="#000" stroke-width="4"/>
+<path d="M1649 163 V602" stroke="#000" stroke-width="4"/>
+<text x="1580" y="383" font-size="26" font-weight="700" text-anchor="middle" dominant-baseline="central" transform="rotate(90 1580 383)">Eden Space</text>
+<text x="1709" y="383" font-size="26" font-weight="700" text-anchor="middle" dominant-baseline="central" transform="rotate(90 1709 383)">Survivor Spaces</text>
+<rect x="1776" y="163" width="203" height="439" fill="#fff" stroke="#000" stroke-width="4"/>
+<path d="M1624 614 C1624 676 1670 676 1670 636" fill="none" stroke="#000" stroke-width="13"/>
+<path d="M1670 612 L1654 640 L1686 640 Z" fill="#000"/>
+<path d="M1747 614 C1747 676 1793 676 1793 636" fill="none" stroke="#000" stroke-width="13"/>
+<path d="M1793 612 L1777 640 L1809 640 Z" fill="#000"/>
+<text x="1649" y="686" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="central">Minor</text>
+<text x="1649" y="706" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="central">Garbage</text>
+<text x="1649" y="726" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="central">Collection</text>
+<text x="1772" y="686" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="central">Major</text>
+<text x="1772" y="706" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="central">Garbage</text>
+<text x="1772" y="726" font-size="20" font-weight="700" text-anchor="middle" dominant-baseline="central">Collection</text>
+</svg>

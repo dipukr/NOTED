@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Load Balancer</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Load Balancer</div>
+
+    <div class="intro">
+        <p><strong>Load balancing is the process of distributing traffic among different instances of the same application.</strong></p>
+        <p>To create a fault-tolerant system, it&rsquo;s common to run multiple instances of each application. Thus, whenever one service needs to communicate with another, it needs to pick a particular instance to send its request.</p>
+        <p>There are many algorithms when it comes to load balancing:</p>
+    </div>
+    <div class="intro"><ul>
+        <li>Random selection: Choosing an instance randomly</li>
+        <li>Round-robin: Choosing an instance in the same order each time</li>
+        <li>Least connections: Choosing the instance with the fewest current connections</li>
+        <li>Weighted metric: Using a weighted metric to choose the best instance (for example, CPU or memory usage)</li>
+        <li>IP hash: Using the hash of the client IP to map to an instance</li>
+    </ul></div>
+    <div class="intro">
+        <p>A <strong>load balancer</strong> is the component that does this work. It sits between the callers and a pool of identical instances, receives every request, picks one healthy instance using its algorithm, and forwards the request there. Callers only know the balancer&rsquo;s address, so instances can be added, removed, or replaced without the callers noticing.</p>
+        <p>Because no single instance has to absorb all the traffic, the system can scale horizontally by adding instances, and it keeps serving requests when one instance crashes, since the balancer simply stops sending traffic to it.</p>
+    </div>
+
+    <div class="section-diagram">
+        <img src="../static/balancer-overview.svg" alt="Three clients send requests to a load balancer, which distributes them across three instances of the same application: Instance A, Instance B and Instance C">
+    </div>
+
+    <div class="section cmp">
+        <div class="section-title centered">How It Works</div>
+        <div class="section-content">
+            <table class="cmp-table">
+                <tbody>
+                    <tr><td>Receive</td><td>The client sends its request to the balancer&rsquo;s single address (a virtual IP or DNS name) instead of to any one instance.</td></tr>
+                    <tr><td>Health Check</td><td>The balancer continuously probes each instance (a TCP connect or an HTTP endpoint such as <code>/health</code>) and keeps only the healthy ones in the pool.</td></tr>
+                    <tr><td>Choose</td><td>It applies the configured algorithm to the healthy instances to pick the target for this request.</td></tr>
+                    <tr><td>Forward</td><td>The request is sent to the chosen instance, and the response travels back to the client through the balancer.</td></tr>
+                    <tr><td>Adapt</td><td>When an instance fails its checks it is taken out of rotation; when it recovers, or a new one is added, it starts receiving traffic again.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="section cmp">
+        <div class="section-title centered">Load Balancing Algorithms</div>
+        <div class="section-content">
+            <table class="cmp-table">
+                <tbody>
+                    <tr><td>Round Robin</td><td>Sends each new request to the next instance in a fixed order, wrapping back to the first. Simple and fair when instances are identical and requests cost about the same.</td></tr>
+                    <tr><td>Weighted Round Robin</td><td>Round robin where each instance has a weight; an instance with weight 3 gets three requests for every one sent to an instance with weight 1. Useful when machines have different capacity.</td></tr>
+                    <tr><td>Random</td><td>Picks an instance at random. Needs no shared state, and over many requests it spreads load evenly.</td></tr>
+                    <tr><td>Least Connections</td><td>Picks the instance with the fewest active connections. Works well when request durations vary a lot, such as long-lived or streaming connections.</td></tr>
+                    <tr><td>Weighted Least Connections</td><td>Compares active connections divided by weight, so bigger instances are allowed proportionally more open connections.</td></tr>
+                    <tr><td>Least Response Time</td><td>Picks the instance with the lowest recent response time (often combined with fewest connections), steering traffic away from slow instances.</td></tr>
+                    <tr><td>Weighted Metric</td><td>Chooses using live resource metrics such as CPU or memory usage reported by each instance, sending work to the least loaded one.</td></tr>
+                    <tr><td>IP Hash</td><td>Hashes the client IP to pick an instance, so the same client keeps reaching the same instance. Gives simple session stickiness without cookies.</td></tr>
+                    <tr><td>Consistent Hashing</td><td>Places instances and request keys on a hash ring; adding or removing an instance only moves the keys next to it. Common for caches and sharded data.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="section cmp">
+        <div class="section-title centered">Types of Load Balancers</div>
+        <div class="section-content">
+            <table class="cmp-table">
+                <tbody>
+                    <tr><td>Layer 4 (Transport)</td><td>Routes on IP address and TCP/UDP port without reading the request content. Very fast, but cannot route by URL, header, or cookie.</td></tr>
+                    <tr><td>Layer 7 (Application)</td><td>Reads the HTTP request and can route by path, host, header, or cookie, terminate TLS, and rewrite requests. More flexible, slightly more work per request.</td></tr>
+                    <tr><td>Hardware</td><td>Dedicated appliances (for example F5 BIG-IP) with high throughput; expensive and less flexible to scale.</td></tr>
+                    <tr><td>Software</td><td>Runs on ordinary servers or containers, such as NGINX, HAProxy, or Envoy; cheap and easy to automate.</td></tr>
+                    <tr><td>Cloud Managed</td><td>Provided as a service, such as AWS ELB/ALB/NLB, Azure Load Balancer, or Google Cloud Load Balancing; scales and stays available without servers to manage.</td></tr>
+                    <tr><td>Server-Side</td><td>A separate balancer sits in front of the instances and every request passes through it; clients stay simple.</td></tr>
+                    <tr><td>Client-Side</td><td>The caller fetches the instance list from service discovery (for example Eureka or Consul) and picks an instance itself, as Spring Cloud LoadBalancer does; no extra network hop.</td></tr>
+                    <tr><td>Global (DNS / GSLB)</td><td>Spreads users across regions or data centers by returning different addresses from DNS, often based on location or region health.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="section cmp">
+        <div class="section-title centered">Key Features</div>
+        <div class="section-content">
+            <table class="cmp-table">
+                <tbody>
+                    <tr><td>Health Checks</td><td>Active probes and passive failure tracking remove unhealthy instances automatically and add them back once they recover.</td></tr>
+                    <tr><td>Session Persistence</td><td>Sticky sessions (cookie or IP based) keep a user on the same instance when session state lives in that instance&rsquo;s memory.</td></tr>
+                    <tr><td>TLS Termination</td><td>The balancer decrypts HTTPS once, so instances handle plain HTTP and certificates are managed in one place.</td></tr>
+                    <tr><td>Connection Draining</td><td>An instance being removed stops getting new requests but finishes the ones in flight, which allows deployments without dropped requests.</td></tr>
+                    <tr><td>Autoscaling Integration</td><td>New instances created by an autoscaler register with the balancer and start receiving traffic automatically.</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="subheading">Pros and Cons</div>
+    <div class="intro">
+        <p class="minor-heading"><strong>Pros</strong></p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>High Availability</strong><br>When an instance fails its health checks, traffic goes to the remaining instances, so a single crash does not take the service down.</li>
+        <li><strong>Horizontal Scalability</strong><br>Capacity grows by adding instances behind the balancer instead of buying a bigger machine.</li>
+        <li><strong>Even Resource Use</strong><br>Spreading requests prevents one instance from overloading while others sit idle, keeping latency steady.</li>
+        <li><strong>Zero-Downtime Deployments</strong><br>Instances can be drained, updated, and returned one at a time (rolling, blue-green, or canary releases) while users keep being served.</li>
+        <li><strong>Single Entry Point</strong><br>Clients use one stable address; TLS, rate limiting, and routing rules can be applied in one place.</li>
+        <li><strong>Flexibility</strong><br>Instances can be moved, resized, or replaced without changing any client configuration.</li>
+    </ul></div>
+    <div class="intro">
+        <p class="minor-heading"><strong>Cons</strong></p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>Single Point of Failure</strong><br>A lone balancer can itself go down; it needs a redundant pair or a managed service to avoid becoming the weakest link.</li>
+        <li><strong>Extra Hop and Latency</strong><br>Every request passes through one more network component, adding a little latency and another place to troubleshoot.</li>
+        <li><strong>Session State Problems</strong><br>If instances keep user sessions in memory, requests landing on a different instance lose that state unless sessions are sticky or shared.</li>
+        <li><strong>Configuration Complexity</strong><br>Algorithms, health checks, timeouts, and TLS settings must be tuned correctly; mistakes can send traffic to broken instances or reject good ones.</li>
+        <li><strong>Cost</strong><br>Hardware appliances and managed balancers add licensing or usage costs, and redundancy doubles them.</li>
+        <li><strong>Uneven Load with Simple Algorithms</strong><br>Round robin or random can still overload an instance when some requests are much heavier than others.</li>
+    </ul></div>
+
+    <div class="section code-section">
+        <div class="section-title">Round Robin</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">RoundRobinBalancer</span> {
+
+    <span class="code-keyword">private</span> <span class="code-class">List</span>&lt;<span class="code-class">String</span>&gt; instances;
+    <span class="code-keyword">private</span> <span class="code-class">AtomicInteger</span> next = <span class="code-keyword">new</span> <span class="code-class">AtomicInteger</span>();
+
+    <span class="code-keyword">public</span> <span class="code-class">RoundRobinBalancer</span>(<span class="code-class">List</span>&lt;<span class="code-class">String</span>&gt; instances) {
+        <span class="code-keyword">this</span>.instances = instances;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">String</span> choose() {
+        <span class="code-keyword">int</span> index = <span class="code-class">Math</span>.floorMod(next.getAndIncrement(), instances.size());
+        <span class="code-keyword">return</span> instances.get(index);
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <p><code>next</code> is a shared counter, so every call to <code>choose()</code> takes the following instance in order.<br><br>
+                    <code>AtomicInteger</code> keeps it correct when many threads pick instances at once.<br><br>
+                    <code>floorMod</code> wraps the counter back to the first instance, even after it overflows to a negative value.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Least Connections</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">LeastConnectionsBalancer</span> {
+
+    <span class="code-keyword">private</span> <span class="code-class">Map</span>&lt;<span class="code-class">String</span>, <span class="code-class">AtomicInteger</span>&gt; active = <span class="code-keyword">new</span> <span class="code-class">ConcurrentHashMap</span>&lt;&gt;();
+
+    <span class="code-keyword">public</span> <span class="code-class">LeastConnectionsBalancer</span>(<span class="code-class">List</span>&lt;<span class="code-class">String</span>&gt; instances) {
+        instances.forEach(i -&gt; active.put(i,<span class="code-keyword">new</span> <span class="code-class">AtomicInteger</span>()));
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">String</span> acquire() {
+        <span class="code-class">Comparator</span>&lt;<span class="code-class">String</span>&gt; load =
+                <span class="code-class">Comparator</span>.comparingInt(i -&gt; active.get(i).get());
+        <span class="code-class">String</span> instance = <span class="code-class">Collections</span>.min(active.keySet(), load);
+        active.get(instance).incrementAndGet(); <span class="code-comment"># one more open request</span>
+        <span class="code-keyword">return</span> instance;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> release(<span class="code-class">String</span> instance) {
+        active.get(instance).decrementAndGet(); <span class="code-comment"># request finished</span>
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <p><code>active</code> tracks how many requests each instance is currently handling.<br><br>
+                    <code>acquire()</code> picks the instance with the smallest count and increments it; the caller calls <code>release()</code> when the response arrives.<br><br>
+                    Slow instances hold their connections longer, so they naturally receive fewer new requests.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Spring Cloud LoadBalancer</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-class">@Configuration</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ClientConfig</span> {
+
+    <span class="code-class">@Bean</span>
+    <span class="code-class">@LoadBalanced</span>
+    <span class="code-keyword">public</span> <span class="code-class">RestClient</span>.<span class="code-class">Builder</span> restClientBuilder() {
+        <span class="code-keyword">return</span> <span class="code-class">RestClient</span>.builder();
+    }
+}
+
+<span class="code-class">@Service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">PaymentClient</span> {
+
+    <span class="code-keyword">private</span> <span class="code-class">RestClient</span> client;
+
+    <span class="code-keyword">public</span> <span class="code-class">PaymentClient</span>(<span class="code-class">RestClient</span>.<span class="code-class">Builder</span> builder) {
+        <span class="code-keyword">this</span>.client = builder.build();
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">Payment</span> getPayment(<span class="code-keyword">long</span> id) {
+        <span class="code-keyword">return</span> client.get()
+                .uri(<span class="code-string">"http://payment-service/api/payments/{id}"</span>, id)
+                .retrieve()
+                .body(<span class="code-class">Payment</span>.<span class="code-keyword">class</span>);
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <p><code>@LoadBalanced</code> makes every client built from this builder resolve the host name through service discovery.<br><br>
+                    <code>payment-service</code> is a logical service name, not a real host; Spring replaces it with one of its registered instances on every call.<br><br>
+                    This is client-side load balancing: round robin by default, with no separate balancer in the request path.</p>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 300" font-family="Arial, Helvetica, sans-serif" font-size="15">
+  <defs>
+    <marker id="ob-arrow" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4 L0,8 Z" fill="#888"/></marker>
+  </defs>
+  <rect x="0" y="0" width="640" height="300" fill="#ffffff"/>
+
+  <g fill="none" stroke="#888" stroke-width="1.4" marker-end="url(#ob-arrow)">
+    <path d="M190,45 L238,45"/>
+    <path d="M400,45 L448,45"/>
+    <path d="M530,72 L530,105 L320,105 L320,128"/>
+  </g>
+
+  <g fill="#ffffff" stroke="#222" stroke-width="1.2">
+    <rect x="20" y="18" width="170" height="54" rx="6"/>
+    <rect x="240" y="18" width="160" height="54" rx="6"/>
+    <rect x="450" y="18" width="170" height="54" rx="6"/>
+    <rect x="160" y="130" width="320" height="156" rx="6"/>
+  </g>
+
+  <g fill="#111" text-anchor="middle" dominant-baseline="central">
+    <text x="105" y="36" font-weight="700">Spring Boot</text>
+    <text x="105" y="56" font-size="13">Metrics + Traces</text>
+    <text x="320" y="36" font-weight="700">OpenTelemetry</text>
+    <text x="320" y="56" font-size="13">Collector</text>
+    <text x="535" y="36" font-weight="700">Backend</text>
+    <text x="535" y="56" font-size="13">Observability</text>
+    <text x="320" y="156" font-weight="700">Monitoring dashboards</text>
+  </g>
+
+  <g fill="#111" dominant-baseline="central" font-size="14">
+    <text x="182" y="196">P50</text>
+    <text x="182" y="228">P95</text>
+    <text x="182" y="260">P99</text>
+  </g>
+  <g fill="#ffffff" stroke="#bbb" stroke-width="1">
+    <rect x="228" y="189" width="226" height="14" rx="3"/>
+    <rect x="228" y="221" width="226" height="14" rx="3"/>
+    <rect x="228" y="253" width="226" height="14" rx="3"/>
+  </g>
+  <g fill="#888">
+    <rect x="228" y="189" width="50" height="14" rx="3"/>
+    <rect x="228" y="221" width="125" height="14" rx="3"/>
+    <rect x="228" y="253" width="196" height="14" rx="3"/>
+  </g>
+</svg>

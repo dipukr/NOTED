@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P2P</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Peer-to-Peer (P2P) Architecture</div>
+
+    <div class="intro">
+        <p>A <strong>peer-to-peer (P2P)</strong> architecture consists of a decentralized network of peers: nodes that are both clients and servers. P2P networks distribute the workload between peers, and all peers contribute and consume resources within the network without the need for a centralized server.</p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/p2p-mesh.svg" alt="Six peers, A to F, connected directly to one another in a partial mesh with no central server" style="width:100%;max-width:460px">
+    </div>
+    <div class="intro">
+        <p>In a <strong>client-server</strong> system, clients only request and a server only responds. In a P2P system every node, called a <strong>peer</strong> (or sometimes a "servent", from server plus client), does both: it requests data from other peers and serves its own data to them. Each new peer brings its own bandwidth, storage and CPU, so the capacity of the network grows with the number of users instead of being limited by one server.</p>
+    </div>
+
+    <div class="subheading">Key Characteristics</div>
+    <div class="intro">
+        <p class="minor-heading"><strong>Decentralization</strong></p>
+        <p>There is no single node that controls the network or that every request must pass through. Control, data and work are spread over all peers.</p>
+        <p class="minor-heading"><strong>Peers Are Both Clients and Servers</strong></p>
+        <p>Every peer can start requests and answer them. A peer downloading a file in BitTorrent is at the same time uploading the pieces it already has to other peers.</p>
+        <p class="minor-heading"><strong>Shared Resources</strong></p>
+        <p>Peers contribute resources to the network: storage (IPFS), bandwidth (BitTorrent), computing power (BOINC volunteer computing) or validation work (Bitcoin miners and nodes).</p>
+        <p class="minor-heading"><strong>Self-Organization</strong></p>
+        <p>Peers discover each other, join and leave, and route requests without central coordination. The network keeps working while its membership constantly changes.</p>
+        <p class="minor-heading"><strong>Churn</strong></p>
+        <p>Peers come and go all the time, often without warning, when users close an application or lose their connection. This constant change of membership is called <strong>churn</strong>, and every P2P design has to tolerate it.</p>
+        <p class="minor-heading"><strong>Scalability</strong></p>
+        <p>Every new peer is both a consumer and a provider, so demand and capacity grow together. A popular file in BitTorrent becomes easier to download, not harder, because more peers can serve it.</p>
+        <p class="minor-heading"><strong>Fault Tolerance</strong></p>
+        <p>Data and services are replicated on many peers, so the failure of any single peer, or even many peers, does not take the network down. There is no single point of failure.</p>
+    </div>
+
+    <div class="subheading">Client-Server vs Peer-to-Peer</div>
+    <div class="intro">
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Aspect</th><th>Client-server</th><th>Peer-to-peer</th></tr></thead>
+            <tbody>
+                <tr><td>Roles</td><td>Fixed: clients request, servers respond</td><td>Every peer is both client and server</td></tr>
+                <tr><td>Control</td><td>Central, by the server owner</td><td>Distributed among peers</td></tr>
+                <tr><td>Single point of failure</td><td>Yes, unless the server is replicated</td><td>No</td></tr>
+                <tr><td>Scalability</td><td>The server must grow with the number of clients</td><td>Capacity grows as peers join</td></tr>
+                <tr><td>Cost</td><td>The provider pays for servers and bandwidth</td><td>Costs are shared by the peers</td></tr>
+                <tr><td>Data consistency</td><td>Easy: one authoritative copy</td><td>Hard: many copies, no central authority</td></tr>
+                <tr><td>Security and trust</td><td>Managed centrally</td><td>Each peer must be treated as untrusted</td></tr>
+                <tr><td>Discovery</td><td>Clients know the server address</td><td>Peers must find each other dynamically</td></tr>
+                <tr><td>Examples</td><td>Web applications, REST APIs, email servers</td><td>BitTorrent, Bitcoin, IPFS, WebRTC calls</td></tr>
+            </tbody>
+        </table></div>
+    </div>
+
+    <div class="subheading">Types of P2P Networks</div>
+    <div class="intro">
+        <p class="minor-heading"><strong>1. Unstructured P2P</strong></p>
+        <p>Peers connect to each other randomly, with no rule about which peer stores which data. To find something, a peer <strong>floods</strong> the query to its neighbors, which forward it to theirs up to a hop limit (TTL), or sends it on a <strong>random walk</strong>.</p>
+        <ul>
+            <li><strong>Examples:</strong> Gnutella, early versions of Freenet.</li>
+            <li><strong>Strengths:</strong> Simple, cheap to join and leave, and supports complex queries such as keyword search.</li>
+            <li><strong>Weaknesses:</strong> Flooding creates heavy network traffic, and rare items may not be found before the TTL runs out.</li>
+        </ul>
+        <p class="minor-heading"><strong>2. Structured P2P (Distributed Hash Tables)</strong></p>
+        <p>Peers and data keys share one <strong>ID space</strong>, and a fixed rule decides which peer is responsible for each key. A <strong>distributed hash table (DHT)</strong> can route a lookup to the responsible peer in about O(log N) hops, where N is the number of peers.</p>
+        <ul>
+            <li><strong>Examples:</strong> Chord, Kademlia (used by BitTorrent&rsquo;s Mainline DHT, IPFS and Ethereum&rsquo;s node discovery), Pastry, CAN.</li>
+            <li><strong>Strengths:</strong> Efficient, guaranteed lookups that scale to millions of peers.</li>
+            <li><strong>Weaknesses:</strong> Only exact-key lookups, and more overhead to maintain routing tables under churn.</li>
+        </ul>
+        <p class="minor-heading"><strong>3. Hybrid P2P</strong></p>
+        <p>Some functions are centralized, usually discovery or indexing, while the actual data transfer happens directly between peers.</p>
+        <ul>
+            <li><strong>Central index:</strong> Napster kept a central index of which user had which song; downloads went directly between users. Shutting down the index shut down the network.</li>
+            <li><strong>Trackers:</strong> A BitTorrent tracker tells a peer which other peers have the same torrent; the tracker never sees the file data.</li>
+            <li><strong>Super-peers:</strong> Peers with good bandwidth and uptime act as local hubs for weaker peers, as in KaZaA and early Skype.</li>
+        </ul>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Type</th><th>Lookup</th><th>Search features</th><th>Resilience</th><th>Examples</th></tr></thead>
+            <tbody>
+                <tr><td>Unstructured</td><td>Flooding or random walk</td><td>Keyword and complex queries</td><td>High</td><td>Gnutella</td></tr>
+                <tr><td>Structured (DHT)</td><td>O(log N) routing</td><td>Exact key only</td><td>High, with routing upkeep</td><td>Kademlia, Chord</td></tr>
+                <tr><td>Hybrid</td><td>Ask the central index or tracker</td><td>Whatever the index supports</td><td>The index is a weak point</td><td>Napster, BitTorrent with trackers</td></tr>
+            </tbody>
+        </table></div>
+    </div>
+
+    <div class="subheading">How a P2P Network Works</div>
+    <div class="intro">
+        <p class="minor-heading"><strong>1. Bootstrapping</strong></p>
+        <p>A new peer needs the address of at least one peer already in the network. Common sources are hard-coded <strong>bootstrap nodes</strong>, DNS seeds (used by Bitcoin), trackers, a local network broadcast, or addresses remembered from a previous session.</p>
+        <p class="minor-heading"><strong>2. Peer Discovery</strong></p>
+        <p>Once connected, a peer learns about more peers from its neighbors, for example through DHT lookups or by asking for their peer lists. It keeps a limited set of connections and replaces peers that disappear.</p>
+        <p class="minor-heading"><strong>3. Resource Lookup</strong></p>
+        <p>The peer finds who has the data it needs: by flooding a query, by asking a DHT for the key, or by asking a tracker or index.</p>
+        <p class="minor-heading"><strong>4. Direct Transfer</strong></p>
+        <p>The data moves directly between peers. Large content is split into <strong>pieces</strong> that can be downloaded from many peers at once and verified independently with a cryptographic hash.</p>
+        <p class="minor-heading"><strong>5. Leaving</strong></p>
+        <p>A peer may leave gracefully or simply disappear. Replication, timeouts and periodic refreshes of routing tables keep the network healthy anyway.</p>
+    </div>
+
+    <div class="subheading">Distributed Hash Tables and Kademlia</div>
+    <div class="intro">
+        <p>A DHT works like a giant <code>Map&lt;Key, Value&gt;</code> spread over all peers. Both peers and keys get IDs from the same hash function, for example 160-bit SHA-1 in Kademlia. A key is stored on the peers whose IDs are <strong>closest</strong> to the key.</p>
+        <p><strong>Kademlia</strong> defines the distance between two IDs as their bitwise <strong>XOR</strong>, interpreted as an integer. XOR distance has useful properties: the distance from a node to itself is 0, it is symmetric, and for any ID and distance there is exactly one ID at that distance.</p>
+        <ul>
+            <li>Each peer keeps a routing table of 160 <strong>k-buckets</strong>. Bucket i holds up to k peers (typically 20) whose distance has its highest set bit at position i, so a peer knows many peers close to itself and a few far away.</li>
+            <li>A lookup asks the closest known peers for even closer peers, in parallel. Each step gets at least one bit closer to the key, so a lookup finishes in O(log N) steps.</li>
+            <li>A k-bucket prefers peers that have been online for a long time, because such peers are most likely to stay online. This also makes the table harder to flood with fake peers.</li>
+        </ul>
+    </div>
+    <div class="callout callout-note"><p>Consistent hashing in systems such as Cassandra and DynamoDB uses the same idea as a DHT: both nodes and keys are placed on a hash ring, and each key belongs to the nearest node. See <a href="Sharding.html">Sharding</a>.</p></div>
+
+    <div class="subheading">NAT Traversal</div>
+    <div class="intro">
+        <p>Most peers sit behind home routers or carrier-grade NAT, so they cannot accept incoming connections directly. P2P applications use several techniques to connect such peers; see <a href="NAT.html">NAT</a> for how NAT works.</p>
+        <ul>
+            <li><strong>STUN:</strong> A peer asks a public server which external IP address and port its NAT assigned to it, and shares that address with the other peer.</li>
+            <li><strong>UDP hole punching:</strong> Both peers send packets to each other&rsquo;s external address at the same time, which opens matching mappings in both NATs.</li>
+            <li><strong>TURN:</strong> When a direct connection is impossible, traffic is relayed through a server. This always works but costs server bandwidth.</li>
+            <li><strong>ICE:</strong> Tries all candidate addresses (local, STUN-discovered and TURN relay) and picks the best path that works. WebRTC uses ICE.</li>
+        </ul>
+    </div>
+
+    <div class="subheading">Gossip Protocols</div>
+    <div class="intro">
+        <p>In a <strong>gossip</strong> (epidemic) protocol, each peer periodically passes what it knows to a few random peers, which pass it on in turn. Information reaches all N peers in about O(log N) rounds, without any central coordinator, and the protocol keeps working when many peers fail.</p>
+        <ul>
+            <li>Bitcoin and Ethereum nodes gossip new transactions and blocks.</li>
+            <li>Cassandra nodes gossip cluster membership and node state every second.</li>
+            <li>Consul and Serf use the SWIM gossip protocol for failure detection.</li>
+        </ul>
+        <p>The chat example below uses the simplest form of gossip: <strong>flooding with duplicate suppression</strong>. Every message has a unique ID, and each peer forwards a message only the first time it sees that ID.</p>
+    </div>
+
+    <div class="subheading">Real-World Examples</div>
+    <div class="intro">
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>System</th><th>How it uses P2P</th></tr></thead>
+            <tbody>
+                <tr><td>BitTorrent</td><td>Files are split into pieces; peers download pieces from each other and upload the pieces they have. Peers are found through trackers, the Mainline DHT (Kademlia) and peer exchange.</td></tr>
+                <tr><td>Bitcoin, Ethereum</td><td>Every full node keeps a copy of the blockchain, validates transactions and gossips them to its peers. Consensus replaces a central authority.</td></tr>
+                <tr><td>IPFS</td><td>Content is addressed by its hash (a CID) instead of a location. A Kademlia DHT finds which peers provide a CID, and the libp2p library handles transport, encryption and NAT traversal.</td></tr>
+                <tr><td>WebRTC</td><td>Browsers send audio, video and data directly to each other. A signaling server only exchanges the connection details; ICE, STUN and TURN handle NAT.</td></tr>
+                <tr><td>Skype (before about 2012)</td><td>Used a P2P overlay with super-nodes; Microsoft later moved it to central servers.</td></tr>
+                <tr><td>Spotify (before 2014)</td><td>Desktop clients served cached music to each other to reduce server load.</td></tr>
+                <tr><td>Cassandra, DynamoDB-style stores</td><td>Leaderless clusters where every node is equal; nodes gossip membership and keys are placed by consistent hashing.</td></tr>
+                <tr><td>Git</td><td>Every clone is a complete repository, and any two repositories can push and pull to each other directly.</td></tr>
+            </tbody>
+        </table></div>
+    </div>
+
+    <div class="subheading">BitTorrent in Detail</div>
+    <div class="intro">
+        <p>BitTorrent is the most widely used P2P file-sharing protocol and shows many P2P techniques together.</p>
+        <ol>
+            <li>A <code>.torrent</code> file or a <strong>magnet link</strong> describes the content: file names, piece size and a hash of every piece. The <strong>info hash</strong> identifies the torrent.</li>
+            <li>The client finds peers through a tracker, the DHT and peer exchange (PEX). Together, all peers sharing the torrent form a <strong>swarm</strong>.</li>
+            <li>The file is downloaded as pieces, typically 256 KiB to a few MiB each, from many peers in parallel. Every piece is checked against its hash, so a corrupted or malicious piece is detected and downloaded again.</li>
+            <li><strong>Rarest first:</strong> a client downloads the pieces that the fewest peers have first, so rare pieces spread quickly.</li>
+            <li><strong>Tit-for-tat:</strong> a client uploads mainly to the peers that upload the most to it (choking and unchoking), which rewards sharing and discourages free-riding.</li>
+            <li>A peer that has the complete file and keeps uploading is a <strong>seeder</strong>; a peer still downloading is a <strong>leecher</strong>.</li>
+        </ol>
+    </div>
+
+    <div class="subheading">Java Example 1: P2P Chat Node with Gossip</div>
+    <div class="intro">
+        <p>Each <code>PeerNode</code> is both a server, accepting connections on its own port, and a client, connecting to other peers. Messages are flooded through the network with duplicate suppression, so a message reaches peers that are not directly connected to the sender. The example uses plain sockets and virtual threads (Java 21+).</p>
+    </div>
+    <div class="section code-section">
+        <div class="section-title">PeerNode.java</div>
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">PeerNode</span> {
+    <span class="code-keyword">private</span> <span class="code-class">String</span> id;
+    <span class="code-keyword">private</span> <span class="code-keyword">int</span> port;
+    <span class="code-keyword">private</span> <span class="code-class">Set</span>&lt;<span class="code-class">String</span>&gt; seen = <span class="code-class">ConcurrentHashMap</span>.newKeySet();
+    <span class="code-keyword">private</span> <span class="code-class">List</span>&lt;<span class="code-class">PrintWriter</span>&gt; peers = <span class="code-keyword">new</span> <span class="code-class">CopyOnWriteArrayList</span>&lt;&gt;();
+
+    <span class="code-keyword">public</span> <span class="code-class">PeerNode</span>(<span class="code-class">String</span> id, <span class="code-keyword">int</span> port) {
+        <span class="code-keyword">this</span>.id = id;
+        <span class="code-keyword">this</span>.port = port;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> start() <span class="code-keyword">throws</span> <span class="code-class">IOException</span> {
+        <span class="code-class">ServerSocket</span> server = <span class="code-keyword">new</span> <span class="code-class">ServerSocket</span>(port); <span class="code-comment"># Server role: accept connections from other peers</span>
+        <span class="code-class">Thread</span>.ofVirtual().start(() -&gt; {
+            <span class="code-keyword">while</span> (!server.isClosed()) {
+                <span class="code-keyword">try</span> {
+                    handle(server.accept());
+                } <span class="code-keyword">catch</span> (<span class="code-class">IOException</span> e) {
+                    <span class="code-class">IO</span>.println(id + <span class="code-string">": accept failed: "</span> + e.getMessage());
+                }
+            }
+        });
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> connect(<span class="code-class">String</span> host, <span class="code-keyword">int</span> peerPort) <span class="code-keyword">throws</span> <span class="code-class">IOException</span> {
+        handle(<span class="code-keyword">new</span> <span class="code-class">Socket</span>(host, peerPort)); <span class="code-comment"># Client role: connect to another peer</span>
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> broadcast(<span class="code-class">String</span> text) {
+        <span class="code-class">String</span> messageId = id + <span class="code-string">"-"</span> + UUID.randomUUID();
+        seen.add(messageId);
+        send(<span class="code-string">"MSG "</span> + messageId + <span class="code-string">" "</span> + id + <span class="code-string">" "</span> + text, <span class="code-keyword">null</span>);
+    }
+
+    <span class="code-keyword">private</span> <span class="code-keyword">void</span> handle(<span class="code-class">Socket</span> socket) <span class="code-keyword">throws</span> <span class="code-class">IOException</span> {
+        <span class="code-class">PrintWriter</span> out = <span class="code-keyword">new</span> <span class="code-class">PrintWriter</span>(socket.getOutputStream(), <span class="code-keyword">true</span>);
+        peers.add(out);
+        <span class="code-class">Thread</span>.ofVirtual().start(() -&gt; { <span class="code-comment"># One cheap virtual thread per connection</span>
+            <span class="code-keyword">try</span> (<span class="code-keyword">var</span> in = <span class="code-keyword">new</span> <span class="code-class">BufferedReader</span>(<span class="code-keyword">new</span> <span class="code-class">InputStreamReader</span>(socket.getInputStream()))) {
+                <span class="code-class">String</span> line;
+                <span class="code-keyword">while</span> ((line = in.readLine()) != <span class="code-keyword">null</span>) onMessage(line, out);
+            } <span class="code-keyword">catch</span> (<span class="code-class">IOException</span> e) {
+                <span class="code-class">IO</span>.println(id + <span class="code-string">": peer disconnected"</span>);
+            } <span class="code-keyword">finally</span> {
+                peers.remove(out);
+            }
+        });
+    }
+
+    <span class="code-keyword">private</span> <span class="code-keyword">void</span> onMessage(<span class="code-class">String</span> line, <span class="code-class">PrintWriter</span> from) {
+        <span class="code-class">String</span>[] parts = line.split(<span class="code-string">" "</span>, <span class="code-number">4</span>); <span class="code-comment"># MSG &lt;messageId&gt; &lt;origin&gt; &lt;text&gt;</span>
+        <span class="code-keyword">if</span> (parts.length &lt; <span class="code-number">4</span> || !seen.add(parts[<span class="code-number">1</span>])) <span class="code-keyword">return</span>; <span class="code-comment"># Already seen: drop it, which stops endless loops</span>
+        <span class="code-class">IO</span>.println(<span class="code-string">"["</span> + id + <span class="code-string">"] "</span> + parts[<span class="code-number">2</span>] + <span class="code-string">": "</span> + parts[<span class="code-number">3</span>]);
+        send(line, from); <span class="code-comment"># Gossip: forward to every other connected peer</span>
+    }
+
+    <span class="code-keyword">private</span> <span class="code-keyword">void</span> send(<span class="code-class">String</span> line, <span class="code-class">PrintWriter</span> except) {
+        <span class="code-keyword">for</span> (<span class="code-class">PrintWriter</span> peer : peers) {
+            <span class="code-keyword">if</span> (peer != except) peer.println(line);
+        }
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>A small program starts three peers. Bob connects to Alice, and Carol connects only to Bob, yet Alice&rsquo;s message still reaches Carol through Bob.</p>
+    </div>
+    <div class="section code-section">
+        <div class="section-title">Main.java</div>
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) <span class="code-keyword">throws</span> <span class="code-class">Exception</span> {
+    <span class="code-class">PeerNode</span> alice = <span class="code-keyword">new</span> <span class="code-class">PeerNode</span>(<span class="code-string">"alice"</span>, <span class="code-number">7001</span>);
+    <span class="code-class">PeerNode</span> bob = <span class="code-keyword">new</span> <span class="code-class">PeerNode</span>(<span class="code-string">"bob"</span>, <span class="code-number">7002</span>);
+    <span class="code-class">PeerNode</span> carol = <span class="code-keyword">new</span> <span class="code-class">PeerNode</span>(<span class="code-string">"carol"</span>, <span class="code-number">7003</span>);
+    alice.start();
+    bob.start();
+    carol.start();
+    bob.connect(<span class="code-string">"localhost"</span>, <span class="code-number">7001</span>); <span class="code-comment"># bob &lt;-&gt; alice</span>
+    carol.connect(<span class="code-string">"localhost"</span>, <span class="code-number">7002</span>); <span class="code-comment"># carol &lt;-&gt; bob; carol has no direct link to alice</span>
+    <span class="code-class">Thread</span>.sleep(<span class="code-number">200</span>);
+    alice.broadcast(<span class="code-string">"Hello, peers!"</span>);
+    <span class="code-class">Thread</span>.sleep(<span class="code-number">500</span>);
+}</code></pre>
+        </div>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">java</span> Main.java<span class="code-comment"> # Java 22+: also compiles PeerNode.java from the same directory</span></code></pre>
+        </div>
+    </div>
+    <div class="section code-section">
+        <div class="code-wrapper">
+<pre><code>[bob] alice: Hello, peers!
+[carol] alice: Hello, peers!</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>In a real network each peer would run in its own process on its own machine. The same <code>connect</code> call then takes the remote peer&rsquo;s IP address instead of <code>localhost</code>.</p>
+    </div>
+
+    <div class="subheading">Java Example 2: Peer Discovery on a Local Network</div>
+    <div class="intro">
+        <p>Peers on the same LAN can find each other without any configuration: each peer broadcasts a small UDP announcement, and every peer listens for announcements on a well-known port. Once discovered, peers connect over TCP as in the first example.</p>
+    </div>
+    <div class="section code-section">
+        <div class="section-title">PeerDiscovery.java</div>
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">PeerDiscovery</span> {
+    <span class="code-keyword">private</span> <span class="code-keyword">static</span> <span class="code-keyword">int</span> DISCOVERY_PORT = <span class="code-number">4446</span>;
+
+    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-keyword">void</span> announce(<span class="code-class">String</span> peerId, <span class="code-keyword">int</span> tcpPort) <span class="code-keyword">throws</span> <span class="code-class">IOException</span> {
+        <span class="code-keyword">byte</span>[] data = (<span class="code-string">"PEER "</span> + peerId + <span class="code-string">" "</span> + tcpPort).getBytes(<span class="code-class">StandardCharsets</span>.UTF_8);
+        <span class="code-keyword">try</span> (<span class="code-class">DatagramSocket</span> socket = <span class="code-keyword">new</span> <span class="code-class">DatagramSocket</span>()) {
+            socket.setBroadcast(<span class="code-keyword">true</span>);
+            <span class="code-class">InetAddress</span> everyone = <span class="code-class">InetAddress</span>.getByName(<span class="code-string">"255.255.255.255"</span>); <span class="code-comment"># Broadcast to the whole local network</span>
+            socket.send(<span class="code-keyword">new</span> <span class="code-class">DatagramPacket</span>(data, data.length, everyone, DISCOVERY_PORT));
+        }
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-keyword">void</span> listen(<span class="code-class">BiConsumer</span>&lt;<span class="code-class">String</span>, <span class="code-class">InetSocketAddress</span>&gt; onPeer) <span class="code-keyword">throws</span> <span class="code-class">IOException</span> {
+        <span class="code-keyword">try</span> (<span class="code-class">DatagramSocket</span> socket = <span class="code-keyword">new</span> <span class="code-class">DatagramSocket</span>(DISCOVERY_PORT)) {
+            <span class="code-keyword">byte</span>[] buffer = <span class="code-keyword">new</span> <span class="code-keyword">byte</span>[<span class="code-number">256</span>];
+            <span class="code-keyword">while</span> (<span class="code-keyword">true</span>) {
+                <span class="code-class">DatagramPacket</span> packet = <span class="code-keyword">new</span> <span class="code-class">DatagramPacket</span>(buffer, buffer.length);
+                socket.receive(packet); <span class="code-comment"># Blocks until an announcement arrives</span>
+                <span class="code-class">String</span> text = <span class="code-keyword">new</span> <span class="code-class">String</span>(packet.getData(), <span class="code-number">0</span>, packet.getLength(), <span class="code-class">StandardCharsets</span>.UTF_8);
+                <span class="code-class">String</span>[] parts = text.split(<span class="code-string">" "</span>);
+                <span class="code-keyword">if</span> (parts.length == <span class="code-number">3</span> &amp;&amp; parts[<span class="code-number">0</span>].equals(<span class="code-string">"PEER"</span>)) {
+                    onPeer.accept(parts[<span class="code-number">1</span>], <span class="code-keyword">new</span> <span class="code-class">InetSocketAddress</span>(packet.getAddress(), <span class="code-class">Integer</span>.parseInt(parts[<span class="code-number">2</span>])));
+                }
+            }
+        }
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="section code-section">
+        <div class="section-title">Usage</div>
+        <div class="code-wrapper">
+<pre><code><span class="code-class">Thread</span>.ofVirtual().start(() -&gt; {
+    <span class="code-keyword">try</span> {
+        <span class="code-class">PeerDiscovery</span>.listen((peerId, address) -&gt; <span class="code-class">IO</span>.println(<span class="code-string">"Found "</span> + peerId + <span class="code-string">" at "</span> + address));
+    } <span class="code-keyword">catch</span> (<span class="code-class">IOException</span> e) {
+        <span class="code-class">IO</span>.println(<span class="code-string">"Discovery stopped: "</span> + e.getMessage());
+    }
+});
+<span class="code-class">PeerDiscovery</span>.announce(<span class="code-string">"alice"</span>, <span class="code-number">7001</span>); <span class="code-comment"># Tell everyone on the LAN: alice accepts peers on TCP port 7001</span></code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Broadcast only reaches the local network. Across the internet, peers use bootstrap nodes, trackers or a DHT instead, and real applications also filter out their own announcements.</p>
+    </div>
+
+    <div class="subheading">Java Example 3: Kademlia XOR Distance and Routing Table</div>
+    <div class="intro">
+        <p>This example implements the core of a Kademlia routing table: 160-bit node IDs, XOR distance, k-buckets and finding the peers closest to a key.</p>
+    </div>
+    <div class="section code-section">
+        <div class="section-title">NodeId.java</div>
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">NodeId</span>(<span class="code-class">BigInteger</span> value) {
+    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-class">NodeId</span> of(<span class="code-class">String</span> name) <span class="code-keyword">throws</span> <span class="code-class">NoSuchAlgorithmException</span> {
+        <span class="code-keyword">byte</span>[] hash = <span class="code-class">MessageDigest</span>.getInstance(<span class="code-string">"SHA-1"</span>).digest(name.getBytes(<span class="code-class">StandardCharsets</span>.UTF_8)); <span class="code-comment"># 160-bit ID</span>
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">NodeId</span>(<span class="code-keyword">new</span> <span class="code-class">BigInteger</span>(<span class="code-number">1</span>, hash));
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">BigInteger</span> distance(<span class="code-class">NodeId</span> other) {
+        <span class="code-keyword">return</span> value.xor(other.value); <span class="code-comment"># Kademlia distance: XOR of the two IDs</span>
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">int</span> bucketIndex(<span class="code-class">NodeId</span> other) {
+        <span class="code-keyword">return</span> distance(other).bitLength() - <span class="code-number">1</span>; <span class="code-comment"># Position of the highest differing bit: 0 to 159</span>
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="section code-section">
+        <div class="section-title">RoutingTable.java</div>
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">RoutingTable</span> {
+    <span class="code-keyword">private</span> <span class="code-class">NodeId</span> self;
+    <span class="code-keyword">private</span> <span class="code-keyword">int</span> k;
+    <span class="code-keyword">private</span> <span class="code-class">List</span>&lt;<span class="code-class">Deque</span>&lt;<span class="code-class">NodeId</span>&gt;&gt; buckets = <span class="code-keyword">new</span> <span class="code-class">ArrayList</span>&lt;&gt;();
+
+    <span class="code-keyword">public</span> <span class="code-class">RoutingTable</span>(<span class="code-class">NodeId</span> self, <span class="code-keyword">int</span> k) {
+        <span class="code-keyword">this</span>.self = self;
+        <span class="code-keyword">this</span>.k = k;
+        <span class="code-keyword">for</span> (<span class="code-keyword">int</span> i = <span class="code-number">0</span>; i &lt; <span class="code-number">160</span>; i++) buckets.add(<span class="code-keyword">new</span> <span class="code-class">ArrayDeque</span>&lt;&gt;());
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> add(<span class="code-class">NodeId</span> node) {
+        <span class="code-keyword">if</span> (node.equals(self)) <span class="code-keyword">return</span>;
+        <span class="code-class">Deque</span>&lt;<span class="code-class">NodeId</span>&gt; bucket = buckets.get(self.bucketIndex(node));
+        <span class="code-keyword">if</span> (bucket.remove(node)) bucket.addLast(node); <span class="code-comment"># Known peer seen again: move it to the tail</span>
+        <span class="code-keyword">else</span> <span class="code-keyword">if</span> (bucket.size() &lt; k) bucket.addLast(node); <span class="code-comment"># Room left: add the new peer</span>
+        <span class="code-comment"># Bucket full: Kademlia pings the oldest peer and keeps it if it answers, so long-lived peers win</span>
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">List</span>&lt;<span class="code-class">NodeId</span>&gt; closest(<span class="code-class">NodeId</span> target, <span class="code-keyword">int</span> count) {
+        <span class="code-keyword">return</span> buckets.stream().flatMap(<span class="code-class">Deque</span>::stream)
+                      .sorted(<span class="code-class">Comparator</span>.comparing(n -&gt; n.distance(target))).limit(count).toList();
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="section code-section">
+        <div class="section-title">Main.java</div>
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) <span class="code-keyword">throws</span> <span class="code-class">Exception</span> {
+    <span class="code-class">NodeId</span> self = <span class="code-class">NodeId</span>.of(<span class="code-string">"node-self"</span>);
+    <span class="code-class">RoutingTable</span> table = <span class="code-keyword">new</span> <span class="code-class">RoutingTable</span>(self, <span class="code-number">20</span>); <span class="code-comment"># k = 20, as in the Kademlia paper</span>
+    <span class="code-keyword">for</span> (<span class="code-keyword">int</span> i = <span class="code-number">0</span>; i &lt; <span class="code-number">1000</span>; i++) table.add(<span class="code-class">NodeId</span>.of(<span class="code-string">"node-"</span> + i));
+    <span class="code-class">NodeId</span> key = <span class="code-class">NodeId</span>.of(<span class="code-string">"movie.mp4"</span>); <span class="code-comment"># Keys and peers share one ID space</span>
+    <span class="code-keyword">for</span> (<span class="code-class">NodeId</span> node : table.closest(key, <span class="code-number">3</span>)) {
+        <span class="code-class">IO</span>.println(node.value().toString(<span class="code-number">16</span>) + <span class="code-string">" is "</span> + node.distance(key).bitLength() + <span class="code-string">" bits away from the key"</span>);
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>The three peers printed are the ones this node would ask first when storing or looking up <code>movie.mp4</code>. In a full implementation they would answer with even closer peers until the lookup converges.</p>
+    </div>
+
+    <div class="subheading">Java Example 4: Verifying Pieces with Hashes</div>
+    <div class="intro">
+        <p>Peers are untrusted, so data received from them must be verified. Like BitTorrent, this example splits a file into fixed-size pieces and stores a hash of each piece. A downloaded piece is accepted only if its hash matches. BitTorrent v1 uses SHA-1 per piece; BitTorrent v2 uses SHA-256 in a Merkle tree.</p>
+    </div>
+    <div class="section code-section">
+        <div class="section-title">PieceStore.java</div>
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">PieceStore</span> {
+    <span class="code-keyword">private</span> <span class="code-keyword">static</span> <span class="code-keyword">int</span> PIECE_SIZE = <span class="code-number">256</span> * <span class="code-number">1024</span>; <span class="code-comment"># 256 KiB, a common BitTorrent piece size</span>
+
+    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-class">List</span>&lt;<span class="code-class">String</span>&gt; pieceHashes(<span class="code-class">Path</span> file) <span class="code-keyword">throws</span> <span class="code-class">IOException</span>, <span class="code-class">NoSuchAlgorithmException</span> {
+        <span class="code-class">List</span>&lt;<span class="code-class">String</span>&gt; hashes = <span class="code-keyword">new</span> <span class="code-class">ArrayList</span>&lt;&gt;();
+        <span class="code-keyword">try</span> (<span class="code-class">InputStream</span> in = <span class="code-class">Files</span>.newInputStream(file)) {
+            <span class="code-keyword">byte</span>[] piece;
+            <span class="code-keyword">while</span> ((piece = in.readNBytes(PIECE_SIZE)).length &gt; <span class="code-number">0</span>) hashes.add(sha256(piece));
+        }
+        <span class="code-keyword">return</span> hashes;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-keyword">boolean</span> verify(<span class="code-keyword">byte</span>[] piece, <span class="code-class">String</span> expectedHash) <span class="code-keyword">throws</span> <span class="code-class">NoSuchAlgorithmException</span> {
+        <span class="code-keyword">return</span> sha256(piece).equals(expectedHash); <span class="code-comment"># Rejects corrupted or tampered data from any peer</span>
+    }
+
+    <span class="code-keyword">private</span> <span class="code-keyword">static</span> <span class="code-class">String</span> sha256(<span class="code-keyword">byte</span>[] data) <span class="code-keyword">throws</span> <span class="code-class">NoSuchAlgorithmException</span> {
+        <span class="code-keyword">return</span> <span class="code-class">HexFormat</span>.of().formatHex(<span class="code-class">MessageDigest</span>.getInstance(<span class="code-string">"SHA-256"</span>).digest(data));
+    }
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>Because pieces are verified independently, a client can download different pieces from different peers in parallel and still be sure the assembled file is correct. Content addressing in IPFS uses the same idea: the address of the content is its hash.</p>
+    </div>
+
+    <div class="subheading">Pros and Cons</div>
+    <div class="intro">
+        <p class="minor-heading"><strong>Pros</strong></p>
+        <ul>
+            <li><strong>No Single Point of Failure</strong><br>The network keeps working when individual peers, or many peers, fail or leave.</li>
+            <li><strong>Scalability</strong><br>Each new peer adds capacity, so the network can grow to millions of users.</li>
+            <li><strong>Lower Infrastructure Cost</strong><br>Bandwidth, storage and computing are contributed by the peers instead of paid for by one provider.</li>
+            <li><strong>Resilience to Censorship</strong><br>With no central server, the network is hard to shut down or control.</li>
+            <li><strong>Efficient Distribution of Popular Content</strong><br>The more popular a file is, the more peers can serve it.</li>
+        </ul>
+        <p class="minor-heading"><strong>Cons</strong></p>
+        <ul>
+            <li><strong>Security and Trust</strong><br>Any peer can be malicious, so data must be verified and peers cannot be trusted.</li>
+            <li><strong>Hard to Manage</strong><br>There is no central place to update software, enforce rules or monitor the system.</li>
+            <li><strong>Consistency</strong><br>Keeping many copies of data consistent without a central authority is difficult.</li>
+            <li><strong>Unreliable Peers</strong><br>Churn, slow home connections and NAT make individual peers unpredictable.</li>
+            <li><strong>Search Is Harder</strong><br>Finding data needs flooding, DHT lookups or an index; complex queries are expensive.</li>
+            <li><strong>Legal and Abuse Issues</strong><br>Lack of central control can also be used to share illegal content.</li>
+        </ul>
+    </div>
+
+    <div class="subheading">Security Challenges</div>
+    <div class="intro">
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Threat</th><th>Description</th><th>Common defenses</th></tr></thead>
+            <tbody>
+                <tr><td>Sybil attack</td><td>One attacker creates many fake identities to gain influence</td><td>Proof of work or proof of stake, costly identities, limiting peers per IP range</td></tr>
+                <tr><td>Eclipse attack</td><td>An attacker surrounds a victim with malicious peers to isolate it</td><td>Diverse peer selection, keeping long-lived peers, many outgoing connections</td></tr>
+                <tr><td>Data poisoning</td><td>Peers serve corrupted or fake data</td><td>Content hashes and digital signatures</td></tr>
+                <tr><td>Free-riding</td><td>Peers download without uploading</td><td>Incentives such as tit-for-tat or token rewards</td></tr>
+                <tr><td>Routing attacks</td><td>Malicious peers return wrong routing information</td><td>Parallel lookups over disjoint paths, verification of results</td></tr>
+                <tr><td>Privacy leaks</td><td>Peers see each other&rsquo;s IP addresses</td><td>Encryption, onion routing (as in Tor and I2P), relays</td></tr>
+            </tbody>
+        </table></div>
+    </div>
+
+    <div class="subheading">When to Use P2P</div>
+    <div class="intro">
+        <ul>
+            <li><strong>Good fit:</strong> Distributing large files to many users, decentralized systems without a trusted operator (cryptocurrencies), real-time communication between clients (video calls, multiplayer games), local collaboration and offline sync between devices, and leaderless distributed databases.</li>
+            <li><strong>Poor fit:</strong> Systems that need one authoritative copy of data, strict consistency and transactions (banking ledgers run by a bank), central access control and auditing, or predictable performance and easy operations.</li>
+        </ul>
+        <p>Many modern systems are <strong>hybrid</strong>: a central server handles login, discovery and signaling, while bulk data flows directly between peers. WebRTC video calls and many game engines work this way.</p>
+    </div>
+
+    <div class="subheading">Summary</div>
+    <div class="intro">
+        <ul>
+            <li>In P2P, every node is both a client and a server, and the workload is shared by all peers.</li>
+            <li>Networks are unstructured (flooding), structured (DHTs such as Kademlia) or hybrid (central index or trackers).</li>
+            <li>Bootstrapping, peer discovery, NAT traversal and churn are problems every P2P system must solve.</li>
+            <li>Data from peers is untrusted and must be verified, usually with cryptographic hashes and signatures.</li>
+            <li>BitTorrent, Bitcoin, IPFS and WebRTC are the best-known P2P systems in use today.</li>
+        </ul>
+    </div>
+</div>
+</body>
+</html>

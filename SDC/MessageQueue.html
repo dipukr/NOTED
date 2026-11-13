@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Message Queue</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Message Queue</div>
+
+    <div class="subheading">Advantages (in HLD context)</div>
+    <div class="intro">
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Feature</th><th>Explanation</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Decoupling</strong></td><td>Producer and consumer don&rsquo;t depend on each other&rsquo;s timing.</td></tr>
+                <tr><td><strong>Reliability</strong></td><td>If consumer is down, queue stores the messages safely.</td></tr>
+                <tr><td><strong>Scalability</strong></td><td>You can scale consumers horizontally (multiple workers reading same queue).</td></tr>
+                <tr><td><strong>Load Leveling</strong></td><td>Handles spikes &mdash; queue absorbs the burst, consumers process gradually.</td></tr>
+                <tr><td><strong>Asynchronous Workflow</strong></td><td>Improves user experience by not blocking frontend.</td></tr>
+                <tr><td><strong>Fault Tolerance</strong></td><td>Failed messages retried or moved to DLQ.</td></tr>
+            </tbody>
+        </table></div>
+    </div>
+
+    <div class="subheading">Advantages and Use Cases</div>
+    <div class="intro">
+        <p>A messaging queue has several advantages and use cases.</p>
+        <p class="minor-heading"><strong>Improved Performance</strong></p>
+        <p>A messaging queue enables asynchronous communication between the two interacting entities, producers and consumers, and eliminates their relative speed difference. A producer puts messages in the queue without waiting for the consumers. Similarly, a consumer processes the messages when they become available. Moreover, queues are often used to separate out slower operations from the critical path and, therefore, help reduce client-perceived latency. For example, instead of waiting for a specific task that&rsquo;s taking a long time to complete, the producer process sends a message, which is kept in a queue if there are multiple requests, for the required task and continues its operations. The consumer can notify us about the fate of the processing, whether a success or failure, by using another queue.</p>
+        <p class="minor-heading"><strong>Better Reliability</strong></p>
+        <p>The separation of interacting entities via a messaging queue makes the system more fault tolerant. For example, a producer or consumer can fail independently without affecting the others and restart later. Moreover, replicating the messaging queue on multiple servers ensures the system&rsquo;s availability if one or more servers are down.</p>
+        <p class="minor-heading"><strong>Granular Scalability</strong></p>
+        <p>Asynchronous communication makes the system more scalable. For example, many processes can communicate via a messaging queue. In addition, when the number of requests increases, we distribute the workload across several consumers. So, an application is in full control to tweak the number of producer or consumer processes according to its current need.</p>
+        <p class="minor-heading"><strong>Easy Decoupling</strong></p>
+        <p>A messaging queue decouples dependencies among different entities in a system. The interacting entities communicate via messages and are kept unaware of each other&rsquo;s internal working mechanisms.</p>
+        <p class="minor-heading"><strong>Rate Limiting</strong></p>
+        <p>Messaging queues also help absorb any load spikes and prevent services from becoming overloaded, acting as a rudimentary form of rate limiting when there is a need to avoid dropping any incoming request.</p>
+        <p class="minor-heading"><strong>Priority Queue</strong></p>
+        <p>Multiple queues can be used to implement different priorities&mdash;for example, one queue for each priority&mdash;and give more service time to a higher priority queue.</p>
+    </div>
+</div>
+</body>
+</html>

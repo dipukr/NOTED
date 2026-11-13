@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Java</div>
+
+    <div class="intro">
+        <p><strong>Java</strong> is a general-purpose, class-based, object-oriented programming language and computing platform. Java source code is compiled to <strong>bytecode</strong>, which runs on the <strong>Java Virtual Machine (JVM)</strong> instead of directly on the hardware. Because every operating system has its own JVM, the same compiled program runs anywhere a JVM is installed: &ldquo;write once, run anywhere&rdquo;.</p>
+        <p>Java was created by James Gosling and his team at Sun Microsystems (it was first called Oak) and released in 1995. Oracle acquired Sun in 2010 and now leads its development through the open-source OpenJDK project. Java is widely used for backend services, enterprise applications, Android apps, big data tools (Kafka, Hadoop, Spark), and desktop and embedded systems.</p>
+    </div>
+
+    <div class="subheading">Features of Java</div>
+    <div class="intro">
+        <p class="minor-heading"><strong>Simple</strong></p>
+        <p>Java&rsquo;s syntax is based on C and C++ but leaves out their hardest parts, such as explicit pointers, operator overloading, multiple inheritance of classes and manual memory management.</p>
+        <p class="minor-heading"><strong>Object-Oriented</strong></p>
+        <p>Programs are built from classes and objects, using encapsulation, inheritance, polymorphism and abstraction. Everything except the primitive types (<code>int</code>, <code>double</code>, <code>boolean</code> and so on) is an object.</p>
+        <p class="minor-heading"><strong>Platform Independent</strong></p>
+        <p>The compiler produces bytecode, not machine code for one processor. Any platform with a JVM can run that bytecode, so a <code>.class</code> or <code>.jar</code> file built on Windows runs unchanged on Linux or macOS.</p>
+        <p class="minor-heading"><strong>Architecture Neutral and Portable</strong></p>
+        <p>The language fixes the size and behavior of primitive types on every platform: an <code>int</code> is always 32 bits and a <code>long</code> is always 64 bits. A program therefore behaves the same way on every machine.</p>
+        <p class="minor-heading"><strong>Robust</strong></p>
+        <p>Strong static typing, compile-time checks, exception handling, array bounds checking and automatic garbage collection prevent many common errors, such as memory leaks from forgotten <code>free</code> calls and writes past the end of an array.</p>
+        <p class="minor-heading"><strong>Secure</strong></p>
+        <p>Java has no pointer arithmetic, and the JVM verifies bytecode before running it, so code cannot read or corrupt arbitrary memory. Class loaders keep application classes separate from core library classes.</p>
+        <p class="minor-heading"><strong>Automatic Memory Management</strong></p>
+        <p>Objects are created with <code>new</code> and never freed by hand. The garbage collector finds objects that are no longer reachable and reclaims their memory.</p>
+        <p class="minor-heading"><strong>Multithreaded</strong></p>
+        <p>Threads, locks and concurrent collections are built into the language and the standard library. Since Java 21, <strong>virtual threads</strong> make it cheap to run millions of concurrent tasks.</p>
+        <p class="minor-heading"><strong>High Performance</strong></p>
+        <p>The JIT (just-in-time) compiler compiles frequently executed bytecode to optimized native machine code while the program runs, so long-running Java applications reach speeds close to natively compiled languages.</p>
+        <p class="minor-heading"><strong>Distributed</strong></p>
+        <p>Networking is part of the standard library (<code>java.net</code>, <code>java.net.http</code>), which makes it straightforward to build clients, servers and distributed systems.</p>
+        <p class="minor-heading"><strong>Dynamic</strong></p>
+        <p>Classes are loaded when they are first needed, possibly from a network or generated at runtime. Reflection lets a program inspect and use classes it did not know about at compile time; frameworks such as Spring rely on this.</p>
+    </div>
+
+    <div class="subheading">How Java Code Runs</div>
+    <div class="svg-diagram">
+        <img src="../static/java-compile-run.svg" alt="Hello.java source code is compiled by javac into Hello.class bytecode, which runs unchanged on a JVM on Windows, Linux or macOS" style="width:100%;max-width:640px">
+    </div>
+    <div class="intro">
+        <ol>
+            <li><strong>Write:</strong> You write source code in a <code>.java</code> file.</li>
+            <li><strong>Compile:</strong> The <code>javac</code> compiler checks the code and translates it into bytecode, stored in a <code>.class</code> file.</li>
+            <li><strong>Load and verify:</strong> When you run the program, the JVM&rsquo;s class loader loads the <code>.class</code> files and the verifier checks the bytecode.</li>
+            <li><strong>Execute:</strong> The JVM&rsquo;s execution engine interprets the bytecode, and the JIT compiler turns frequently used parts into native machine code.</li>
+        </ol>
+    </div>
+    <div class="section code-section">
+        <div class="section-title">Hello.java</div>
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+    <span class="code-class">IO</span>.println(<span class="code-string">"Hello, World!"</span>);
+}</code></pre>
+        </div>
+    </div>
+    <div class="section code-section">
+        <div class="section-title">Compile and run</div>
+        <div class="code-wrapper">
+<pre><code>javac Hello.java   <span class="code-comment"># Compile: creates Hello.class</span>
+java Hello         <span class="code-comment"># Run the bytecode on the JVM</span>
+java Hello.java    <span class="code-comment"># Java 11+: compile in memory and run in one step</span></code></pre>
+        </div>
+    </div>
+
+    <div class="subheading">JDK, JRE and JVM</div>
+    <div class="svg-diagram">
+        <img src="../static/java-jdk-jre-jvm.svg" alt="The JDK contains development tools and the JRE; the JRE contains the class libraries and the JVM; the JVM contains the class loader, runtime data areas and execution engine" style="width:100%;max-width:620px">
+    </div>
+    <div class="intro">
+        <p class="minor-heading"><strong>JVM (Java Virtual Machine)</strong></p>
+        <p>The JVM is the engine that runs bytecode. It loads classes, verifies them, manages memory (heap, stacks and the method area), runs the garbage collector, and executes code with an interpreter and a JIT compiler. The JVM specification is the same everywhere, but each operating system and processor has its own JVM implementation; HotSpot, used by OpenJDK, is the most common. See <a href="JMM.html">JVM Architecture and Memory</a> for details.</p>
+        <p class="minor-heading"><strong>JRE (Java Runtime Environment)</strong></p>
+        <p>The JRE is what you need to <strong>run</strong> a Java program: the JVM plus the Java class libraries (<code>java.lang</code>, <code>java.util</code>, <code>java.io</code> and so on) and supporting files. It has no compiler, so it cannot build programs.</p>
+        <p class="minor-heading"><strong>JDK (Java Development Kit)</strong></p>
+        <p>The JDK is what you need to <strong>develop</strong> Java programs: everything in the JRE plus development tools such as the compiler (<code>javac</code>), the archiver (<code>jar</code>), the documentation generator (<code>javadoc</code>), the debugger (<code>jdb</code>) and the interactive shell (<code>jshell</code>). Popular JDK distributions include Oracle JDK, Eclipse Temurin, Amazon Corretto and Azul Zulu, all built from OpenJDK.</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th></th><th>JVM</th><th>JRE</th><th>JDK</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Purpose</strong></td><td>Executes bytecode</td><td>Runs Java programs</td><td>Develops and runs Java programs</td></tr>
+                <tr><td><strong>Contains</strong></td><td>Class loader, runtime data areas, execution engine</td><td>JVM and class libraries</td><td>JRE and development tools</td></tr>
+                <tr><td><strong>Compiler</strong></td><td>No (only the JIT, which compiles bytecode)</td><td>No</td><td>Yes, <code>javac</code></td></tr>
+                <tr><td><strong>Needed by</strong></td><td>Part of the JRE</td><td>Users running an application</td><td>Developers</td></tr>
+                <tr><td><strong>Platform dependent</strong></td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+            </tbody>
+        </table></div>
+        <p>In short: <strong>JDK = JRE + development tools</strong>, and <strong>JRE = JVM + class libraries</strong>. The bytecode is platform independent, but the JDK, JRE and JVM themselves are separate downloads for each operating system.</p>
+    </div>
+    <div class="callout callout-note"><p>Since Java 11, Oracle and most vendors no longer ship a separate JRE; you install a JDK. To ship an application with a small runtime, use <code>jlink</code> to build a custom runtime image that contains only the modules the application needs.</p></div>
+
+    <div class="subheading">Important JDK Tools</div>
+    <div class="intro">
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Tool</th><th>Purpose</th></tr></thead>
+            <tbody>
+                <tr><td><code>javac</code></td><td>Compiles <code>.java</code> source files to <code>.class</code> bytecode</td></tr>
+                <tr><td><code>java</code></td><td>Starts the JVM and runs a class, a JAR file or a single source file</td></tr>
+                <tr><td><code>jar</code></td><td>Packages classes and resources into a JAR archive</td></tr>
+                <tr><td><code>javadoc</code></td><td>Generates HTML API documentation from source comments</td></tr>
+                <tr><td><code>jshell</code></td><td>Interactive shell for trying out Java code line by line</td></tr>
+                <tr><td><code>jdb</code></td><td>Command-line debugger</td></tr>
+                <tr><td><code>javap</code></td><td>Disassembles a <code>.class</code> file to show its bytecode</td></tr>
+                <tr><td><code>jlink</code></td><td>Builds a custom, minimal Java runtime image</td></tr>
+                <tr><td><code>jpackage</code></td><td>Packages an application as a native installer</td></tr>
+                <tr><td><code>jcmd</code>, <code>jstack</code>, <code>jmap</code></td><td>Diagnose a running JVM: thread dumps, heap dumps, GC and flags</td></tr>
+                <tr><td><code>jconsole</code>, JDK Mission Control</td><td>Monitor memory, threads and CPU of a running JVM</td></tr>
+            </tbody>
+        </table></div>
+    </div>
+
+    <div class="subheading">Java Editions</div>
+    <div class="intro">
+        <p class="minor-heading"><strong>Java SE (Standard Edition)</strong></p>
+        <p>The core platform: the language, the JVM and the standard libraries for collections, I/O, networking, concurrency and more. The JDK implements Java SE.</p>
+        <p class="minor-heading"><strong>Jakarta EE (formerly Java EE)</strong></p>
+        <p>A set of specifications on top of Java SE for enterprise applications, such as servlets, JPA, CDI and RESTful web services. Oracle handed it to the Eclipse Foundation, which renamed it Jakarta EE.</p>
+        <p class="minor-heading"><strong>Java ME (Micro Edition)</strong></p>
+        <p>A reduced platform for small and embedded devices.</p>
+    </div>
+
+    <div class="subheading">Versions and Releases</div>
+    <div class="intro">
+        <p>Since Java 10 (2018), a new feature release ships every six months, in March and September. Every few releases is a <strong>long-term support (LTS)</strong> release, which vendors support for years; most production systems run an LTS version.</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>LTS release</th><th>Year</th><th>Highlights</th></tr></thead>
+            <tbody>
+                <tr><td>Java 8</td><td>2014</td><td>Lambdas, streams, <code>Optional</code>, the <code>java.time</code> date and time API</td></tr>
+                <tr><td>Java 11</td><td>2018</td><td>Standard HTTP client, <code>var</code> in lambda parameters, running a single source file with <code>java</code></td></tr>
+                <tr><td>Java 17</td><td>2021</td><td>Sealed classes, records, pattern matching for <code>instanceof</code>, text blocks</td></tr>
+                <tr><td>Java 21</td><td>2023</td><td>Virtual threads, pattern matching for <code>switch</code>, record patterns, sequenced collections</td></tr>
+                <tr><td>Java 25</td><td>2025</td><td>Compact source files and instance <code>main</code> methods, scoped values, flexible constructor bodies, module import declarations</td></tr>
+            </tbody>
+        </table></div>
+        <p>See <a href="Modern.html">Modern Java</a> for examples of the newer language features.</p>
+    </div>
+</div>
+</body>
+</html>

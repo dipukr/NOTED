@@ -11,6 +11,16 @@
     <div class="title">Producer-Consumer Problem</div>
 
     <div class="intro">
+        <p>The Producer-Consumer problem in operating systems is <strong>a classic synchronization challenge where a producer process creates data and places it into a shared, fixed-size buffer, while a consumer process removes and processes data from the same buffer</strong>. The core problem is to coordinate these processes, preventing the producer from adding to a full buffer, the consumer from removing from an empty buffer, and ensuring only one process accesses the buffer at a time to avoid race conditions and deadlocks. Solutions typically involve shared memory for the buffer and synchronization primitives like semaphores to manage access and buffer state.</p>
+        <p class="minor-heading"><strong>Components of the Problem</strong></p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>Producer:</strong> Generates data items and adds them to the shared buffer.</li>
+        <li><strong>Consumer:</strong> Removes data items from the shared buffer and processes them.</li>
+        <li><strong>Buffer:</strong> A shared, fixed-size storage area that holds items produced but not yet consumed.</li>
+    </ul></div>
+
+    <div class="intro">
         <p>The Producer-Consumer problem coordinates threads that produce data with threads that consume it through a shared bounded buffer. 
 			Producers must wait when the buffer is full; consumers must wait when it is empty.</p>
         <p>It is a classic inter-thread cooperation problem solved with wait-notify or blocking queues.</p>

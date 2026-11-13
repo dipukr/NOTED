@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="70 190 880 380" font-family="Calibri, Carlito, 'Segoe UI', Arial, sans-serif" fill="#000">
+  <defs>
+    <g id="cyl">
+      <path d="M-54 0 V45 A54 9 0 0 0 54 45 V0" fill="#c5e0b4" stroke="#548235" stroke-width="1.2"/>
+      <ellipse cx="0" cy="0" rx="54" ry="9" fill="#c5e0b4" stroke="#548235" stroke-width="1.2"/>
+    </g>
+  </defs>
+
+  <g stroke="#000" stroke-width="1.5" fill="none">
+    <path d="M262 376 H321"/>
+    <path d="M483 377 H549 M549 240 V512 M549 240 H586 M549 377 H593 M549 512 H612"/>
+    <path d="M767 239 H817 M772 375 H815 M746 511 H817"/>
+  </g>
+
+  <rect x="89" y="241" width="173" height="239" fill="#5b9bd5" stroke="#41719c" stroke-width="1.2"/>
+  <text x="175.5" y="352" font-size="26" text-anchor="middle">Java</text>
+  <text x="175.5" y="390" font-size="26" text-anchor="middle">Application</text>
+
+  <rect x="321" y="242" width="162" height="240" fill="#ffe699" stroke="#7f7f7f" stroke-width="1.2"/>
+  <path d="M439 242 V482" stroke="#7f7f7f" stroke-width="1.2"/>
+  <text x="380" y="352" font-size="26" text-anchor="middle">JDBC</text>
+  <text x="380" y="390" font-size="26" text-anchor="middle">API</text>
+  <text x="469" y="362" font-size="20" text-anchor="middle" transform="rotate(-90 469 362)">JDBC Driver Manager</text>
+
+  <g fill="#ffe699" stroke="#7f7f7f" stroke-width="1.2">
+    <rect x="586" y="207" width="181" height="80"/>
+    <rect x="593" y="341" width="179" height="72"/>
+    <rect x="612" y="481" width="134" height="72"/>
+  </g>
+  <g font-size="22" text-anchor="middle">
+    <text x="676.5" y="237">JDBC</text>
+    <text x="676.5" y="272">SQLite driver</text>
+    <text x="682.5" y="368">JDBC</text>
+    <text x="682.5" y="403">JavaDB driver</text>
+    <text x="679" y="508">JDBC</text>
+    <text x="679" y="543">. . . driver</text>
+  </g>
+
+  <use href="#cyl" x="871" y="218"/>
+  <use href="#cyl" x="869" y="354"/>
+  <use href="#cyl" x="871" y="490"/>
+  <g font-size="22" text-anchor="middle">
+    <text x="871" y="253">SQLite</text>
+    <text x="869" y="389">JavaDB</text>
+    <text x="871" y="526">. . .</text>
+  </g>
+</svg>

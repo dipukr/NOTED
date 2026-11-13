@@ -14,7 +14,7 @@
         <p>The Decorator is a structural design pattern that allows us to dynamically add new responsibilities or behaviors to an individual object without modifying its existing class or affecting other objects of the same class.</p>
         <p>It achieves this by wrapping an object inside another object, called a <strong>decorator</strong>, that implements the same interface as the original object. The decorator delegates operations to the wrapped object while adding its own functionality before or after the delegated operations.</p>
         <p>The Decorator pattern provides a flexible alternative to inheritance for extending object behavior. Instead of creating numerous subclasses to support different combinations of features, we can compose objects by stacking multiple decorators around a core object.</p>
-        <p><strong>Key characteristics:</strong></p>
+        <p class="minor-heading"><strong>Key characteristics:</strong></p>
     </div>
     <div class="intro"><ul>
         <li><strong>Composition over inheritance:</strong> Additional functionality is introduced through object composition rather than subclassing the original concrete class.</li>
@@ -47,7 +47,7 @@
         <li>Extra espresso shot (+₹25)</li>
     </ul></div>
     <div class="intro">
-        <p><strong>Approach 1: Using inheritance</strong></p>
+        <p class="minor-heading"><strong>Approach 1: Using inheritance</strong></p>
         <p>We could create subclasses for every combination.</p>
     </div>
     <div class="svg-diagram">
@@ -65,7 +65,7 @@
     </ul></div>
     <div class="intro">
         <p>For three optional ingredients, there are already 2<sup>3</sup> = 8 possible combinations. For ten optional ingredients, there could be 2<sup>10</sup> = 1024 combinations.</p>
-        <p><strong>Approach 2: Using the Decorator Pattern</strong></p>
+        <p class="minor-heading"><strong>Approach 2: Using the Decorator Pattern</strong></p>
         <p>Instead of using subclasses for every combination, create a separate decorator for each ingredient.</p>
     </div>
     <div class="svg-diagram">
@@ -101,7 +101,7 @@
 
     <div class="subheading">Complete Java Implementation: Coffee Ordering System</div>
     <div class="intro">
-        <p><strong>Create the Component interface</strong></p>
+        <p class="minor-heading"><strong>Create the Component interface</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">Coffee</span> {
     <span class="code-class">String</span> getDescription();
@@ -109,7 +109,7 @@
 }</code></pre></div>
     <div class="intro">
         <p>Every concrete coffee and decorator implements this interface.</p>
-        <p><strong>Create the ConcreteComponent</strong></p>
+        <p class="minor-heading"><strong>Create the ConcreteComponent</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">SimpleCoffee</span> <span class="code-keyword">implements</span> <span class="code-class">Coffee</span> {
     <span class="code-annotation">@Override</span>
@@ -124,7 +124,7 @@
 }</code></pre></div>
     <div class="intro">
         <p>This represents the original object with no additional features.</p>
-        <p><strong>Create the base Decorator class</strong></p>
+        <p class="minor-heading"><strong>Create the base Decorator class</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">abstract</span> <span class="code-keyword">class</span> <span class="code-class">CoffeeDecorator</span> <span class="code-keyword">implements</span> <span class="code-class">Coffee</span> {
     <span class="code-keyword">protected</span> <span class="code-keyword">final</span> <span class="code-class">Coffee</span> coffee;
@@ -144,7 +144,7 @@
     }
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Important points:</strong></p>
+        <p class="minor-heading"><strong>Important points:</strong></p>
     </div>
     <div class="intro"><ul>
         <li><code>CoffeeDecorator</code> implements <code>Coffee</code>, making it compatible with any other <code>Coffee</code> object.</li>
@@ -154,7 +154,7 @@
     </ul></div>
     <div class="callout callout-note"><p>The abstract decorator class is convenient but optional. A concrete decorator could implement <code>Coffee</code> directly.</p></div>
     <div class="intro">
-        <p><strong>Create ConcreteDecorators</strong></p>
+        <p class="minor-heading"><strong>Create ConcreteDecorators</strong></p>
         <p><code>MilkDecorator</code></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">MilkDecorator</span> <span class="code-keyword">extends</span> <span class="code-class">CoffeeDecorator</span> {
@@ -209,7 +209,7 @@
     }
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Client code</strong></p>
+        <p class="minor-heading"><strong>Client code</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
     <span class="code-class">Coffee</span> coffee = <span class="code-keyword">new</span> <span class="code-class">SimpleCoffee</span>();
@@ -230,14 +230,14 @@
     <span class="code-class">System</span>.out.println(coffee.getCost());
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Output</strong></p>
+        <p class="minor-heading"><strong>Output</strong></p>
     </div>
     <div class="code-block"><pre><code>Simple Coffee
 50.0
 Simple Coffee, Milk, Cream, Extra Shot
 110.0</code></pre></div>
     <div class="intro">
-        <p><strong>Understanding the execution flow</strong></p>
+        <p class="minor-heading"><strong>Understanding the execution flow</strong></p>
         <p>After wrapping, the object structure looks like this:</p>
     </div>
     <div class="code-block"><pre><code><span class="code-class">Coffee</span> coffee = <span class="code-keyword">new</span> <span class="code-class">ExtraShotDecorator</span>(<span class="code-keyword">new</span> <span class="code-class">CreamDecorator</span>(<span class="code-keyword">new</span> <span class="code-class">MilkDecorator</span>(<span class="code-keyword">new</span> <span class="code-class">SimpleCoffee</span>())));</code></pre></div>
@@ -260,7 +260,7 @@ Simple Coffee, Milk, Cream, Extra Shot
         <p>Notice that <code>SimpleCoffee</code> knows nothing about milk, cream, or extra shots. Each decorator has only the responsibility of adding its own functionality.</p>
     </div>
     <div class="intro">
-        <p><strong>Interactive example: Build your own decorated coffee</strong></p>
+        <p class="minor-heading"><strong>Interactive example: Build your own decorated coffee</strong></p>
         <p>Choose additional ingredients</p>
         <p><label style="margin-right:22px"><input type="checkbox" class="dec-opt" data-name="Milk" data-cls="MilkDecorator" data-cost="15" checked> Milk +₹15</label><label style="margin-right:22px"><input type="checkbox" class="dec-opt" data-name="Cream" data-cls="CreamDecorator" data-cost="20" checked> Cream +₹20</label><label><input type="checkbox" class="dec-opt" data-name="Extra Shot" data-cls="ExtraShotDecorator" data-cost="25"> Extra Shot +₹25</label></p>
     </div>
@@ -293,7 +293,7 @@ Simple Coffee, Milk, Cream, Extra Shot
         <li><strong>GZIPInputStream:</strong> Adds decompression functionality.</li>
     </ul></div>
     <div class="intro">
-        <p><strong>Adding buffering to a file stream</strong></p>
+        <p class="minor-heading"><strong>Adding buffering to a file stream</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) <span class="code-keyword">throws</span> <span class="code-class">Exception</span> {
     <span class="code-class">InputStream</span> input = <span class="code-keyword">new</span> <span class="code-class">BufferedInputStream</span>(<span class="code-keyword">new</span> <span class="code-class">FileInputStream</span>(<span class="code-string">"data.txt"</span>));
@@ -314,7 +314,7 @@ Simple Coffee, Milk, Cream, Extra Shot
     <div class="intro">
         <p>wraps the stream and adds buffering.</p>
         <p>Both can be used as <code>InputStream</code>.</p>
-        <p><strong>Adding decompression and buffering</strong></p>
+        <p class="minor-heading"><strong>Adding decompression and buffering</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) <span class="code-keyword">throws</span> <span class="code-class">Exception</span> {
     <span class="code-keyword">try</span> (<span class="code-class">InputStream</span> input = <span class="code-keyword">new</span> <span class="code-class">BufferedInputStream</span>(<span class="code-keyword">new</span> <span class="code-class">GZIPInputStream</span>(<span class="code-keyword">new</span> <span class="code-class">FileInputStream</span>(<span class="code-string">"data.txt.gz"</span>)))) {
@@ -359,13 +359,13 @@ Compressed file</div>
     </ul></div>
     <div class="intro">
         <p>Instead of putting all cross-cutting concerns inside the original implementation, we can wrap it with decorators.</p>
-        <p><strong>Component interface</strong></p>
+        <p class="minor-heading"><strong>Component interface</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">PaymentProcessor</span> {
     <span class="code-keyword">void</span> processPayment(<span class="code-class">String</span> paymentId, <span class="code-keyword">double</span> amount);
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Original implementation</strong></p>
+        <p class="minor-heading"><strong>Original implementation</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">DefaultPaymentProcessor</span> <span class="code-keyword">implements</span> <span class="code-class">PaymentProcessor</span> {
 
@@ -375,7 +375,7 @@ Compressed file</div>
     }
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Logging decorator</strong></p>
+        <p class="minor-heading"><strong>Logging decorator</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">LoggingPaymentDecorator</span> <span class="code-keyword">implements</span> <span class="code-class">PaymentProcessor</span> {
     <span class="code-keyword">private</span> <span class="code-class">PaymentProcessor</span> delegate;
@@ -397,7 +397,7 @@ Compressed file</div>
     }
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Metrics decorator</strong></p>
+        <p class="minor-heading"><strong>Metrics decorator</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">MetricsPaymentDecorator</span> <span class="code-keyword">implements</span> <span class="code-class">PaymentProcessor</span> {
     <span class="code-keyword">private</span> <span class="code-class">PaymentProcessor</span> delegate;
@@ -418,14 +418,14 @@ Compressed file</div>
     }
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Combining decorators</strong></p>
+        <p class="minor-heading"><strong>Combining decorators</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
     <span class="code-class">PaymentProcessor</span> processor = <span class="code-keyword">new</span> <span class="code-class">MetricsPaymentDecorator</span>(<span class="code-keyword">new</span> <span class="code-class">LoggingPaymentDecorator</span>(<span class="code-keyword">new</span> <span class="code-class">DefaultPaymentProcessor</span>()));
     processor.processPayment(<span class="code-string">"PAY-101"</span>, <span class="code-number">5000</span>.<span class="code-number">0</span>);
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Example output:</strong></p>
+        <p class="minor-heading"><strong>Example output:</strong></p>
     </div>
     <div class="code-block"><pre><code>Payment started: PAY-101
 Processing payment: PAY-101
@@ -433,7 +433,7 @@ Payment completed: PAY-101
 Execution time: 2.4 ms</code></pre></div>
     <div class="intro">
         <p>The actual execution time will vary.</p>
-        <p><strong>How the object chain works</strong></p>
+        <p class="minor-heading"><strong>How the object chain works</strong></p>
     </div>
     <div class="svg-diagram">
         <img src="../static/decorator-payment-chain.svg" alt="Client calls processPayment() on MetricsPaymentDecorator, which delegates to LoggingPaymentDecorator, which delegates to DefaultPaymentProcessor" style="width:100%;max-width:440px">
@@ -547,7 +547,7 @@ Execution time: 2.4 ms</code></pre></div>
     }
 }</code></pre></div>
     <div class="intro">
-        <p><strong>How it works</strong></p>
+        <p class="minor-heading"><strong>How it works</strong></p>
     </div>
     <div class="intro"><ol>
         <li>The decorator records the starting time.</li>
@@ -586,7 +586,7 @@ Execution time: 2.4 ms</code></pre></div>
     }
 }</code></pre></div>
     <div class="intro">
-        <p><strong>How it works</strong></p>
+        <p class="minor-heading"><strong>How it works</strong></p>
         <p>Suppose we execute:</p>
     </div>
     <div class="code-block"><pre><code>productService.getProduct(<span class="code-string">"P101"</span>);
@@ -653,7 +653,7 @@ productService.getProduct(<span class="code-string">"P102"</span>);</code></pre>
     }
 }</code></pre></div>
     <div class="intro">
-        <p><strong>How it works</strong></p>
+        <p class="minor-heading"><strong>How it works</strong></p>
         <p>When configured with three maximum attempts and an initial 100 ms delay:</p>
     </div>
     <div class="svg-diagram">
@@ -686,7 +686,7 @@ productService.getProduct(<span class="code-string">"P102"</span>);</code></pre>
     }
 }</code></pre></div>
     <div class="intro">
-        <p><strong>How it works</strong></p>
+        <p class="minor-heading"><strong>How it works</strong></p>
         <p>The transaction decorator:</p>
     </div>
     <div class="intro"><ol>
@@ -698,7 +698,7 @@ productService.getProduct(<span class="code-string">"P102"</span>);</code></pre>
     </ol></div>
     <div class="intro">
         <p>The mapping operation happens inside the transaction, which can be useful when JPA entities have lazily loaded associations.</p>
-        <p><strong>Why use <code>REQUIRES_NEW</code>?</strong></p>
+        <p class="minor-heading"><strong>Why use <code>REQUIRES_NEW</code>?</strong></p>
         <p>Because our retry decorator sits <strong>outside</strong> the transaction decorator.</p>
         <p>Every retry invokes the transactional decorator again, creating a fresh transaction.</p>
     </div>
@@ -923,13 +923,13 @@ service = <span class="code-keyword">new</span> <span class="code-class">Authori
     <div class="intro">
         <p>Yes. Decorator order can matter significantly.</p>
         <p>Consider these two configurations.</p>
-        <p><strong>Configuration A: Apply discount after milk</strong></p>
+        <p class="minor-heading"><strong>Configuration A: Apply discount after milk</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-class">Coffee</span> coffee = <span class="code-keyword">new</span> <span class="code-class">DiscountDecorator</span>(<span class="code-keyword">new</span> <span class="code-class">MilkDecorator</span>(<span class="code-keyword">new</span> <span class="code-class">SimpleCoffee</span>()));
 
 <span class="code-comment"># (50 + 15) * 0.90 = 58.5</span></code></pre></div>
     <div class="intro">
-        <p><strong>Configuration B: Apply discount before milk</strong></p>
+        <p class="minor-heading"><strong>Configuration B: Apply discount before milk</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-class">Coffee</span> coffee = <span class="code-keyword">new</span> <span class="code-class">MilkDecorator</span>(<span class="code-keyword">new</span> <span class="code-class">DiscountDecorator</span>(<span class="code-keyword">new</span> <span class="code-class">SimpleCoffee</span>()));
 
@@ -994,7 +994,7 @@ service = <span class="code-keyword">new</span> <span class="code-class">Authori
 
     <div class="subheading">Advantages and Disadvantages</div>
     <div class="intro">
-        <p><strong>Advantages</strong></p>
+        <p class="minor-heading"><strong>Advantages</strong></p>
     </div>
     <div class="intro"><ul>
         <li>Adds functionality without modifying original classes.</li>
@@ -1005,7 +1005,7 @@ service = <span class="code-keyword">new</span> <span class="code-class">Authori
         <li>Allows decorators to be stacked or reused.</li>
     </ul></div>
     <div class="intro">
-        <p><strong>Disadvantages</strong></p>
+        <p class="minor-heading"><strong>Disadvantages</strong></p>
     </div>
     <div class="intro"><ul>
         <li>Introduces additional objects and classes.</li>
@@ -1037,7 +1037,7 @@ service = <span class="code-keyword">new</span> <span class="code-class">Authori
     </div></div><br>
     <div class="intro">
         <p>In Spring Boot applications, decorators are useful when you want to extend a service implementation through ordinary object composition. Some similar cross-cutting requirements are more conveniently implemented using Spring AOP, servlet filters, or interceptors, depending on the responsibility.</p>
-        <p><strong>When not to use it:</strong></p>
+        <p class="minor-heading"><strong>When not to use it:</strong></p>
         <p>Avoid introducing a decorator architecture when there is only one fixed implementation and no realistic need for combining features. A straightforward class or ordinary method may be easier to maintain.</p>
     </div>
 
@@ -1052,7 +1052,7 @@ service = <span class="code-keyword">new</span> <span class="code-class">Authori
     </ul></div>
     <div class="intro">
         <p>Composition is the primary mechanism for extending functionality.</p>
-        <p><strong>Can we apply the same decorator multiple times?</strong></p>
+        <p class="minor-heading"><strong>Can we apply the same decorator multiple times?</strong></p>
         <p>Yes. Each decorator adds its own functionality. Whether repeated decoration is meaningful depends on the application.</p>
     </div>
     <div class="intro">

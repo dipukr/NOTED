@@ -17,7 +17,7 @@
     </div>
     <div class="callout callout-note"><p><strong>The central idea is:</strong> Define the algorithm's structure once, but allow subclasses to customize certain steps.</p></div>
     <div class="intro">
-        <p><strong>Real-world analogy: Preparing beverages</strong></p>
+        <p class="minor-heading"><strong>Real-world analogy: Preparing beverages</strong></p>
         <p>Suppose you have a coffee shop that prepares tea and coffee.</p>
         <p>Both beverages follow essentially the same preparation process:</p>
     </div>
@@ -35,7 +35,7 @@
     <div class="subheading">Structure of the Template Method Pattern</div>
     <div class="intro">
         <p>The pattern typically involves two participants.</p>
-        <p><strong>Abstract Class (Template)</strong></p>
+        <p class="minor-heading"><strong>Abstract Class (Template)</strong></p>
     </div>
     <div class="intro"><ul>
         <li>Defines the template method containing the algorithm's sequence.</li>
@@ -44,7 +44,7 @@
         <li>May provide optional hooks that subclasses can override.</li>
     </ul></div>
     <div class="intro">
-        <p><strong>Concrete Classes</strong></p>
+        <p class="minor-heading"><strong>Concrete Classes</strong></p>
     </div>
     <div class="intro"><ul>
         <li>Extend the abstract class.</li>
@@ -70,7 +70,7 @@
 
     <div class="subheading">Example: Tea and Coffee Preparation</div>
     <div class="intro">
-        <p><strong>Create the abstract class</strong></p>
+        <p class="minor-heading"><strong>Create the abstract class</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">abstract</span> <span class="code-keyword">class</span> <span class="code-class">Beverage</span> {
     <span class="code-keyword">public</span> <span class="code-keyword">final</span> <span class="code-keyword">void</span> prepare() {
@@ -90,7 +90,7 @@
     <div class="intro">
         <p>Notice that <code>prepare</code> determines the order in which all operations execute.</p>
         <p>The subclasses cannot change this sequence because <code>prepare</code> is <code>final</code>.</p>
-        <p><strong>Implement Tea</strong></p>
+        <p class="minor-heading"><strong>Implement Tea</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Tea</span> <span class="code-keyword">extends</span> <span class="code-class">Beverage</span> {
     <span class="code-keyword">public</span> <span class="code-keyword">void</span> brew() {<span class="code-class">System</span>.out.println(<span class="code-string">"Steeping tea leaves"</span>);}
@@ -98,7 +98,7 @@
     <span class="code-keyword">public</span> <span class="code-keyword">void</span> addCondiments() {<span class="code-class">System</span>.out.println(<span class="code-string">"Adding lemon"</span>);}
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Implement Coffee</strong></p>
+        <p class="minor-heading"><strong>Implement Coffee</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Coffee</span> <span class="code-keyword">extends</span> <span class="code-class">Beverage</span> {
     <span class="code-keyword">public</span> <span class="code-keyword">void</span> brew() {
@@ -107,7 +107,7 @@
 }</code></pre></div>
     <div class="intro">
         <p><code>Coffee</code> does not need to override <code>addCondiments</code> or <code>wantsCondiments</code> as the base class already provides default behavior.</p>
-        <p><strong>Client code</strong></p>
+        <p class="minor-heading"><strong>Client code</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
     <span class="code-class">Beverage</span> tea = <span class="code-keyword">new</span> <span class="code-class">Tea</span>();
@@ -117,7 +117,7 @@
     coffee.prepare();
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Output:</strong></p>
+        <p class="minor-heading"><strong>Output:</strong></p>
     </div>
     <div class="code-block"><pre><code>Boiling water
 Steeping tea leaves
@@ -128,7 +128,7 @@ Boiling water
 Brewing coffee
 Pouring into cup</code></pre></div>
     <div class="intro">
-        <p><strong>How does this work internally?</strong></p>
+        <p class="minor-heading"><strong>How does this work internally?</strong></p>
         <p>When the following statement executes:</p>
     </div>
     <div class="code-block"><pre><code><span class="code-class">Beverage</span> tea = <span class="code-keyword">new</span> <span class="code-class">Tea</span>();
@@ -159,7 +159,7 @@ tea.prepare();</code></pre></div>
         </table>
     </div></div>
     <div class="intro">
-        <p><strong>Template Method</strong></p>
+        <p class="minor-heading"><strong>Template Method</strong></p>
         <p>Defines the sequence of operations.</p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">final</span> <span class="code-keyword">void</span> process() {
@@ -169,19 +169,19 @@ tea.prepare();</code></pre></div>
 }</code></pre></div>
     <div class="intro">
         <p>Usually declared <code>final</code> to preserve the algorithm's structure, although the pattern does not strictly require it.</p>
-        <p><strong>Abstract Method</strong></p>
+        <p class="minor-heading"><strong>Abstract Method</strong></p>
         <p>Forces subclasses to provide their own implementation.</p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">abstract</span> <span class="code-keyword">void</span> step2();</code></pre></div>
     <div class="intro">
-        <p><strong>Concrete Method</strong></p>
+        <p class="minor-heading"><strong>Concrete Method</strong></p>
         <p>Provides behavior common to every subclass.</p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">void</span> step1() {
     <span class="code-class">System</span>.out.println(<span class="code-string">"Common processing"</span>);
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Hook Method</strong></p>
+        <p class="minor-heading"><strong>Hook Method</strong></p>
         <p>Allows optional customization.</p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">void</span> beforeProcess() {
@@ -217,11 +217,11 @@ tea.prepare();</code></pre></div>
     </ol></div>
     <div class="intro">
         <p>The parsing logic differs by file format, but the overall import algorithm remains the same.</p>
-        <p><strong>Customer model</strong></p>
+        <p class="minor-heading"><strong>Customer model</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">Customer</span>(<span class="code-class">String</span> id, <span class="code-class">String</span> name, <span class="code-class">String</span> email) {}</code></pre></div>
     <div class="intro">
-        <p><strong>Abstract importer</strong></p>
+        <p class="minor-heading"><strong>Abstract importer</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">private</span> <span class="code-keyword">abstract</span> <span class="code-keyword">class</span> <span class="code-class">CustomerImporter</span> {
     <span class="code-keyword">public</span> <span class="code-class">List</span>&lt;<span class="code-class">Customer</span>&gt; database;
@@ -267,7 +267,7 @@ tea.prepare();</code></pre></div>
     <div class="intro">
         <p>Here, <code>importData</code> defines the entire workflow.</p>
         <p>Subclasses are allowed to change how lines are parsed without changing how records are validated or saved.</p>
-        <p><strong>CSV importer</strong></p>
+        <p class="minor-heading"><strong>CSV importer</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CsvCustomerImporter</span> <span class="code-keyword">extends</span> <span class="code-class">CustomerImporter</span> {
     <span class="code-keyword">public</span> <span class="code-class">CsvCustomerImporter</span>(<span class="code-class">List</span>&lt;<span class="code-class">Customer</span>&gt; database) {
@@ -283,7 +283,7 @@ tea.prepare();</code></pre></div>
     }
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Pipe-delimited importer</strong></p>
+        <p class="minor-heading"><strong>Pipe-delimited importer</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">PipeCustomerImporter</span> <span class="code-keyword">extends</span> <span class="code-class">CustomerImporter</span> {
     <span class="code-keyword">public</span> <span class="code-class">PipeCustomerImporter</span>(<span class="code-class">List</span>&lt;<span class="code-class">Customer</span>&gt; database) {
@@ -299,7 +299,7 @@ tea.prepare();</code></pre></div>
     }
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Client code</strong></p>
+        <p class="minor-heading"><strong>Client code</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
     <span class="code-class">List</span>&lt;<span class="code-class">Customer</span>&gt; database = <span class="code-keyword">new</span> <span class="code-class">ArrayList</span>&lt;&gt;();
@@ -316,7 +316,7 @@ tea.prepare();</code></pre></div>
     database.forEach(<span class="code-class">System</span>.out::println);
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Output:</strong></p>
+        <p class="minor-heading"><strong>Output:</strong></p>
     </div>
     <div class="code-block"><pre><code>CSV import finished: 1
 Starting pipe import
@@ -328,7 +328,7 @@ Customer[id=4, name=Mina, email=mina@example.com]</code></pre></div>
     </div>
     <div class="callout callout-warning"><p>For simplicity, this example uses strings and an in-memory list. Production importers should use a proper CSV parsing library for quoted/escaped fields, and consider batch persistence, transaction boundaries, error reporting, and recovery from malformed records.</p></div>
     <div class="intro">
-        <p><strong>Why is Template Method useful here?</strong></p>
+        <p class="minor-heading"><strong>Why is Template Method useful here?</strong></p>
         <p>Without Template Method every importer might independently implement reading, validation, saving and error handling. That creates duplicated logic and increases the chance of inconsistent behavior.</p>
         <p>With Template Method:</p>
     </div>
@@ -392,7 +392,7 @@ Customer[id=4, name=Mina, email=mina@example.com]</code></pre></div>
 }</code></pre></div>
     </div>
     <div class="intro">
-        <p><strong>Output:</strong></p>
+        <p class="minor-heading"><strong>Output:</strong></p>
     </div>
     <div class="code-block"><pre><code>Opening resource
 Generating report
@@ -433,7 +433,7 @@ Closing resource</code></pre></div>
         </table>
     </div></div>
     <div class="intro">
-        <p><strong>Template Method</strong></p>
+        <p class="minor-heading"><strong>Template Method</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">abstract</span> <span class="code-keyword">class</span> <span class="code-class">PaymentProcessor</span> {
     <span class="code-keyword">public</span> <span class="code-keyword">final</span> <span class="code-keyword">void</span> process() {
@@ -456,7 +456,7 @@ Closing resource</code></pre></div>
 }</code></pre></div>
     <div class="intro">
         <p>Every payment processor follows the same sequence. Subclasses specialize authentication and execution.</p>
-        <p><strong>Strategy</strong></p>
+        <p class="minor-heading"><strong>Strategy</strong></p>
     </div>
     <div class="scenario-layout scenario-layout-equal scenario-layout-tight scenario-layout-stretch">
         <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">PaymentStrategy</span> {
@@ -488,7 +488,7 @@ Closing resource</code></pre></div>
     </div>
     <div class="intro">
         <p>Here, the <code>Checkout</code> object can change its payment strategy at runtime without needing to be replaced.</p>
-        <p><strong>Key distinction:</strong></p>
+        <p class="minor-heading"><strong>Key distinction:</strong></p>
     </div>
     <div class="intro"><ul>
         <li><strong>Template Method</strong> asks: Which steps of this predefined workflow should subclasses customize?</li>
@@ -499,13 +499,13 @@ Closing resource</code></pre></div>
     <div class="subheading">Where Is Template Method Used in Java and Spring</div>
     <div class="intro">
         <p>The pattern is widely used in frameworks where common processing logic is controlled by a base class.</p>
-        <p><strong>Java Collections Framework</strong></p>
+        <p class="minor-heading"><strong>Java Collections Framework</strong></p>
         <p>Java's <code>AbstractList</code> is an example of a skeletal implementation.</p>
         <p>You can extend <code>AbstractList</code> and implement methods such as <code>get</code> and <code>size</code>. The base class uses those operations<br> to provide other list functionality.</p>
     </div>
     <div class="intro">
         <p>Methods inherited from <code>AbstractList</code> build on the provided primitive operations. This is a related skeletal-implementation technique, although not every inherited method is a classic single template method.</p>
-        <p><strong>Spring Framework</strong></p>
+        <p class="minor-heading"><strong>Spring Framework</strong></p>
         <p>Spring's <code>AbstractPlatformTransactionManager</code> provides a practical example of template-style behavior.</p>
         <p>It coordinates transaction management through common operations such as acquiring, committing, and rolling back transactions, while concrete transaction managers implement resource-specific operations such as <code>doBegin</code>, <code>doCommit</code>, and <code>doRollback</code>.</p>
         <p>This allows Spring to standardize transaction handling while supporting different transaction management implementations.</p>
@@ -514,7 +514,7 @@ Closing resource</code></pre></div>
 
     <div class="subheading">Advantages and Disadvantages</div>
     <div class="intro">
-        <p><strong>Advantages</strong></p>
+        <p class="minor-heading"><strong>Advantages</strong></p>
     </div>
     <div class="intro"><ul>
         <li>Eliminates duplicate algorithm code.</li>
@@ -524,7 +524,7 @@ Closing resource</code></pre></div>
         <li>Makes it easier to introduce new variants without changing shared workflow logic.</li>
     </ul></div>
     <div class="intro">
-        <p><strong>Disadvantages</strong></p>
+        <p class="minor-heading"><strong>Disadvantages</strong></p>
     </div>
     <div class="intro"><ul>
         <li>Relies on inheritance, creating tighter coupling between base and derived classes.</li>

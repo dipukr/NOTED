@@ -60,7 +60,7 @@
         <p><strong>How inheritance combinations grow</strong> (remote types: 3, device types: 4, total: 12):</p>
     </div>
     <div class="intro">
-        <p><strong>Problems with the inheritance approach</strong></p>
+        <p class="minor-heading"><strong>Problems with the inheritance approach</strong></p>
     </div>
     <div class="intro"><ul>
         <li><strong>Class explosion:</strong> Every new remote type potentially requires one class per device.</li>
@@ -153,7 +153,7 @@
 }</code></pre></div>
     <div class="intro">
         <p>Notice that the implementations of the same operations differ from one device to another. The remote does not need to know these details.</p>
-        <p><strong>Create the Abstraction.</strong></p>
+        <p class="minor-heading"><strong>Create the Abstraction.</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">abstract</span> <span class="code-keyword">class</span> <span class="code-class">Remote</span> {
     <span class="code-keyword">protected</span> <span class="code-keyword">final</span> <span class="code-class">Device</span> device;
@@ -222,7 +222,7 @@
         <li>The <code>Remote</code> determines <strong>which</strong> operations are exposed and how they are combined.</li>
     </ul></div>
     <div class="intro">
-        <p><strong>Client Code.</strong></p>
+        <p class="minor-heading"><strong>Client Code.</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
     <span class="code-class">Device</span> tv = <span class="code-keyword">new</span> TV();
@@ -344,7 +344,7 @@ Radio turned OFF</code></pre></div>
     }
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Abstraction hierarchy:</strong></p>
+        <p class="minor-heading"><strong>Abstraction hierarchy:</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">abstract</span> <span class="code-keyword">class</span> <span class="code-class">Notification</span> {
     <span class="code-keyword">protected</span> <span class="code-keyword">final</span> <span class="code-class">MessageSender</span> sender;
@@ -372,7 +372,7 @@ Radio turned OFF</code></pre></div>
     }
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Client code:</strong></p>
+        <p class="minor-heading"><strong>Client code:</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
     <span class="code-class">Notification</span> alert = <span class="code-keyword">new</span> <span class="code-class">AlertNotification</span>(<span class="code-keyword">new</span> <span class="code-class">EmailSender</span>());
@@ -416,7 +416,7 @@ Push: [ALERT] Payment failed</code></pre></div>
 
     <div class="subheading">Advantages and Disadvantages</div>
     <div class="intro">
-        <p><strong>Advantages</strong></p>
+        <p class="minor-heading"><strong>Advantages</strong></p>
     </div>
     <div class="intro"><ul>
         <li>Avoids combinatorial subclass explosion.</li>
@@ -427,7 +427,7 @@ Push: [ALERT] Payment failed</code></pre></div>
         <li>Makes the two hierarchies easier to maintain independently.</li>
     </ul></div>
     <div class="intro">
-        <p><strong>Disadvantages</strong></p>
+        <p class="minor-heading"><strong>Disadvantages</strong></p>
     </div>
     <div class="intro"><ul>
         <li>Introduces additional interfaces and classes.</li>

@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Latency</title>
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    if (!window.katex) return;
+    document.querySelectorAll("[data-tex]").forEach(function (el) {
+        katex.render(el.dataset.tex, el, {displayMode: el.dataset.display === "1", throwOnError: false});
+    });
+});
+</script>
+</head>
+<body>
+<div class="note">
+    <div class="title">Latency in System Design — Comprehensive Guide</div>
+
+    <div class="intro">
+        <p>Latency is one of the most important performance characteristics of a software system. It directly affects <strong>user experience, API responsiveness, database performance, microservice communication, throughput, scalability, and reliability</strong>.</p>
+        <p>In system design, understanding latency involves much more than measuring how long an API takes to respond. We need to understand where the time is spent, how latency accumulates across distributed components, why latency suddenly increases under load, and how to design systems that maintain predictable response times.</p>
+    </div>
+
+    <div class="subheading">1. What is latency?</div>
+    <div class="intro">
+        <p><strong>Latency is the amount of time that elapses between initiating an operation and observing its completion or a defined response.</strong></p>
+        <p>In backend engineering, latency commonly refers to the elapsed time between sending an HTTP request and receiving its response.</p>
+        <p>For example:</p>
+        <ul>
+            <li>A client sends <code>GET /api/products/101</code>.</li>
+            <li>The server receives the request, executes business logic, and queries a database.</li>
+            <li>The server sends a response.</li>
+            <li>The client receives the response 120 milliseconds after initiating the request.</li>
+        </ul>
+        <p>The <strong>end-to-end request latency is 120 ms</strong>.</p>
+    </div>
+    <div class="callout callout-note"><p>The measurement starts at the client and ends when the response is received.</p></div>
+    <div class="intro">
+        <p class="minor-heading"><strong>Important: Latency depends on measurement boundaries</strong></p>
+        <p>The same request can have different latency values depending on where it is measured.</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Measurement</th><th>Example</th></tr></thead>
+            <tbody>
+                <tr><td>Client-observed latency</td><td>120 ms</td></tr>
+                <tr><td>API Gateway latency</td><td>95 ms</td></tr>
+                <tr><td>Spring Boot application latency</td><td>70 ms</td></tr>
+                <tr><td>Database query latency</td><td>25 ms</td></tr>
+            </tbody>
+        </table></div>
+        <p>These values are not contradictory. Each measures a different part of the request&rsquo;s journey.</p>
+        <p>An API can have an internal processing time of 70 ms while the end user experiences 120 ms.</p>
+        <p class="minor-heading"><strong>Common units</strong></p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Unit</th><th>Meaning</th></tr></thead>
+            <tbody>
+                <tr><td>Nanosecond (ns)</td><td>One billionth of a second</td></tr>
+                <tr><td>Microsecond (µs)</td><td>One millionth of a second</td></tr>
+                <tr><td>Millisecond (ms)</td><td>One thousandth of a second</td></tr>
+                <tr><td>Second (s)</td><td>1,000 milliseconds</td></tr>
+            </tbody>
+        </table></div>
+        <p>Network and web API latencies are usually measured in milliseconds, while some in-memory and low-level hardware operations are measured in nanoseconds or microseconds.</p>
+    </div>
+
+    <div class="subheading">2. Anatomy of an API request&rsquo;s latency</div>
+    <div class="intro">
+        <p>Consider an e-commerce system where a customer requests order information.</p>
+    </div>
+    <div class="code-block"><pre><code>GET /api/orders/12345</code></pre></div>
+    <div class="intro">
+        <p>The request passes through several components before returning to the client.</p>
+        <p class="minor-heading"><strong>End-to-end request path</strong></p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/latency-request-path.svg" alt="End-to-end request path: Client / Browser, Load Balancer 5 ms, API Gateway 10 ms, Order Microservice 25 ms, Database 35 ms, then additional network and return path 45 ms" style="width:100%;max-width:400px">
+    </div>
+    <div class="intro">
+        <p>Illustrative client-observed latency: <strong>120 ms</strong> (5 + 10 + 25 + 35 + 45 ms).</p>
+        <p>The request&rsquo;s latency comes from multiple sources, which we can classify into:</p>
+        <ol>
+            <li><strong>Network latency:</strong> Time taken for data to travel between components.</li>
+            <li><strong>Processing latency:</strong> Time spent executing application logic.</li>
+            <li><strong>Database latency:</strong> Time spent accessing or modifying data.</li>
+            <li><strong>Queueing latency:</strong> Time spent waiting for an available processing resource.</li>
+            <li><strong>Serialization/deserialization latency:</strong> Time spent converting between objects and transmission formats.</li>
+            <li><strong>Dependency latency:</strong> Time spent waiting for other APIs, services, or external systems.</li>
+        </ol>
+        <p>A simplified latency equation is:</p>
+    </div>
+    <div class="intro"><p class="math-display"><span class="math" data-tex="L_{\text{total}} = L_{\text{network}} + L_{\text{queue}} + L_{\text{processing}} + L_{\text{database}} + L_{\text{other}}" data-display="1">L<sub>total</sub> = L<sub>network</sub> + L<sub>queue</sub> + L<sub>processing</sub> + L<sub>database</sub> + L<sub>other</sub></span></p></div>
+    <div class="intro">
+        <p>This additive model works when the operations are sequential and the terms do not overlap. For parallel operations, we need a different calculation, which we&rsquo;ll cover later.</p>
+    </div>
+
+    <div class="subheading">3. Types of latency in system design</div>
+    <div class="intro">
+        <p class="minor-heading"><strong>3.1 Network latency</strong></p>
+        <p>Network latency is the time required for information to move between two network endpoints.</p>
+        <p>It depends on geographical distance, network routing, congestion, and protocol overhead.</p>
+        <p>There are three important networking concepts:</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Concept</th><th>Explanation</th></tr></thead>
+            <tbody>
+                <tr><td>Propagation delay</td><td>Time for a signal to travel through a physical medium</td></tr>
+                <tr><td>Transmission delay</td><td>Time required to transmit all bits onto a link</td></tr>
+                <tr><td>Round-trip time (RTT)</td><td>Time for a message to travel to a destination and for a response to return</td></tr>
+            </tbody>
+        </table></div>
+        <p>For a data packet of size <span class="math" data-tex="S">S</span> bits over a link with bandwidth <span class="math" data-tex="B">B</span> bits/second:</p>
+    </div>
+    <div class="intro"><p class="math-display"><span class="math" data-tex="T_{\text{transmission}}=\frac{S}{B}" data-display="1">T<sub>transmission</sub> = S/B</span></p></div>
+    <div class="intro">
+        <p>For distance <span class="math" data-tex="D">D</span> and signal propagation speed <span class="math" data-tex="V">V</span>:</p>
+    </div>
+    <div class="intro"><p class="math-display"><span class="math" data-tex="T_{\text{propagation}}=\frac{D}{V}" data-display="1">T<sub>propagation</sub> = D/V</span></p></div>
+    <div class="intro">
+        <p>For example, light travels through typical optical fiber at roughly 200,000 km/s. A signal traversing 1,000 km of fiber therefore has a theoretical one-way propagation delay of approximately 5 ms. The real network path can be longer and introduces additional delays.</p>
+        <p><strong>Why this matters:</strong> Suppose Service A and Service B are deployed in different geographical regions. Even when both process requests almost instantaneously, their communication latency can be significant.</p>
+        <p>Network latency may also include DNS resolution, TCP connection establishment, TLS handshakes, proxy hops, packet retransmissions, and waiting for network resources.</p>
+        <p>Connection reuse, HTTP/2 or HTTP/3 multiplexing, regional deployment, and CDNs can reduce different parts of this overhead.</p>
+        <p class="minor-heading"><strong>3.2 Processing latency</strong></p>
+        <p>Processing latency is the time spent performing computation within an application or service.</p>
+        <p>Examples include JSON parsing, validation, business-rule execution, encryption, compression, object mapping, and generating a response.</p>
+        <p>A computationally expensive operation might take 100 ms on its own. Optimizing the database would not improve that portion of the response time.</p>
+        <p>Important influences include CPU speed, algorithmic complexity, garbage collection pauses, lock contention, and thread scheduling.</p>
+        <p class="minor-heading"><strong>3.3 Database latency</strong></p>
+        <p>Database latency is the time associated with executing database operations.</p>
+        <p>For instance:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">SELECT</span> *
+<span class="code-keyword">FROM</span> orders
+<span class="code-keyword">WHERE</span> customer_id = <span class="code-number">1001</span>;</code></pre></div>
+    <div class="intro">
+        <p>This query may be fast when a suitable index exists, but become slow when the database has to scan millions of rows.</p>
+        <p>Database latency can include connection-pool wait time, network time, query parsing and planning, execution, locks, disk I/O, and result transfer.</p>
+        <p>It is useful to distinguish <strong>query execution time</strong> from <strong>application-observed database call time</strong>, which may be considerably higher.</p>
+        <p class="minor-heading"><strong>3.4 Queueing latency</strong></p>
+        <p>Queueing latency is the time a request spends waiting before it can be processed.</p>
+        <p>Imagine a web server with 10 worker threads.</p>
+        <p>All 10 are busy processing requests, and 50 new requests arrive. If the server allows requests to queue, some must wait before a worker becomes available.</p>
+        <p>Even if each request requires only 20 ms of work, its response time can be much higher because it waited in the queue.</p>
+        <p>This becomes especially important when the system approaches its maximum capacity.</p>
+        <p class="minor-heading"><strong>3.5 Serialization and deserialization latency</strong></p>
+        <p>Serialization converts in-memory objects to formats such as JSON, Protobuf, or Avro. Deserialization performs the reverse process.</p>
+        <p>For example, returning 10,000 records from a Spring Boot API requires converting Java objects into response bytes.</p>
+        <p>Large payloads can increase CPU processing time, memory pressure, transmission time, and client-side parsing time.</p>
+        <p>Pagination, selective field retrieval, compression, and efficient serialization formats can help, depending on the workload.</p>
+        <p class="minor-heading"><strong>3.6 Disk and storage latency</strong></p>
+        <p>Storage latency is the time required to complete read or write operations against a storage system.</p>
+        <p>RAM, local SSDs, network-attached storage, and remote object stores have very different latency characteristics. Caching and batching can reduce the number of expensive storage operations.</p>
+        <p>Also remember that a write acknowledged by an application is not necessarily durable on physical storage. The latency boundary must specify what completion means.</p>
+    </div>
+
+    <div class="subheading">4. Latency vs throughput vs response time</div>
+    <div class="intro">
+        <p>These terms are related but are not interchangeable.</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Metric</th><th>Definition</th><th>Typical unit</th></tr></thead>
+            <tbody>
+                <tr><td>Latency</td><td>Elapsed time for an operation</td><td>ms</td></tr>
+                <tr><td>Response time</td><td>Time from request initiation until the specified response completion point</td><td>ms</td></tr>
+                <tr><td>Throughput</td><td>Number of operations completed per unit time</td><td>Requests/sec</td></tr>
+                <tr><td>Bandwidth</td><td>Maximum or available data-transfer capacity</td><td>Mbps, Gbps</td></tr>
+                <tr><td>Concurrency</td><td>Number of operations in progress simultaneously</td><td>Count</td></tr>
+            </tbody>
+        </table></div>
+        <p>In typical API discussions, latency and response time are often used interchangeably. However, some systems distinguish time to first response byte from time to full completion.</p>
+        <p class="minor-heading"><strong>Example</strong></p>
+        <p>Consider a server processing requests:</p>
+        <ul>
+            <li>Each request takes 100 ms.</li>
+            <li>The system can process 10 requests concurrently.</li>
+            <li>Assume there is no additional bottleneck and the system stays fully occupied.</li>
+        </ul>
+        <p>Its theoretical processing capacity is approximately:</p>
+    </div>
+    <div class="intro"><p class="math-display"><span class="math" data-tex="\text{Throughput}=\frac{10}{0.1}=100\text{ requests/second}" data-display="1">Throughput = 10/0.1 = 100 requests/second</span></p></div>
+    <div class="intro">
+        <p>Now suppose we increase concurrency to 100, and each request still takes 100 ms.</p>
+    </div>
+    <div class="intro"><p class="math-display"><span class="math" data-tex="\text{Throughput}=\frac{100}{0.1}=1000\text{ requests/second}" data-display="1">Throughput = 100/0.1 = 1000 requests/second</span></p></div>
+    <div class="intro">
+        <p>Throughput increased tenfold, but individual request latency did not change.</p>
+        <p>In practice, increasing concurrency can also increase resource contention, causing latency to grow.</p>
+        <p><strong>Key principle:</strong> High throughput does not automatically mean low latency, and low latency does not automatically imply high throughput.</p>
+    </div>
+
+    <div class="subheading">5. Measuring latency: Average, P50, P95, P99, and P99.9</div>
+    <div class="intro">
+        <p>A single average is rarely sufficient to understand how a production system performs.</p>
+        <p>Consider an API handling 1,000 requests.</p>
+        <p class="minor-heading"><strong>Example: Request latency distribution</strong></p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Requests</th><th>Latency</th></tr></thead>
+            <tbody>
+                <tr><td>950</td><td>50 ms</td></tr>
+                <tr><td>40</td><td>200 ms</td></tr>
+                <tr><td>10</td><td>2,000 ms</td></tr>
+            </tbody>
+        </table></div>
+        <p>Illustrative latency distribution for 1,000 requests.</p>
+        <p>The average latency is:</p>
+    </div>
+    <div class="intro"><p class="math-display"><span class="math" data-tex="L_{\text{average}}=\frac{950(50)+40(200)+10(2000)}{1000}" data-display="1">L<sub>average</sub> = (950(50)+40(200)+10(2000))/(1000)</span></p></div>
+    <div class="intro"><p class="math-display"><span class="math" data-tex="\boxed{L_{\text{average}}=75.5\text{ ms}}" data-display="1">\boxed{L<sub>average</sub> = 75.5 ms}</span></p></div>
+    <div class="intro">
+        <p>An average of 75.5 ms looks quite good. However, 10 requests took 2 seconds, which may be unacceptable for important operations such as payment confirmation.</p>
+        <p class="minor-heading"><strong>Understanding latency percentiles</strong></p>
+        <p>A latency percentile indicates a response-time boundary below which a specified percentage of observed requests fall.</p>
+        <p>For this example, using the nearest-rank method:</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Metric</th><th>Latency</th><th>Interpretation</th></tr></thead>
+            <tbody>
+                <tr><td>Mean</td><td>75.5 ms</td><td>Arithmetic average</td></tr>
+                <tr><td>P50</td><td>50 ms</td><td>At least 50% completed within 50 ms</td></tr>
+                <tr><td>P90</td><td>50 ms</td><td>At least 90% completed within 50 ms</td></tr>
+                <tr><td>P95</td><td>50 ms</td><td>At least 95% completed within 50 ms</td></tr>
+                <tr><td>P99</td><td>200 ms</td><td>At least 99% completed within 200 ms</td></tr>
+                <tr><td>P99.9</td><td>2,000 ms</td><td>At least 99.9% completed within 2,000 ms</td></tr>
+                <tr><td>Maximum</td><td>2,000 ms</td><td>Slowest observed request</td></tr>
+            </tbody>
+        </table></div>
+        <p>Percentile algorithms can differ slightly between tools, particularly when interpolation or histogram approximations are used.</p>
+        <p>The slowest few percent of requests are called the <strong>tail</strong> of the latency distribution.</p>
+        <p>This is why systems commonly monitor P95, P99, and sometimes P99.9 rather than relying on averages.</p>
+        <p>Google&rsquo;s SRE guidance emphasizes percentile-based analysis because averages can hide substantial changes in slow requests.</p>
+        <p class="minor-heading"><strong>Why P99 latency is important</strong></p>
+        <p>Suppose a service processes 1 million requests per day.</p>
+        <p>If its P99 latency is 1 second, roughly 1% of requests may be slower than that threshold.</p>
+    </div>
+    <div class="callout callout-note"><p>Requests potentially above the P99 boundary: <strong>10,000 / day</strong></p></div>
+    <div class="intro">
+        <p>This illustrates why even a small percentage of slow requests can affect many users in a high-traffic system.</p>
+        <p>An important caveat: a good P99 value does not guarantee that the slowest 1% of requests have an acceptable upper bound.</p>
+    </div>
+
+    <div class="subheading">6. Why latency increases dramatically under heavy load</div>
+    <div class="intro">
+        <p>One of the most important system design concepts is that latency does not necessarily increase linearly with traffic.</p>
+        <p>A system may maintain excellent latency at 50% capacity but experience sharply increased waiting times as it approaches saturation.</p>
+        <p class="minor-heading"><strong>The queueing effect</strong></p>
+        <p>Consider a simplified server that can complete an average of 100 requests per second.</p>
+        <p>Under an idealized M/M/1 queueing model:</p>
+    </div>
+    <div class="intro"><p class="math-display"><span class="math" data-tex="W=\frac{1}{\mu-\lambda}" data-display="1">W = (1)/(μ-λ)</span></p></div>
+    <div class="intro">
+        <p>Where:</p>
+        <ul>
+            <li><span class="math" data-tex="\lambda">λ</span> = average arrival rate (requests/second)</li>
+            <li><span class="math" data-tex="\mu">μ</span> = average processing capacity (requests/second)</li>
+            <li><span class="math" data-tex="W">W</span> = average total time in the system (seconds)</li>
+        </ul>
+        <p>Here, <span class="math" data-tex="\mu=100">μ = 100</span> requests/second.</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Arrival rate (λ)</th><th>Modeled average response time (W)</th></tr></thead>
+            <tbody>
+                <tr><td>50 requests/sec</td><td>20 ms</td></tr>
+                <tr><td>90 requests/sec</td><td>100 ms</td></tr>
+                <tr><td>99 requests/sec</td><td>1,000 ms</td></tr>
+            </tbody>
+        </table></div>
+        <p>Idealized M/M/1 model: exponential service times, Poisson arrivals, one server, and stable load below 100 requests/s.</p>
+        <p>At 50 requests/sec, the modeled average response time is 20 ms.</p>
+        <p>At 90 requests/sec, it reaches 100 ms.</p>
+        <p>At 99 requests/sec, it reaches 1,000 ms.</p>
+        <p>The mean service time is only 10 ms, but queueing causes a much larger overall response time.</p>
+        <p>Real systems use multiple threads, CPU cores, connection pools, and request classes, so this formula is not a universal prediction. It demonstrates the fundamental problem: <strong>as utilization approaches capacity, queueing delays can rise dramatically.</strong></p>
+        <p>This behavior is why capacity headroom, load shedding, bounded queues, and backpressure are essential for reliable low-latency systems. Google&rsquo;s SRE guidance also describes how excessive queueing increases response times and contributes to overload problems.</p>
+        <p class="minor-heading"><strong>Little&rsquo;s Law</strong></p>
+        <p>Little&rsquo;s Law relates concurrency, throughput, and response time for a stable system:</p>
+    </div>
+    <div class="intro"><p class="math-display"><span class="math" data-tex="\boxed{N=\lambda W}" data-display="1">N = λ W</span></p></div>
+    <div class="intro">
+        <p>Where <span class="math" data-tex="N">N</span> is the average number of operations in progress, <span class="math" data-tex="\lambda">λ</span> is throughput, and <span class="math" data-tex="W">W</span> is average time in the system.</p>
+        <p>For example:</p>
+    </div>
+    <div class="intro"><p class="math-display"><span class="math" data-tex="N=200\text{ requests/sec}\times0.25\text{ sec}" data-display="1">N = 200 requests/sec×0.25 sec</span></p></div>
+    <div class="intro"><p class="math-display"><span class="math" data-tex="\boxed{N=50\text{ concurrent requests}}" data-display="1">N = 50 concurrent requests</span></p></div>
+    <div class="intro">
+        <p>That means a system sustaining 200 requests/sec with an average response time of 250 ms has approximately 50 requests in progress on average.</p>
+        <p>This is a useful starting point for sizing connection pools, thread pools, and concurrency limits, although actual capacity planning also needs peak-load analysis and resource measurements.</p>
+    </div>
+
+    <div class="subheading">7. Latency in distributed systems and microservices</div>
+    <div class="intro">
+        <p>Distributed systems are especially sensitive to latency because requests frequently depend on other network services.</p>
+        <p class="minor-heading"><strong>Sequential service calls</strong></p>
+        <p>Imagine an Order Service that performs three downstream operations one after another:</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Call</th><th>Starts at</th><th>Latency</th></tr></thead>
+            <tbody>
+                <tr><td>Product</td><td>0 ms</td><td>60 ms</td></tr>
+                <tr><td>Reviews</td><td>60 ms</td><td>100 ms</td></tr>
+                <tr><td>Recommend</td><td>160 ms</td><td>80 ms</td></tr>
+                <tr><td><strong>Critical path</strong></td><td></td><td><strong>240 ms</strong></td></tr>
+            </tbody>
+        </table></div>
+        <p>If operations are sequential:</p>
+    </div>
+    <div class="intro"><p class="math-display"><span class="math" data-tex="L_{\text{sequential}}=L_1+L_2+L_3" data-display="1">L<sub>sequential</sub> = L<sub>1</sub>+L<sub>2</sub>+L<sub>3</sub></span></p></div>
+    <div class="intro"><p class="math-display"><span class="math" data-tex="=60+100+80=\boxed{240\text{ ms}}" data-display="1"> = 60+100+80 = 240 ms</span></p></div>
+    <div class="intro">
+        <p>Additional application and network overhead may increase this further.</p>
+        <p class="minor-heading"><strong>Parallel service calls</strong></p>
+        <p>Suppose an API needs product information, recommendations, and reviews, and none of those operations depends on the output of the others.</p>
+        <p>They can execute concurrently.</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Call</th><th>Starts at</th><th>Latency</th></tr></thead>
+            <tbody>
+                <tr><td>Product</td><td>0 ms</td><td>60 ms</td></tr>
+                <tr><td>Reviews</td><td>0 ms</td><td>100 ms</td></tr>
+                <tr><td>Recommend</td><td>0 ms</td><td>80 ms</td></tr>
+                <tr><td><strong>Critical path</strong></td><td></td><td><strong>100 ms</strong></td></tr>
+            </tbody>
+        </table></div>
+        <p>Ignoring orchestration overhead:</p>
+    </div>
+    <div class="intro"><p class="math-display"><span class="math" data-tex="L_{\text{parallel}} \approx \max(L_1,L_2,L_3)" data-display="1">L<sub>parallel</sub> ≈ max(L<sub>1</sub>,L<sub>2</sub>,L<sub>3</sub>)</span></p></div>
+    <div class="intro"><p class="math-display"><span class="math" data-tex="=\max(60,100,80)=\boxed{100\text{ ms}}" data-display="1"> = max(60,100,80) = 100 ms</span></p></div>
+    <div class="intro">
+        <p>Parallelism reduces wall-clock latency for independent tasks, but it can also increase concurrency, downstream resource usage, and contention.</p>
+        <p><strong>Important:</strong> Operations such as payment authorization and inventory reservation may have correctness and ordering requirements. They cannot always be parallelized safely.</p>
+        <p class="minor-heading"><strong>Fan-out and tail latency</strong></p>
+        <p>Now consider an aggregator that contacts 20 independent services or partitions in parallel, and waits for all 20.</p>
+        <p>Suppose each has a 1% probability of being unusually slow.</p>
+        <p>Assuming independent slowdowns, the probability that at least one dependency is slow is:</p>
+    </div>
+    <div class="intro"><p class="math-display"><span class="math" data-tex="P(\text{at least one slow})=1-(1-0.01)^{20}" data-display="1">P(at least one slow) = 1-(1-0.01)<sup>20</sup></span></p></div>
+    <div class="intro"><p class="math-display"><span class="math" data-tex="\boxed{P\approx18.2\%}" data-display="1">P≈18.2%</span></p></div>
+    <div class="intro">
+        <p>So a 1% slow-request probability at an individual dependency can translate into an approximately 18.2% chance that the overall fan-out request encounters at least one slow dependency.</p>
+        <p>This is a central theme of the research paper The Tail at Scale, which discusses techniques for keeping large distributed systems predictably responsive despite occasional slow components.</p>
+        <p>For this reason, microservices need more than fast individual services. They need control over the number of network calls, critical dependencies, parallelism, timeouts, and fallback behavior.</p>
+    </div>
+
+    <div class="subheading">8. Latency budgets</div>
+    <div class="intro">
+        <p>A latency budget assigns a maximum amount of time to different components of a request.</p>
+        <p>Suppose the product requirement is:</p>
+        <p><strong>99% of successful Order API requests should complete within 300 ms.</strong></p>
+        <p>We can establish a planning budget:</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Component</th><th>Allocated budget</th></tr></thead>
+            <tbody>
+                <tr><td>Client/API Gateway and network</td><td>40 ms</td></tr>
+                <tr><td>Authentication and validation</td><td>20 ms</td></tr>
+                <tr><td>Business processing</td><td>30 ms</td></tr>
+                <tr><td>Database access</td><td>70 ms</td></tr>
+                <tr><td>Downstream service calls</td><td>100 ms</td></tr>
+                <tr><td>Serialization and remaining overhead</td><td>20 ms</td></tr>
+                <tr><td>Headroom</td><td>20 ms</td></tr>
+                <tr><td><strong>Total</strong></td><td><strong>300 ms</strong></td></tr>
+            </tbody>
+        </table></div>
+        <p>This is a design budget, not a measured production breakdown.</p>
+        <p>The purpose is to make latency an explicit design constraint.</p>
+        <p>If the downstream call requires 350 ms, the current architecture cannot satisfy the 300 ms target on requests that must wait for that call.</p>
+        <p>The team then needs to consider caching, precomputation, changing a dependency, parallelization, or moving nonessential work off the synchronous path.</p>
+        <p>A subtle but important distinction: <strong>individual P99 budgets cannot simply be added to predict end-to-end P99.</strong> The actual percentile depends on the distributions, dependencies, and critical paths. Budgets are useful for engineering decisions, but end-to-end latency must be measured independently.</p>
+    </div>
+
+    <div class="subheading">9. Common causes of high latency</div>
+    <div class="intro">
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Bottleneck</th><th>What happens</th><th>Typical solution</th></tr></thead>
+            <tbody>
+                <tr><td>Missing DB index</td><td>Expensive table scans</td><td>Add an appropriate index</td></tr>
+                <tr><td>N+1 queries</td><td>Too many database round trips</td><td>Batch loading, carefully designed joins</td></tr>
+                <tr><td>Slow external API</td><td>Request blocks on a dependency</td><td>Timeout, cache, fallback</td></tr>
+                <tr><td>Connection-pool exhaustion</td><td>Requests wait for a connection</td><td>Measure wait time, reduce hold times, right-size pool</td></tr>
+                <tr><td>Thread-pool saturation</td><td>Requests queue for workers</td><td>Reduce blocking, bound concurrency, scale appropriately</td></tr>
+                <tr><td>CPU saturation</td><td>Processing cannot keep up</td><td>Profile and optimize, add compute capacity</td></tr>
+                <tr><td>Garbage collection pauses</td><td>Application work is temporarily delayed</td><td>Analyze allocations, GC, and memory pressure</td></tr>
+                <tr><td>Lock contention</td><td>Threads or transactions wait</td><td>Shorten critical sections, reduce contention</td></tr>
+                <tr><td>Oversized responses</td><td>More serialization and transfer time</td><td>Pagination, projection, compression</td></tr>
+                <tr><td>Excessive retries</td><td>More calls during partial failures</td><td>Retry budgets, backoff, jitter</td></tr>
+                <tr><td>Cross-region requests</td><td>Greater physical/network delay</td><td>Improve data and service locality</td></tr>
+                <tr><td>Cache misses</td><td>Expensive data lookup</td><td>Improve caching strategy</td></tr>
+            </tbody>
+        </table></div>
+        <p class="minor-heading"><strong>Database N+1 problem</strong></p>
+        <p>A classic performance issue in JPA/Hibernate is the N+1 query problem.</p>
+        <p>For example, if we load 100 orders and lazily access each order&rsquo;s customer:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-class">List</span>&lt;<span class="code-class">Order</span>&gt; orders = orderRepository.findAll();
+<span class="code-keyword">for</span> (<span class="code-class">Order</span> order : orders) {
+    <span class="code-class">System</span>.out.println(order.getCustomer().getName());
+}</code></pre></div>
+    <div class="intro">
+        <p>Depending on entity mappings, fetch configuration, and persistence-context state, this could produce one query to retrieve the orders and up to 100 additional queries to retrieve their customers.</p>
+        <p>That is potentially 101 SQL queries instead of a deliberately optimized fetch strategy.</p>
+        <p>A suitable JPQL fetch join might look like:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@Query</span>(<span class="code-string">"""
+    SELECT o
+    FROM Order o
+    JOIN FETCH o.customer
+    WHERE o.status = :status
+    """</span>)
+<span class="code-class">List</span>&lt;<span class="code-class">Order</span>&gt; findOrdersWithCustomers(<span class="code-annotation">@Param</span>(<span class="code-string">"status"</span>) <span class="code-class">String</span> status);</code></pre></div>
+    <div class="intro">
+        <p>This can avoid the extra customer-fetch queries for that relationship. Fetch joins should still be used carefully with pagination and large collections.</p>
+        <p>The performance improvement comes from reducing expensive database round trips, not merely making each individual query slightly faster.</p>
+    </div>
+
+    <div class="subheading">10. Strategies to reduce latency</div>
+    <div class="intro">
+        <p class="minor-heading"><strong>Caching</strong></p>
+        <p>Caching can eliminate repeated expensive work.</p>
+        <p>For example, retrieving a product from a database might take 30 ms, while retrieving an already cached copy from Redis could take only a few milliseconds, depending on the environment.</p>
+        <p>A cache-aside design works like this:</p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/latency-cache-aside.svg" alt="Cache-aside: an incoming request checks the cache; on a hit it returns cached data; on a miss it queries the database, populates the cache, and returns the database result" style="width:100%;max-width:520px">
+    </div>
+    <div class="intro">
+        <p>Caching is most useful for frequently accessed data with acceptable freshness requirements. It introduces cache invalidation, memory use, and consistency considerations.</p>
+        <p class="minor-heading"><strong>Asynchronous processing</strong></p>
+        <p>Suppose placing an order requires sending an email notification.</p>
+        <p>If the email operation takes 500 ms, waiting for it synchronously increases the API&rsquo;s response time.</p>
+        <p>A better design may be:</p>
+    </div>
+    <div class="code-block"><pre><code>Client
+  |
+  v
+Order Service
+  |
+  +-- Save order to database
+  |
+  +-- Publish order-created event
+  |
+  +-- Return success
+            |
+            v
+    Notification Consumer
+            |
+            v
+       Send email</code></pre></div>
+    <div class="intro">
+        <p>Kafka or another message broker can remove nonessential work from the synchronous request path.</p>
+        <p>However, asynchronous processing does <strong>not</strong> eliminate the total time required to complete that work. It changes the perceived latency and completion semantics.</p>
+        <p>For example, returning <code>202 Accepted</code> quickly is different from confirming that a payment has been completed.</p>
+        <p>For reliable event publication following a database update, transactional outbox or equivalent reliability mechanisms may be necessary.</p>
+        <p class="minor-heading"><strong>Other optimization techniques</strong></p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Technique</th><th>Benefit</th><th>Trade-off</th></tr></thead>
+            <tbody>
+                <tr><td>CDN</td><td>Delivers content closer to users</td><td>Cache invalidation and freshness</td></tr>
+                <tr><td>Connection pooling</td><td>Reduces connection creation overhead</td><td>Resource limits and contention</td></tr>
+                <tr><td>HTTP connection reuse</td><td>Avoids repeated connection establishment</td><td>Long-lived connection management</td></tr>
+                <tr><td>Request batching</td><td>Reduces round trips</td><td>Larger batches can increase wait time</td></tr>
+                <tr><td>Parallel requests</td><td>Reduces critical-path time</td><td>More load and concurrency</td></tr>
+                <tr><td>Read replicas</td><td>Distributes read traffic</td><td>Replication lag</td></tr>
+                <tr><td>Database indexing</td><td>Accelerates selective queries</td><td>Storage and write overhead</td></tr>
+                <tr><td>Denormalization</td><td>Reduces joins and query complexity</td><td>More complex updates</td></tr>
+                <tr><td>Precomputation</td><td>Moves work ahead of request time</td><td>Data freshness and storage</td></tr>
+                <tr><td>Horizontal scaling</td><td>Adds serving capacity</td><td>Coordination and infrastructure cost</td></tr>
+            </tbody>
+        </table></div>
+        <p>Optimization should target the dominant measured bottleneck, rather than applying every technique indiscriminately.</p>
+        <p class="minor-heading"><strong>10 golden rules for low latency</strong></p>
+        <ol>
+            <li><strong>Database index:</strong> Reduces data access time.</li>
+            <li><strong>Payload compression:</strong> Reduces data transfer time.</li>
+            <li><strong>Request grouping:</strong> Reduces network overhead and round-trip time.</li>
+            <li><strong>CDN:</strong> Keeps data closer to users and reduces round-trip time.</li>
+            <li><strong>Load balancer:</strong> Distributes traffic evenly and reduces server load.</li>
+            <li><strong>Vertical scaling:</strong> Gives faster processing with more memory and storage.</li>
+            <li><strong>Cache:</strong> Serves popular data from memory instead of the database.</li>
+            <li><strong>Connection pooling:</strong> Avoids connection overhead for databases and networks.</li>
+            <li><strong>Message queue:</strong> Handles computationally intensive tasks in the background.</li>
+            <li><strong>Data serialization:</strong> Reduces processing time by using an efficient data format.</li>
+        </ol>
+    </div>
+
+    <div class="subheading">11. Timeouts, retries, and latency control</div>
+    <div class="intro">
+        <p>A distributed system needs to control how long requests are allowed to wait.</p>
+        <p>Without timeouts, a request can remain blocked for a long period when a downstream service becomes unresponsive.</p>
+        <p class="minor-heading"><strong>Timeouts</strong></p>
+        <p>A timeout defines a maximum waiting period for a particular operation.</p>
+        <p>Common timeout types include:</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Timeout</th><th>Purpose</th></tr></thead>
+            <tbody>
+                <tr><td>Connection timeout</td><td>Limits time spent establishing a connection</td></tr>
+                <tr><td>Read/response timeout</td><td>Limits waiting for a response or network read, according to client semantics</td></tr>
+                <tr><td>Connection acquisition timeout</td><td>Limits waiting for an available pooled connection</td></tr>
+                <tr><td>Request deadline</td><td>Sets an overall maximum time for completing the logical operation</td></tr>
+            </tbody>
+        </table></div>
+        <p>Suppose the total API deadline is 800 ms.</p>
+        <p>The application should not give each of three sequential downstream calls an independent 800 ms timeout, because the resulting request could take several seconds.</p>
+        <p>Instead, use an end-to-end deadline and allocate the remaining time across required operations.</p>
+        <p class="minor-heading"><strong>Retries can increase latency</strong></p>
+        <p>Suppose a payment-service call has a timeout of 200 ms.</p>
+        <p>Three attempts with two 50 ms backoffs could consume:</p>
+    </div>
+    <div class="intro"><p class="math-display"><span class="math" data-tex="200+50+200+50+200=700\text{ ms}" data-display="1">200+50+200+50+200 = 700 ms</span></p></div>
+    <div class="intro">
+        <p>That is 700 ms before accounting for other processing.</p>
+        <p>Retries can also create a feedback loop:</p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/latency-retry-loop.svg" alt="Retry feedback loop: high traffic causes timeouts, timeouts cause more retries, retries create more load, and more load raises traffic again" style="width:100%;max-width:420px">
+    </div>
+    <div class="intro">
+        <p>An overloaded service can become even more overloaded when callers retry aggressively.</p>
+        <p>Production systems should employ bounded retries, exponential backoff with jitter, request deadlines, and retry budgets.</p>
+        <p>Retries must also respect idempotency, particularly for operations such as payments and order creation. A timeout does not necessarily mean the original operation failed.</p>
+        <p class="minor-heading"><strong>Other resilience mechanisms</strong></p>
+        <p>A circuit breaker can prevent repeated calls to a persistently failing dependency. A bulkhead isolates resource pools so one problematic dependency does not exhaust resources needed by unrelated operations.</p>
+        <p>Hedged requests can sometimes reduce tail latency by sending an alternative request to a replica when the first becomes unusually slow. This requires careful control of added load and side effects.</p>
+        <p>These mechanisms improve latency predictability and resilience, but they do not replace capacity planning.</p>
+    </div>
+
+    <div class="subheading">12. Observing latency in production</div>
+    <div class="intro">
+        <p>In a production system, latency should be monitored at several levels.</p>
+    </div>
+    <div class="svg-diagram">
+        <img src="../static/latency-observability.svg" alt="Latency observability pipeline: Spring Boot emits metrics and traces to an OpenTelemetry collector, which sends them to an observability backend that feeds P50, P95 and P99 monitoring dashboards" style="width:100%;max-width:640px">
+    </div>
+    <div class="intro">
+        <p>Conceptual pipeline — metrics and traces may use different exporters and storage backends.</p>
+        <p>Google recommends monitoring four golden signals: <strong>latency, traffic, errors, and saturation</strong>. Monitoring latency alone can be misleading because an overloaded service may start rejecting requests quickly, artificially lowering its average response time.</p>
+        <p class="minor-heading"><strong>Metrics vs traces</strong></p>
+        <p>Metrics answer statistical questions: What is the P99 latency? How many requests are arriving? Is the latency increasing over the last hour?</p>
+        <p>Distributed traces answer request-specific questions: Which database call was slow? Which downstream service took the most time? Did the request wait in a connection pool?</p>
+        <p>OpenTelemetry represents a trace using related spans, each describing a unit of work such as an HTTP request or database operation.</p>
+        <p class="minor-heading"><strong>Example of a slow-request trace</strong></p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Span</th><th>Duration</th></tr></thead>
+            <tbody>
+                <tr><td>Gateway</td><td>310 ms</td></tr>
+                <tr><td>Order API</td><td>280 ms</td></tr>
+                <tr><td>Database</td><td>180 ms</td></tr>
+                <tr><td>Inventory</td><td>55 ms</td></tr>
+                <tr><td>Serialize</td><td>Short (not labelled)</td></tr>
+            </tbody>
+        </table></div>
+        <p>Illustrative trace. Bars are positioned on one timeline; nested and overlapping spans must not be added together.</p>
+        <p>In this example, database activity occupies 180 ms of the 310 ms Gateway span.</p>
+        <p>The database path is a sensible place to investigate first, although the trace alone does not establish whether the root cause is slow SQL, connection acquisition, lock waiting, or network delay.</p>
+    </div>
+
+    <div class="subheading">13. Measuring API latency in Spring Boot</div>
+    <div class="intro">
+        <p>Spring Boot integrates with Micrometer to collect HTTP request metrics. It can automatically instrument Spring MVC requests using the metric name <code>http.server.requests</code>, while custom timers can measure individual operations.</p>
+        <p class="minor-heading"><strong>Required dependencies</strong></p>
+        <p>For a conventional Spring Boot web application using Spring Data JPA, add these dependencies to your Maven project:</p>
+    </div>
+    <div class="code-block"><pre><code>&lt;<span class="code-keyword">dependencies</span>&gt;
+    &lt;<span class="code-keyword">dependency</span>&gt;
+        &lt;<span class="code-keyword">groupId</span>&gt;org.springframework.boot&lt;/<span class="code-keyword">groupId</span>&gt;
+        &lt;<span class="code-keyword">artifactId</span>&gt;spring-boot-starter-web&lt;/<span class="code-keyword">artifactId</span>&gt;
+    &lt;/<span class="code-keyword">dependency</span>&gt;
+
+    &lt;<span class="code-keyword">dependency</span>&gt;
+        &lt;<span class="code-keyword">groupId</span>&gt;org.springframework.boot&lt;/<span class="code-keyword">groupId</span>&gt;
+        &lt;<span class="code-keyword">artifactId</span>&gt;spring-boot-starter-data-jpa&lt;/<span class="code-keyword">artifactId</span>&gt;
+    &lt;/<span class="code-keyword">dependency</span>&gt;
+
+    &lt;<span class="code-keyword">dependency</span>&gt;
+        &lt;<span class="code-keyword">groupId</span>&gt;org.springframework.boot&lt;/<span class="code-keyword">groupId</span>&gt;
+        &lt;<span class="code-keyword">artifactId</span>&gt;spring-boot-starter-actuator&lt;/<span class="code-keyword">artifactId</span>&gt;
+    &lt;/<span class="code-keyword">dependency</span>&gt;
+
+    &lt;<span class="code-keyword">dependency</span>&gt;
+        &lt;<span class="code-keyword">groupId</span>&gt;io.micrometer&lt;/<span class="code-keyword">groupId</span>&gt;
+        &lt;<span class="code-keyword">artifactId</span>&gt;micrometer-registry-prometheus&lt;/<span class="code-keyword">artifactId</span>&gt;
+    &lt;/<span class="code-keyword">dependency</span>&gt;
+&lt;/<span class="code-keyword">dependencies</span>&gt;</code></pre></div>
+    <div class="intro">
+        <p>Use your project&rsquo;s compatible Spring Boot dependency-management version. The example below assumes the application already has an <code>Order</code> JPA entity, a configured datasource, and an <code>OrderRepository</code> extending <code>JpaRepository&lt;Order, Long&gt;</code>.</p>
+        <p class="minor-heading"><strong>Example: Instrumenting database read latency</strong></p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@Service</span>
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderService</span> {
+    <span class="code-keyword">private</span> <span class="code-class">OrderRepository</span> repository;
+    <span class="code-keyword">private</span> <span class="code-class">MeterRegistry</span> meterRegistry;
+
+    <span class="code-keyword">public</span> <span class="code-class">OrderService</span>(<span class="code-class">OrderRepository</span> repository, <span class="code-class">MeterRegistry</span> meterRegistry) {
+        <span class="code-keyword">this</span>.repository = repository;
+        <span class="code-keyword">this</span>.meterRegistry = meterRegistry;
+    }
+
+    <span class="code-keyword">public</span> <span class="code-class">OrderDto</span> getOrder(<span class="code-class">Long</span> orderId) {
+        <span class="code-class">Timer</span>.<span class="code-class">Sample</span> sample = <span class="code-class">Timer</span>.start(meterRegistry);
+        <span class="code-class">Order</span> order;
+        <span class="code-keyword">try</span> {
+            order = repository.findById(orderId)
+                              .orElseThrow(() -&gt; <span class="code-keyword">new</span> <span class="code-class">ResponseStatusException</span>(<span class="code-class">HttpStatus</span>.<span class="code-class">NOT_FOUND</span>, <span class="code-string">"Order not found"</span>));
+        } <span class="code-keyword">finally</span> {
+            sample.stop(meterRegistry.timer(<span class="code-string">"orders.database.read"</span>, <span class="code-string">"operation"</span>, <span class="code-string">"findById"</span>));
+        }
+        <span class="code-keyword">return</span> <span class="code-keyword">new</span> <span class="code-class">OrderDto</span>(order.getId(), order.getStatus());
+    }
+}</code></pre></div>
+    <div class="intro">
+        <p>The DTO could be:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">OrderDto</span>(<span class="code-class">Long</span> id, <span class="code-class">String</span> status) {}</code></pre></div>
+    <div class="intro">
+        <p>And the controller:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-annotation">@RestController</span>
+<span class="code-annotation">@RequestMapping</span>(<span class="code-string">"/api/orders"</span>)
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">OrderController</span> {
+    <span class="code-keyword">private</span> <span class="code-class">OrderService</span> orderService;
+
+    <span class="code-keyword">public</span> <span class="code-class">OrderController</span>(<span class="code-class">OrderService</span> orderService) { <span class="code-keyword">this</span>.orderService = orderService; }
+
+    <span class="code-annotation">@GetMapping</span>(<span class="code-string">"/{id}"</span>)
+    <span class="code-keyword">public</span> <span class="code-class">OrderDto</span> getOrder(<span class="code-annotation">@PathVariable</span> <span class="code-class">Long</span> id) { <span class="code-keyword">return</span> orderService.getOrder(id); }
+}</code></pre></div>
+    <div class="intro">
+        <p>The custom timer records elapsed time surrounding the repository call. This includes applicable Java-side, connection-pool, network, and JPA overhead; it is not just the database engine&rsquo;s SQL execution time.</p>
+        <p class="minor-heading"><strong>Configure Actuator metrics</strong></p>
+        <p>Use <code>application.properties</code>:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">management.endpoints.web.exposure.include</span>=health,metrics,prometheus
+
+<span class="code-keyword">management.metrics.distribution.percentiles-histogram.http.server.requests</span>=true
+<span class="code-keyword">management.metrics.distribution.slo.http.server.requests</span>=100ms,300ms,500ms,1s</code></pre></div>
+    <div class="intro">
+        <p>You can then examine the metrics endpoints:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">curl</span> http://localhost:8080/actuator/metrics/http.server.requests
+
+<span class="code-keyword">curl</span> http://localhost:8080/actuator/metrics/orders.database.read
+
+<span class="code-keyword">curl</span> http://localhost:8080/actuator/prometheus</code></pre></div>
+    <div class="intro">
+        <p>The metrics appear after relevant requests have been handled. Histogram configuration enables aggregation of request latency distributions across instances.</p>
+        <p>Secure Actuator endpoints appropriately in production; do not expose detailed monitoring or administrative endpoints publicly without access controls.</p>
+        <p class="minor-heading"><strong>Prometheus query for P99 latency</strong></p>
+        <p>Assuming the Micrometer Prometheus histogram metric <code>http_server_requests_seconds_bucket</code> is exported, the following PromQL query estimates P99 latency for successful order lookups:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">histogram_quantile</span>(
+  0.99,
+  <span class="code-keyword">sum</span> <span class="code-keyword">by</span> (le) (
+    <span class="code-keyword">rate</span>(
+      http_server_requests_seconds_bucket{
+        uri="/api/orders/{id}",
+        status="200"
+      }[5m]
+    )
+  )
+)</code></pre></div>
+    <div class="intro">
+        <p>This reports an estimate in seconds.</p>
+        <p>Using histogram buckets lets Prometheus aggregate requests from multiple application instances before calculating the percentile.</p>
+        <p>One important rule is that <strong>percentiles should not be averaged across servers</strong>. For example, averaging two servers&rsquo; P99 values does not generally produce the combined system&rsquo;s P99.</p>
+        <p>Also avoid using high-cardinality labels such as unique order IDs in metrics. Use the route template <code>/api/orders/{id}</code> rather than creating a separate metric series for every order.</p>
+    </div>
+
+    <div class="subheading">14. Load testing latency with k6</div>
+    <div class="intro">
+        <p>Load testing helps determine how latency changes as incoming traffic increases.</p>
+        <p>A useful load test answers questions such as: At what request rate does P99 latency become unacceptable? Does throughput continue increasing? Are requests waiting in connection pools? Does the application begin returning errors?</p>
+        <p>Here is a practical Grafana k6 test.</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">export</span> <span class="code-keyword">const</span> options = {
+    scenarios: {
+        orderLoad: {
+            executor: <span class="code-string">'constant-arrival-rate'</span>,
+            rate: <span class="code-number">100</span>,
+            timeUnit: <span class="code-string">'1s'</span>,
+            duration: <span class="code-string">'2m'</span>,
+            preAllocatedVUs: <span class="code-number">50</span>,
+            maxVUs: <span class="code-number">150</span>
+        }
+    },
+    thresholds: {
+        http_req_duration: [<span class="code-string">'p(95)&lt;300'</span>, <span class="code-string">'p(99)&lt;500'</span>],
+        http_req_failed: [<span class="code-string">'rate&lt;0.01'</span>]
+    }
+};
+
+<span class="code-keyword">export</span> <span class="code-keyword">default</span> <span class="code-keyword">function</span> () {
+    <span class="code-keyword">const</span> response = http.get(<span class="code-string">'http://localhost:8080/api/orders/12345'</span>);
+    check(response, { <span class="code-string">'status is 200'</span>: r =&gt; r.status === <span class="code-number">200</span> });
+}</code></pre></div>
+    <div class="intro">
+        <p>Run it using:</p>
+    </div>
+    <div class="code-block"><pre><code><span class="code-keyword">k6</span> run latency-test.js</code></pre></div>
+    <div class="intro">
+        <p>This configuration attempts to generate 100 requests per second for two minutes, with additional virtual users allowed as needed.</p>
+        <p>The test fails its thresholds if P95 reaches 300 ms, P99 reaches 500 ms, or the failure rate reaches 1%.</p>
+        <p>Grafana k6 supports percentile-based thresholds and constant-arrival-rate load generation.</p>
+        <p>One measurement detail: k6&rsquo;s <code>http_req_duration</code> includes request sending, waiting, and response receiving, but excludes initial DNS resolution and connection establishment. Monitor those separately if measuring the full end-user journey.</p>
+        <p>For meaningful performance results, run tests from an appropriately provisioned load generator, use production-like data and infrastructure, and monitor both the client and server.</p>
+    </div>
+
+    <div class="subheading">15. Practical example: Investigating a production latency spike</div>
+    <div class="intro">
+        <p>Imagine a Spring Boot e-commerce API that normally responds quickly but becomes slow during peak traffic.</p>
+        <p class="minor-heading"><strong>Production symptoms</strong></p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Normal P99 latency</th><th>Peak-load P99 latency</th></tr></thead>
+            <tbody>
+                <tr><td>180 ms</td><td>2,500 ms</td></tr>
+            </tbody>
+        </table></div>
+        <p>Assume the available monitoring data shows:</p>
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Metric</th><th>Normal</th><th>During spike</th></tr></thead>
+            <tbody>
+                <tr><td>Incoming traffic</td><td>200 RPS</td><td>850 RPS</td></tr>
+                <tr><td>CPU utilization</td><td>35%</td><td>48%</td></tr>
+                <tr><td>Database connection pool usage</td><td>35%</td><td>100%</td></tr>
+                <tr><td>Connection acquisition P95</td><td>5 ms</td><td>1,400 ms</td></tr>
+                <tr><td>SQL execution P95</td><td>30 ms</td><td>35 ms</td></tr>
+                <tr><td>API P99</td><td>180 ms</td><td>2,500 ms</td></tr>
+            </tbody>
+        </table></div>
+        <p class="minor-heading"><strong>What is actually happening?</strong></p>
+        <p>The SQL execution time has barely changed, and CPU utilization is not particularly high.</p>
+        <p>However, every database connection is occupied. Incoming requests wait for a free connection before they can run SQL queries.</p>
+        <p>This is a <strong>connection-pool queueing bottleneck</strong>, not primarily a slow-SQL bottleneck.</p>
+        <p>The next investigation should examine why connections are occupied for so long. Possible explanations include slow transactions, holding connections during external API calls, transaction contention, leaked connections, and simply exceeding the database&rsquo;s sustainable concurrency.</p>
+        <p>Increasing the connection pool might improve latency if the database has spare capacity. But if the database is already saturated, a larger pool may increase contention and make performance worse.</p>
+        <p>The engineering lesson is to identify <strong>where time is spent waiting</strong>, rather than assuming high latency always means slow CPU processing or slow database execution.</p>
+    </div>
+
+    <div class="subheading">16. Latency SLOs and system reliability</div>
+    <div class="intro">
+        <p>A Service Level Indicator (SLI) is a measurement, while a Service Level Objective (SLO) defines the desired performance target.</p>
+        <p>For example:</p>
+    </div>
+    <div class="callout callout-note"><p>Over a rolling 30-day period, at least 99% of eligible requests to the Order API must succeed and complete within 300 ms, measured at the API Gateway.</p></div>
+    <div class="intro">
+        <p>Here, the SLI evaluates the proportion of requests satisfying both correctness and latency requirements.</p>
+    </div>
+    <div class="intro"><p class="math-display"><span class="math" data-tex="SLI=\frac{\text{Good requests}}{\text{Eligible requests}}" data-display="1">SLI = (Good requests)/(Eligible requests)</span></p></div>
+    <div class="intro">
+        <p>The target is:</p>
+    </div>
+    <div class="intro"><p class="math-display"><span class="math" data-tex="SLI\geq99\%" data-display="1">SLI≥99%</span></p></div>
+    <div class="intro">
+        <p>For one million eligible requests, a 99% objective allows at most 10,000 requests to violate the stated condition during the measurement period.</p>
+        <p>This is the latency-related error budget.</p>
+        <p>Precise definitions matter: whether client cancellations, errors, cold starts, or certain endpoints are included can materially change the result.</p>
+        <p>The Google SRE guidance recommends explicitly defining measurement points, eligible requests, and latency distributions for meaningful objectives.</p>
+    </div>
+
+    <div class="subheading">17. Quick reference: Essential latency formulas</div>
+    <div class="intro">
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Concept</th><th>Formula</th></tr></thead>
+            <tbody>
+                <tr><td>Sequential operations</td><td><span class="math" data-tex="L=\sum_i L_i">L = Σ<sub>i</sub> L<sub>i</sub></span></td></tr>
+                <tr><td>Parallel operations</td><td><span class="math" data-tex="L\approx\max(L_i)+\text{overhead}">L≈max(L<sub>i</sub>)+overhead</span></td></tr>
+                <tr><td>Average latency</td><td><span class="math" data-tex="\bar L=\frac{\sum_i L_i}{N}">L̄ = (Σ<sub>i</sub> L<sub>i</sub>)/(N)</span></td></tr>
+                <tr><td>Little&rsquo;s Law</td><td><span class="math" data-tex="N=\lambda W">N = λ W</span></td></tr>
+                <tr><td>Idealized M/M/1 response time</td><td><span class="math" data-tex="W=\frac{1}{\mu-\lambda}">W = (1)/(μ-λ)</span></td></tr>
+                <tr><td>Link transmission delay</td><td><span class="math" data-tex="T=\frac{\text{bits}}{\text{bits/sec}}">T = bits/bits/sec</span></td></tr>
+                <tr><td>Propagation delay</td><td><span class="math" data-tex="T=\frac{\text{distance}}{\text{signal speed}}">T = (distance)/(signal speed)</span></td></tr>
+                <tr><td>Fan-out slow-request probability</td><td><span class="math" data-tex="1-(1-p)^n">1-(1-p)<sup>n</sup></span></td></tr>
+            </tbody>
+        </table></div>
+    </div>
+
+    <div class="subheading">18. Summary: How to think about latency as a backend engineer</div>
+    <div class="intro">
+        <p>A well-designed low-latency system is not merely a system with fast code. It is one in which <strong>the critical path is short, waiting is controlled, dependencies are predictable, and capacity is sufficient for the expected workload</strong>.</p>
+        <p>When designing or debugging a service, focus on these questions:</p>
+        <ul>
+            <li>What exact latency are we measuring: client-observed, gateway, application, or database?</li>
+            <li>What are P50, P95, P99, and error rates under representative traffic?</li>
+            <li>Which operations are on the critical path, and which can safely run in parallel or asynchronously?</li>
+            <li>Is time being spent performing useful work or waiting for threads, locks, connections, queues, and dependencies?</li>
+            <li>How close is each resource to saturation?</li>
+            <li>What happens when a dependency slows down or fails?</li>
+            <li>Does the system meet its latency objective during peak load, not just under average load?</li>
+        </ul>
+        <p>The most important principle is:</p>
+        <p><strong>Latency optimization is primarily about reducing work on the critical path, eliminating unnecessary round trips, controlling queueing, and preventing slow dependencies from dominating end-to-end response time.</strong></p>
+        <p>That principle applies to Java applications, Spring Boot microservices, databases, Kafka-based architectures, and large distributed systems alike.</p>
+    </div>
+</div>
+</body>
+</html>

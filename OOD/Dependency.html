@@ -18,6 +18,50 @@
         <p>Dependency injection is a programming technique where an object or function receives its dependencies (other objects or functions it needs) from an external source, rather than creating them itself. This approach, which is a form of Inversion of Control, makes code more flexible, maintainable, and testable by decoupling components and allowing them to be replaced or mocked easily.</p>
     </div>
 
+    <div class="subheading">Dependency Injection at a Glance</div>
+    <div class="intro">
+        <div class="gpt-table-wrap"><table class="gpt-table">
+            <thead><tr><th>Aspect</th><th>Explanation</th><th>Example</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Definition</strong></td><td>Dependency Injection is a design pattern where objects (dependencies) are provided to a class rather than the class creating them itself.</td><td>Instead of a car building its own engine, the engine is installed (injected) by someone else.</td></tr>
+                <tr><td><strong>Goal</strong></td><td>To achieve loose coupling between components and make code easier to maintain, test, and extend.</td><td>You can replace or upgrade the engine without redesigning the whole car.</td></tr>
+                <tr><td><strong>Types of Dependency Injection</strong></td><td><ol>
+                    <li><strong>Constructor Injection</strong> – dependencies are passed through a class constructor.</li>
+                    <li><strong>Setter Injection</strong> – dependencies are set using setter methods.</li>
+                    <li><strong>Field Injection</strong> – dependencies are directly injected into fields (commonly via annotations like <code>@Autowired</code>).</li>
+                </ol></td><td>In Spring Boot:<ul>
+                    <li><code>@Autowired</code> on constructor → Constructor Injection</li>
+                    <li><code>@Autowired</code> on setter → Setter Injection</li>
+                    <li><code>@Autowired</code> on field → Field Injection</li>
+                </ul></td></tr>
+                <tr><td><strong>Inversion of Control (IoC)</strong></td><td>DI is the main way IoC is achieved in Spring. The control of creating and managing dependencies is inverted from the developer to the Spring container.</td><td>Instead of you building your house, a builder constructs it and hands you the keys.</td></tr>
+                <tr><td><strong>Benefits</strong></td><td><ul>
+                    <li>Promotes <strong>loose coupling</strong>.</li>
+                    <li>Improves <strong>testability</strong> (e.g., easy to mock dependencies).</li>
+                    <li>Enhances <strong>code reusability</strong>.</li>
+                    <li>Simplifies <strong>maintenance</strong> and <strong>configuration</strong>.</li>
+                </ul></td><td>You can test <code>OrderService</code> by injecting a mock <code>PaymentService</code>.</td></tr>
+            </tbody>
+        </table></div>
+    </div>
+
+    <div class="principle-card">
+        <div class="principle-title">Dependency Inversion Principle</div>
+        <p>High level modules should not depend on low level modules.</p>
+        <p>Both should depend on abstractions.</p>
+        <p>Abstraction should not depend on implementation.</p>
+        <p>Implementation should depend on abstraction.</p>
+    </div>
+
+    <div class="subheading">Benefits of Dependency Inversion</div>
+    <div class="intro"><ul>
+        <li><strong>Easier testing</strong><br>Because high-level modules depend on abstractions, they can be tested with mock implementations of the low-level modules instead of the real ones. Tests become faster and more reliable, since there is no need to set up a real database or other external resources.</li>
+        <li><strong>Easier reuse</strong><br>High-level modules can be used in different contexts without changing the low-level modules they depend on. This makes code easier to reuse and avoids duplication, and adding new implementations requires minimal changes.</li>
+    </ul></div>
+    <div class="intro">
+        <p>Together, these make the dependency inversion principle a way to build more flexible, maintainable and testable software.</p>
+    </div>
+
     <div class="section code-section">
         <div class="section-title">Code</div>
         <div class="code-layout">

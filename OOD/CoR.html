@@ -11,7 +11,7 @@
     <div class="intro">
         <p>The <strong>Chain of Responsibility</strong> is a behavioral design pattern that allows a request to pass through a chain of potential handlers, where each handler decides whether to process the request, pass it to the next handler, or stop further processing.</p>
         <p>The pattern decouples the <strong>sender</strong> of a request from its <strong>receiver</strong> by allowing multiple objects an opportunity to handle the request without the sender needing to know which object will ultimately process it.</p>
-        <p><strong>Key characteristics:</strong></p>
+        <p class="minor-heading"><strong>Key characteristics:</strong></p>
     </div>
     <div class="intro"><ul>
         <li>Each handler has a common interface for processing requests.</li>
@@ -48,7 +48,7 @@
     </ol></div>
     <div class="intro">
         <p>The employee doesn't need to know which individual ultimately approves the request.</p>
-        <p><strong>Chain of Responsibility &mdash; Request flow</strong></p>
+        <p class="minor-heading"><strong>Chain of Responsibility &mdash; Request flow</strong></p>
     </div>
     <div class="svg-diagram">
         <img src="../static/cor-expense-flow.svg" alt="An expense request goes to the Team Lead, who approves up to 1,000 or forwards to the Manager, who approves up to 10,000 or forwards to the Director, who approves up to 1,00,000 or rejects" style="width:100%;max-width:860px">
@@ -110,7 +110,7 @@ first.handle(request);</code></pre></div>
     <div class="subheading">Practical Example: Expense Approval System in Java</div>
     <div class="intro">
         <p>Let's implement the expense approval system using Chain of Responsibility.</p>
-        <p><strong>Define the request</strong></p>
+        <p class="minor-heading"><strong>Define the request</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">Expense</span>(<span class="code-class">String</span> employee, <span class="code-keyword">long</span> amount) {
     <span class="code-class">public Expense</span> {
@@ -121,7 +121,7 @@ first.handle(request);</code></pre></div>
 }</code></pre></div>
     <div class="intro">
         <p>The <code>Expense</code> object represents the request that will travel through the chain.</p>
-        <p><strong>Create the abstract Handler</strong></p>
+        <p class="minor-heading"><strong>Create the abstract Handler</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">abstract</span> <span class="code-keyword">class</span> <span class="code-class">Approver</span> {
     <span class="code-keyword">private</span> <span class="code-class">Approver</span> next;
@@ -149,7 +149,7 @@ manager.setNext(director);</code></pre></div>
         <p><strong><code>forward</code></strong> &mdash; Delegates the request to the next handler when the current handler cannot process it.</p>
         <p>Notice that the abstract class does not know whether the next handler is a Manager, Director, or some other approver.</p>
         <p>This ensures loose coupling between the handlers.</p>
-        <p><strong>Implement concrete handlers</strong></p>
+        <p class="minor-heading"><strong>Implement concrete handlers</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">TeamLeadApprover</span> <span class="code-keyword">extends</span> <span class="code-class">Approver</span> {
     <span class="code-annotation">@Override</span>
@@ -183,7 +183,7 @@ manager.setNext(director);</code></pre></div>
 }</code></pre></div>
     <div class="intro">
         <p>Each handler only knows its own approval limit and how to forward a request.</p>
-        <p><strong>Build the chain and process requests</strong></p>
+        <p class="minor-heading"><strong>Build the chain and process requests</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
     <span class="code-class">Approver</span> lead = <span class="code-keyword">new</span> <span class="code-class">TeamLeadApprover</span>();
@@ -196,14 +196,14 @@ manager.setNext(director);</code></pre></div>
     lead.approve(<span class="code-keyword">new</span> <span class="code-class">Expense</span>(<span class="code-string">"David"</span>, 250_000));
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Output:</strong></p>
+        <p class="minor-heading"><strong>Output:</strong></p>
     </div>
     <div class="code-block"><pre><code>Approved by Team Lead
 Approved by Manager
 Approved by Director
 Rejected: No approver has sufficient authority</code></pre></div>
     <div class="intro">
-        <p><strong>Understand the execution</strong></p>
+        <p class="minor-heading"><strong>Understand the execution</strong></p>
         <p>Suppose Bob submits an expense of ₹5,000.</p>
     </div>
     <div class="intro"><ol>
@@ -212,7 +212,7 @@ Rejected: No approver has sufficient authority</code></pre></div>
         <li><strong>Chain terminates</strong><br>The Director never receives this request because the Manager has already handled it.</li>
     </ol></div>
     <div class="intro">
-        <p><strong>Why is this better than using if-else</strong></p>
+        <p class="minor-heading"><strong>Why is this better than using if-else</strong></p>
         <p>Without Chain of Responsibility, we might write:</p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">void</span> approve(<span class="code-class">Expense</span> expense) {
@@ -269,26 +269,26 @@ lead.setNext(manager).setNext(director).setNext(vp);</code></pre></div>
     <div class="intro">
         <p>Unlike the expense approval example, multiple handlers can process the same request.</p>
         <p>An authentication handler may successfully authenticate the request and still pass it to the authorization handler.</p>
-        <p><strong>API middleware chain</strong></p>
+        <p class="minor-heading"><strong>API middleware chain</strong></p>
     </div>
     <div class="svg-diagram">
         <img src="../static/cor-middleware.svg" alt="An HTTP request passes through the logging, authentication, authorization and validation handlers before reaching the controller" style="width:100%;max-width:420px">
     </div>
     <div class="callout callout-note"><p>Any middleware can terminate the chain early, for example by returning HTTP 401 or 403.</p></div>
     <div class="intro">
-        <p><strong>Define Request and Response</strong></p>
+        <p class="minor-heading"><strong>Define Request and Response</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">HttpRequest</span>(<span class="code-class">String</span> path, <span class="code-class">String</span> token, <span class="code-class">String</span> body) {}
 <span class="code-keyword">public</span> <span class="code-keyword">record</span> <span class="code-class">HttpResponse</span>(<span class="code-keyword">int</span> status, <span class="code-class">String</span> message) {}</code></pre></div>
     <div class="intro">
-        <p><strong>Define the Handler interface</strong></p>
+        <p class="minor-heading"><strong>Define the Handler interface</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">HttpHandler</span> {
     <span class="code-class">HttpResponse</span> handle(<span class="code-class">HttpRequest</span> request);
 }</code></pre></div>
     <div class="intro">
         <p>Every handler implements the same interface.</p>
-        <p><strong>Logging Handler</strong></p>
+        <p class="minor-heading"><strong>Logging Handler</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">LoggingHandler</span> <span class="code-keyword">implements</span> <span class="code-class">HttpHandler</span> {
     <span class="code-keyword">private</span> <span class="code-class">HttpHandler</span> next;
@@ -313,7 +313,7 @@ lead.setNext(manager).setNext(director).setNext(vp);</code></pre></div>
         <p>This forwards the request to the next handler.</p>
         <p>The logging handler performs some work <strong>before</strong> forwarding the request, then performs additional work <strong>after</strong> the downstream handlers return.</p>
         <p>This is useful for request logging, timing, tracing, and collecting performance metrics.</p>
-        <p><strong>Authentication Handler</strong></p>
+        <p class="minor-heading"><strong>Authentication Handler</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">AuthenticationHandler</span> <span class="code-keyword">implements</span> <span class="code-class">HttpHandler</span> {
     <span class="code-keyword">private</span> <span class="code-class">HttpHandler</span> next;
@@ -337,7 +337,7 @@ lead.setNext(manager).setNext(director).setNext(vp);</code></pre></div>
     </div>
     <div class="callout callout-warning"><p>The hard-coded tokens are only for demonstrating request flow; production applications should use proper authentication and verified identities.</p></div>
     <div class="intro">
-        <p><strong>Authorization Handler</strong></p>
+        <p class="minor-heading"><strong>Authorization Handler</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">AuthorizationHandler</span> <span class="code-keyword">implements</span> <span class="code-class">HttpHandler</span> {
     <span class="code-keyword">private</span> <span class="code-class">HttpHandler</span> next;
@@ -360,7 +360,7 @@ lead.setNext(manager).setNext(director).setNext(vp);</code></pre></div>
         <p>Authentication checks <strong>who</strong> the user is.</p>
         <p>Authorization checks <strong>what</strong> that user is permitted to access.</p>
         <p>In a production application, authorization would use a trusted identity and roles established by the authentication system, not raw token-string comparisons.</p>
-        <p><strong>Request Validation Handler</strong></p>
+        <p class="minor-heading"><strong>Request Validation Handler</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ValidationHandler</span> <span class="code-keyword">implements</span> <span class="code-class">HttpHandler</span> {
     <span class="code-keyword">private</span> <span class="code-class">HttpHandler</span> next;
@@ -379,7 +379,7 @@ lead.setNext(manager).setNext(director).setNext(vp);</code></pre></div>
 }</code></pre></div>
     <div class="intro">
         <p>Here, validation ensures that the request body is present and does not exceed 100 characters.</p>
-        <p><strong>Final Business Logic Handler</strong></p>
+        <p class="minor-heading"><strong>Final Business Logic Handler</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ControllerHandler</span> <span class="code-keyword">implements</span> <span class="code-class">HttpHandler</span> {
     <span class="code-annotation">@Override</span>
@@ -390,7 +390,7 @@ lead.setNext(manager).setNext(director).setNext(vp);</code></pre></div>
     <div class="intro">
         <p>This is the terminal handler.</p>
         <p>It performs the actual business operation rather than forwarding the request to another handler.</p>
-        <p><strong>Build and execute the middleware chain</strong></p>
+        <p class="minor-heading"><strong>Build and execute the middleware chain</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
     <span class="code-class">HttpHandler</span> chain = <span class="code-keyword">new</span> <span class="code-class">LoggingHandler</span>(<span class="code-keyword">new</span> <span class="code-class">AuthenticationHandler</span>(<span class="code-keyword">new</span> <span class="code-class">AuthorizationHandler</span>(
@@ -400,13 +400,13 @@ lead.setNext(manager).setNext(director).setNext(vp);</code></pre></div>
     <span class="code-class">System</span>.out.println(response.message());
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Output:</strong></p>
+        <p class="minor-heading"><strong>Output:</strong></p>
     </div>
     <div class="code-block"><pre><code>Request: /orders
 Response: 200
 Successfully processed /orders</code></pre></div>
     <div class="intro">
-        <p><strong>Different request scenarios</strong></p>
+        <p class="minor-heading"><strong>Different request scenarios</strong></p>
     </div>
     <div class="section cmp"><div class="section-content">
         <table class="cmp-table centered cmp-peer">
@@ -455,7 +455,7 @@ Successfully processed /orders</code></pre></div>
     chain.log(<span class="code-class">LogLevel</span>.ERROR, <span class="code-string">"Database connection failed"</span>);
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Output:</strong></p>
+        <p class="minor-heading"><strong>Output:</strong></p>
     </div>
     <div class="code-block"><pre><code>Console: Application started
 
@@ -470,14 +470,14 @@ Alert: Database connection failed</code></pre></div>
     <div class="subheading">Two Important Variations of Chain of Responsibility</div>
     <div class="intro">
         <p>There are two commonly used variations.</p>
-        <p><strong>First matching handler</strong></p>
+        <p class="minor-heading"><strong>First matching handler</strong></p>
     </div>
     <div class="svg-diagram">
         <img src="../static/cor-first-match.svg" alt="Variation A: Handler A forwards to Handler B, which handles the request and stops; Handler C is skipped" style="width:100%;max-width:760px">
     </div>
     <div class="intro">
         <p>Only Handler B processes the request. Handler C is skipped.</p>
-        <p><strong>Processing pipeline</strong></p>
+        <p class="minor-heading"><strong>Processing pipeline</strong></p>
     </div>
     <div class="svg-diagram">
         <img src="../static/cor-pipeline.svg" alt="Variation B: Handler A, Handler B and Handler C each process the request and forward it" style="width:100%;max-width:560px">
@@ -503,7 +503,7 @@ Alert: Database connection failed</code></pre></div>
     <div class="subheading">Chain of Responsibility in Java and Spring Boot</div>
     <div class="intro">
         <p>Several Java frameworks use chain-based request processing.</p>
-        <p><strong>Servlet Filters</strong></p>
+        <p class="minor-heading"><strong>Servlet Filters</strong></p>
         <p>Java Servlet filters are a particularly close example.</p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">LoggingFilter</span> <span class="code-keyword">implements</span> <span class="code-class">Filter</span> {
@@ -540,12 +540,12 @@ Alert: Database connection failed</code></pre></div>
         </table>
     </div></div>
     <div class="intro">
-        <p><strong>Chain of Responsibility vs Decorator</strong></p>
+        <p class="minor-heading"><strong>Chain of Responsibility vs Decorator</strong></p>
         <p>Both may involve objects holding references to other objects with the same interface.</p>
         <p>The key difference is their intent.</p>
         <p>A <strong>Decorator</strong> primarily extends behavior, usually by delegating to a wrapped object while adding functionality.<br> A <strong>Chain of Responsibility</strong> handler decides whether and how processing should continue.</p>
         <p>In practice, middleware implementations can exhibit characteristics of both patterns.</p>
-        <p><strong>Chain of Responsibility vs Strategy</strong></p>
+        <p class="minor-heading"><strong>Chain of Responsibility vs Strategy</strong></p>
         <p>Strategy chooses an algorithm for a task, usually based on a configured strategy reference.</p>
         <p>Chain of Responsibility distributes the processing decision among multiple linked handlers.</p>
         <p>For example, choosing whether to pay using a credit card or UPI could use Strategy. Routing an expense through approval authorities could use Chain of Responsibility.</p>
@@ -565,7 +565,7 @@ Alert: Database connection failed</code></pre></div>
         </table>
     </div></div>
     <div class="intro">
-        <p><strong>Important implementation considerations</strong></p>
+        <p class="minor-heading"><strong>Important implementation considerations</strong></p>
     </div>
     <div class="intro"><ul>
         <li><strong>Handler ordering matters.</strong> For example, authorization should generally happen only after a trusted authentication step has established the user's identity.</li>

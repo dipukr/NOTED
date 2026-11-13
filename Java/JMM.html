@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JVM Architecture and Memory</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">JVM Architecture and Memory</div>
+
+    <div class="subheading">JVM Architecture Overview</div>
+    <div class="section-diagram">
+        <img src="../static/jvm-architecture-overview.svg" alt="JVM overview: JVM language classes go to the class loader, which works with JVM memory (method area, heap, JVM language stacks, PC registers, native method stacks); the execution engine uses JVM memory and calls native method libraries through the native method interface" style="width:100%;max-width:900px">
+    </div>
+    <div class="intro">
+        <p>The Java Virtual Machine (JVM) runs compiled bytecode (<code>.class</code> files). It does not care which language produced the bytecode, so Java, Kotlin, Scala and Groovy classes all run on the same JVM. At a high level the JVM has four parts.</p>
+        <p class="minor-heading"><strong>Class Loader</strong></p>
+        <p>Finds <code>.class</code> files, loads them into memory, checks them and prepares them for execution. Classes are loaded lazily, the first time the program needs them.</p>
+        <p class="minor-heading"><strong>JVM Memory (Runtime Data Areas)</strong></p>
+        <p>The memory the JVM uses while a program runs. The method area and the heap are created once when the JVM starts and are shared by all threads. The JVM language stacks, PC registers and native method stacks are created per thread.</p>
+        <p class="minor-heading"><strong>Execution Engine</strong></p>
+        <p>Executes the loaded bytecode. It interprets bytecode, compiles frequently used code to native machine code with the JIT compiler, and frees unused objects with the garbage collector.</p>
+        <p class="minor-heading"><strong>Native Method Interface and Native Method Libraries</strong></p>
+        <p>The Java Native Interface (JNI) lets Java code call native code written in C or C++, and lets native code call back into Java. The native method libraries are the compiled native libraries (<code>.dll</code> or <code>.so</code> files) that hold those native methods.</p>
+    </div>
+
+    <div class="subheading">JVM Architecture in Detail</div>
+    <div class="section-diagram">
+        <img src="../static/jvm-architecture-detailed.svg" alt="Class loader subsystem (loading by bootstrap, extension and application class loaders; linking by verify, prepare and resolve; initialization), runtime data areas (method area, heap, per-thread stacks with stack frames, PC registers, native method stack), and the execution engine (interpreter, JIT compiler with intermediate code generator, code optimizer, target code generator and profiler, garbage collection) connected to native method libraries through JNI" style="width:100%;max-width:860px">
+    </div>
+    <div class="intro">
+        <p class="minor-heading"><strong>1. Class Loader Subsystem</strong></p>
+        <p>A class goes through three phases before it can be used: loading, linking and initialization.</p>
+        <p><strong>Loading:</strong> The class loader reads the bytecode of a class and creates a <code>Class</code> object for it in the method area. There are three built-in class loaders:</p>
+        <ul>
+            <li><strong>Bootstrap Class Loader:</strong> Loads the core Java classes, such as <code>java.lang</code> and <code>java.util</code>. It is part of the JVM itself and is written in native code.</li>
+            <li><strong>Extension Class Loader:</strong> Loads extension classes. Since Java 9 it is called the <strong>Platform Class Loader</strong> and loads the platform modules that are not loaded by the bootstrap loader.</li>
+            <li><strong>Application Class Loader:</strong> Loads the application&rsquo;s own classes and libraries from the class path or module path.</li>
+        </ul>
+        <p>Class loaders follow the <strong>parent delegation model</strong>: a loader first asks its parent to load a class and only loads it itself if the parent cannot. This stops application code from replacing core classes such as <code>java.lang.String</code>.</p>
+        <p><strong>Linking:</strong></p>
+        <ul>
+            <li><strong>Verify:</strong> The bytecode verifier checks that the bytecode is well formed and safe, for example that it does not overflow the operand stack or jump outside a method. Invalid bytecode causes a <code>VerifyError</code>.</li>
+            <li><strong>Prepare:</strong> Memory is allocated for static fields and they are set to default values (<code>0</code>, <code>false</code> or <code>null</code>).</li>
+            <li><strong>Resolve:</strong> Symbolic references in the constant pool, such as class and method names, are replaced with direct references to the loaded classes, fields and methods.</li>
+        </ul>
+        <p><strong>Initialization:</strong> Static fields get their real values and static initializer blocks run, in the order they appear in the source. This happens once per class, the first time the class is actively used.</p>
+
+        <p class="minor-heading"><strong>2. Runtime Data Areas</strong></p>
+        <ul>
+            <li><strong>Method Area:</strong> One per JVM, shared by all threads. Stores class-level data: the runtime constant pool, field and method data, and method bytecode. In HotSpot it is implemented as the Metaspace since Java 8.</li>
+            <li><strong>Heap Area:</strong> One per JVM, shared by all threads. All objects and arrays are allocated here, and the garbage collector manages it.</li>
+            <li><strong>Stack Area:</strong> One stack per thread. Each method call pushes a <strong>stack frame</strong>, which is popped when the method returns. A frame holds the <strong>local variable array (LVA)</strong>, the <strong>operand stack (OS)</strong> used as a workspace for bytecode instructions, and <strong>frame data (FD)</strong>, such as the reference to the constant pool and exception-handling information. Too deep recursion causes a <code>StackOverflowError</code>.</li>
+            <li><strong>PC Registers:</strong> One per thread. Holds the address of the bytecode instruction the thread is currently executing. It is undefined while a native method runs.</li>
+            <li><strong>Native Method Stack:</strong> One per thread. Used for native (C or C++) method calls, the same way the Java stack is used for Java methods.</li>
+        </ul>
+
+        <p class="minor-heading"><strong>3. Execution Engine</strong></p>
+        <ul>
+            <li><strong>Interpreter:</strong> Reads and executes bytecode one instruction at a time. It starts quickly, but running the same code repeatedly this way is slow.</li>
+            <li><strong>JIT Compiler:</strong> Compiles frequently executed (hot) bytecode to native machine code, so later calls run at native speed. The <strong>profiler</strong> finds hot methods and loops; the <strong>intermediate code generator</strong> produces an intermediate form; the <strong>code optimizer</strong> optimizes it, for example by inlining methods and removing dead code; and the <strong>target code generator</strong> produces machine code, which is stored in the code cache.</li>
+            <li><strong>Garbage Collection:</strong> Finds objects on the heap that are no longer reachable and reclaims their memory. Examples of collectors are G1 (the default), Parallel, Serial, ZGC and Shenandoah.</li>
+        </ul>
+
+        <p class="minor-heading"><strong>4. Native Method Interface (JNI) and Native Method Library</strong></p>
+        <p>The execution engine calls native methods, those declared with the <code>native</code> keyword, through JNI. JNI finds the method in a loaded native method library and runs it on the native method stack. Many core classes, for example parts of <code>java.io</code> and <code>java.lang.Thread</code>, depend on native methods to talk to the operating system.</p>
+    </div>
+
+    <div class="subheading">JVM Memory Areas</div>
+    <div class="section-diagram">
+        <img src="../static/jvm-memory-areas.svg" alt="Stack: each thread has a program counter, a stack and a native stack; a stack frame holds the return value, local variables, operand stack and a reference to the current class constant pool. Non heap: code cache and permanent generation with interned strings and the method area, whose class data holds the run-time constant pool and method code. Heap: young generation (Eden and survivor spaces, minor GC) and old or tenured generation (major GC)" style="width:100%;max-width:900px">
+    </div>
+    <div class="intro">
+        <p>The diagram groups JVM memory into three regions: per-thread stacks, the non-heap area and the heap.</p>
+
+        <p class="minor-heading"><strong>Stack</strong></p>
+        <p>Every thread gets its own <strong>program counter</strong>, <strong>Java stack</strong> and <strong>native stack</strong>. Nothing in this region is shared between threads, so it needs no synchronization. Each method call adds a <strong>frame</strong> to the thread&rsquo;s stack, containing:</p>
+        <ul>
+            <li><strong>Local Variables:</strong> An array holding <code>this</code> (for instance methods), the method&rsquo;s parameters and its local variables. Primitive values are stored directly; objects are stored as references to the heap.</li>
+            <li><strong>Operand Stack:</strong> A last-in-first-out workspace. Bytecode instructions push values onto it, take values off it and push the results back.</li>
+            <li><strong>Return Value:</strong> The value returned to the calling method&rsquo;s frame when the method finishes.</li>
+            <li><strong>Current Class Constant Pool Reference:</strong> A pointer to the run-time constant pool of the method&rsquo;s class. The JVM uses it to look up the classes, fields and methods the bytecode refers to (dynamic linking).</li>
+        </ul>
+        <p>The stack size per thread is set with <code>-Xss</code>, for example <code>-Xss1m</code>.</p>
+
+        <p class="minor-heading"><strong>Non Heap</strong></p>
+        <p>Memory the JVM uses for its own data rather than for application objects.</p>
+        <ul>
+            <li><strong>Code Cache:</strong> Stores the native machine code produced by the JIT compiler. If it fills up, the JIT stops compiling and the application slows down.</li>
+            <li><strong>Permanent Generation:</strong> Holds the method area, with the <strong>class data</strong> of every loaded class: the <strong>run-time constant pool</strong> (string and numeric constants, class, field and method references, name-and-type entries and <code>invokedynamic</code> entries) and the <strong>method code</strong> (bytecode). Older JVMs also kept <strong>interned strings</strong> here.</li>
+        </ul>
+        <p>The diagram shows the classic layout from before Java 8. In Java 7 interned strings moved to the heap, and in Java 8 the permanent generation was replaced by <strong>Metaspace</strong>, which lives in native memory and grows as needed. Its size can be capped with <code>-XX:MaxMetaspaceSize</code>.</p>
+
+        <p class="minor-heading"><strong>Heap</strong></p>
+        <p>All objects live on the heap, which is shared by all threads and managed by the garbage collector. It is split into generations, because most objects die young.</p>
+        <ul>
+            <li><strong>Young Generation:</strong> New objects are created in <strong>Eden space</strong>. When Eden fills up, a <strong>minor garbage collection</strong> copies live objects into one of the two <strong>survivor spaces</strong> and clears Eden. Objects that survive several minor collections are promoted to the old generation.</li>
+            <li><strong>Old / Tenured Generation:</strong> Holds long-lived objects. It is collected by a <strong>major garbage collection</strong>, which is less frequent but takes longer than a minor collection.</li>
+        </ul>
+        <p>The initial and maximum heap sizes are set with <code>-Xms</code> and <code>-Xmx</code>, for example <code>-Xms512m -Xmx2g</code>. When the heap cannot grow any more and the garbage collector cannot free enough memory, the JVM throws <code>OutOfMemoryError: Java heap space</code>.</p>
+    </div>
+</div>
+</body>
+</html>

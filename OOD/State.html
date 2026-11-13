@@ -84,7 +84,7 @@
     </div>
     <div class="callout callout-note"><p><strong>Key idea:</strong> An object's behavior depends on its current state, and this behavior can change at runtime without modifying the object's class.</p></div>
     <div class="intro">
-        <p><strong>Real-world example: Order management system</strong></p>
+        <p class="minor-heading"><strong>Real-world example: Order management system</strong></p>
         <p>Consider an e-commerce application where an order moves through several states:</p>
     </div>
     <div class="svg-diagram">
@@ -147,7 +147,7 @@
 }</code></pre></div>
     <div class="intro">
         <p>This works, but imagine an order system with 15 states and 20 operations.</p>
-        <p><strong>Problems:</strong></p>
+        <p class="minor-heading"><strong>Problems:</strong></p>
     </div>
     <div class="intro"><ul>
         <li>Every operation requires multiple state checks.</li>
@@ -168,7 +168,7 @@
         <img src="../static/state-structure.svg" alt="Context holds currentState and request() delegates to the State interface, which declares handle(Context); ConcreteStateA and ConcreteStateB implement handle(Context)" style="width:100%;max-width:720px">
     </div>
     <div class="intro">
-        <p><strong>Component 1: State interface</strong></p>
+        <p class="minor-heading"><strong>Component 1: State interface</strong></p>
         <p>The State interface declares operations that depend on the current state.</p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">State</span> {
@@ -176,7 +176,7 @@
 }</code></pre></div>
     <div class="intro">
         <p>Each concrete state provides its own implementation.</p>
-        <p><strong>Component 2: Concrete states</strong></p>
+        <p class="minor-heading"><strong>Component 2: Concrete states</strong></p>
         <p>Concrete states implement the state interface and define the behavior specific to each state.</p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">ConcreteStateA</span> <span class="code-keyword">implements</span> <span class="code-class">State</span> {
@@ -196,7 +196,7 @@
 }</code></pre></div>
     <div class="intro">
         <p>Notice that concrete state objects can also initiate state transitions.</p>
-        <p><strong>Component 3: Context</strong></p>
+        <p class="minor-heading"><strong>Component 3: Context</strong></p>
         <p>The Context holds a reference to the current State object and delegates requests to it.</p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Context</span> {
@@ -217,7 +217,7 @@
     <div class="subheading">Practical Java Example #1: E-commerce Order Management</div>
     <div class="intro">
         <p>Let's implement the order management system using the State Pattern.</p>
-        <p><strong>Step 1: Define the State interface</strong></p>
+        <p class="minor-heading"><strong>Step 1: Define the State interface</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">OrderState</span> {
     <span class="code-class">String</span> name();
@@ -241,7 +241,7 @@
     <div class="intro">
         <p>Here, Java's default methods provide a common implementation for invalid operations.</p>
         <p>Each concrete state only overrides the operations allowed in that state.</p>
-        <p><strong>Step 2: Implement concrete states</strong></p>
+        <p class="minor-heading"><strong>Step 2: Implement concrete states</strong></p>
         <p><code>CreatedState</code></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">CreatedState</span> <span class="code-keyword">implements</span> <span class="code-class">OrderState</span> {
@@ -315,7 +315,7 @@
     <div class="intro">
         <p>The last two states are <strong>terminal states</strong> in this example.</p>
         <p>Since they don't override any operations, every attempted operation is rejected automatically.</p>
-        <p><strong>Step 3: Implement the Context</strong></p>
+        <p class="minor-heading"><strong>Step 3: Implement the Context</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Order</span> {
     <span class="code-keyword">private</span> <span class="code-class">String</span> orderId;
@@ -364,7 +364,7 @@
         <li>No large <code>switch</code> or <code>if-else</code> statements are necessary.</li>
     </ul></div>
     <div class="intro">
-        <p><strong>Step 4: Client code</strong></p>
+        <p class="minor-heading"><strong>Step 4: Client code</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
     <span class="code-class">Order</span> order = <span class="code-keyword">new</span> <span class="code-class">Order</span>(<span class="code-string">"ORD-101"</span>);
@@ -381,7 +381,7 @@
     secondOrder.cancel();
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Output</strong></p>
+        <p class="minor-heading"><strong>Output</strong></p>
     </div>
     <div class="code-block"><pre><code>Payment completed
 Order ORD-101: CREATED -&gt; PAID
@@ -398,7 +398,7 @@ Cannot cancel when order is DELIVERED
 Order cancelled
 Order ORD-102: CREATED -&gt; CANCELLED</code></pre></div>
     <div class="intro">
-        <p><strong>Step 5: Understanding how it works internally</strong></p>
+        <p class="minor-heading"><strong>Step 5: Understanding how it works internally</strong></p>
         <p>Let's trace <code>order.pay()</code>:</p>
     </div>
     <div class="svg-diagram">
@@ -428,13 +428,13 @@ Order ORD-102: CREATED -&gt; CANCELLED</code></pre></div>
     </ul></div>
     <div class="intro">
         <p>The media player provides three operations: <code>play()</code>, <code>pause()</code>, and <code>stop()</code>.</p>
-        <p><strong>State transitions</strong></p>
+        <p class="minor-heading"><strong>State transitions</strong></p>
     </div>
     <div class="svg-diagram">
         <img src="../static/state-media.svg" alt="Media player states: start in Stopped; play() goes to Playing; pause() goes to Paused; play() from Paused resumes Playing; stop() from Playing or Paused returns to Stopped" style="width:100%;max-width:700px">
     </div>
     <div class="intro">
-        <p><strong>Complete Java implementation</strong></p>
+        <p class="minor-heading"><strong>Complete Java implementation</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">PlaybackState</span> {
     <span class="code-keyword">void</span> play(<span class="code-class">AudioPlayer</span> player);
@@ -545,7 +545,7 @@ Order ORD-102: CREATED -&gt; CANCELLED</code></pre></div>
     player.pause();  <span class="code-comment"># Cannot pause stopped audio</span>
 }</code></pre></div>
     <div class="intro">
-        <p><strong>What's interesting here?</strong></p>
+        <p class="minor-heading"><strong>What's interesting here?</strong></p>
         <p>Look at the <code>play()</code> method.</p>
         <p>When the player is stopped:</p>
     </div>
@@ -578,7 +578,7 @@ Order ORD-102: CREATED -&gt; CANCELLED</code></pre></div>
     <div class="subheading">Who Should Control State Transitions?</div>
     <div class="intro">
         <p>There are two common approaches to controlling state transitions.</p>
-        <p><strong>Approach A: Concrete states control transitions</strong></p>
+        <p class="minor-heading"><strong>Approach A: Concrete states control transitions</strong></p>
         <p>This is the approach used in our examples.</p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">StoppedState</span> <span class="code-keyword">implements</span> <span class="code-class">PlaybackState</span> {
@@ -592,7 +592,7 @@ Order ORD-102: CREATED -&gt; CANCELLED</code></pre></div>
         <p>The concrete state knows what state should come next.</p>
         <p><strong>Advantages:</strong> State-specific transition logic stays together, making it easier to understand the lifecycle of individual states.</p>
         <p><strong>Disadvantages:</strong> Concrete states become coupled to other concrete state classes.</p>
-        <p><strong>Approach B: Context controls transitions</strong></p>
+        <p class="minor-heading"><strong>Approach B: Context controls transitions</strong></p>
         <p>Another approach is to let the Context decide when to switch states.</p>
         <p>For example:</p>
     </div>
@@ -631,7 +631,7 @@ Order ORD-102: CREATED -&gt; CANCELLED</code></pre></div>
         </table>
     </div></div>
     <div class="intro">
-        <p><strong>Strategy example</strong></p>
+        <p class="minor-heading"><strong>Strategy example</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">PaymentStrategy</span> {
     <span class="code-keyword">void</span> pay(<span class="code-keyword">double</span> amount);
@@ -650,7 +650,7 @@ Order ORD-102: CREATED -&gt; CANCELLED</code></pre></div>
 }</code></pre></div>
     <div class="intro">
         <p>Here, we select <strong>how</strong> to perform a payment. One algorithm is substituted for another.</p>
-        <p><strong>State example</strong></p>
+        <p class="minor-heading"><strong>State example</strong></p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">interface</span> <span class="code-class">OrderState</span> {
     <span class="code-keyword">void</span> pay(<span class="code-class">Order</span> order);
@@ -685,7 +685,7 @@ Order ORD-102: CREATED -&gt; CANCELLED</code></pre></div>
 
     <div class="subheading">Advantages and Disadvantages</div>
     <div class="intro">
-        <p><strong>Advantages</strong></p>
+        <p class="minor-heading"><strong>Advantages</strong></p>
     </div>
     <div class="intro"><ul>
         <li><strong>Single Responsibility Principle:</strong> Each class handles behavior associated with one state.</li>
@@ -696,7 +696,7 @@ Order ORD-102: CREATED -&gt; CANCELLED</code></pre></div>
         <li><strong>Improved testing:</strong> Individual state classes can be tested independently.</li>
     </ul></div>
     <div class="intro">
-        <p><strong>Disadvantages</strong></p>
+        <p class="minor-heading"><strong>Disadvantages</strong></p>
     </div>
     <div class="intro"><ul>
         <li><strong>More classes:</strong> Each state generally requires a separate class.</li>
@@ -708,7 +708,7 @@ Order ORD-102: CREATED -&gt; CANCELLED</code></pre></div>
     <div class="subheading">Practical Considerations for Production Applications</div>
     <div class="intro">
         <p>There are a few important differences between our educational implementations and a production system.</p>
-        <p><strong>A. Persisting the current state</strong></p>
+        <p class="minor-heading"><strong>A. Persisting the current state</strong></p>
         <p>In a Spring Boot order service, the state would typically be persisted to a database.</p>
         <p>For example:</p>
     </div>
@@ -724,7 +724,7 @@ Order ORD-102: CREATED -&gt; CANCELLED</code></pre></div>
     <div class="intro">
         <p>The <code>OrderStatus</code> enum represents the stored state name, while State Pattern classes implement the corresponding behavior.</p>
         <p>When loading the entity, the application can map the stored status to its respective state implementation.</p>
-        <p><strong>B. Handling concurrency</strong></p>
+        <p class="minor-heading"><strong>B. Handling concurrency</strong></p>
         <p>Imagine two requests arriving simultaneously:</p>
     </div>
     <div class="intro"><ul>
@@ -734,7 +734,7 @@ Order ORD-102: CREATED -&gt; CANCELLED</code></pre></div>
     <div class="intro">
         <p>An in-memory State Pattern implementation doesn't automatically protect against race conditions.</p>
         <p>In a distributed Spring Boot application, you still need transactional consistency, such as optimistic locking using <code>@Version</code>, to ensure conflicting state transitions cannot both commit.</p>
-        <p><strong>C. External side effects</strong></p>
+        <p class="minor-heading"><strong>C. External side effects</strong></p>
         <p>In our example:</p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">void</span> pay(<span class="code-class">Order</span> order) {
@@ -747,7 +747,7 @@ Order ORD-102: CREATED -&gt; CANCELLED</code></pre></div>
     </div>
     <div class="callout callout-warning"><p>The State Pattern organizes business behavior; it does not replace transaction management or distributed consistency mechanisms.</p></div>
     <div class="intro">
-        <p><strong>D. Reusing state objects</strong></p>
+        <p class="minor-heading"><strong>D. Reusing state objects</strong></p>
         <p>When states are stateless, they can be shared rather than repeatedly allocated.</p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">States</span> {

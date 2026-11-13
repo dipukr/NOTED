@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 330" font-family="'Segoe UI', Roboto, Arial, sans-serif" fill="#222">
+  <rect x="10" y="10" width="620" height="310" fill="#fff" stroke="#222" stroke-width="1.5"/>
+  <text x="30" y="38" font-size="15" font-weight="700">JDK (Java Development Kit)</text>
+  <text x="30" y="62" font-size="13">Development tools: javac, java, jar, javadoc, jshell, jdb, jlink, ...</text>
+
+  <rect x="30" y="80" width="580" height="222" fill="#fff" stroke="#222" stroke-width="1.5"/>
+  <text x="50" y="106" font-size="15" font-weight="700">JRE (Java Runtime Environment)</text>
+  <text x="50" y="130" font-size="13">Class libraries: java.lang, java.util, java.io, java.net, java.time, ...</text>
+
+  <rect x="50" y="148" width="540" height="136" fill="#fff" stroke="#222" stroke-width="1.5"/>
+  <text x="70" y="174" font-size="15" font-weight="700">JVM (Java Virtual Machine)</text>
+  <g fill="#fff" stroke="#222" stroke-width="1.2">
+    <rect x="70" y="194" width="156" height="66"/>
+    <rect x="242" y="194" width="156" height="66"/>
+    <rect x="414" y="194" width="156" height="66"/>
+  </g>
+  <g font-size="13" text-anchor="middle">
+    <text x="148" y="232">Class Loader</text>
+    <text x="320" y="232">Runtime Data Areas</text>
+    <text x="492" y="232">Execution Engine</text>
+  </g>
+</svg>

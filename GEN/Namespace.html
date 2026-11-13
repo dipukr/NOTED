@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Namespace</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Namespace</div>
+
+    <div class="subheading">Kernel Resources</div>
+    <div class="intro">
+        <p><strong>Kernel resources</strong> means the various objects, facilities, and abstractions that the Linux <strong>kernel</strong> manages and provides to processes. These are the things that user-space programs rely on but don&rsquo;t directly control&mdash;they&rsquo;re owned and controlled by the kernel.</p>
+        <p>Examples of kernel resources include:</p>
+        <ul>
+            <li><strong>Process IDs (PIDs):</strong> Each process is assigned a unique ID. With namespaces, different groups of processes can have their own independent PID space.</li>
+            <li><strong>Mount points / file system view:</strong> What filesystems and directories are visible to a process.</li>
+            <li><strong>Network stack:</strong> Interfaces, IP addresses, routing tables, firewall rules, etc.</li>
+            <li><strong>IPC objects:</strong> Message queues, semaphores, shared memory.</li>
+            <li><strong>User and group IDs (UIDs/GIDs):</strong> Identity and permissions of processes.</li>
+            <li><strong>UTS namespace (hostname and domain name):</strong> Each group of processes can see a different hostname.</li>
+            <li><strong>Cgroups (control groups):</strong> While not a namespace per se, they are another kernel resource for controlling CPU, memory, etc.</li>
+        </ul>
+    </div>
+</div>
+</body>
+</html>

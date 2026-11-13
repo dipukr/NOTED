@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 280" font-family="Arial, Helvetica, sans-serif" font-size="15">
+  <defs>
+    <marker id="lb-arrow" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L9,4 L0,8 Z" fill="#888"/></marker>
+  </defs>
+  <rect x="0" y="0" width="760" height="280" fill="#ffffff"/>
+
+  <g fill="none" stroke="#888" stroke-width="1.4" marker-end="url(#lb-arrow)">
+    <path d="M150,65 L298,128"/>
+    <path d="M150,140 L298,140"/>
+    <path d="M150,215 L298,152"/>
+    <path d="M460,128 L608,65"/>
+    <path d="M460,140 L608,140"/>
+    <path d="M460,152 L608,215"/>
+  </g>
+
+  <g fill="#ffffff" stroke="#222" stroke-width="1.2">
+    <rect x="20" y="40" width="130" height="50" rx="6"/>
+    <rect x="20" y="115" width="130" height="50" rx="6"/>
+    <rect x="20" y="190" width="130" height="50" rx="6"/>
+    <rect x="300" y="100" width="160" height="80" rx="6"/>
+    <rect x="610" y="40" width="130" height="50" rx="6"/>
+    <rect x="610" y="115" width="130" height="50" rx="6"/>
+    <rect x="610" y="190" width="130" height="50" rx="6"/>
+  </g>
+
+  <g fill="#111" text-anchor="middle" dominant-baseline="central">
+    <text x="85" y="65">Client 1</text>
+    <text x="85" y="140">Client 2</text>
+    <text x="85" y="215">Client 3</text>
+    <text x="380" y="140" font-weight="700">Load Balancer</text>
+    <text x="675" y="65">Instance A</text>
+    <text x="675" y="140">Instance B</text>
+    <text x="675" y="215">Instance C</text>
+  </g>
+</svg>

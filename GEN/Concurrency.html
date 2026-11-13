@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Concurrency</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Concurrency</div>
+
+    <div class="intro">
+        <p>Java multithreading and concurrency are fundamental concepts for building efficient and responsive applications, especially in modern multi-core environments.</p>
+        <p><strong>Multithreading</strong> refers to the ability of a program to execute multiple parts of its code (called threads) concurrently within a single process. This allows a program to perform multiple tasks seemingly simultaneously, improving responsiveness and resource utilization. In Java, threads can be created by extending the <code>Thread</code> class or by implementing the <code>Runnable</code> interface.</p>
+        <p><strong>Concurrency</strong> is the ability of multiple threads to access and operate on shared resources (like data or objects) at the same time. While multithreading enables the execution of multiple threads, concurrency addresses the challenges that arise when these threads interact with shared resources. Without proper handling, concurrent access can lead to issues such as:</p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>Race Conditions:</strong> When the outcome of a program depends on the unpredictable timing of operations by multiple threads accessing shared data.</li>
+        <li><strong>Deadlocks:</strong> When two or more threads are blocked indefinitely, waiting for each other to release resources.</li>
+        <li><strong>Data Inconsistency:</strong> When shared data is modified by multiple threads in an uncoordinated manner, leading to incorrect or unexpected values.</li>
+    </ul></div>
+    <div class="intro">
+        <p>To manage concurrency and prevent these issues, Java provides various synchronization mechanisms:</p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong><code>synchronized</code> keyword:</strong> Used to create synchronized blocks or methods, ensuring that only one thread can execute a critical section of code at a time.</li>
+        <li><strong><code>Lock</code> interface (from <code>java.util.concurrent.locks</code>):</strong> Offers more flexible and powerful locking mechanisms than <code>synchronized</code> blocks, including reentrant locks, read-write locks, and condition variables.</li>
+        <li><strong><code>Semaphore</code> (from <code>java.util.concurrent</code>):</strong> Controls access to a limited number of resources.</li>
+        <li><strong><code>Atomic</code> classes (from <code>java.util.concurrent.atomic</code>):</strong> Provide atomic operations on single variables, ensuring thread-safe updates without explicit locking.</li>
+        <li><strong><code>java.util.concurrent</code> package:</strong> Offers a rich set of high-level concurrency utilities, including <code>ExecutorService</code> for managing thread pools, <code>CountDownLatch</code>, <code>CyclicBarrier</code>, and <code>BlockingQueue</code> for inter-thread communication and coordination.</li>
+    </ul></div>
+
+    <div class="subheading">Best Practices for Java Concurrency</div>
+    <div class="intro"><ul>
+        <li><strong>Minimize shared mutable state:</strong> Design classes to be immutable or minimize the amount of mutable data shared between threads.</li>
+        <li><strong>Use appropriate synchronization:</strong> Choose the right synchronization mechanism based on the specific needs of the application.</li>
+        <li><strong>Avoid deadlocks:</strong> Implement careful resource ordering and timeout mechanisms to prevent deadlocks.</li>
+        <li><strong>Test thoroughly:</strong> Concurrent programs can be complex and require extensive testing to ensure correctness and performance.</li>
+    </ul></div>
+
+    <div class="subheading">Concurrency vs Parallelism</div>
+    <div class="intro">
+        <p>The two words are often used interchangeably, but they describe different things. <strong>Concurrency</strong> is about <em>structure</em>: several tasks are in progress during the same period and their steps may interleave, even on a single CPU core. <strong>Parallelism</strong> is about <em>execution</em>: several tasks literally run at the same instant on different cores.</p>
+        <p>A program can be concurrent without being parallel (one core switching between threads) and parallel without much concurrency design (splitting one big computation across cores). Java&rsquo;s concurrency tools make the first safe and the second practical.</p>
+    </div>
+
+    <div class="subheading">Process vs Thread</div>
+    <div class="intro"><ul>
+        <li><strong>Process</strong><br>An independent running program with its own memory space; processes communicate only through the operating system (files, sockets, pipes).</li>
+        <li><strong>Thread</strong><br>A path of execution inside a process; all threads of a process share its heap memory, but each has its own stack and program counter.</li>
+        <li><strong>Why threads are cheaper</strong><br>Creating and switching threads costs less than processes because there is no separate memory space to set up, which is also why shared data needs protection.</li>
+    </ul></div>
+
+    <div class="subheading">Pros and Cons</div>
+    <div class="intro">
+        <p class="minor-heading"><strong>Pros</strong></p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>Responsiveness</strong><br>Long-running work runs on background threads, so the user interface or request handler is never frozen.</li>
+        <li><strong>Better CPU Utilization</strong><br>Work spreads across all cores instead of leaving most of them idle.</li>
+        <li><strong>Higher Throughput</strong><br>While one thread waits on I/O, others keep doing useful work.</li>
+        <li><strong>Natural Modelling</strong><br>Independent activities, such as serving many clients, map directly to independent threads or tasks.</li>
+    </ul></div>
+    <div class="intro">
+        <p class="minor-heading"><strong>Cons</strong></p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>Hard to Reason About</strong><br>The number of possible interleavings explodes, so correctness can no longer be checked by reading the code top to bottom.</li>
+        <li><strong>Non-Deterministic Bugs</strong><br>Race conditions and deadlocks may appear only under load or on certain machines, and are hard to reproduce and test.</li>
+        <li><strong>Overhead</strong><br>Thread creation, context switching, and lock contention cost time and memory; too many threads can make a program slower.</li>
+        <li><strong>Shared-State Complexity</strong><br>Every piece of shared mutable data needs a clear protection strategy, which adds design and review effort.</li>
+    </ul></div>
+
+    <div class="section code-section">
+        <div class="section-title">Creating Threads</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Worker</span> <span class="code-keyword">extends</span> <span class="code-class">Thread</span> {
+
+    <span class="code-class">@Override</span>
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> run() {
+        <span class="code-class">System</span>.out.println(<span class="code-string">"Extending Thread: "</span> + getName());
+    }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Main</span> {
+
+    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) <span class="code-keyword">throws</span> <span class="code-class">InterruptedException</span> {
+        <span class="code-class">Thread</span> first = <span class="code-keyword">new</span> <span class="code-class">Worker</span>();
+        <span class="code-class">Runnable</span> task = () -&gt; <span class="code-class">System</span>.out.println(<span class="code-string">"Implementing Runnable"</span>);
+        <span class="code-class">Thread</span> second = <span class="code-keyword">new</span> <span class="code-class">Thread</span>(task);
+        first.start(); <span class="code-comment"># start(), not run(), creates a new thread</span>
+        second.start();
+        first.join(); <span class="code-comment"># wait for both to finish</span>
+        second.join();
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <p>Extending <code>Thread</code> puts the work in <code>run()</code>; implementing <code>Runnable</code> keeps the task separate from the thread that runs it.<br><br>
+                    <code>Runnable</code> is usually preferred: the class can still extend something else, and the same task can be handed to a thread pool.<br><br>
+                    Calling <code>run()</code> directly would execute the code on the current thread; <code>start()</code> is what creates a new one.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Race Condition</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Counter</span> {
+
+    <span class="code-keyword">private</span> <span class="code-keyword">int</span> count;
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> increment() {
+        count++; <span class="code-comment"># read, add, write: three steps</span>
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">int</span> get() {
+        <span class="code-keyword">return</span> count;
+    }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">Main</span> {
+
+    <span class="code-keyword">public</span> <span class="code-keyword">static</span> <span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) <span class="code-keyword">throws</span> <span class="code-class">InterruptedException</span> {
+        <span class="code-class">Counter</span> counter = <span class="code-keyword">new</span> <span class="code-class">Counter</span>();
+        <span class="code-class">Runnable</span> task = () -&gt; {
+            <span class="code-keyword">for</span> (<span class="code-keyword">int</span> i = <span class="code-number">0</span>; i &lt; <span class="code-number">10_000</span>; i++) counter.increment();
+        };
+        <span class="code-class">Thread</span> a = <span class="code-keyword">new</span> <span class="code-class">Thread</span>(task);
+        <span class="code-class">Thread</span> b = <span class="code-keyword">new</span> <span class="code-class">Thread</span>(task);
+        a.start();
+        b.start();
+        a.join();
+        b.join();
+        <span class="code-class">System</span>.out.println(counter.get()); <span class="code-comment"># often less than 20000</span>
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <p><code>count++</code> reads the value, adds one, and writes it back.<br><br>
+                    If both threads read the same value before either writes, one increment is lost, so the final total changes from run to run.<br><br>
+                    This is a race condition: the result depends on how the two threads happen to interleave.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Fixing It</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">SynchronizedCounter</span> {
+
+    <span class="code-keyword">private</span> <span class="code-keyword">int</span> count;
+
+    <span class="code-keyword">public</span> <span class="code-keyword">synchronized</span> <span class="code-keyword">void</span> increment() {
+        count++; <span class="code-comment"># one thread at a time</span>
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">synchronized</span> <span class="code-keyword">int</span> get() {
+        <span class="code-keyword">return</span> count;
+    }
+}
+
+<span class="code-keyword">public</span> <span class="code-keyword">class</span> <span class="code-class">AtomicCounter</span> {
+
+    <span class="code-keyword">private</span> <span class="code-class">AtomicInteger</span> count = <span class="code-keyword">new</span> <span class="code-class">AtomicInteger</span>();
+
+    <span class="code-keyword">public</span> <span class="code-keyword">void</span> increment() {
+        count.incrementAndGet(); <span class="code-comment"># lock-free compare-and-set</span>
+    }
+
+    <span class="code-keyword">public</span> <span class="code-keyword">int</span> get() {
+        <span class="code-keyword">return</span> count.get();
+    }
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <p><code>synchronized</code> makes the read-add-write a single critical section, and also guarantees that <code>get()</code> sees the latest value.<br><br>
+                    <code>AtomicInteger</code> does the same update without locking, using a hardware compare-and-set that retries if another thread changed the value first.<br><br>
+                    Either version always prints 20000.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="section code-section">
+        <div class="section-title">Using an Executor</div>
+        <div class="code-layout">
+            <div class="code-wrapper">
+<pre><code><span class="code-keyword">void</span> main(<span class="code-class">String</span>[] args) {
+    <span class="code-class">AtomicInteger</span> counter = <span class="code-keyword">new</span> <span class="code-class">AtomicInteger</span>();
+    <span class="code-keyword">try</span> (<span class="code-class">ExecutorService</span> pool = <span class="code-class">Executors</span>.newFixedThreadPool(<span class="code-number">4</span>)) {
+        <span class="code-keyword">for</span> (<span class="code-keyword">int</span> i = <span class="code-number">0</span>; i &lt; <span class="code-number">1_000</span>; i++) {
+            pool.submit(counter::incrementAndGet);
+        }
+    } <span class="code-comment"># close() waits for every submitted task</span>
+    <span class="code-class">System</span>.out.println(counter.get()); <span class="code-comment"># always 1000</span>
+}</code></pre>
+            </div>
+            <div class="code-explanation">
+                <div class="code-explanation-title">How it works</div>
+                <p>Instead of creating a thread per task, four pooled threads take turns running the 1,000 submitted tasks.<br><br>
+                    Since Java 19, <code>ExecutorService</code> is <code>AutoCloseable</code>: leaving the <code>try</code> block shuts the pool down and waits for running tasks.<br><br>
+                    Swapping in <code>Executors.newVirtualThreadPerTaskExecutor()</code> runs each task on its own virtual thread.</p>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

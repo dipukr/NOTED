@@ -105,7 +105,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         <p>All these steps together represent one business transaction.</p>
     </div>
     <div class="intro">
-        <p><strong>In a monolithic application</strong></p>
+        <p class="minor-heading"><strong>In a monolithic application</strong></p>
         <p>Imagine all these operations use the same database.</p>
     </div>
     <div class="code-block"><pre><code><span class="code-annotation">@Service</span>
@@ -130,7 +130,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         <p>Illustration assumes all operations are in one ACID transaction and no external irreversible side effects have occurred.</p>
     </div>
     <div class="intro">
-        <p><strong>In a microservices architecture</strong></p>
+        <p class="minor-heading"><strong>In a microservices architecture</strong></p>
         <p>Now imagine every service owns a separate database.</p>
     </div>
     <div class="svg-diagram">
@@ -203,7 +203,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         <p>A compensation is a new business transaction, not a database-level rollback. For example, a refund does not erase the original payment from financial records; it creates a separate reversing financial operation.</p>
     </div>
     <div class="intro">
-        <p><strong>Important characteristics</strong></p>
+        <p class="minor-heading"><strong>Important characteristics</strong></p>
         <p><strong>Local atomicity:</strong> Every service uses its own database transaction.</p>
         <p><strong>Eventual consistency:</strong> The overall system can temporarily contain intermediate states, but should eventually reach an accepted business outcome if all required actions can complete.</p>
         <p><strong>Compensation:</strong> Completed operations are reversed using domain-specific logic.</p>
@@ -221,7 +221,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         <li>Orchestration-based Saga.</li>
     </ol></div>
     <div class="intro">
-        <p><strong>Choreography-based Saga</strong></p>
+        <p class="minor-heading"><strong>Choreography-based Saga</strong></p>
         <p>In choreography, there is no central workflow coordinator. Services react to events emitted by other services.</p>
         <p>For example:</p>
     </div>
@@ -249,7 +249,7 @@ Order Confirmed</code></pre></div>
         <p>Each participant needs to know which events to consume and which subsequent events to publish.</p>
     </div>
     <div class="intro">
-        <p><strong>Orchestration-based Saga</strong></p>
+        <p class="minor-heading"><strong>Orchestration-based Saga</strong></p>
         <p>In orchestration, a central component called the <strong>Saga Orchestrator</strong> explicitly tells participants what to do.</p>
     </div>
     <div class="svg-diagram">
@@ -266,7 +266,7 @@ Order Confirmed</code></pre></div>
         <li>When the Saga can be marked completed or cancelled.</li>
     </ul></div>
     <div class="intro">
-        <p><strong>Choreography vs. Orchestration</strong></p>
+        <p class="minor-heading"><strong>Choreography vs. Orchestration</strong></p>
     </div>
     <div class="section cmp"><div class="section-content">
         <table class="cmp-table centered cmp-peer">
@@ -322,7 +322,7 @@ flowchart TD
         <p>The compensation path is deliberately idempotent. In our implementation, asking a service to compensate an operation that never happened is safe: the service records a cancellation or reversal marker to prevent a delayed original command from applying afterward.</p>
     </div>
     <div class="intro">
-        <p><strong>Successful execution</strong></p>
+        <p class="minor-heading"><strong>Successful execution</strong></p>
     </div>
     <div class="svg-diagram">
         <img src="../static/orchestration-sequence-success.svg" alt="Successful saga sequence: the customer posts an order and gets 202 Accepted; inventory, payment and shipping each commit and reply success; the order is marked CONFIRMED" style="width:100%;max-width:712px">
@@ -331,7 +331,7 @@ flowchart TD
         <p>Each participant commits its transaction independently.</p>
     </div>
     <div class="intro">
-        <p><strong>Failure during shipment creation</strong></p>
+        <p class="minor-heading"><strong>Failure during shipment creation</strong></p>
     </div>
     <div class="svg-diagram">
         <img src="../static/orchestration-sequence-failure.svg" alt="Failure during shipment creation: inventory and payment succeed, shipping fails permanently, compensation cancels the shipment, refunds the payment and releases the inventory, and the order ends CANCELLED" style="width:100%;max-width:536px">
@@ -341,7 +341,7 @@ flowchart TD
         <p>Cancellation becomes complete only after the required compensations have succeeded.</p>
     </div>
     <div class="intro">
-        <p><strong>What does the orchestrator store?</strong></p>
+        <p class="minor-heading"><strong>What does the orchestrator store?</strong></p>
         <p>A typical Saga might record:</p>
     </div>
     <div class="section cmp"><div class="section-content">
@@ -367,7 +367,7 @@ flowchart TD
     <div class="intro">
         <p>We will build four independent Spring Boot applications.</p>
     </div>
-    <div class="intro"><p><strong>Application architecture</strong></p></div>
+    <div class="intro"><p class="minor-heading"><strong>Application architecture</strong></p></div>
     <div class="svg-diagram">
         <img src="../static/orchestration-architecture.svg" alt="Order Service (port 8080, orders_db) contains the Saga Orchestrator and calls the Inventory (8081, inventory_db), Payment (8082, payments_db) and Shipping (8083, shipping_db) services" style="width:100%;max-width:780px">
     </div>
@@ -565,7 +565,7 @@ spring.jpa.open-in-view=false</code></pre></div>
         <p>A larger application may instead maintain separate <code>orders</code>, <code>saga_instances</code>, and <code>saga_steps</code> tables. That is often preferable when orders participate in multiple different Saga workflows.</p>
     </div>
     <div class="intro">
-        <p><strong>Why do we need <code>Version</code>?</strong></p>
+        <p class="minor-heading"><strong>Why do we need <code>Version</code>?</strong></p>
         <p><code>Version</code> enables optimistic locking.</p>
     </div>
     <div class="code-block"><pre><code>Worker A reads Order version 5
@@ -717,7 +717,7 @@ Worker B updates -&gt; optimistic lock failure</code></pre></div>
     }
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Why are these methods transactional?</strong></p>
+        <p class="minor-heading"><strong>Why are these methods transactional?</strong></p>
         <p>Because state transitions themselves must be atomic and durable.</p>
         <p>For example:</p>
     </div>
@@ -729,7 +729,7 @@ Worker B updates -&gt; optimistic lock failure</code></pre></div>
         <p>We never hold a single database transaction open across the entire distributed workflow.</p>
     </div>
     <div class="intro">
-        <p><strong>Why persist the next phase?</strong></p>
+        <p class="minor-heading"><strong>Why persist the next phase?</strong></p>
         <p>Imagine this sequence:</p>
     </div>
     <div class="code-block"><pre><code>1. Inventory reservation succeeds
@@ -992,7 +992,7 @@ order-123:release-inventory</code></pre></div>
         <p>This code shows several important orchestration principles.</p>
     </div>
     <div class="intro">
-        <p><strong>The orchestrator is a state machine</strong></p>
+        <p class="minor-heading"><strong>The orchestrator is a state machine</strong></p>
         <p>Instead of a long method containing every operation inside a single transaction, execution is based on the persisted Saga phase.</p>
     </div>
     <div class="code-block"><pre><code><span class="code-keyword">switch</span> (order.getPhase()) {
@@ -1001,12 +1001,12 @@ order-123:release-inventory</code></pre></div>
     <span class="code-keyword">case</span> CREATE_SHIPMENT -&gt; ...
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Each step is independently retryable</strong></p>
+        <p class="minor-heading"><strong>Each step is independently retryable</strong></p>
         <p>If the Payment Service becomes temporarily unavailable, the order remains in <code>CHARGE_PAYMENT</code>.</p>
         <p>When the next retry becomes due, the worker executes that step again.</p>
     </div>
     <div class="intro">
-        <p><strong>Compensation is also persistent</strong></p>
+        <p class="minor-heading"><strong>Compensation is also persistent</strong></p>
         <p>If payment succeeds but shipping permanently fails, the Saga enters:</p>
     </div>
     <div class="code-block"><pre><code>CANCEL_SHIPMENT
@@ -1023,18 +1023,18 @@ CANCELLED</code></pre></div>
         <p>If the orchestrator crashes while processing a refund, it can resume from <code>REFUND_PAYMENT</code> after restarting.</p>
     </div>
     <div class="intro">
-        <p><strong>Compensation is never silently skipped</strong></p>
+        <p class="minor-heading"><strong>Compensation is never silently skipped</strong></p>
         <p>Suppose the refund endpoint is unavailable.</p>
         <p>The Saga remains in <code>REFUND_PAYMENT</code> and retries with backoff.</p>
         <p>It does not incorrectly mark the order <code>CANCELLED</code> while the customer may still be charged.</p>
     </div>
     <div class="intro">
-        <p><strong>Forward retries have a limit</strong></p>
+        <p class="minor-heading"><strong>Forward retries have a limit</strong></p>
         <p>Our demonstration retries a transient forward failure up to five times before starting compensation.</p>
         <p>A real application should define different policies for each failure type. For example, a payment gateway might be unavailable for several minutes without that being a reason to immediately cancel every order.</p>
     </div>
     <div class="intro">
-        <p><strong>Important limitation of this worker</strong></p>
+        <p class="minor-heading"><strong>Important limitation of this worker</strong></p>
         <p>This scheduler is suitable for a <strong>single orchestrator worker</strong> in a demonstration.</p>
         <p>If the Order Service is deployed with multiple replicas, several workers could pick up the same Saga. The database <code>@Version</code> check alone does not protect the external side effects.</p>
         <p>A production version should atomically claim work using a lease, lock, or queue-based ownership mechanism. We will discuss this in the production section.</p>
@@ -1099,7 +1099,7 @@ CANCELLED</code></pre></div>
         <p>Both operations must be idempotent.</p>
         <p>Imagine an item initially has 10 units available.</p>
     </div>
-    <div class="intro"><p><strong>Inventory changes for an order requesting 3 units</strong></p></div>
+    <div class="intro"><p class="minor-heading"><strong>Inventory changes for an order requesting 3 units</strong></p></div>
     <div class="svg-diagram">
         <img src="../static/orchestration-inventory.svg" alt="Inventory changes for an order requesting 3 units: 10 available initially, 7 after reserve, 10 after release" style="width:100%;max-width:640px">
     </div>
@@ -1256,7 +1256,7 @@ CANCELLED</code></pre></div>
     }
 }</code></pre></div>
     <div class="intro">
-        <p><strong>Key point: Why introduce a RELEASED tombstone?</strong></p>
+        <p class="minor-heading"><strong>Key point: Why introduce a RELEASED tombstone?</strong></p>
         <p>Consider a network timeout:</p>
     </div>
     <div class="code-block"><pre><code>Orchestrator                 Inventory Service
@@ -1458,7 +1458,7 @@ CANCELLED</code></pre></div>
     }
 }</code></pre></div>
     <div class="intro">
-        <p><strong>What happens if the same payment request is sent twice?</strong></p>
+        <p class="minor-heading"><strong>What happens if the same payment request is sent twice?</strong></p>
     </div>
     <div class="code-block"><pre><code>First request:
   orderId = 123
@@ -1825,7 +1825,7 @@ Do not create a new Saga</code></pre></div>
         <p>If it immediately initiates a refund without tracking the original transaction, it might refund an unknown or incorrect charge.</p>
     </div>
     <div class="intro">
-        <p><strong>Solution: At-least-once execution with idempotent effects</strong></p>
+        <p class="minor-heading"><strong>Solution: At-least-once execution with idempotent effects</strong></p>
         <p>The orchestrator retries the same logical operation using the same stable idempotency key.</p>
     </div>
     <div class="code-block"><pre><code>First attempt: CHARGE(order-123)

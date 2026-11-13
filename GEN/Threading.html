@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why Multithreading</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Why Multithreading</div>
+
+    <div class="intro">
+        <p>An application uses multiple threads to keep hardware busy and users happy. The most common reasons are:</p>
+    </div>
+    <div class="intro"><ul>
+        <li><strong>Better use of a single CPU</strong><br>While one thread waits for I/O, another thread can use the CPU.</li>
+        <li><strong>Better use of multiple CPUs or cores</strong><br>One thread can run on only one core at a time; more threads can keep every core busy.</li>
+        <li><strong>Responsiveness</strong><br>Long tasks run in the background, so the UI or the request listener never freezes.</li>
+        <li><strong>Fairness</strong><br>Each client gets its own thread, so one slow request cannot hold up everyone else.</li>
+        <li><strong>Simpler program design</strong><br>Each thread follows one task from start to end instead of the program juggling the state of many tasks.</li>
+    </ul></div>
+
+    <div class="subheading">Better Utilization of a Single CPU</div>
+    <div class="intro">
+        <p>A thread often spends time waiting, for example for a response to a network request or for a disk read. During that wait the CPU sits idle. With another thread ready to run, the CPU can do useful work in the meantime.</p>
+    </div>
+
+    <div class="subheading">Better Utilization of Multiple CPUs or Cores</div>
+    <div class="intro">
+        <p>A single thread can use at most one CPU core, and as shown above it may not even keep that core fully busy. To use all the cores of a machine, an application needs several threads running in parallel.</p>
+    </div>
+
+    <div class="subheading">Better CPU Utilization: Example</div>
+    <div class="intro">
+        <p>Suppose an application reads files from disk and then processes them. Reading a file takes 5 seconds and processing it takes 2 seconds. Done one after another, two files take:</p>
+    </div>
+    <div class="section code-section">
+        <div class="section-title">Sequential</div>
+        <div class="code-wrapper">
+<pre><code> <span class="code-number">5</span> seconds  reading file A
+ <span class="code-number">2</span> seconds  processing file A
+ <span class="code-number">5</span> seconds  reading file B
+ <span class="code-number">2</span> seconds  processing file B
+-------------------------------
+<span class="code-number">14</span> seconds  total</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>While a file is being read, the CPU mostly waits for the disk. If the program starts reading file B while it processes file A, the waits overlap:</p>
+    </div>
+    <div class="section code-section">
+        <div class="section-title">Overlapped</div>
+        <div class="code-wrapper">
+<pre><code> <span class="code-number">5</span> seconds  reading file A
+ <span class="code-number">5</span> seconds  reading file B + <span class="code-number">2</span> seconds processing file A
+ <span class="code-number">2</span> seconds  processing file B
+-------------------------------
+<span class="code-number">12</span> seconds  total</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>The same idea applies to any slow I/O: disk, network or user input. Disk and network I/O are far slower than the CPU and memory, so there is almost always idle CPU time to fill.</p>
+    </div>
+
+    <div class="subheading">Simpler Program Design</div>
+    <div class="intro">
+        <p>Getting the overlapped ordering above in a single thread means tracking by hand how far each file has been read and processed. With two threads, each one simply reads and processes its own file. A thread blocks while its disk read is in progress, and the other thread uses the CPU in the meantime. The disk and the CPU both stay busy, and each thread only has to keep track of one file.</p>
+    </div>
+
+    <div class="subheading">More Responsive Programs</div>
+    <div class="intro">
+        <p>A single-threaded server listens on a port, handles each request completely, and only then goes back to listening:</p>
+    </div>
+    <div class="section code-section">
+        <div class="section-title">Single-Threaded Server</div>
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">while</span> (server is active) {
+    listen <span class="code-keyword">for</span> request
+    process request
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>If a request takes a long time, no other client can connect until it finishes, because requests are only accepted while the server is listening. A better design hands each request to a worker thread and goes straight back to listening:</p>
+    </div>
+    <div class="section code-section">
+        <div class="section-title">Server With Worker Threads</div>
+        <div class="code-wrapper">
+<pre><code><span class="code-keyword">while</span> (server is active) {
+    listen <span class="code-keyword">for</span> request
+    hand request to worker thread
+}</code></pre>
+        </div>
+    </div>
+    <div class="intro">
+        <p>The worker processes the request and replies to the client, while the listening thread is already accepting the next one. More clients can connect, so the server is more responsive.</p>
+        <p>Desktop applications work the same way. If the thread that draws windows and buttons also runs a long task, the application appears frozen until the task ends. Handing the task to a worker thread keeps the window thread free to respond to the user. When the worker finishes, it signals the window thread, which then shows the result.</p>
+    </div>
+
+    <div class="subheading">Fairness</div>
+    <div class="intro">
+        <p>Threads also share a machine more fairly among users. Imagine a server that handles every client request on one thread. A single slow request makes all other clients wait until it finishes. When each client&rsquo;s request runs on its own thread, no single task can monopolize the CPU.</p>
+    </div>
+</div>
+</body>
+</html>

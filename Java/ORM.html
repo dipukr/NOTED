@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ORM and JPA</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">ORM and JPA</div>
+
+    <div class="intro">
+        <p><strong>Object-relational mapping (ORM)</strong> is the process of mapping Java objects to the tables of a relational database. Each row in a table corresponds to a single object, and each column corresponds to a field of that object.</p>
+        <p>ORM is a layer between an object-oriented language and the SQL language of a relational database. The ORM layer works like an adapter: it adapts the language of object graphs to the language of relational tables. In the object-oriented program, data is structured into object graphs; in the relational database, it is structured into tables.</p>
+        <p>The <strong>Java Persistence API (JPA)</strong> is the Java standard API for object-relational mapping, and one of many possible approaches to ORM. The API is a set of concepts that defines which objects within the application should be persisted and how they should be persisted.</p>
+        <p>JPA is only a specification, so it needs an implementation to work. The most popular implementation of JPA is <strong>Hibernate</strong>.</p>
+        <p>JPA is concerned with <strong>persistence</strong>, which means any mechanism by which Java objects outlive the application process that created them.</p>
+    </div>
+
+    <div class="subheading">JPA</div>
+    <div class="intro">
+        <p>JPA is a specification: a set of rules that any ORM framework must implement to be part of the standard mechanism for persisting data in Java.</p>
+    </div>
+    <div class="callout callout-note"><p><strong>JPA is not a framework like Hibernate.</strong> It is only an interface that an ORM framework implements.</p></div>
+    <div class="intro">
+        <p>One of the main purposes of JPA is a standard approach to persisting data in Java, which improves interoperability between the ORM frameworks that implement it.</p>
+        <p>Imagine an application that uses Hibernate and later needs to replace it with another ORM tool, such as EclipseLink. If both follow the JPA standard, the switch is much easier. Even so, features native to one framework, outside the JPA standard, may not exist in the other; Hibernate has many such features.</p>
+    </div>
+</div>
+</body>
+</html>

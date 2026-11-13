@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sharding</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<div class="note">
+    <div class="title">Sharding</div>
+
+    <div class="intro">
+        <p><strong>Sharding</strong> splits a database's data into subsets, called shards, and stores each shard on a separate database node. Each node handles only the reads and writes for its own shard, so the total load is spread across machines.</p>
+    </div>
+
+    <div class="callout callout-warning"><p><strong>Scale vertically before sharding.</strong> Vertically scaling a database by throwing a bigger server at it is almost always smarter than sharding. Sharding introduces distributed transaction hell, complex cross-node queries and painful maintenance. Paying AWS extra money for a massive instance with more RAM and CPU is ridiculously cheap compared to the engineering months burned managing a sharded database cluster.</p></div>
+</div>
+</body>
+</html>
